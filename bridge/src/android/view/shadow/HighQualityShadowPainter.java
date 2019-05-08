@@ -101,8 +101,6 @@ public class HighQualityShadowPainter {
     private static void paintAmbientShadow(float[] polygon, Canvas canvas, int width, int height,
             float alpha, Rect shadowCasterOutline, float radius) {
         // TODO: Consider re-using the triangle buffer here since the world stays consistent.
-        // TODO: Reduce the buffer size based on shadow bounds.
-
         AmbientShadowConfig config = new AmbientShadowConfig.Builder()
                 .setSize(width, height)
                 .setPolygon(polygon)
@@ -122,8 +120,7 @@ public class HighQualityShadowPainter {
 
         drawScaled(
                 canvas, generator.getBitmap(), (int) generator.getTranslateX(),
-                (int) generator.getTranslateY(), width, height,
-                shadowCasterOutline, radius);
+                (int) generator.getTranslateY(), shadowCasterOutline, radius);
     }
 
     /**
@@ -172,7 +169,7 @@ public class HighQualityShadowPainter {
         }
 
         drawScaled(canvas, generator.getBitmap(), (int) generator.getTranslateX(),
-                (int) generator.getTranslateY(), width, height, shadowCasterOutline, radius);
+                (int) generator.getTranslateY(), shadowCasterOutline, radius);
     }
 
     /**
@@ -185,7 +182,7 @@ public class HighQualityShadowPainter {
      * @param radius
      */
     private static void drawScaled(Canvas canvas, Bitmap bitmap, int translateX, int translateY,
-            int width, int height, Rect shadowCaster, float radius) {
+            Rect shadowCaster, float radius) {
         int unscaledTranslateX = translateX * SCALE_DOWN;
         int unscaledTranslateY = translateY * SCALE_DOWN;
 
@@ -193,9 +190,9 @@ public class HighQualityShadowPainter {
         Rect dest = new Rect(
                 -unscaledTranslateX,
                 -unscaledTranslateY,
-                (width * SCALE_DOWN) - unscaledTranslateX,
-                (height * SCALE_DOWN) - unscaledTranslateY);
-        Rect destSrc = new Rect(0, 0, width, height);
+                (bitmap.getWidth() * SCALE_DOWN) - unscaledTranslateX,
+                (bitmap.getHeight() * SCALE_DOWN) - unscaledTranslateY);
+        Rect destSrc = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
 
         if (radius > 0) {
             // Rounded edge.

@@ -36,11 +36,8 @@ class SpotShadowBitmapGenerator {
     private float mTranslateY;
 
     public SpotShadowBitmapGenerator(SpotShadowConfig config) {
-        // TODO: Reduce the buffer size based on shadow bounds.
         mTriangle = new TriangleBuffer();
         mShadowConfig = config;
-        // For now assume no change to the world size
-        mTriangle.setSize(config.getWidth(), config.getHeight(), 0);
     }
 
     /**
@@ -84,22 +81,15 @@ class SpotShadowBitmapGenerator {
                 return;
             }
 
-            mTranslateX = 0;
-            mTranslateY = 0;
-            if (shadowBounds[0] < 0) {
-                // translate to right by the offset amount.
-                mTranslateX = shadowBounds[0] * -1;
-            } else if (shadowBounds[2] > mShadowConfig.getWidth()) {
-                // translate to left by the offset amount.
-                mTranslateX = shadowBounds[2] - mShadowConfig.getWidth();
-            }
-
-            if (shadowBounds[1] < 0) {
-                mTranslateY = shadowBounds[1] * -1;
-            } else if (shadowBounds[3] > mShadowConfig.getHeight()) {
-                mTranslateY = shadowBounds[3] - mShadowConfig.getHeight();
-            }
+            // Move the shadow to the left top corner to occupy the least possible bitmap
+            mTranslateX = -shadowBounds[0];
+            mTranslateY = -shadowBounds[1];
             Math3DHelper.translate(mStrips, mTranslateX, mTranslateY, 3);
+
+            // create bitmap of the least possible size that covers the entire shadow
+            int imgW = (int) Math.ceil(shadowBounds[2] - shadowBounds[0]);
+            int imgH = (int) Math.ceil(shadowBounds[3] - shadowBounds[1]);
+            mTriangle.setSize(imgW, imgH, 0);
 
             mTriangle.drawTriangles(mStrips, mShadowConfig.getShadowStrength());
         } catch (IndexOutOfBoundsException|ArithmeticException mathError) {
