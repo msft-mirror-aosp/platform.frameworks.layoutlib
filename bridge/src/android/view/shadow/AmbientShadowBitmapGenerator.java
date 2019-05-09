@@ -40,6 +40,7 @@ class AmbientShadowBitmapGenerator {
         mShadowConfig = shadowConfig;
 
         mTriangleBuffer = new TriangleBuffer();
+        mTriangleBuffer.setSize(mShadowConfig.getWidth(), mShadowConfig.getHeight(), 0);
 
         mCalculator = new AmbientShadowVertexCalculator(mShadowConfig);
     }
@@ -57,15 +58,21 @@ class AmbientShadowBitmapGenerator {
             }
 
             float[] shadowBounds = Math3DHelper.flatBound(mCalculator.getVertex(), 2);
-            // Move the shadow to the left top corner to occupy the least possible bitmap
-            mTranslateX = -shadowBounds[0];
-            mTranslateY = -shadowBounds[1];
-            Math3DHelper.translate(mCalculator.getVertex(), mTranslateX, mTranslateY, 2);
+            if (shadowBounds[0] < 0) {
+                // translate to right by the offset amount.
+                mTranslateX = shadowBounds[0] * -1;
+            } else if (shadowBounds[2] > mShadowConfig.getWidth()) {
+                // translate to left by the offset amount.
+                mTranslateX = shadowBounds[2] - mShadowConfig.getWidth();
+            }
 
-            // create bitmap of the least possible size that covers the entire shadow
-            int imgW = (int) Math.ceil(shadowBounds[2] - shadowBounds[0]);
-            int imgH = (int) Math.ceil(shadowBounds[3] - shadowBounds[1]);
-            mTriangleBuffer.setSize(imgW, imgH, 0);
+            if (shadowBounds[1] < 0) {
+                mTranslateY = shadowBounds[1] * -1;
+            } else if (shadowBounds[3] > mShadowConfig.getHeight()) {
+                mTranslateY = shadowBounds[3] - mShadowConfig.getHeight();
+            }
+
+            Math3DHelper.translate(mCalculator.getVertex(), mTranslateX, mTranslateY, 2);
 
             mTriangleBuffer.drawTriangles(mCalculator.getIndex(), mCalculator.getVertex(),
                     mCalculator.getColor(), mShadowConfig.getShadowStrength());
