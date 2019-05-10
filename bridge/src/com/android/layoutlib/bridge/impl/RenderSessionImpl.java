@@ -307,10 +307,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 }
             }
 
-            // Sets the project callback (custom view loader) to the fragment delegate so that
-            // it can instantiate the custom Fragment.
-            Fragment_Delegate.setLayoutlibCallback(params.getLayoutlibCallback());
-
             String rootTag = params.getFlag(RenderParamsFlags.FLAG_KEY_ROOT_TAG);
             boolean isPreference = "PreferenceScreen".equals(rootTag) ||
                     SupportPreferencesUtil.isSupportRootTag(rootTag);
@@ -318,10 +314,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (isPreference) {
                 // First try to use the support library inflater. If something fails, fallback
                 // to the system preference inflater.
-                view = SupportPreferencesUtil.inflatePreference(getContext(), mBlockParser,
+                view = SupportPreferencesUtil.inflatePreference(context, mBlockParser,
                         mContentRoot);
                 if (view == null) {
-                    view = Preference_Delegate.inflatePreference(getContext(), mBlockParser,
+                    view = Preference_Delegate.inflatePreference(context, mBlockParser,
                             mContentRoot);
                 }
             } else {
@@ -330,8 +326,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             // done with the parser, pop it.
             context.popParser();
-
-            Fragment_Delegate.setLayoutlibCallback(null);
 
             // set the AttachInfo on the root view.
             AttachInfo_Accessor.setAttachInfo(mViewRoot);
