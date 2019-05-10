@@ -204,6 +204,12 @@ public final class Canvas_Delegate extends BaseCanvas_Delegate {
     }
 
     @LayoutlibDelegate
+    public static void nRestoreUnclippedLayer(long nativeCanvas, int saveCount,
+            long nativePaint) {
+        nRestoreToCount(nativeCanvas, saveCount);
+    }
+
+    @LayoutlibDelegate
     public static boolean nRestore(long nativeCanvas) {
         // FIXME: implement throwOnUnderflow.
         // get the delegate from the native int.
