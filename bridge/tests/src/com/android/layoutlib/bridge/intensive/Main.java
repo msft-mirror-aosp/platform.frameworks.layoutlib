@@ -32,6 +32,8 @@ import android.content.res.Resources_DelegateTest;
 import android.graphics.Color_DelegateTest;
 import android.graphics.Matrix_DelegateTest;
 import android.util.BridgeXmlPullAttributesTest;
+import android.util.imagepool.ImagePoolHelperTest;
+import android.util.imagepool.ImagePoolImplTest;
 
 /**
  * Suite used by the layoutlib build system
@@ -43,7 +45,7 @@ import android.util.BridgeXmlPullAttributesTest;
         Matrix_DelegateTest.class, TestDelegates.class,
         BridgeRenderSessionTest.class, ResourceHelperTest.class, BridgeContextTest.class,
         SystemServiceRegistry_AccessorTest.class, Resources_DelegateTest.class,
-        Color_DelegateTest.class,
+        Color_DelegateTest.class, ImagePoolHelperTest.class, ImagePoolImplTest.class
 })
 public class Main {
 }
