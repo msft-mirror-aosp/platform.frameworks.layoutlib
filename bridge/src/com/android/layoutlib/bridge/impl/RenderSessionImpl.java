@@ -242,8 +242,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     mMeasuredScreenHeight, heightMeasureSpecMode);
 
             // If measuredView is not null, exactMeasure nor result will be null.
-            assert exactMeasure != null;
-            assert result != null;
+            assert (exactMeasure != null && result != null) || measuredView == null;
 
             // now look at the difference and add what is needed.
             if (renderingMode.isHorizExpand()) {
