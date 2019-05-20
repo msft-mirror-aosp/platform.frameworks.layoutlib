@@ -28,12 +28,10 @@ import com.android.layoutlib.bridge.BridgeConstants;
 import com.android.layoutlib.bridge.MockView;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.BridgeXmlBlockParser;
-import com.android.layoutlib.bridge.android.UnresolvedResourceValue;
 import com.android.layoutlib.bridge.android.support.DrawerLayoutUtil;
 import com.android.layoutlib.bridge.android.support.RecyclerViewUtil;
 import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.util.ReflectionUtils;
-import com.android.resources.ResourceType;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
@@ -259,7 +257,7 @@ public final class BridgeInflater extends LayoutInflater {
                         mCustomInflater = (viewName, attributeSet) -> {
                             try {
                                 return (View) method.invoke(inflater, null, viewName,
-                                        getContext(),
+                                        mConstructorArgs[0],
                                         attributeSet,
                                         false,
                                         false /*readAndroidTheme*/, // No need after L
