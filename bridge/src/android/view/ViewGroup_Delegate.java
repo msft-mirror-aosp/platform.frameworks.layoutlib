@@ -147,31 +147,19 @@ public class ViewGroup_Delegate {
         }
         concatMatrix |= childHasIdentityMatrix;
 
-        child.computeScroll();
-        int sx = child.mScrollX;
-        int sy = child.mScrollY;
-
-        canvas.translate(child.mLeft - sx, child.mTop - sy);
+        canvas.translate(child.mLeft, child.mTop);
         float alpha = child.getAlpha() * child.getTransitionAlpha();
 
         if (transformToApply != null || alpha < 1 || !childHasIdentityMatrix) {
             if (transformToApply != null || !childHasIdentityMatrix) {
-                int transX = -sx;
-                int transY = -sy;
 
                 if (transformToApply != null) {
                     if (concatMatrix) {
-                        // Undo the scroll translation, apply the transformation matrix,
-                        // then redo the scroll translate to get the correct result.
-                        canvas.translate(-transX, -transY);
                         canvas.concat(transformToApply.getMatrix());
-                        canvas.translate(transX, transY);
                     }
                 }
                 if (!childHasIdentityMatrix) {
-                    canvas.translate(-transX, -transY);
                     canvas.concat(child.getMatrix());
-                    canvas.translate(transX, transY);
                 }
 
             }

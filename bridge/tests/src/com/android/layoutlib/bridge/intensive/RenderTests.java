@@ -1691,4 +1691,20 @@ public class RenderTests extends RenderTestBase {
                 TimeUnit.SECONDS.toNanos(2));
     }
 
+    @Test
+    public void testHighQualityShadowWidgetWithScroll() throws Exception {
+        LayoutPullParser parser = createParserFromPath("shadows_scrollview.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .build();
+
+        renderAndVerify(params, "shadow_scrollview_test_high_quality.png");
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
+        sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
+    }
 }
