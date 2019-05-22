@@ -314,6 +314,7 @@ public final class CreateInfo implements ICreateInfo {
             "android.util.LruCache",                           "android.util._Original_LruCache",
             "android.view.SurfaceView",                        "android.view._Original_SurfaceView",
             "android.view.accessibility.AccessibilityManager", "android.view.accessibility._Original_AccessibilityManager",
+            "android.view.accessibility.AccessibilityNodeIdManager", "android.view.accessibility._Original_AccessibilityNodeIdManager",
             "android.webkit.WebView",                          "android.webkit._Original_WebView",
             "android.graphics.ImageDecoder",                   "android.graphics._Original_ImageDecoder",
         };
