@@ -240,10 +240,10 @@ public class HighQualityShadowPainter {
 
         Rect right = new Rect(shadowCaster.right, shadowCaster.top, dest.right,
                 shadowCaster.bottom);
-        int rightScaled = (shadowCaster.right + unscaledTranslateX) / SCALE_DOWN + destSrc.left;
+        int rightScaled = (shadowCaster.right - dest.left) / SCALE_DOWN + destSrc.left;
 
         Rect bottom = new Rect(dest.left, shadowCaster.bottom, dest.right, dest.bottom);
-        int bottomScaled = (bottom.bottom - bottom.height()) / SCALE_DOWN + destSrc.top;
+        int bottomScaled = (shadowCaster.bottom - dest.top) / SCALE_DOWN + destSrc.top;
 
         // calculate parts of the middle ground that can be ignored.
         Rect leftSrc = new Rect(destSrc.left, topScaled, leftScaled, bottomScaled);
