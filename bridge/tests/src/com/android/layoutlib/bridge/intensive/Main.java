@@ -45,7 +45,8 @@ import android.util.imagepool.ImagePoolImplTest;
         Matrix_DelegateTest.class, TestDelegates.class,
         BridgeRenderSessionTest.class, ResourceHelperTest.class, BridgeContextTest.class,
         SystemServiceRegistry_AccessorTest.class, Resources_DelegateTest.class,
-        Color_DelegateTest.class, ImagePoolHelperTest.class, ImagePoolImplTest.class
+        Color_DelegateTest.class, ImagePoolHelperTest.class, ImagePoolImplTest.class,
+        HighQualityShadowsRenderTests.class
 })
 public class Main {
 }
