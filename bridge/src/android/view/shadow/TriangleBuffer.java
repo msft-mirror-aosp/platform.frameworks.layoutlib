@@ -77,8 +77,6 @@ class TriangleBuffer {
             c =  scale*color[vIndex * 4 + 3];
             float fx1 = vx, fy1 = vy, fz1 = c;
 
-            triangleZBuffMin(mData, mImgWidth, mImgHeight, fx3, fy3, fz3, fx2, fy2,
-                    fz2, fx1, fy1, fz1);
             triangleZBuffMin(mData, mImgWidth, mImgHeight, fx1, fy1, fz1, fx2, fy2,
                     fz2, fx3, fy3, fz3);
         }
