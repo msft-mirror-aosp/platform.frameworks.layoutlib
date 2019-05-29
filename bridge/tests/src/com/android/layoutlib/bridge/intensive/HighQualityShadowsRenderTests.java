@@ -31,6 +31,25 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
     }
 
     @Test
+    public void testHighQualityRectangleShadow() throws Exception {
+        LayoutPullParser parser = createParserFromPath("shadows_test.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(ConfigGenerator.NEXUS_5)
+                .setCallback(layoutLibCallback)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "shadows_test_high_quality.png");
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
+        sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
+    }
+
+    @Test
     public void testRoundedEdgeRectangle() throws Exception {
         LayoutPullParser parser = createParserFromPath("shadows_rounded_edge_test.xml");
         LayoutLibTestCallback layoutLibCallback =
