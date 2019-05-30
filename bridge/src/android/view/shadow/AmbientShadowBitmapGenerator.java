@@ -58,16 +58,9 @@ class AmbientShadowBitmapGenerator {
 
             float[] shadowBounds = Math3DHelper.flatBound(mCalculator.getVertex(), 2);
             // Move the shadow to the left top corner to occupy the least possible bitmap
-            if (shadowBounds[0] < 0) {
-                mTranslateX = -shadowBounds[0];
-            } else {
-                mTranslateX = -(float)Math.floor(shadowBounds[0]);
-            }
-            if (shadowBounds[1] < 0) {
-                mTranslateY = -shadowBounds[1];
-            } else {
-                mTranslateY = -(float) Math.floor(shadowBounds[1]);
-            }
+            mTranslateX = -(float) Math.floor(shadowBounds[0]);
+            mTranslateY = -(float) Math.floor(shadowBounds[1]);
+
             Math3DHelper.translate(mCalculator.getVertex(), mTranslateX, mTranslateY, 2);
 
             // create bitmap of the least possible size that covers the entire shadow
