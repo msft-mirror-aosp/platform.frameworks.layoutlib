@@ -35,10 +35,6 @@ class TriangleBuffer {
     int mBorder;
     Bitmap mBitmap;
     int mData[];
-    private float mMinX;
-    private float mMaxX;
-    private float mMinY;
-    private float mMaxY;
 
     public void setSize(int width, int height, int border) {
         if (mWidth == width && mHeight == height) {
@@ -49,8 +45,6 @@ class TriangleBuffer {
         mBorder = border;
         mImgWidth = width;
         mImgHeight = height;
-
-        setScale(0, width, 0, height);
 
         mBitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
         mData = new int[width * height];
@@ -80,7 +74,6 @@ class TriangleBuffer {
             triangleZBuffMin(mData, mImgWidth, mImgHeight, fx1, fy1, fz1, fx2, fy2,
                     fz2, fx3, fy3, fz3);
         }
-        mBitmap.setPixels(mData, 0, mWidth, 0, 0, mWidth, mHeight);
     }
 
     public void drawTriangles(float[] strip,float scale) {
@@ -95,10 +88,10 @@ class TriangleBuffer {
             triangleZBuffMin(mData, mImgWidth, mImgHeight, fx3, fy3, fz3, fx2, fy2,
                     fz2, fx1, fy1, fz1);
         }
-        mBitmap.setPixels(mData, 0, mWidth, 0, 0, mWidth, mHeight);
     }
 
-    public Bitmap getImage() {
+    public Bitmap createImage() {
+        mBitmap.setPixels(mData, 0, mWidth, 0, 0, mWidth, mHeight);
         return mBitmap;
     }
 
@@ -199,7 +192,10 @@ class TriangleBuffer {
                 if (cx1 > 0 && cx2 > 0 && cx3 > 0) {
                     int point = x + off;
                     float zval = p + dx * x;
-                    buff[point] = ((int) (zval * 255)) << 24;
+                    // Simple alpha-blending
+                    int prev = (buff[point] >> 24) & 0xFF;
+                    int res = (int) (zval * (255 - prev )) + prev;
+                    buff[point] = res << 24;
                 }
                 cx1 -= fdy12;
                 cx2 -= fdy23;
@@ -210,13 +206,6 @@ class TriangleBuffer {
             cy3 += fdx31;
             off += w;
         }
-    }
-
-    private void setScale(float minx, float maxx, float miny, float maxy) {
-        mMinX = minx;
-        mMaxX = maxx;
-        mMinY = miny;
-        mMaxY = maxy;
     }
 
     public void clear() {

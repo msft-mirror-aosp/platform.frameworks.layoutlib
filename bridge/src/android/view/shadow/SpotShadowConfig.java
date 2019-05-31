@@ -21,8 +21,6 @@ package android.view.shadow;
  * Model for spot shadow rendering. Assumes single light, single object.
  */
 class SpotShadowConfig {
-    private final int mWidth;
-    private final int mHeight;
 
     // No need to be final but making it immutable for now.
     private final int mLightRadius;
@@ -41,8 +39,6 @@ class SpotShadowConfig {
     private final float mShadowStrength;
 
     private SpotShadowConfig(SpotShadowConfig.Builder builder) {
-        mWidth = builder.mWidth;
-        mHeight = builder.mHeight;
         mLightRadius = builder.mLightRadius;
         mLightSourcePoints = builder.mLightSourcePoints;
         mRays = builder.mRays;
@@ -55,17 +51,6 @@ class SpotShadowConfig {
         mLightCoord[1] = builder.mLightY;
         mLightCoord[2] = builder.mLightHeight;
         mShadowStrength = builder.mShadowStrength;
-    }
-
-    /**
-     * World width / height
-     */
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
     }
 
     /**
@@ -113,8 +98,8 @@ class SpotShadowConfig {
 
     /**
      * Update the light source coord.
-     * @param x - x in {@link #getWidth()} coordinate
-     * @param y - y in {@link #getHeight()} coordinate
+     * @param x - horizontal coordinate
+     * @param y - vertical coordinate
      */
     public void setLightCoord(float x, float y) {
         mLightCoord[0] = x;
@@ -133,9 +118,6 @@ class SpotShadowConfig {
     }
 
     public static class Builder {
-
-        private int mWidth;
-        private int mHeight;
 
         // No need to be final but making it immutable for now.
         private int mLightRadius;
@@ -160,12 +142,6 @@ class SpotShadowConfig {
          */
         public Builder setShadowStrength(float shadowStrength) {
             this.mShadowStrength = shadowStrength;
-            return this;
-        }
-
-        public Builder setSize(int width, int height) {
-            mWidth = width;
-            mHeight = height;
             return this;
         }
 

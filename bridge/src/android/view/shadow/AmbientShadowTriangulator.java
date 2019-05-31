@@ -25,51 +25,29 @@ import android.view.math.Math3DHelper;
 /**
  * Generates ambient shadow bitmap
  */
-class AmbientShadowBitmapGenerator {
+class AmbientShadowTriangulator {
 
     private final AmbientShadowConfig mShadowConfig;
-    private final TriangleBuffer mTriangleBuffer;
     private final AmbientShadowVertexCalculator mCalculator;
-
-    private float mTranslateX;
-    private float mTranslateY;
 
     private boolean mValid;
 
-    public AmbientShadowBitmapGenerator(AmbientShadowConfig shadowConfig) {
+    public AmbientShadowTriangulator(AmbientShadowConfig shadowConfig) {
         mShadowConfig = shadowConfig;
-
-        mTriangleBuffer = new TriangleBuffer();
 
         mCalculator = new AmbientShadowVertexCalculator(mShadowConfig);
     }
 
     /**
-     * Populate vertices and fill the triangle buffers. To be called before {@link #getBitmap()}
+     * Populate vertices and fill the triangle buffers.
      */
-    public void populateShadow() {
+    public void triangulate() {
         try {
             mValid = mCalculator.generateVertex(mShadowConfig.getPolygon());
             if (!mValid) {
                 Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Arithmetic error while " +
                                 "drawing ambient shadow", null, null);
-                return;
             }
-
-            float[] shadowBounds = Math3DHelper.flatBound(mCalculator.getVertex(), 2);
-            // Move the shadow to the left top corner to occupy the least possible bitmap
-            mTranslateX = -(float) Math.floor(shadowBounds[0]);
-            mTranslateY = -(float) Math.floor(shadowBounds[1]);
-
-            Math3DHelper.translate(mCalculator.getVertex(), mTranslateX, mTranslateY, 2);
-
-            // create bitmap of the least possible size that covers the entire shadow
-            int imgW = (int) Math.ceil(shadowBounds[2] + mTranslateX);
-            int imgH = (int) Math.ceil(shadowBounds[3] + mTranslateY);
-            mTriangleBuffer.setSize(imgW, imgH, 0);
-
-            mTriangleBuffer.drawTriangles(mCalculator.getIndex(), mCalculator.getVertex(),
-                    mCalculator.getColor(), mShadowConfig.getShadowStrength());
         } catch (IndexOutOfBoundsException|ArithmeticException mathError) {
             Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Arithmetic error while drawing " +
                             "ambient shadow",
@@ -84,15 +62,9 @@ class AmbientShadowBitmapGenerator {
         return mValid;
     }
 
-    public Bitmap getBitmap() {
-        return mTriangleBuffer.getImage();
-    }
+    public float[] getVertices() { return mCalculator.getVertex(); }
 
-    public float getTranslateX() {
-        return mTranslateX;
-    }
+    public int[] getIndices() { return mCalculator.getIndex(); }
 
-    public float getTranslateY() {
-        return mTranslateY;
-    }
+    public float[] getColors() { return mCalculator.getColor(); }
 }

@@ -21,9 +21,6 @@ package android.view.shadow;
  */
 class AmbientShadowConfig {
 
-    private final int mWidth;
-    private final int mHeight;
-
     private final float mEdgeScale;
     private final float mShadowBoundRatio;
     private final float mShadowStrength;
@@ -39,17 +36,7 @@ class AmbientShadowConfig {
         mShadowStrength = builder.mShadowStrength;
         mRays = builder.mRays;
         mLayers = builder.mLayers;
-        mWidth = builder.mWidth;
-        mHeight = builder.mHeight;
         mPolygon = builder.mPolygon;
-    }
-
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
     }
 
     /**
@@ -105,9 +92,6 @@ class AmbientShadowConfig {
 
         private float[] mPolygon;
 
-        private int mWidth;
-        private int mHeight;
-
         public Builder setEdgeScale(float edgeScale) {
             mEdgeScale = edgeScale;
             return this;
@@ -130,12 +114,6 @@ class AmbientShadowConfig {
 
         public Builder setLayers(int layers) {
             mLayers = layers;
-            return this;
-        }
-
-        public Builder setSize(int width, int height) {
-            mWidth = width;
-            mHeight = height;
             return this;
         }
 
