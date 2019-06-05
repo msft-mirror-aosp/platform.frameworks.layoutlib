@@ -18,11 +18,12 @@ package android.view.shadow;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.view.math.Math3DHelper;
 
 import java.util.Arrays;
 
-import static android.view.math.Math3DHelper.max;
-import static android.view.math.Math3DHelper.min;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * 2D Triangle buffer element that colours using z value. (z scale set).
@@ -147,10 +148,10 @@ class TriangleBuffer {
         int fdy23 = dy23 << 4;
         int fdy31 = dy31 << 4;
 
-        int minx = (min(x1, x2, x3) + 0xF) >> 4;
-        int maxx = (max(x1, x2, x3) + 0xF) >> 4;
-        int miny = (min(y1, y2, y3) + 0xF) >> 4;
-        int maxy = (max(y1, y2, y3) + 0xF) >> 4;
+        int minx = (Math3DHelper.min(x1, x2, x3) + 0xF) >> 4;
+        int maxx = (Math3DHelper.max(x1, x2, x3) + 0xF) >> 4;
+        int miny = (Math3DHelper.min(y1, y2, y3) + 0xF) >> 4;
+        int maxy = (Math3DHelper.max(y1, y2, y3) + 0xF) >> 4;
 
         if (miny < 0) {
             miny = 0;
@@ -188,24 +189,74 @@ class TriangleBuffer {
             int cx2 = cy2;
             int cx3 = cy3;
             float p = zoff + dy * y;
-            for (int x = minx; x < maxx; x++) {
-                if (cx1 > 0 && cx2 > 0 && cx3 > 0) {
-                    int point = x + off;
-                    float zval = p + dx * x;
-                    // Simple alpha-blending
-                    int prev = (buff[point] >> 24) & 0xFF;
-                    int res = (int) (zval * (255 - prev )) + prev;
-                    buff[point] = res << 24;
-                }
-                cx1 -= fdy12;
-                cx2 -= fdy23;
-                cx3 -= fdy31;
+
+            int startx = start(cx1, fdy12, minx, minx, maxx);
+            startx = start(cx2, fdy23, minx, startx, maxx);
+            startx = start(cx3, fdy31, minx, startx, maxx);
+
+            cx1 -= (startx - minx) * fdy12;
+            cx2 -= (startx - minx) * fdy23;
+            cx3 -= (startx - minx) * fdy31;
+
+            int endx = end(cx1, fdy12, startx, minx, maxx);
+            endx = end(cx2, fdy23, startx, minx, endx);
+            endx = end(cx3, fdy31, startx, minx, endx);
+
+            for (int x = startx; x < endx; x++) {
+                int point = x + off;
+                float zval = p + dx * x;
+                // Simple alpha-blending
+                int prev = (buff[point] >> 24) & 0xFF;
+                int res = (int) (zval * (255 - prev )) + prev;
+                buff[point] = res << 24;
             }
             cy1 += fdx12;
             cy2 += fdx23;
             cy3 += fdx31;
             off += w;
         }
+    }
+
+    /**
+     * Returns the minimum value of x in the range [minx, maxx]: y0 - dy * (x - x0) > 0
+     * If no value satisfies the expression, maxx is returned
+     *
+     * @param y0 - value in x0
+     * @param dy - delta y
+     * @param x0 - some position, for which value is known (y0)
+     * @param minx - start of the range
+     * @param maxx - end of the range
+     * @return minimum x
+     */
+    private static int start(int y0, int dy, int x0, int minx, int maxx) {
+        if (y0 > 0) {
+            return minx;
+        }
+        if (dy >= 0) {
+            return maxx;
+        }
+        return max(x0 + y0 / dy + 1, minx);
+    }
+
+    /**
+     * Returns the minimum value of x in range [minx, maxx]: y0 - dy * (x - x0) <= 0
+     * If no value satisfies the expression maxx is returned
+     *
+     * @param y0 - value in x0
+     * @param dy - delta y
+     * @param x0 - some position, for which value is known (y0)
+     * @param minx - start of the range
+     * @param maxx - end of the range
+     * @return minimum x
+     */
+    private static int end(int y0, int dy, int x0, int minx, int maxx) {
+        if (y0 <= 0) {
+            return minx;
+        }
+        if (dy <= 0) {
+            return maxx;
+        }
+        return min(x0 + (y0 - 1) / dy + 1, maxx);
     }
 
     public void clear() {
