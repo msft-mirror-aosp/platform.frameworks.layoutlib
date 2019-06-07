@@ -93,12 +93,9 @@ public class HighQualityShadowPainter {
             int dynamicLightRadius = Math.min(rectScaled.width(), rectScaled.height());
 
             SpotShadowConfig spotConfig = new SpotShadowConfig.Builder()
-                    .setLayers(ShadowConstants.SPOT_SHADOW_LAYERS)
-                    .setRays(ShadowConstants.SPOT_SHADOW_RAYS)
                     .setLightCoord(lightX, lightY, lightZHeightPx)
                     .setLightRadius(dynamicLightRadius)
                     .setShadowStrength(ShadowConstants.SPOT_SHADOW_STRENGTH * alpha)
-                    .setLightSourcePoints(ShadowConstants.SPOT_SHADOW_LIGHT_SOURCE_POINTS)
                     .setPolygon(poly, poly.length / ShadowConstants.COORDINATE_SIZE)
                     .build();
 
@@ -129,7 +126,7 @@ public class HighQualityShadowPainter {
             // Problem is that outline passed is not a final position, which throws off our
             // whereas our shadow rendering algorithm, which requires pre-set range for
             // optimization purposes.
-            float[] shadowBounds = Math3DHelper.flatBound(spotTriangulator.getStrips(), 3);
+            float[] shadowBounds = Math3DHelper.flatBound(spotTriangulator.getStrips()[0], 3);
 
             if ((shadowBounds[2] - shadowBounds[0]) > width ||
                     (shadowBounds[3] - shadowBounds[1]) > height) {
@@ -157,9 +154,11 @@ public class HighQualityShadowPainter {
         }
 
         if (spotTriangulator != null && spotTriangulator.validate()) {
-            Math3DHelper.translate(spotTriangulator.getStrips(), translateX, translateY, 3);
-            renderer.drawTriangles(spotTriangulator.getStrips(), ShadowConstants.SPOT_SHADOW_STRENGTH * alpha
-            );
+            float[][] strips = spotTriangulator.getStrips();
+            for (int i = 0; i < strips.length; ++i) {
+                Math3DHelper.translate(strips[i], translateX, translateY, 3);
+                renderer.drawTriangles(strips[i], ShadowConstants.SPOT_SHADOW_STRENGTH * alpha);
+            }
         }
 
         Bitmap img = renderer.createImage();

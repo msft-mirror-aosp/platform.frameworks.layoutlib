@@ -24,11 +24,7 @@ class SpotShadowConfig {
 
     // No need to be final but making it immutable for now.
     private final int mLightRadius;
-    private final int mLightSourcePoints;
 
-    // No need to be final but making it immutable for now.
-    private final int mRays;
-    private final int mLayers;
 
     // No need to be final but making it immutable for now.
     private final float[] mPoly;
@@ -40,9 +36,6 @@ class SpotShadowConfig {
 
     private SpotShadowConfig(SpotShadowConfig.Builder builder) {
         mLightRadius = builder.mLightRadius;
-        mLightSourcePoints = builder.mLightSourcePoints;
-        mRays = builder.mRays;
-        mLayers = builder.mLayers;
         mPoly = builder.mPoly;
         mPolyLength = builder.mPolyLength;
 
@@ -51,13 +44,6 @@ class SpotShadowConfig {
         mLightCoord[1] = builder.mLightY;
         mLightCoord[2] = builder.mLightHeight;
         mShadowStrength = builder.mShadowStrength;
-    }
-
-    /**
-     * @return number of light source points to ray trace
-     */
-    public int getLightSourcePoints() {
-        return mLightSourcePoints;
     }
 
     /**
@@ -79,21 +65,6 @@ class SpotShadowConfig {
      */
     public int getPolyLength() {
         return mPolyLength;
-    }
-
-    /**
-     * @return number of rays to use in raytracing. It determines the accuracy of outline (bounds) of
-     * the shadow.
-     */
-    public int getRays() {
-        return mRays;
-    }
-
-    /**
-     * @return number of layers. It determines the intensity of pen-umbra
-     */
-    public int getLayers() {
-        return mLayers;
     }
 
     /**
@@ -121,11 +92,6 @@ class SpotShadowConfig {
 
         // No need to be final but making it immutable for now.
         private int mLightRadius;
-        private int mLightSourcePoints;
-
-        // No need to be final but making it immutable for now.
-        private int mRays;
-        private int mLayers;
 
         // No need to be final but making it immutable for now.
         private float[] mPoly;
@@ -147,21 +113,6 @@ class SpotShadowConfig {
 
         public Builder setLightRadius(int mLightRadius) {
             this.mLightRadius = mLightRadius;
-            return this;
-        }
-
-        public Builder setLightSourcePoints(int mLightSourcePoints) {
-            this.mLightSourcePoints = mLightSourcePoints;
-            return this;
-        }
-
-        public Builder setRays(int mRays) {
-            this.mRays = mRays;
-            return this;
-        }
-
-        public Builder setLayers(int mLayers) {
-            this.mLayers = mLayers;
             return this;
         }
 

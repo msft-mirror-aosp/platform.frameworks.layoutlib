@@ -29,7 +29,7 @@ import android.view.math.Math3DHelper;
 class SpotShadowTriangulator {
 
     private final SpotShadowConfig mShadowConfig;
-    private float[] mStrips;
+    private float[][] mStrips;
 
     public SpotShadowTriangulator(SpotShadowConfig config) {
         mShadowConfig = config;
@@ -42,19 +42,19 @@ class SpotShadowTriangulator {
         try {
             float[] lightSources =
                     SpotShadowVertexCalculator.calculateLight(mShadowConfig.getLightRadius(),
-                            mShadowConfig.getLightSourcePoints(), mShadowConfig.getLightCoord()[0],
+                            mShadowConfig.getLightCoord()[0],
                             mShadowConfig.getLightCoord()[1], mShadowConfig.getLightCoord()[2]);
 
-            mStrips = new float[3 * SpotShadowVertexCalculator.getStripSize(
-                    mShadowConfig.getRays(),
-                    mShadowConfig.getLayers())];
+
+            mStrips = new float[2][];
+            int[] sizes = SpotShadowVertexCalculator.getStripSizes(mShadowConfig.getPolyLength());
+            for (int i = 0; i < sizes.length; ++i) {
+                mStrips[i] = new float[3 * sizes[i]];
+            }
 
             SpotShadowVertexCalculator.calculateShadow(lightSources,
-                    mShadowConfig.getLightSourcePoints(),
                     mShadowConfig.getPoly(),
                     mShadowConfig.getPolyLength(),
-                    mShadowConfig.getRays(),
-                    mShadowConfig.getLayers(),
                     mShadowConfig.getShadowStrength(),
                     mStrips);
         } catch (IndexOutOfBoundsException|ArithmeticException mathError) {
@@ -70,10 +70,10 @@ class SpotShadowTriangulator {
      * @return true if generated shadow poly is valid. False otherwise.
      */
     public boolean validate() {
-        return mStrips != null && mStrips.length >= 9;
+        return mStrips != null && mStrips[0].length >= 9;
     }
 
-    public float[] getStrips() {
+    public float[][] getStrips() {
         return mStrips;
     }
 }
