@@ -2062,6 +2062,21 @@ public class BridgeContext extends Context {
         return (T) mUserData.get(key);
     }
 
+    /** Logs an error message to the error log of the host application. */
+    public void error(@NonNull String message, @NonNull String... details) {
+        mLayoutlibCallback.error(message, details);
+    }
+
+    /** Logs an error message to the error log of the host application. */
+    public void error(@NonNull String message, @Nullable Throwable t) {
+        mLayoutlibCallback.error(message, t);
+    }
+
+    /** Logs an error message to the error log of the host application. */
+    public void error(@NonNull Throwable t) {
+        mLayoutlibCallback.error(t);
+    }
+
     /**
      * No two Key instances are considered equal.
      *
