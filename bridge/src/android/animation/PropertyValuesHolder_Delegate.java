@@ -68,8 +68,11 @@ public class PropertyValuesHolder_Delegate {
             Long methodId = METHOD_NAME_TO_ID.get(methodIndexName);
 
             if (methodId != null) {
-                // The method was already registered
-                return methodId;
+                // The method was already registered, check whether the class loader has changed
+                Method method = ID_TO_METHOD.get(methodId);
+                if (targetClass.equals(method.getDeclaringClass())) {
+                    return methodId;
+                }
             }
 
             Class[] args = new Class[nArgs];
@@ -85,7 +88,9 @@ public class PropertyValuesHolder_Delegate {
             }
 
             if (method != null) {
-                methodId = sNextId++;
+                if (methodId == null) {
+                    methodId = sNextId++;
+                }
                 ID_TO_METHOD.put(methodId, method);
                 METHOD_NAME_TO_ID.put(methodIndexName, methodId);
 

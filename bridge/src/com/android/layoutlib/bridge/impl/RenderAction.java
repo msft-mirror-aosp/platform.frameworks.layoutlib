@@ -289,7 +289,6 @@ public abstract class RenderAction<T extends RenderParams> {
         ParserFactory.setParserFactory(null);
 
         PropertyValuesHolder_Accessor.clearClassCaches();
-        PropertyValuesHolder_Delegate.clearCaches();
     }
 
     public static BridgeContext getCurrentContext() {
