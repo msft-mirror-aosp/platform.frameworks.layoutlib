@@ -893,7 +893,7 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testColorTypedValue() throws Exception {
+    public void testTypedValue() throws Exception {
         // Setup
         // Create the layout pull parser for our resources (empty.xml can not be part of the test
         // app as it won't compile).
@@ -919,6 +919,11 @@ public class RenderTests extends RenderTestBase {
         mContext.resolveThemeAttribute(android.R.attr.colorPrimary, outValue, true);
         assertEquals(TypedValue.TYPE_INT_COLOR_ARGB8, outValue.type);
         assertNotEquals(0, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.isLightTheme, outValue, true);
+        assertEquals(TypedValue.TYPE_INT_BOOLEAN, outValue.type);
+        assertEquals(1, outValue.data);
         assertTrue(sRenderMessages.isEmpty());
     }
 

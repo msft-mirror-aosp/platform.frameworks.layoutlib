@@ -415,6 +415,10 @@ public class BridgeContext extends Context {
             else if (stringValue.charAt(0) == '@') {
                 outValue.type = TypedValue.TYPE_REFERENCE;
             }
+            else if ("true".equals(stringValue) || "false".equals(stringValue)) {
+                outValue.type = TypedValue.TYPE_INT_BOOLEAN;
+                outValue.data = "true".equals(stringValue) ? 1 : 0;
+            }
         }
 
         int a = getResourceId(value.asReference(), 0 /*defValue*/);
