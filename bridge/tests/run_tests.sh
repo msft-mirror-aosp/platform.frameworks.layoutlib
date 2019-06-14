@@ -11,14 +11,13 @@ readonly FAILURE_ZIP=layoutlib-test-failures.zip
 
 STUDIO_JDK=${SCRIPT_DIR}"/../../../../prebuilts/studio/jdk/linux"
 MISC_COMMON=${SCRIPT_DIR}"/../../../../prebuilts/misc/common"
-M2_REPO=${SCRIPT_DIR}"/../../../../prebuilts/tools/common/m2/repository"
-JAVA_LIBRARIES=${SCRIPT_DIR}"/../../../../out/host/common/obj/JAVA_LIBRARIES"
+OUT_INTERMEDIATES=${SCRIPT_DIR}"/../../../../out/soong/.intermediates"
 
 # Run layoutlib tests
 ${STUDIO_JDK}/bin/java -ea \
     -Dtest_res.dir=${SCRIPT_DIR}/res \
     -Dtest_failure.dir=${OUT_DIR}/${FAILURE_DIR} \
-    -cp ${M2_REPO}/junit/junit/4.12/junit-4.12.jar:${M2_REPO}/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:${MISC_COMMON}/tools-common/tools-common-prebuilt.jar:${MISC_COMMON}/sdk-common/sdk-common.jar:${MISC_COMMON}/layoutlib_api/layoutlib_api-prebuilt.jar:${MISC_COMMON}/kxml2/kxml2-2.3.0.jar:${M2_REPO}/com/google/guava/guava/22.0/guava-22.0.jar:${JAVA_LIBRARIES}/layoutlib-tests_intermediates/javalib.jar:${JAVA_LIBRARIES}/layoutlib_intermediates/javalib.jar:${JAVA_LIBRARIES}/mockito-host_intermediates/javalib.jar:${JAVA_LIBRARIES}/objenesis-host_intermediates/javalib.jar \
+    -cp ${MISC_COMMON}/tools-common/tools-common-prebuilt.jar:${MISC_COMMON}/ninepatch/ninepatch-prebuilt.jar:${MISC_COMMON}/sdk-common/sdk-common.jar:${MISC_COMMON}/kxml2/kxml2-2.3.0.jar:${MISC_COMMON}/layoutlib_api/layoutlib_api-prebuilt.jar:${OUT_INTERMEDIATES}/external/junit/junit/linux_glibc_common/javac/junit.jar:${OUT_INTERMEDIATES}/external/guava/guava-jre/linux_glibc_common/javac/guava-jre.jar:${OUT_INTERMEDIATES}/external/hamcrest/hamcrest-core/hamcrest/linux_glibc_common/javac/hamcrest.jar:${OUT_INTERMEDIATES}/external/mockito/mockito/linux_glibc_common/combined/mockito.jar:${OUT_INTERMEDIATES}/external/objenesis/objenesis/linux_glibc_common/javac/objenesis.jar:${OUT_INTERMEDIATES}/frameworks/layoutlib/bridge/layoutlib/linux_glibc_common/withres/layoutlib.jar:${OUT_INTERMEDIATES}/frameworks/layoutlib/temp_layoutlib/linux_glibc_common/gen/temp_layoutlib.jar:${OUT_INTERMEDIATES}/frameworks/layoutlib/bridge/tests/layoutlib-tests/linux_glibc_common/withres/layoutlib-tests.jar \
     org.junit.runner.JUnitCore \
     com.android.layoutlib.bridge.intensive.Main
 

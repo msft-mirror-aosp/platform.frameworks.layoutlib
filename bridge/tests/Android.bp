@@ -32,7 +32,10 @@ java_test_host {
         "guava",
         "mockito",
         "objenesis",
+        "hamcrest",
     ],
+
+    required: ["layoutlib"],
 
     // Copy the jar to DIST_DIR for sdk builds
     dist: {

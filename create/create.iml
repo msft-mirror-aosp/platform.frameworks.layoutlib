@@ -14,7 +14,7 @@
     <orderEntry type="module-library">
       <library name="asm-6.0">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/asm/asm-6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/asm/asm-6.0/linux_glibc_common/combined/asm-6.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
@@ -24,16 +24,7 @@
     </orderEntry>
     <orderEntry type="library" scope="TEST" name="junit" level="project" />
     <orderEntry type="module" module-name="common" />
-    <orderEntry type="module-library">
-      <library name="guava">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../prebuilts/tools/common/m2/repository/com/google/guava/guava/22.0/guava-22.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../prebuilts/tools/common/m2/repository/com/google/guava/guava/22.0/guava-22.0-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="guava" level="project" />
+    <orderEntry type="library" scope="TEST" name="hamcrest" level="project" />
   </component>
 </module>

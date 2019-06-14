@@ -26,6 +26,7 @@ java_test_host {
     libs: [
         "layoutlib_create",
         "junit",
+        "hamcrest",
     ],
     static_libs: ["asm-6.0"],
 
