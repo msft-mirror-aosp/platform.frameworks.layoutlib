@@ -98,7 +98,6 @@ public class StatusBar extends CustomBar {
         // Cannot access the inside items through id because no R.id values have been
         // created for them.
         // We do know the order though.
-        // 0 is the spacer
         loadIcon(icons.get(0), "stat_sys_wifi_signal_4_fully."
                         + Config.getWifiIconType(simulatedPlatformVersion), density);
         loadIcon(icons.get(1), "stat_sys_battery_100.png", density);
