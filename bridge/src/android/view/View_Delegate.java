@@ -93,4 +93,18 @@ public class View_Delegate {
             Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View layout failed", th, null);
         }
     }
+
+    @LayoutlibDelegate
+    /*package*/ static void dispatchDetachedFromWindow(View thisView) {
+        try {
+            // This code is run within a try/catch to prevent components from throwing user-visible
+            // exceptions when being disposed.
+            thisView.dispatchDetachedFromWindow_Original();
+        } catch (Throwable t) {
+            Context context = BridgeContext.getBaseContext(thisView.getContext());
+            if (context instanceof BridgeContext) {
+                ((BridgeContext) context).warn("Exception while detaching " + thisView.getClass(), t);
+            }
+        }
+    }
 }

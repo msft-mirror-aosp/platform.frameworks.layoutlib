@@ -2077,6 +2077,16 @@ public class BridgeContext extends Context {
         mLayoutlibCallback.error(t);
     }
 
+    /** Logs a warning to the log of the host application. */
+    public void warn(@NonNull String message, @Nullable Throwable t) {
+        mLayoutlibCallback.warn(message, t);
+    }
+
+    /** Logs a warning to the log of the host application. */
+    public void warn(@NonNull Throwable t) {
+        mLayoutlibCallback.warn(t);
+    }
+
     /**
      * No two Key instances are considered equal.
      *

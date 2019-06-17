@@ -189,6 +189,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.view.LayoutInflater#rInflate",
         "android.view.LayoutInflater#parseInclude",
         "android.view.View#draw",
+        "android.view.View#dispatchDetachedFromWindow",
         "android.view.View#layout",
         "android.view.View#measure",
         "android.view.View#getWindowToken",
