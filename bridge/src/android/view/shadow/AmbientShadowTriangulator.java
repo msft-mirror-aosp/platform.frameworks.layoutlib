@@ -19,9 +19,6 @@ package android.view.shadow;
 import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 
-import android.graphics.Bitmap;
-import android.view.math.Math3DHelper;
-
 /**
  * Generates ambient shadow bitmap
  */
@@ -43,11 +40,8 @@ class AmbientShadowTriangulator {
      */
     public void triangulate() {
         try {
-            mValid = mCalculator.generateVertex(mShadowConfig.getPolygon());
-            if (!mValid) {
-                Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Arithmetic error while " +
-                                "drawing ambient shadow", null, null);
-            }
+            mCalculator.generateVertex();
+            mValid = true;
         } catch (IndexOutOfBoundsException|ArithmeticException mathError) {
             Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Arithmetic error while drawing " +
                             "ambient shadow",

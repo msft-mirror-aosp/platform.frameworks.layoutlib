@@ -73,11 +73,12 @@ public class HighQualityShadowPainter {
 
         AmbientShadowConfig ambientConfig = new AmbientShadowConfig.Builder()
                 .setPolygon(poly)
+                .setLightSourcePosition(
+                        (rectScaled.left + rectScaled.right) / 2.0f,
+                        (rectScaled.top + rectScaled.bottom) / 2.0f)
                 .setEdgeScale(ShadowConstants.AMBIENT_SHADOW_EDGE_SCALE)
                 .setShadowBoundRatio(ShadowConstants.AMBIENT_SHADOW_SHADOW_BOUND)
                 .setShadowStrength(ShadowConstants.AMBIENT_SHADOW_STRENGTH * alpha)
-                .setRays(ShadowConstants.AMBIENT_SHADOW_RAYS)
-                .setLayers(ShadowConstants.AMBIENT_SHADOW_LAYERS)
                 .build();
 
         AmbientShadowTriangulator ambientTriangulator = new AmbientShadowTriangulator(ambientConfig);

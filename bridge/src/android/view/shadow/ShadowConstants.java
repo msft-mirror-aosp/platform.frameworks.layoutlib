@@ -37,8 +37,6 @@ class ShadowConstants {
 
     public static final float AMBIENT_SHADOW_EDGE_SCALE = 60f;
     public static final float AMBIENT_SHADOW_SHADOW_BOUND = 0.02f * SCALE_DOWN;
-    public static final int AMBIENT_SHADOW_RAYS = 120;
-    public static final int AMBIENT_SHADOW_LAYERS = 1;
     public static final float AMBIENT_SHADOW_STRENGTH = 1.0f;
 
     public static final int COORDINATE_SIZE = 3;
