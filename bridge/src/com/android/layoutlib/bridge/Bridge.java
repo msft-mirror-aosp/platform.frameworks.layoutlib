@@ -174,6 +174,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     @Override
     public boolean init(Map<String,String> platformProperties,
             File fontLocation,
+            String nativeLibPath,
             String icuDataPath,
             Map<String, Map<String, Integer>> enumValueMap,
             LayoutLog log) {

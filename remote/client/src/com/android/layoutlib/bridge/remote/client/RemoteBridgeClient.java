@@ -85,12 +85,13 @@ public class RemoteBridgeClient extends Bridge {
     @Override
     public boolean init(Map<String, String> platformProperties,
             File fontLocation,
+            String nativeLibPath,
             String icuDataPath,
             Map<String, Map<String, Integer>> enumValueMap,
             LayoutLog log) {
         try {
-            return mDelegate.init(platformProperties, fontLocation, icuDataPath, enumValueMap,
-                    RemoteLayoutLogAdapter.create(log));
+            return mDelegate.init(platformProperties, fontLocation, nativeLibPath, icuDataPath,
+                    enumValueMap, RemoteLayoutLogAdapter.create(log));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
