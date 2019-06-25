@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/tests/res/testApp/MyApplication/src/main/myapplication.widgets" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.settings" />
       <excludeFolder url="file://$MODULE_DIR$/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/out" />
       <excludeFolder url="file://$MODULE_DIR$/tests/res/testApp/MyApplication/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/tests/res/testApp/MyApplication/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/tests/res/testApp/MyApplication/build/generated" />
