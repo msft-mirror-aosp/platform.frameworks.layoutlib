@@ -508,8 +508,6 @@ public class GcSnapshot {
             area = Region_Delegate.combineShapes(getClip(), shape, regionOp);
         }
 
-        assert area != null;
-
         if (mLayers.size() > 0) {
             if (area != null) {
                 for (Layer layer : mLayers) {
