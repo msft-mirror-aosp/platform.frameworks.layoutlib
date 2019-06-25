@@ -264,7 +264,8 @@ public final class BridgeInflater extends LayoutInflater {
                                         true /*readAppTheme*/,
                                         true /*wrapContext*/);
                             } catch (IllegalAccessException | InvocationTargetException e) {
-                                assert false : "Call to createView failed";
+                                Bridge.getLog().error(LayoutLog.TAG_BROKEN, e.getMessage(), e,
+                                        null, null);
                             }
                             return null;
                         };
