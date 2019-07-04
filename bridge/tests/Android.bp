@@ -33,6 +33,7 @@ java_test_host {
         "mockito",
         "objenesis",
         "hamcrest",
+        "trove-prebuilt",
     ],
 
     required: ["layoutlib"],
