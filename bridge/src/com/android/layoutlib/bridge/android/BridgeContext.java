@@ -91,6 +91,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
+import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
 
 import java.io.File;
@@ -619,7 +620,9 @@ public class BridgeContext extends Context {
             case ACCESSIBILITY_SERVICE:
                 return AccessibilityManager.getInstance(this);
 
-            case INPUT_METHOD_SERVICE:  // needed by SearchView
+            case INPUT_METHOD_SERVICE:  // needed by SearchView and Compose
+                return InputMethodManager.forContext(this);
+
             case AUTOFILL_MANAGER_SERVICE:
             case AUDIO_SERVICE:
             case TEXT_CLASSIFICATION_SERVICE:
