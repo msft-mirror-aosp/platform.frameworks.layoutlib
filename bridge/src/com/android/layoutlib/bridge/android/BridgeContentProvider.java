@@ -21,6 +21,7 @@ import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.IContentProvider;
 import android.content.OperationApplicationException;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.net.Uri;
@@ -150,5 +151,11 @@ public final class BridgeContentProvider implements IContentProvider {
     public boolean refresh(String callingPkg, Uri url, Bundle args,
                     ICancellationSignal cancellationSignal) throws RemoteException {
         return false;
+    }
+
+    @Override
+    public int checkUriPermission(String callingPkg, Uri uri, int uid, int modeFlags)
+            throws RemoteException {
+        return PackageManager.PERMISSION_DENIED;
     }
 }
