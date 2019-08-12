@@ -25,6 +25,7 @@ java_genrule_host {
     tools: ["layoutlib_create"],
     out: ["temp_layoutlib.jar"],
     srcs: [
+        ":core-icu4j{.jar}",
         ":core-libart{.jar}",
         ":framework{.jar}",
         ":ext{.jar}",
