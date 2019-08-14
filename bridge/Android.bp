@@ -22,6 +22,7 @@ java_library_host {
     java_resource_dirs: ["resources"],
 
     libs: [
+        "kxml2-2.3.0",
         "layoutlib_api-prebuilt",
         "tools-common-prebuilt",
         "guava",
@@ -46,6 +47,7 @@ java_library_host {
     java_resource_dirs: ["resources"],
 
     libs: [
+        "kxml2-2.3.0",
         "temp_layoutlib",
         "guava",
     ],

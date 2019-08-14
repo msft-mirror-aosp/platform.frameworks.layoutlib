@@ -69,7 +69,7 @@
     <orderEntry type="library" scope="TEST" name="mockito" level="project" />
     <orderEntry type="library" scope="TEST" name="objenesis" level="project" />
     <orderEntry type="module" module-name="common" />
-    <orderEntry type="module-library" scope="TEST">
+    <orderEntry type="module-library">
       <library name="kxml2-2.3.0">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/kxml2/kxml2-2.3.0.jar!/" />
