@@ -91,6 +91,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
+import android.view.autofill.AutofillManager;
+import android.view.autofill.IAutoFillManager.Default;
 import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
 
@@ -162,6 +164,7 @@ public class BridgeContext extends Context {
     private final LayoutlibCallback mLayoutlibCallback;
     private final WindowManager mWindowManager;
     private final DisplayManager mDisplayManager;
+    private final AutofillManager mAutofillManager;
     private final HashMap<View, Integer> mScrollYPos = new HashMap<>();
     private final HashMap<View, Integer> mScrollXPos = new HashMap<>();
 
@@ -247,6 +250,7 @@ public class BridgeContext extends Context {
 
         mWindowManager = new WindowManagerImpl(mMetrics);
         mDisplayManager = new DisplayManager(this);
+        mAutofillManager = new AutofillManager(this, new Default());
 
         if (mLayoutlibCallback.isResourceNamespacingRequired()) {
             if (mLayoutlibCallback.hasAndroidXAppCompat()) {
@@ -624,6 +628,8 @@ public class BridgeContext extends Context {
                 return InputMethodManager.forContext(this);
 
             case AUTOFILL_MANAGER_SERVICE:
+                return mAutofillManager;
+
             case AUDIO_SERVICE:
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
