@@ -27,7 +27,6 @@ import com.android.ide.common.rendering.api.ResourceNamespace.Resolver;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.ResourceValueImpl;
-import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.BridgeConstants;
@@ -42,7 +41,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.SystemServiceRegistry_Accessor;
+import android.app.SystemServiceRegistry;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -643,7 +642,7 @@ public class BridgeContext extends Context {
 
     @Override
     public String getSystemServiceName(Class<?> serviceClass) {
-        return SystemServiceRegistry_Accessor.getSystemServiceName(serviceClass);
+        return SystemServiceRegistry.getSystemServiceName(serviceClass);
     }
 
     /**
