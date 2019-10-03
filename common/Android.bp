@@ -18,4 +18,9 @@ java_library_host {
     name: "layoutlib-common",
 
     srcs: ["src/**/*.java"],
+
+    // Pin to Java language level 8. It is loaded by an OpenJDK 8 runtime from
+    // prebuilts/studio/jdk in frameworks/layoutlib/bridge/tests/run_tests.sh.
+    // See b/141970724.
+    java_version: "1.8",
 }
