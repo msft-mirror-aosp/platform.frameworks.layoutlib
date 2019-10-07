@@ -308,7 +308,10 @@ public class RenderTestBase {
                 };
         sProjectResources.loadResources();
 
-        File fontLocation = new File(data_dir, "fonts");
+        // The fonts are built into out/host/common/obj/PACKAGING/sdk-fonts_intermediates as specified in
+        // build/make/core/sdk_font.mk, and PLATFORM_DIR is out/host/[arch]/sdk/sdk*/android-sdk*/platforms/android*
+        File fontLocation = new File(PLATFORM_DIR,
+                "../../../../../../common/obj/PACKAGING/sdk-fonts_intermediates");
         File buildProp = new File(PLATFORM_DIR, "build.prop");
         File attrs = new File(res, "values" + File.separator + "attrs.xml");
         sBridge = new Bridge();
