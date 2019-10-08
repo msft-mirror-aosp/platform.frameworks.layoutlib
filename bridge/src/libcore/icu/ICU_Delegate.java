@@ -71,22 +71,7 @@ public class ICU_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static String[] getAvailableBreakIteratorLocalesNative() {
-        return new String[0];
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String[] getAvailableCalendarLocalesNative() {
-        return new String[0];
-    }
-
-    @LayoutlibDelegate
     /*package*/ static String[] getAvailableCollatorLocalesNative() {
-        return new String[0];
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String[] getAvailableDateFormatLocalesNative() {
         return new String[0];
     }
 
@@ -96,37 +81,7 @@ public class ICU_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static String[] getAvailableNumberFormatLocalesNative() {
-        return new String[0];
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String[] getAvailableCurrencyCodes() {
-        return new String[0];
-    }
-
-    @LayoutlibDelegate
     /*package*/ static String getCurrencyCode(String locale) {
-        return "";
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getCurrencyDisplayName(String locale, String currencyCode) {
-        return "";
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static int getCurrencyFractionDigits(String currencyCode) {
-        return 0;
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static int getCurrencyNumericCode(String currencyCode) {
-        return Currency.getInstance(currencyCode).getNumericCode();
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getCurrencySymbol(String locale, String currencyCode) {
         return "";
     }
 
