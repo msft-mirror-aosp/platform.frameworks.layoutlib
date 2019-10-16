@@ -54,6 +54,7 @@ import android.content.res.Resources.Theme;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableInflater_Delegate;
 import android.icu.text.PluralRules;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -121,6 +122,7 @@ public class Resources_Delegate {
         sDrawableCache.evictAll();
         sContexts.clear();
         sLayoutlibCallbacks.clear();
+        DrawableInflater_Delegate.clearConstructorCache();
         Resources.mSystem = null;
     }
 

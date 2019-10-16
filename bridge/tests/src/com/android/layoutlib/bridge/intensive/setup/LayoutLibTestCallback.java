@@ -199,6 +199,11 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
         return null;
     }
 
+    @Override
+    public Class<?> findClass(String name) throws ClassNotFoundException {
+        return mModuleClassLoader.loadClass(name);
+    }
+
     public void setAdaptiveIconMaskPath(String adaptiveIconMaskPath) {
         mAdaptiveIconMaskPath = adaptiveIconMaskPath;
     }
