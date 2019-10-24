@@ -59,21 +59,6 @@ public class RemoteBridgeImpl implements RemoteBridge {
     private Map<String, String> mCachedProjectKeys = new HashMap<>();
 
     @Override
-    public int getApiLevel() {
-        return mBridge.getApiLevel();
-    }
-
-    @Override
-    public int getRevision() {
-        return mBridge.getRevision();
-    }
-
-    @Override
-    public boolean supports(int feature) {
-        return mBridge.supports(feature);
-    }
-
-    @Override
     public boolean init(Map<String, String> platformProperties, File fontLocation,
             String nativeLibPath, String icuDataPath,
             Map<String, Map<String, Integer>> enumValueMap, RemoteLayoutLog log) {

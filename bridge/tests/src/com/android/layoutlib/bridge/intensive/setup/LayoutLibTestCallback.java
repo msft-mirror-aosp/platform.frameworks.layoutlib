@@ -155,11 +155,6 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
     }
 
     @Override
-    public boolean supports(int ideFeature) {
-        return false;
-    }
-
-    @Override
     @Nullable
     public XmlPullParser createXmlParserForPsiFile(@NonNull String fileName) {
         return createXmlParserForFile(fileName);

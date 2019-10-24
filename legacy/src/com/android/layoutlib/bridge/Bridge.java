@@ -67,9 +67,4 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     public RenderSession createSession(SessionParams params) {
         return new BridgeRenderSession();
     }
-
-    @Override
-    public int getApiLevel() {
-        return 0;
-    }
 }

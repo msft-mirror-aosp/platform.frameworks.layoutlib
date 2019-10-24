@@ -222,15 +222,6 @@ public class RemoteLayoutlibCallbackAdapter extends LayoutlibCallback {
     }
 
     @Override
-    public boolean supports(int ideFeature) {
-        try {
-            return mDelegate.supports(ideFeature);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public <T> T getFlag(Key<T> key) {
         return super.getFlag(key);
     }

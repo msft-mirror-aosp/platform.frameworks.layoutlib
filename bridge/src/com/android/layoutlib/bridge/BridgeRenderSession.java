@@ -58,11 +58,6 @@ public class BridgeRenderSession extends RenderSession {
     }
 
     @Override
-    public boolean isAlphaChannelImage() {
-        return mSession != null && mSession.isAlphaChannelImage();
-    }
-
-    @Override
     public List<ViewInfo> getRootViews() {
         return mSession != null ? mSession.getViewInfos() : Collections.emptyList();
     }

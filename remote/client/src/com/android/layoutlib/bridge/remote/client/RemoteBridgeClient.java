@@ -55,34 +55,6 @@ public class RemoteBridgeClient extends Bridge {
     }
 
     @Override
-    public int getApiLevel() {
-        try {
-            return mDelegate.getApiLevel();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-
-        }
-    }
-
-    @Override
-    public int getRevision() {
-        try {
-            return mDelegate.getRevision();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public boolean supports(int feature) {
-        try {
-            return mDelegate.supports(feature);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public boolean init(Map<String, String> platformProperties,
             File fontLocation,
             String nativeLibPath,

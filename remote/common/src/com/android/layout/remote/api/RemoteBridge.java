@@ -35,29 +35,6 @@ import java.util.Map;
  */
 public interface RemoteBridge extends Remote {
     /**
-     * Returns the API level of the layout library.
-     * <p>
-     * While no methods will ever be removed, some may become deprecated, and some new ones will
-     * appear. <p>All Layout libraries based on {@link Bridge} return at minimum an API level of 5.
-     */
-    int getApiLevel() throws RemoteException;
-
-    /**
-     * Returns the revision of the library inside a given (layoutlib) API level. The true revision
-     * number of the library is {@link #getApiLevel()}.{@link #getRevision()}
-     */
-    @SuppressWarnings("JavaDoc")
-    // javadoc pointing to itself.
-    int getRevision() throws RemoteException;
-
-    /**
-     * Returns true if the layout library supports the given feature.
-     *
-     * @see com.android.ide.common.rendering.api.Features
-     */
-    boolean supports(int feature) throws RemoteException;
-
-    /**
      * Initializes the Bridge object.
      *
      * @param platformProperties The build properties for the platform.

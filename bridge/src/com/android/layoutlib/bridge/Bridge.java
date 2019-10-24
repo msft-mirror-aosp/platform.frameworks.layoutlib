@@ -16,9 +16,7 @@
 
 package com.android.layoutlib.bridge;
 
-import com.android.ide.common.rendering.api.Capability;
 import com.android.ide.common.rendering.api.DrawableParams;
-import com.android.ide.common.rendering.api.Features;
 import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.ResourceNamespace;
@@ -149,27 +147,6 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     private static LayoutLog sCurrentLog = sDefaultLog;
 
     public static boolean sIsTypefaceInitialized;
-
-    private static final int LAST_SUPPORTED_FEATURE = Features.THEME_PREVIEW_NAVIGATION_BAR;
-
-    @Override
-    public int getApiLevel() {
-        return com.android.ide.common.rendering.api.Bridge.API_CURRENT;
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    @Deprecated
-    public EnumSet<Capability> getCapabilities() {
-        // The Capability class is deprecated and frozen. All Capabilities enumerated there are
-        // supported by this version of LayoutLibrary. So, it's safe to use EnumSet.allOf()
-        return EnumSet.allOf(Capability.class);
-    }
-
-    @Override
-    public boolean supports(int feature) {
-        return feature <= LAST_SUPPORTED_FEATURE;
-    }
 
     @Override
     public boolean init(Map<String,String> platformProperties,
