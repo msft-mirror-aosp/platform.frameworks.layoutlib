@@ -423,7 +423,7 @@ class Layout extends FrameLayout {
         }
 
         private void findBackground() {
-            if (!mParams.isBgColorOverridden()) {
+            if (!mParams.isTransparentBackground()) {
                 mWindowBackground = mResources.findItemInTheme(
                         BridgeContext.createFrameworkAttrReference(ATTR_WINDOW_BACKGROUND));
                 mWindowBackground = mResources.resolveResValue(mWindowBackground);

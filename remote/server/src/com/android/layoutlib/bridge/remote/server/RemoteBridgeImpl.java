@@ -83,8 +83,8 @@ public class RemoteBridgeImpl implements RemoteBridge {
             params.setForceNoDecor();
         }
         params.setRtlSupport(remoteParams.isRtlSupported());
-        if (remoteParams.isBgColorOverridden()) {
-            params.setOverrideBgColor(remoteParams.getOverrideBgColor());
+        if (remoteParams.isTransparentBackground()) {
+            params.setTransparentBackground();
         }
         params.setImageFactory(remoteParams.getImageFactory());
         // TODO: Also unpack remote flags and pass them to RenderParams
