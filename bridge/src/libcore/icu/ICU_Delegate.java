@@ -16,6 +16,7 @@
 
 package libcore.icu;
 
+import android.icu.util.TimeZone;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.icu.text.DateTimePatternGenerator;
@@ -213,6 +214,6 @@ public class ICU_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static String getTZDataVersion() {
-        return ICU.getTZDataVersion();
+        return TimeZone.getTZDataVersion();
     }
 }
