@@ -18,12 +18,15 @@ package com.android.tools.layoutlib.create.dataclass;
 
 import com.android.tools.layoutlib.create.DelegateClassAdapterTest;
 
+import java.util.List;
+
 /**
  * Test class with an inner class.
  *
  * Used by {@link DelegateClassAdapterTest}.
  */
 public class OuterClass {
+    public static final int OUTER_CONSTANT = 2;
     private int mOuterValue = 1;
     public OuterClass() {
     }
@@ -33,6 +36,10 @@ public class OuterClass {
     // 2 slots in the stack/locals maps.
     public int get(int a, long b) {
         return mOuterValue + a + (int) b;
+    }
+
+    public static int useLambdas(List<Integer> list) {
+        return list.stream().mapToInt(i -> 2 * i).sum();
     }
 
     public class InnerClass {
@@ -49,6 +56,7 @@ public class OuterClass {
     }
 
     public static class StaticInnerClass {
+        public static final int INNER_CONSTANT = 3;
         public int mStaticInnerId;
 
         public StaticInnerClass() {
