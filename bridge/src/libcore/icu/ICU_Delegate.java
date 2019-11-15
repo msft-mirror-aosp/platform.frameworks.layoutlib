@@ -16,13 +16,10 @@
 
 package libcore.icu;
 
-import android.icu.util.TimeZone;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.icu.text.DateTimePatternGenerator;
-import android.icu.util.Currency;
 import android.icu.util.ULocale;
-import android.icu.util.VersionInfo;
 
 import java.util.Locale;
 
@@ -53,22 +50,6 @@ public class ICU_Delegate {
     /*package*/ static String getBestDateTimePatternNative(String skeleton, String localeName) {
         return DateTimePatternGenerator.getInstance(new ULocale(localeName))
                 .getBestPattern(skeleton);
-    }
-
-    @LayoutlibDelegate
-    @SuppressWarnings("deprecation")
-    /*package*/ static String getCldrVersion() {
-        return VersionInfo.ICU_DATA_VERSION.toString();
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getIcuVersion() {
-        return VersionInfo.ICU_VERSION.toString();
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getUnicodeVersion() {
-        return VersionInfo.UNICODE_7_0.toString();
     }
 
     @LayoutlibDelegate
@@ -210,10 +191,5 @@ public class ICU_Delegate {
     @LayoutlibDelegate
     /*package*/ static String getDefaultLocale() {
         return ICU.getDefaultLocale();
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getTZDataVersion() {
-        return TimeZone.getTZDataVersion();
     }
 }
