@@ -63,8 +63,8 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public int delete(String callingPackage, String callingFeatureId, Uri arg0, String arg1,
-            String[] arg2) throws RemoteException {
+    public int delete(String callingPackage, String callingFeatureId, Uri arg0, Bundle arg1)
+            throws RemoteException {
         // TODO Auto-generated method stub
         return 0;
     }
@@ -76,8 +76,8 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public Uri insert(String callingPackage, String callingFeatureId, Uri arg0, ContentValues arg1)
-            throws RemoteException {
+    public Uri insert(String callingPackage, String callingFeatureId, Uri arg0, ContentValues arg1,
+            Bundle arg2) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -107,7 +107,7 @@ public final class BridgeContentProvider implements IContentProvider {
 
     @Override
     public int update(String callingPackage, String callingFeatureId, Uri arg0, ContentValues arg1,
-            String arg2, String[] arg3) throws RemoteException {
+            Bundle arg2) throws RemoteException {
         // TODO Auto-generated method stub
         return 0;
     }
