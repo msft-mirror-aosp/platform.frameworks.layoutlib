@@ -31,19 +31,6 @@ import java.util.Locale;
  *
  */
 public class ICU_Delegate {
-
-    // --- Java delegates
-
-    @LayoutlibDelegate
-    /*package*/ static String toLowerCase(String s, String localeName) {
-        return s.toLowerCase();
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String toUpperCase(String s, String localeName) {
-        return s.toUpperCase();
-    }
-
     // --- Native methods accessing ICU's database.
 
     @LayoutlibDelegate
@@ -53,37 +40,12 @@ public class ICU_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static String[] getAvailableCollatorLocalesNative() {
-        return new String[0];
-    }
-
-    @LayoutlibDelegate
     /*package*/ static String[] getAvailableLocalesNative() {
         return new String[0];
     }
 
     @LayoutlibDelegate
     /*package*/ static String getCurrencyCode(String locale) {
-        return "";
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getDisplayCountryNative(String countryCode, String locale) {
-        return "";
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getDisplayLanguageNative(String languageCode, String locale) {
-        return "";
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getDisplayVariantNative(String variantCode, String locale) {
-        return "";
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getDisplayScriptNative(String variantCode, String locale) {
         return "";
     }
 
