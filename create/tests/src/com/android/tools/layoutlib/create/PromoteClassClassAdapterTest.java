@@ -121,11 +121,11 @@ public class PromoteClassClassAdapterTest {
         ClassReader reader = new ClassReader(PrivateClass.class.getName());
         LoggingClassVisitor log = new LoggingClassVisitor();
 
+        String rootClass = PromoteClassClassAdapterTest.class.getName();
         PromoteClassClassAdapter adapter = new PromoteClassClassAdapter(log, new HashSet<String>() {
             {
-                add("PromoteClassClassAdapterTest$PrivateClass");
-                add("com.android.tools.layoutlib.create" +
-                        ".PromoteClassClassAdapterTest$ClassWithPrivateInnerClass$InnerPrivateClass");
+                add(rootClass + "$PrivateClass");
+                add(rootClass + "$ClassWithPrivateInnerClass$InnerPrivateClass");
             }
         });
         reader.accept(adapter, 0);
@@ -157,7 +157,7 @@ public class PromoteClassClassAdapterTest {
 
         PromoteClassClassAdapter adapter = new PromoteClassClassAdapter(log, new HashSet<String>() {
             {
-                add("PackageProtectedClass");
+                add(PackageProtectedClass.class.getName());
             }
         });
 

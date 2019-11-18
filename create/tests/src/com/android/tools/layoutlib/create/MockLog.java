@@ -17,8 +17,6 @@
 package com.android.tools.layoutlib.create;
 
 
-import com.android.tools.layoutlib.create.Log;
-
 public class MockLog extends Log {
     StringBuilder mOut = new StringBuilder();
     StringBuilder mErr = new StringBuilder();

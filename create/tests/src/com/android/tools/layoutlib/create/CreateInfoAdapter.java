@@ -16,11 +16,8 @@
 
 package com.android.tools.layoutlib.create;
 
-import com.android.tools.layoutlib.create.ICreateInfo;
-
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 class CreateInfoAdapter implements ICreateInfo {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];

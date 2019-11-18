@@ -16,8 +16,6 @@
 
 package com.android.tools.layoutlib.create;
 
-import com.android.tools.layoutlib.create.ClassHasNativeVisitor;
-
 import static org.junit.Assert.*;
 
 import org.junit.Test;
