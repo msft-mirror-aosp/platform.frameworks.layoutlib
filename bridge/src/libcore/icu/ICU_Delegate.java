@@ -60,11 +60,6 @@ public class ICU_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static String addLikelySubtags(String locale) {
-        return "";
-    }
-
-    @LayoutlibDelegate
     /*package*/ static String getScript(String locale) {
         return "";
     }
