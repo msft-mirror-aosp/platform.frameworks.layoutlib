@@ -331,6 +331,50 @@ public class RenderTests extends RenderTestBase {
         renderAndVerify(params, "expand_horz_layout.png");
     }
 
+    @Test
+    public void testShrink() throws ClassNotFoundException, FileNotFoundException {
+        // Create the layout pull parser.
+        LayoutPullParser parser = createParserFromPath("expand_vert_layout.xml");
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        // Normal mode
+        ConfigGenerator customConfigGenerator = new ConfigGenerator()
+                .setScreenWidth(600)
+                .setScreenHeight(3000)
+                .setDensity(Density.XHIGH)
+                .setNavigation(Navigation.NONAV);
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(customConfigGenerator)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.NORMAL)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "normal_layout.png");
+
+        // Shrink mode
+        customConfigGenerator = new ConfigGenerator()
+                .setScreenWidth(600)
+                .setScreenHeight(3000)
+                .setDensity(Density.XHIGH)
+                .setNavigation(Navigation.NONAV);
+        parser = createParserFromPath("expand_vert_layout.xml");
+        params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(customConfigGenerator)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.SHRINK)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "shrunk_layout.png");
+    }
+
     /** Test indeterminate_progressbar.xml */
     @Test
     public void testVectorAnimation() throws ClassNotFoundException {

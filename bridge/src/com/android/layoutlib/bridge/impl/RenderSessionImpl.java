@@ -27,6 +27,7 @@ import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
+import com.android.ide.common.rendering.api.SessionParams.RenderingMode.SizeAction;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.ViewType;
 import com.android.internal.view.menu.ActionMenuItemView;
@@ -236,18 +237,19 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             // now measure the content only using UNSPECIFIED (where applicable, based on
             // the rendering mode). This will give us the size the content needs.
             @SuppressWarnings("deprecation")
-            Pair<Integer, Integer> result = measureView(
+            Pair<Integer, Integer> neededMeasure = measureView(
                     mContentRoot, mContentRoot.getChildAt(0),
                     mMeasuredScreenWidth, widthMeasureSpecMode,
                     mMeasuredScreenHeight, heightMeasureSpecMode);
+            int neededWidth = neededMeasure.getFirst();
+            int neededHeight = neededMeasure.getSecond();
 
             // If measuredView is not null, exactMeasure nor result will be null.
-            assert (exactMeasure != null && result != null) || measuredView == null;
+            assert (exactMeasure != null && neededMeasure != null) || measuredView == null;
 
             // now look at the difference and add what is needed.
-            if (renderingMode.isHorizExpand()) {
+            if (renderingMode.getHorizAction() == SizeAction.EXPAND) {
                 int measuredWidth = exactMeasure.getFirst();
-                int neededWidth = result.getFirst();
                 if (neededWidth > measuredWidth) {
                     mMeasuredScreenWidth += neededWidth - measuredWidth;
                 }
@@ -256,11 +258,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     // expand to match.
                     mMeasuredScreenWidth = measuredWidth;
                 }
+            } else if (renderingMode.getHorizAction() == SizeAction.SHRINK) {
+                mMeasuredScreenWidth = neededWidth;
             }
 
-            if (renderingMode.isVertExpand()) {
+            if (renderingMode.getVertAction() == SizeAction.EXPAND) {
                 int measuredHeight = exactMeasure.getSecond();
-                int neededHeight = result.getSecond();
                 if (neededHeight > measuredHeight) {
                     mMeasuredScreenHeight += neededHeight - measuredHeight;
                 }
@@ -269,6 +272,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     // expand to match.
                     mMeasuredScreenHeight = measuredHeight;
                 }
+            } else if (renderingMode.getVertAction() == SizeAction.SHRINK) {
+                mMeasuredScreenHeight = neededHeight;
             }
         }
     }
