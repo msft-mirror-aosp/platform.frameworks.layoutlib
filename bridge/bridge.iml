@@ -28,17 +28,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="layoutlib_api-prebuilt" level="project" />
     <orderEntry type="module-library">
-      <library name="ninepatch-prebuilt">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/ninepatch/ninepatch-prebuilt/linux_glibc_common/combined/ninepatch-prebuilt.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/ninepatch/ninepatch-prebuilt.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="tools-common-prebuilt">
         <ANNOTATIONS>
           <root url="file://$MODULE_DIR$/.." />
@@ -81,6 +70,17 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="TEST" name="hamcrest" level="project" />
+    <orderEntry type="module-library">
+      <library name="ninepatch-prebuilt">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/ninepatch/ninepatch-prebuilt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/ninepatch/ninepatch-prebuilt-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library name="trove4j">
         <CLASSES>
