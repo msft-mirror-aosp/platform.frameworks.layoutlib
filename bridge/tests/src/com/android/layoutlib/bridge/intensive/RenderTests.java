@@ -39,6 +39,7 @@ import com.android.resources.Navigation;
 import com.android.resources.ResourceType;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
@@ -82,6 +83,7 @@ public class RenderTests extends RenderTestBase {
         com.android.layoutlib.bridge.test.widgets.HookWidget.reset();
     }
 
+    @Ignore // b/146875031
     @Test
     public void testActivity() throws ClassNotFoundException, FileNotFoundException {
         renderAndVerify("activity.xml", "activity.png", true);
@@ -150,6 +152,7 @@ public class RenderTests extends RenderTestBase {
         renderAndVerify(params, "four_corners.png");
     }
 
+    @Ignore // b/146875031
     @Test
     public void testAllWidgets() throws ClassNotFoundException, FileNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
@@ -178,6 +181,7 @@ public class RenderTests extends RenderTestBase {
                 message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 
+    @Ignore // b/146875031
     @Test
     public void testAllWidgetsTablet() throws ClassNotFoundException, FileNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
@@ -1626,6 +1630,7 @@ public class RenderTests extends RenderTestBase {
                 TimeUnit.SECONDS.toNanos(2));
     }
 
+    @Ignore // b/146875031
     @Test
     public void testManyLineBreaks() throws Exception {
         String layout =
