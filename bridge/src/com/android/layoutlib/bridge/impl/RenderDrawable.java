@@ -171,7 +171,9 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
 
     @NonNull
     protected BufferedImage getImage(int w, int h) {
-        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(w > 0 ? w : 1,
+                h > 0 ? h : 1,
+                BufferedImage.TYPE_INT_ARGB);
         Graphics2D gc = image.createGraphics();
         gc.setComposite(AlphaComposite.Src);
 
