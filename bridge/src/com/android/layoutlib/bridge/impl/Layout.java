@@ -36,6 +36,7 @@ import com.android.resources.Density;
 import com.android.resources.ResourceType;
 import com.android.resources.ScreenOrientation;
 
+import android.R.id;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.graphics.Color;
@@ -224,6 +225,7 @@ class Layout extends FrameLayout {
             params.addRule(RelativeLayout.BELOW, below);
         }
         contentRoot.setLayoutParams(params);
+        contentRoot.setId(id.content);
         return contentRoot;
     }
 

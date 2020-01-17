@@ -1685,4 +1685,51 @@ public class RenderTests extends RenderTestBase {
         sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
         sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
+
+    @Test
+    public void testContentId() throws ClassNotFoundException {
+        final String layout =
+                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:layout_width=\"match_parent\"\n" +
+                        "              android:layout_height=\"match_parent\">\n" + "\n" +
+                        "    <com.android.layoutlib.bridge.test.widgets.ContentWidget\n" +
+                        "        android:layout_width=\"match_parent\"\n" +
+                        "        android:layout_height=\"wrap_content\"/>\n" +
+                        "</FrameLayout>";
+
+        {
+            // Create the layout pull parser.
+            LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+            // Create LayoutLibCallback.
+            LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+            layoutLibCallback.initResources();
+
+            SessionParams params = getSessionParamsBuilder()
+                    .setParser(parser)
+                    .setCallback(layoutLibCallback)
+                    .build();
+
+            RenderResult result = render(sBridge, params, TimeUnit.SECONDS.toNanos(2));
+            BufferedImage image = result.getImage();
+            assertNotNull(image);
+        }
+
+        {
+            // Create the layout pull parser.
+            LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+            // Create LayoutLibCallback.
+            LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+            layoutLibCallback.initResources();
+
+            SessionParams params = getSessionParamsBuilder()
+                    .setParser(parser)
+                    .setCallback(layoutLibCallback)
+                    .disableDecoration()
+                    .build();
+
+            RenderResult result = render(sBridge, params, TimeUnit.SECONDS.toNanos(2));
+            BufferedImage image = result.getImage();
+            assertNotNull(image);
+        }
+    }
 }
