@@ -202,6 +202,26 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public boolean isAmbientDisplayAvailable() {
+        return false;
+    }
+
+    @Override
+    public void suppressAmbientDisplay(String token, boolean suppress) {
+        // pass for now
+    }
+
+    @Override
+    public boolean isAmbientDisplaySuppressedForToken(String token) {
+        return false;
+    }
+
+    @Override
+    public boolean isAmbientDisplaySuppressed() {
+        return false;
+    }
+
+    @Override
     public boolean forceSuspend() {
         return false;
     }
