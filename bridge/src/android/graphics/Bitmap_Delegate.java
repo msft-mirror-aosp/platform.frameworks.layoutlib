@@ -458,8 +458,7 @@ public final class Bitmap_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static boolean nativeWriteToParcel(long nativeBitmap, boolean isMutable,
-            int density, Parcel p) {
+    /*package*/ static boolean nativeWriteToParcel(long nativeBitmap, int density, Parcel p) {
         // This is only called when sending a bitmap through aidl, so really this should not
         // be called.
         Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
