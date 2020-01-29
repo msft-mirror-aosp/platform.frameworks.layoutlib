@@ -18,6 +18,7 @@ package com.android.layoutlib.bridge.android;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.IContentProvider;
 import android.content.OperationApplicationException;
@@ -25,10 +26,12 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ICancellationSignal;
 import android.os.ParcelFileDescriptor;
+import android.os.RemoteCallback;
 import android.os.RemoteException;
 
 import java.io.FileNotFoundException;
@@ -73,6 +76,19 @@ public final class BridgeContentProvider implements IContentProvider {
     public String getType(Uri arg0) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @SuppressWarnings("deprecation")
+    public void getTypeAsync(Uri uri, RemoteCallback remoteCallback) {
+        AsyncTask.SERIAL_EXECUTOR.execute(() -> {
+            try {
+                final Bundle bundle = new Bundle();
+                bundle.putString(ContentResolver.REMOTE_CALLBACK_RESULT, getType(uri));
+                remoteCallback.sendResult(bundle);
+            } catch (RemoteException e) {
+              // Ignore
+            }
+        });
     }
 
     @Override
