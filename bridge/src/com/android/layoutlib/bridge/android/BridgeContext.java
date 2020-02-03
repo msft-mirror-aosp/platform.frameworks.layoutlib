@@ -247,7 +247,7 @@ public class BridgeContext extends Context {
             mApplicationInfo.flags = mApplicationInfo.flags | ApplicationInfo.FLAG_SUPPORTS_RTL;
         }
 
-        mWindowManager = new WindowManagerImpl(mMetrics);
+        mWindowManager = new WindowManagerImpl(this, mMetrics);
         mDisplayManager = new DisplayManager(this);
         mAutofillManager = new AutofillManager(this, new Default());
 
