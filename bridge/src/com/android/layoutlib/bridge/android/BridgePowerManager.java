@@ -110,6 +110,11 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public float getBrightnessConstraint(int constraint) {
+        return PowerManager.BRIGHTNESS_MAX;
+    }
+
+    @Override
     public void reboot(boolean confirm, String reason, boolean wait) {
         // pass for now.
     }
