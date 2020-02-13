@@ -276,7 +276,7 @@ public final class Typeface_Delegate {
                         null /*data*/);
             }
         } else {
-            typeface = new Typeface.Builder(context.getAssets(), path).build();
+            typeface = new Typeface.Builder(context.getAssets(), path, false, 0).build();
         }
 
         return typeface;

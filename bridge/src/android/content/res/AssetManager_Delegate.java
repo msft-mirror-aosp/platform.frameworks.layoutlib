@@ -21,9 +21,6 @@ import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.util.SparseArray;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 /**
  * Delegate used to provide implementation of a select few native methods of {@link AssetManager}
  * <p/>
@@ -38,10 +35,6 @@ public class AssetManager_Delegate {
     private static final DelegateManager<AssetManager_Delegate> sManager =
             new DelegateManager<>(AssetManager_Delegate.class);
 
-    public static DelegateManager<AssetManager_Delegate> getDelegateManager() {
-        return sManager;
-    }
-
     // ---- delegate methods. ----
 
     @LayoutlibDelegate
@@ -53,20 +46,6 @@ public class AssetManager_Delegate {
     @LayoutlibDelegate
     /*package*/ static void nativeDestroy(long ptr) {
         sManager.removeJavaReferenceFor(ptr);
-    }
-
-    @LayoutlibDelegate
-    public static InputStream open(AssetManager mgr, String fileName) throws IOException {
-        return mgr.open_Original(fileName);
-    }
-
-    @LayoutlibDelegate
-    public static InputStream open(AssetManager mgr, String fileName, int accessMode)
-            throws IOException {
-        if (!(mgr instanceof BridgeAssetManager)) {
-            return mgr.open_Original(fileName, accessMode);
-        }
-        return ((BridgeAssetManager) mgr).getAssetRepository().openAsset(fileName, accessMode);
     }
 
     @LayoutlibDelegate

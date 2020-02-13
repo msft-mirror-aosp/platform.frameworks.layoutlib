@@ -185,8 +185,8 @@ public class FontFamily_Builder_Delegate {
     private static Font loadFontBuffer(@NonNull ByteBuffer buffer) {
         try {
             byte[] byteArray = new byte[buffer.limit()];
-            buffer.get(byteArray);
             buffer.rewind();
+            buffer.get(byteArray);
             return Font.createFont(Font.TRUETYPE_FONT, new ByteArrayInputStream(byteArray));
         } catch (Exception e) {
             Bridge.getLog().fidelityWarning(LayoutLog.TAG_BROKEN, "Unable to load font",
