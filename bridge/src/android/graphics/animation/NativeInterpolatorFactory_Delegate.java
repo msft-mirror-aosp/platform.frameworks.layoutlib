@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.internal.view.animation;
+package android.graphics.animation;
 
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
@@ -36,13 +36,13 @@ import android.view.animation.PathInterpolator;
 
 /**
  * Delegate used to provide new implementation of a select few methods of {@link
- * NativeInterpolatorFactoryHelper}
+ * NativeInterpolatorFactory}
  * <p>
- * Through the layoutlib_create tool, the original  methods of NativeInterpolatorFactoryHelper have
+ * Through the layoutlib_create tool, the original  methods of NativeInterpolatorFactory have
  * been replaced by calls to methods of the same name in this delegate class.
  */
 @SuppressWarnings("unused")
-public class NativeInterpolatorFactoryHelper_Delegate {
+public class NativeInterpolatorFactory_Delegate {
     private static final DelegateManager<Interpolator> sManager = new DelegateManager<>
             (Interpolator.class);
 
