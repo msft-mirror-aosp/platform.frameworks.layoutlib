@@ -615,7 +615,8 @@ public class BridgeContext extends Context {
                 return mWindowManager;
 
             case POWER_SERVICE:
-                return new PowerManager(this, new BridgePowerManager(), new Handler());
+                return new PowerManager(this, new BridgePowerManager(), new BridgeThermalService(),
+                        new Handler());
 
             case DISPLAY_SERVICE:
                 return mDisplayManager;
