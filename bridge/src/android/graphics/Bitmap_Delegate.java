@@ -680,6 +680,13 @@ public final class Bitmap_Delegate {
         return !bmpDelegate.mIsMutable;
     }
 
+    @LayoutlibDelegate
+    /*package*/ static HardwareBuffer nativeGetHardwareBuffer(long nativeBitmap) {
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
+                "HardwareBuffer is not supported", null /*data*/);
+        return null;
+    }
+
     // ---- Private delegate/helper methods ----
 
     private Bitmap_Delegate(BufferedImage image, Config config) {
