@@ -79,6 +79,7 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @SuppressWarnings("deprecation")
+    @Override
     public void getTypeAsync(Uri uri, RemoteCallback remoteCallback) {
         AsyncTask.SERIAL_EXECUTOR.execute(() -> {
             try {
@@ -159,6 +160,22 @@ public final class BridgeContentProvider implements IContentProvider {
     public Uri canonicalize(String callingPkg, String callingFeatureId, Uri uri)
             throws RemoteException {
         return null;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void canonicalizeAsync(String callingPkg, String callingFeatureId, Uri uri,
+            RemoteCallback remoteCallback) {
+        AsyncTask.SERIAL_EXECUTOR.execute(() -> {
+            try {
+                final Bundle bundle = new Bundle();
+                bundle.putParcelable(ContentResolver.REMOTE_CALLBACK_RESULT,
+                        canonicalize(callingPkg, callingFeatureId, uri));
+                remoteCallback.sendResult(bundle);
+            } catch (RemoteException e) {
+              // Ignore
+            }
+        });
     }
 
     @Override
