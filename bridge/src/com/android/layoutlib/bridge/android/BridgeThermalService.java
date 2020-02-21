@@ -52,13 +52,13 @@ public class BridgeThermalService implements IThermalService {
     }
 
     @Override
-    public List<Temperature> getCurrentTemperatures() {
-        return new ArrayList<>();
+    public Temperature[] getCurrentTemperatures() {
+        return new Temperature[0];
     }
 
     @Override
-    public List<Temperature> getCurrentTemperaturesWithType(int type) {
-        return new ArrayList<>();
+    public Temperature[] getCurrentTemperaturesWithType(int type) {
+        return new Temperature[0];
     }
 
     @Override
@@ -77,13 +77,13 @@ public class BridgeThermalService implements IThermalService {
     }
 
     @Override
-    public List<CoolingDevice> getCurrentCoolingDevices() {
-        return new ArrayList<>();
+    public CoolingDevice[] getCurrentCoolingDevices() {
+        return new CoolingDevice[0];
     }
 
     @Override
-    public List<CoolingDevice> getCurrentCoolingDevicesWithType(int type) {
-        return new ArrayList<>();
+    public CoolingDevice[] getCurrentCoolingDevicesWithType(int type) {
+        return new CoolingDevice[0];
     }
 
     @Override
