@@ -629,13 +629,6 @@ public final class Bitmap_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static GraphicBuffer nativeCreateGraphicBufferHandle(long nativeBitmap) {
-        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
-                "Bitmap.nativeCreateGraphicBufferHandle() is not supported", null /*data*/);
-        return null;
-    }
-
-    @LayoutlibDelegate
     /*package*/ static boolean nativeIsSRGB(long nativeBitmap) {
         Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Color spaces are not supported", null /*data*/);
