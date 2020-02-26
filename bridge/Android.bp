@@ -18,7 +18,6 @@ java_library_host {
     name: "layoutlib",
 
     srcs: ["src/**/*.java"],
-    java_version: "1.8",
     java_resource_dirs: ["resources"],
 
     libs: [
@@ -43,7 +42,6 @@ java_library_host {
     name: "layoutlib-no-framework",
 
     srcs: ["src/**/*.java"],
-    java_version: "1.8",
     java_resource_dirs: ["resources"],
 
     libs: [

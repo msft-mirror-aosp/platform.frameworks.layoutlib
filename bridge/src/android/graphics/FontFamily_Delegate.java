@@ -16,7 +16,6 @@
 
 package android.graphics;
 
-import com.android.ide.common.rendering.api.AssetRepository;
 import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.DelegateManager;
@@ -24,16 +23,12 @@ import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.content.res.AssetManager;
-import android.content.res.BridgeAssetManager;
 import android.graphics.fonts.FontVariationAxis;
 
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +42,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
-import sun.font.FontUtilities;
 
 import static android.graphics.Typeface.RESOLVE_BY_FONT_TABLE;
 import static android.graphics.Typeface_Delegate.SYSTEM_FONTS;
