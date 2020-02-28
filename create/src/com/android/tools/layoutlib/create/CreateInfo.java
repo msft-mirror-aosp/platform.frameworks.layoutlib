@@ -370,8 +370,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.animation.PropertyValuesHolder$FloatPropertyValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiFloatValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiIntValuesHolder#sJNISetterPropertyMap",
-        "libcore.util.NativeAllocationRegistry#freeFunction",
-        "libcore.util.NativeAllocationRegistry#size",
     };
 
     /**
