@@ -95,6 +95,16 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public void setPowerBoost(int boost, int durationMs) {
+        // pass for now.
+    }
+
+    @Override
+    public void setPowerMode(int mode, boolean enabled) {
+        // pass for now.
+    }
+
+    @Override
     public void crash(String arg0) throws RemoteException {
         // pass for now.
     }
