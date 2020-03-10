@@ -1732,4 +1732,37 @@ public class RenderTests extends RenderTestBase {
             assertNotNull(image);
         }
     }
+
+    /**
+     * Tests that the TextClock widget renders without error
+     * <p/>
+     * http://b/150151293
+     */
+    @Test
+    public void testTextClock() throws ClassNotFoundException {
+        String layout =
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"fill_parent\"\n" +
+                        "              android:layout_height=\"fill_parent\">\n" +
+                        "    <TextClock\n" +
+                        "             android:layout_height=\"wrap_content\"\n" +
+                        "             android:layout_width=\"wrap_content\"\n" +
+                        "             android:text=\"12:34\"" +
+                        "             android:textSize=\"18sp\" />\n" +
+                        "</LinearLayout>\n";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "textclock.png");
+    }
 }
