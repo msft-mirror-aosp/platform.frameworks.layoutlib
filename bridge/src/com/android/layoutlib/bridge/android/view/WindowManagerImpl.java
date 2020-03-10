@@ -29,6 +29,7 @@ import android.view.Display.Mode;
 import android.view.DisplayAdjustments;
 import android.view.DisplayCutout;
 import android.view.DisplayInfo;
+import android.view.InsetsState;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
@@ -141,9 +142,10 @@ public class WindowManagerImpl implements WindowManager {
             final Rect stableInsets = new Rect();
             final DisplayCutout.ParcelableWrapper displayCutout =
                     new DisplayCutout.ParcelableWrapper();
+            final InsetsState insetsState = new InsetsState();
             WindowManagerGlobal.getWindowManagerService().getWindowInsets(
                     new WindowManager.LayoutParams(), mContext.getDisplayId(), systemWindowInsets,
-                    stableInsets, displayCutout);
+                    stableInsets, displayCutout, insetsState);
             return new WindowInsets.Builder()
                     .setSystemWindowInsets(Insets.of(systemWindowInsets))
                     .setStableInsets(Insets.of(stableInsets))
