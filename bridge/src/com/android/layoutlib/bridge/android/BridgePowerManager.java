@@ -105,6 +105,11 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public boolean setPowerModeChecked(int mode, boolean enabled) {
+        return false;
+    }
+
+    @Override
     public void crash(String arg0) throws RemoteException {
         // pass for now.
     }
