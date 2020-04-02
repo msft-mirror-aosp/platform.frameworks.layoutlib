@@ -25,6 +25,7 @@ import com.android.ide.common.rendering.api.ResourceNamespace.Resolver;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.StyleResourceValue;
+import com.android.ide.common.rendering.api.TextResourceValue;
 import com.android.internal.util.XmlUtils;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -38,6 +39,7 @@ import android.content.res.Resources.Theme;
 import android.graphics.Typeface;
 import android.graphics.Typeface_Accessor;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater_Delegate;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.util.TypedValue.TYPE_ATTRIBUTE;
 import static android.util.TypedValue.TYPE_DIMENSION;
 import static android.util.TypedValue.TYPE_FLOAT;
@@ -192,8 +195,22 @@ public final class BridgeTypedArray extends TypedArray {
      */
     @Override
     public CharSequence getText(int index) {
-        // FIXME: handle styled strings!
-        return getString(index);
+        if (!hasValue(index)) {
+            return null;
+        }
+        // As unfortunate as it is, it's possible to use enums with all attribute formats,
+        // not just integers/enums. So, we need to search the enums always. In case
+        // enums are used, the returned value is an integer.
+        Integer v = resolveEnumAttribute(index);
+        if (v != null) {
+            return String.valueOf((int) v);
+        }
+        ResourceValue resourceValue = mResourceData[index];
+        if (resourceValue instanceof TextResourceValue) {
+            String rawString = resourceValue.getRawXmlValue();
+            return Html.fromHtml(rawString, FROM_HTML_MODE_COMPACT);
+        }
+        return resourceValue.getValue();
     }
 
     /**
