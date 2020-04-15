@@ -185,7 +185,7 @@ public class FontFamily_Delegate {
         } catch (FileNotFoundException e) {
             Bridge.getLog().error(LayoutLog.TAG_BROKEN,
                     "Unable to load the list of fonts. Try re-installing the SDK Platform from the SDK Manager.",
-                    e, null);
+                    e, null, null);
         } finally {
             if (scanner != null) {
                 scanner.close();
@@ -270,12 +270,12 @@ public class FontFamily_Delegate {
                 }
                 Bridge.getLog().fidelityWarning(LayoutLog.TAG_BROKEN,
                         String.format("Unable to load font %1$s", relativePath),
-                        e, null);
+                        e, null, null);
             }
         } else {
             Bridge.getLog().fidelityWarning(LayoutLog.TAG_UNSUPPORTED,
                     "Only platform fonts located in " + SYSTEM_FONTS + "can be loaded.",
-                    null, null);
+                    null, null, null);
         }
 
         return null;

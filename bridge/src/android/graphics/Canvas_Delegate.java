@@ -356,7 +356,7 @@ public final class Canvas_Delegate extends BaseCanvas_Delegate {
             assert false;
             Bridge.getLog().fidelityWarning(LayoutLog.TAG_MATRIX_AFFINE,
                     "android.graphics.Canvas#setMatrix(android.graphics.Matrix) only " +
-                    "supports affine transformations.", null, null /*data*/);
+                    "supports affine transformations.", null, null, null /*data*/);
         }
     }
 
@@ -402,7 +402,7 @@ public final class Canvas_Delegate extends BaseCanvas_Delegate {
 
         if (canvasDelegate.mDrawFilter != null && !canvasDelegate.mDrawFilter.isSupported()) {
             Bridge.getLog().fidelityWarning(LayoutLog.TAG_DRAWFILTER,
-                    canvasDelegate.mDrawFilter.getSupportMessage(), null, null /*data*/);
+                    canvasDelegate.mDrawFilter.getSupportMessage(), null, null, null /*data*/);
         }
     }
 

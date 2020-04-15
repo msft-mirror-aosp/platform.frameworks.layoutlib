@@ -296,7 +296,7 @@ public final class BridgeInflater extends LayoutInflater {
 
             if (name == null) {
                 Bridge.getLog().error(LayoutLog.TAG_BROKEN, "Unable to inflate view tag without " +
-                  "class attribute", null);
+                  "class attribute", null, null);
                 // We weren't able to resolve the view so we just pass a mock View to be able to
                 // continue rendering.
                 view = new MockView(context, attrs);
@@ -323,7 +323,7 @@ public final class BridgeInflater extends LayoutInflater {
                 // There is some unknown inflation exception in inflating a View that was found.
                 view = new MockView(context, attrs);
                 ((MockView) view).setText(name);
-                Bridge.getLog().error(LayoutLog.TAG_BROKEN, e.getMessage(), e, null);
+                Bridge.getLog().error(LayoutLog.TAG_BROKEN, e.getMessage(), e, null, null);
             } else {
                 final Object lastContext = mConstructorArgs[0];
                 mConstructorArgs[0] = context;
@@ -383,7 +383,7 @@ public final class BridgeInflater extends LayoutInflater {
                     return inflate(bridgeParser, root);
                 } catch (Exception e) {
                     Bridge.getLog().error(LayoutLog.TAG_RESOURCES_READ,
-                            "Failed to parse file " + path, e, null);
+                            "Failed to parse file " + path, e, null, null);
 
                     return null;
                 }

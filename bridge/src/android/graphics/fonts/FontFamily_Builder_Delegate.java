@@ -190,7 +190,7 @@ public class FontFamily_Builder_Delegate {
             return Font.createFont(Font.TRUETYPE_FONT, new ByteArrayInputStream(byteArray));
         } catch (Exception e) {
             Bridge.getLog().fidelityWarning(LayoutLog.TAG_BROKEN, "Unable to load font",
-                    e, null);
+                    e, null, null);
         }
 
         return null;
@@ -202,7 +202,7 @@ public class FontFamily_Builder_Delegate {
             return Font.createFont(Font.TRUETYPE_FONT, file);
         } catch (Exception e) {
             Bridge.getLog().fidelityWarning(LayoutLog.TAG_BROKEN, "Unable to load font",
-                    e, null);
+                    e, null, null);
         }
 
         return null;

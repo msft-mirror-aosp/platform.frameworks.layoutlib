@@ -416,7 +416,7 @@ public class RenderTestBase {
         if (sLayoutLibLog == null) {
             sLayoutLibLog = new LayoutLog() {
                 @Override
-                public void warning(String tag, String message, Object data) {
+                public void warning(String tag, String message, Object cookie, Object data) {
                     System.out.println("Warning " + tag + ": " + message);
                     failWithMsg(message);
                 }
@@ -433,13 +433,14 @@ public class RenderTestBase {
                 }
 
                 @Override
-                public void error(String tag, String message, Object data) {
+                public void error(String tag, String message, Object cookie, Object data) {
                     System.out.println("Error " + tag + ": " + message);
                     failWithMsg(message);
                 }
 
                 @Override
-                public void error(String tag, String message, Throwable throwable, Object data) {
+                public void error(String tag, String message, Throwable throwable, Object cookie,
+                        Object data) {
                     System.out.println("Error " + tag + ": " + message);
                     if (throwable != null) {
                         throwable.printStackTrace();

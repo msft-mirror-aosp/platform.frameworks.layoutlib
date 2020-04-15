@@ -91,7 +91,7 @@ public class StatusBar extends CustomBar {
 
         if (icons.size() != 2 || clockView == null) {
             Bridge.getLog().error(LayoutLog.TAG_BROKEN, "Unable to initialize statusbar", null,
-                    null);
+                    null, null);
             return;
         }
 
@@ -127,10 +127,10 @@ public class StatusBar extends CustomBar {
                         Drawable.createFromXml(mContext.getResources(), parser));
             } catch (XmlPullParserException e) {
                 Bridge.getLog().error(LayoutLog.TAG_BROKEN, "Unable to draw wifi icon", e,
-                        null);
+                        null, null);
             } catch (IOException e) {
                 Bridge.getLog().error(LayoutLog.TAG_BROKEN, "Unable to draw wifi icon", e,
-                        null);
+                        null, null);
             }
         }
 

@@ -110,7 +110,8 @@ public class PropertyValuesHolder_Delegate {
             method.setAccessible(true);
             method.invoke(target, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            Bridge.getLog().error(null, "Unable to update property during animation", e, null);
+            Bridge.getLog().error(null, "Unable to update property during animation", e, null,
+                    null);
         }
     }
 

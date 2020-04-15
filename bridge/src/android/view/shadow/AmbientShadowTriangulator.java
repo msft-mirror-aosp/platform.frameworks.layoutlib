@@ -45,10 +45,10 @@ class AmbientShadowTriangulator {
         } catch (IndexOutOfBoundsException|ArithmeticException mathError) {
             Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Arithmetic error while drawing " +
                             "ambient shadow",
-                    mathError);
+                    null, mathError);
         } catch (Exception ex) {
             Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Error while drawing shadow",
-                    ex);
+                    null, ex);
         }
     }
 

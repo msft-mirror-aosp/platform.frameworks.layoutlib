@@ -917,7 +917,7 @@ public class GcSnapshot {
             bounds.x += latestTransform.getTranslateX() - originalTransform.getTranslateX();
             bounds.y += latestTransform.getTranslateY() - originalTransform.getTranslateY();
         } catch (NoninvertibleTransformException e) {
-            Bridge.getLog().warning(null, "Non invertible transformation", null);
+            Bridge.getLog().warning(null, "Non invertible transformation", null, null);
         }
         return bounds;
     }

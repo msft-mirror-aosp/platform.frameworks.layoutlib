@@ -100,7 +100,7 @@ public class AnimatedVectorDrawable_Delegate {
     /*package*/ static long nCreatePathDataPropertyHolder(long nativePtr, long startValuePtr,
             long endValuePtr) {
         Bridge.getLog().fidelityWarning(LayoutLog.TAG_UNSUPPORTED, "AnimatedVectorDrawable path " +
-                "animations are not supported.", null, null);
+                "animations are not supported.", null, null, null);
         return 0;
     }
 

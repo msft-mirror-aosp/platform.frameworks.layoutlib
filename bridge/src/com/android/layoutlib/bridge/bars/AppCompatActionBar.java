@@ -119,7 +119,7 @@ public class AppCompatActionBar extends BridgeActionBar {
             getContentRoot().setId(id.content);
         } catch (Exception e) {
             Bridge.getLog().warning(LayoutLog.TAG_BROKEN,
-                    "Failed to load AppCompat ActionBar with unknown error.", e);
+                    "Failed to load AppCompat ActionBar with unknown error.", null, e);
         }
     }
 

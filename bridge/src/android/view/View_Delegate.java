@@ -55,7 +55,7 @@ public class View_Delegate {
             // all the layout.
             thisView.draw_Original(canvas);
         } catch (Throwable t) {
-            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View draw failed", t, null);
+            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View draw failed", t, null, null);
         }
     }
 
@@ -67,7 +67,7 @@ public class View_Delegate {
             // all the layout.
             return thisView.draw_Original(canvas, parent, drawingTime);
         } catch (Throwable t) {
-            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View draw failed", t, null);
+            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View draw failed", t, null, null);
         }
         return false;
     }
@@ -79,7 +79,7 @@ public class View_Delegate {
             // all the layout.
             thisView.measure_Original(widthMeasureSpec, heightMeasureSpec);
         } catch (Throwable t) {
-            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View measure failed", t, null);
+            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View measure failed", t, null, null);
         }
     }
 
@@ -90,7 +90,7 @@ public class View_Delegate {
             // all the layout.
             thisView.layout_Original(l, t, r, b);
         } catch (Throwable th) {
-            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View layout failed", th, null);
+            Bridge.getLog().error(LayoutLog.TAG_BROKEN, "View layout failed", th, null, null);
         }
     }
 

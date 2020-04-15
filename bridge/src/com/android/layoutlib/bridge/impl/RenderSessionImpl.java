@@ -300,14 +300,14 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 if (!params.isRtlSupported()) {
                     Bridge.getLog().warning(LayoutLog.TAG_RTL_NOT_ENABLED,
                             "You are using a right-to-left " +
-                                    "(RTL) locale but RTL is not enabled", null);
+                                    "(RTL) locale but RTL is not enabled", null, null);
                 } else if (params.getSimulatedPlatformVersion() !=0 &&
                         params.getSimulatedPlatformVersion() < 17) {
                     // This will render ok because we are using the latest layoutlib but at least
                     // warn the user that this might fail in a real device.
                     Bridge.getLog().warning(LayoutLog.TAG_RTL_NOT_SUPPORTED, "You are using a " +
                             "right-to-left " +
-                            "(RTL) locale but RTL is not supported for API level < 17", null);
+                            "(RTL) locale but RTL is not supported for API level < 17", null, null);
                 }
             }
 
