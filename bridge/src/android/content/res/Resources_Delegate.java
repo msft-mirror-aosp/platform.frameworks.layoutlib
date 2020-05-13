@@ -51,7 +51,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.res.Resources.NotFoundException;
 import android.content.res.Resources.Theme;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableInflater_Delegate;
@@ -368,7 +367,7 @@ public class Resources_Delegate {
                     try {
                         if (element.startsWith("#")) {
                             // This integer represents a color (starts with #).
-                            values[i] = Color.parseColor(element);
+                            values[i] = ResourceHelper.getColor(element);
                         } else {
                             values[i] = getInt(element);
                         }

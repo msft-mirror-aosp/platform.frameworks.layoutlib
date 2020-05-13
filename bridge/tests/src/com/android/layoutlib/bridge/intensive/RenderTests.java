@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 
+import android.R.attr;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.res.AssetManager;
@@ -963,6 +964,16 @@ public class RenderTests extends RenderTestBase {
         mContext.resolveThemeAttribute(android.R.attr.colorPrimary, outValue, true);
         assertEquals(TypedValue.TYPE_INT_COLOR_ARGB8, outValue.type);
         assertNotEquals(0, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.colorError, outValue, true);
+        assertEquals(TypedValue.TYPE_INT_COLOR_RGB4, outValue.type);
+        assertEquals(-65536, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(attr.colorActivatedHighlight, outValue, true);
+        assertEquals(TypedValue.TYPE_INT_COLOR_ARGB4, outValue.type);
+        assertEquals(-872349952, outValue.data);
 
         outValue = new TypedValue();
         mContext.resolveThemeAttribute(android.R.attr.isLightTheme, outValue, true);

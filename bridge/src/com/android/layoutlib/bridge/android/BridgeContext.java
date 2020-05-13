@@ -32,6 +32,7 @@ import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.BridgeConstants;
 import com.android.layoutlib.bridge.android.view.WindowManagerImpl;
 import com.android.layoutlib.bridge.impl.ParserFactory;
+import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.impl.Stack;
 import com.android.resources.ResourceType;
 import com.android.util.Pair;
@@ -66,7 +67,6 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
@@ -416,8 +416,20 @@ public class BridgeContext extends Context {
         String stringValue = value.getValue();
         if (!stringValue.isEmpty()) {
             if (stringValue.charAt(0) == '#') {
-                outValue.type = TypedValue.TYPE_INT_COLOR_ARGB8;
-                outValue.data = Color.parseColor(value.getValue());
+                outValue.data = ResourceHelper.getColor(stringValue);
+                switch (stringValue.length()) {
+                    case 4:
+                        outValue.type = TypedValue.TYPE_INT_COLOR_RGB4;
+                        break;
+                    case 5:
+                        outValue.type = TypedValue.TYPE_INT_COLOR_ARGB4;
+                        break;
+                    case 7:
+                        outValue.type = TypedValue.TYPE_INT_COLOR_RGB8;
+                        break;
+                    default:
+                        outValue.type = TypedValue.TYPE_INT_COLOR_ARGB8;
+                }
             }
             else if (stringValue.charAt(0) == '@') {
                 outValue.type = TypedValue.TYPE_REFERENCE;
