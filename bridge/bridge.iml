@@ -92,5 +92,6 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="validator" />
   </component>
 </module>

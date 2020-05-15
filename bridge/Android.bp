@@ -25,6 +25,7 @@ java_library_host {
         "layoutlib_api-prebuilt",
         "tools-common-prebuilt",
         "guava",
+        "layoutlib-validator"
     ],
 
     static_libs: [
@@ -56,6 +57,7 @@ java_library_host {
         "tools-common-prebuilt",
         "ninepatch-prebuilt",
         "layoutlib-common",
+        "layoutlib-validator",
     ],
 
     dist: {
