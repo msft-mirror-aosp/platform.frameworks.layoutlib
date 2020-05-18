@@ -257,7 +257,7 @@ public final class Typeface_Delegate {
             }
 
             if (parser != null) {
-                // TODO(namespaces): The aapt namespace should not matter for parsing font files?
+                // TODO(b/156609434): The aapt namespace should not matter for parsing font files?
                 BridgeXmlBlockParser blockParser =
                         new BridgeXmlBlockParser(
                                 parser, context, ResourceNamespace.fromBoolean(isFramework));

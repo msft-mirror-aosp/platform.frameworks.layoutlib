@@ -1096,7 +1096,7 @@ public class BridgeContext extends Context {
      * Maps a given style to a numeric id.
      *
      * <p>For now Bridge handles numeric ids (both fixed and dynamic) for framework and the callback
-     * for non-framework. TODO(namespaces): teach the IDE about fixed framework ids and handle this
+     * for non-framework. TODO(b/156609434): teach the IDE about fixed framework ids and handle this
      * all in the callback.
      */
     public int getDynamicIdByStyle(StyleResourceValue resValue) {
@@ -1111,7 +1111,7 @@ public class BridgeContext extends Context {
      * Maps a numeric id back to {@link StyleResourceValue}.
      *
      * <p>For now framework numeric ids are handled by Bridge, so try there first and fall back to
-     * the callback, which manages ids for non-framework resources. TODO(namespaces): manage all
+     * the callback, which manages ids for non-framework resources. TODO(b/156609434): manage all
      * ids in the IDE.
      *
      * <p>Once we the resource for the given id, we ask the IDE to get the

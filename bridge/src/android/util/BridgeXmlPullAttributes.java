@@ -104,7 +104,7 @@ public class BridgeXmlPullAttributes extends XmlPullAttributes implements Resolv
             return Bridge.getResourceId(ResourceType.ATTR, name);
         }
 
-        // TODO(namespaces): cache the namespace objects.
+        // TODO(b/156609434): cache the namespace objects.
         ResourceNamespace namespace = ResourceNamespace.fromNamespaceUri(ns);
         if (namespace != null) {
             return mContext.getLayoutlibCallback().getOrGenerateResourceId(

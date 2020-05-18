@@ -542,7 +542,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     /**
      * Returns details of a framework resource from its integer value.
      *
-     * <p>TODO(namespaces): remove this and just do all id resolution through the callback.
+     * <p>TODO(b/156609434): remove this and just do all id resolution through the callback.
      */
     @Nullable
     public static ResourceReference resolveResourceId(int value) {
