@@ -34,8 +34,6 @@ public interface RemoteLayoutlibCallback extends Remote {
     Object loadView(String name, Class[] constructorSignature, Object[] constructorArgs)
             throws Exception;
 
-    String getNamespace() throws RemoteException;
-
     ResourceReference resolveResourceId(int id) throws RemoteException;
 
     int getOrGenerateResourceId(ResourceReference resource) throws RemoteException;

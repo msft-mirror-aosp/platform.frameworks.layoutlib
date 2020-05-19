@@ -157,15 +157,6 @@ public class RemoteLayoutlibCallbackAdapter extends LayoutlibCallback {
     }
 
     @Override
-    public String getNamespace() {
-        try {
-            return mDelegate.getNamespace();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public ResourceReference resolveResourceId(int id) {
         try {
             return mDelegate.resolveResourceId(id);

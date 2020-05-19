@@ -108,13 +108,6 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
         return viewConstructor.newInstance(constructorArgs);
     }
 
-    @NonNull
-    @Override
-    public String getNamespace() {
-        return String.format(SdkConstants.NS_CUSTOM_RESOURCES_S,
-                PACKAGE_NAME);
-    }
-
     @Override
     public ResourceReference resolveResourceId(int id) {
         return mProjectResources.get(id);

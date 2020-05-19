@@ -56,11 +56,6 @@ public class RemoteLayoutlibCallbackAdapter implements RemoteLayoutlibCallback {
     }
 
     @Override
-    public String getNamespace() {
-        return mDelegate.getNamespace();
-    }
-
-    @Override
     public ResourceReference resolveResourceId(int id) {
         return mDelegate.resolveResourceId(id);
     }
