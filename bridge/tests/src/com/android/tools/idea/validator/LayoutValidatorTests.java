@@ -67,7 +67,7 @@ public class LayoutValidatorTests extends RenderTestBase {
         render(sBridge, params, -1, session -> {
             ValidatorResult result = LayoutValidator
                     .validate(((View) session.getRootViews().get(0).getViewObject()));
-            assertEquals(2, result.getIssues().size());
+            assertEquals(3, result.getIssues().size());
             for (Issue issue : result.getIssues()) {
                 assertEquals(Type.ACCESSIBILITY, issue.mType);
                 assertEquals(Level.ERROR, issue.mLevel);
@@ -75,11 +75,13 @@ public class LayoutValidatorTests extends RenderTestBase {
 
             assertEquals("This item may not have a label readable by screen readers.",
                     result.getIssues().get(0).mMsg);
-            assertEquals(
-                    "The item's text contrast ratio is 1.00. This ratio is based on a text color " +
-                            "of #000000 and background color of #000000. Consider increasing this item's" +
-                            " text contrast ratio to 3.00 or greater.",
+            assertEquals("This item's size is 10dp x 10dp. Consider making this touch target " +
+                            "48dp wide and 48dp high or larger.",
                     result.getIssues().get(1).mMsg);
+            assertEquals("The item's text contrast ratio is 1.00. This ratio is based on a text color " +
+                            "of #000000 and background color of #000000. Consider increasing this item's" +
+                            " text contrast ratio to 4.50 or greater.",
+                    result.getIssues().get(2).mMsg);
             // TODO: It should recognize 10dp x 10dp button. Investigate why it's not.
         });
     }

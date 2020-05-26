@@ -52,6 +52,7 @@ public class WindowManagerImpl implements WindowManager {
         info.supportedModes = new Mode[] {
                 new Mode(0, mMetrics.widthPixels, mMetrics.heightPixels, 60f)
         };
+        info.logicalDensityDpi = mMetrics.densityDpi;
         mDisplay = new Display(null, Display.DEFAULT_DISPLAY, info,
                 DisplayAdjustments.DEFAULT_DISPLAY_ADJUSTMENTS);
     }
