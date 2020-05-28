@@ -64,6 +64,7 @@ public class SessionParamsBuilder {
     private boolean enableShadows = true;
     private boolean highQualityShadows = true;
     private boolean enableLayoutValidator = false;
+    private boolean enableLayoutValidatorImageCheck = false;
 
     @NonNull
     public SessionParamsBuilder setParser(@NonNull LayoutPullParser layoutParser) {
@@ -183,6 +184,12 @@ public class SessionParamsBuilder {
     }
 
     @NonNull
+    public SessionParamsBuilder enableLayoutValidationImageCheck() {
+        this.enableLayoutValidatorImageCheck = true;
+        return this;
+    }
+
+    @NonNull
     public SessionParams build() {
         assert mFrameworkResources != null;
         assert mProjectResources != null;
@@ -206,6 +213,9 @@ public class SessionParamsBuilder {
         params.setFlag(RenderParamsFlags.FLAG_ENABLE_SHADOW, enableShadows);
         params.setFlag(RenderParamsFlags.FLAG_RENDER_HIGH_QUALITY_SHADOW, highQualityShadows);
         params.setFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR, enableLayoutValidator);
+        params.setFlag(
+                RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK,
+                enableLayoutValidatorImageCheck);
         if (mImageFactory != null) {
             params.setImageFactory(mImageFactory);
         }

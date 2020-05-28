@@ -48,6 +48,9 @@ import com.android.layoutlib.bridge.impl.binding.FakeAdapter;
 import com.android.layoutlib.bridge.impl.binding.FakeExpandableAdapter;
 import com.android.tools.layoutlib.java.System_Delegate;
 import com.android.tools.idea.validator.ValidatorResult;
+import com.android.tools.idea.validator.LayoutValidator;
+import com.android.tools.idea.validator.ValidatorResult;
+import com.android.tools.idea.validator.ValidatorResult.Builder;
 import com.android.util.Pair;
 
 import android.annotation.NonNull;
@@ -570,6 +573,24 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mSystemViewInfoList =
                     visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
                     false);
+
+            try {
+                boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
+                boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
+                         params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK));
+
+                if (enableLayoutValidation && !getViewInfos().isEmpty()) {
+                    BufferedImage imageToPass =
+                            enableLayoutValidationImageCheck ? getImage() : null;
+                    ValidatorResult validatorResult =
+                            LayoutValidator.validate(((View) getViewInfos().get(0).getViewObject()), imageToPass);
+                    setValidatorResult(validatorResult);
+                }
+            } catch (Throwable e) {
+                ValidatorResult.Builder builder = new Builder();
+                builder.mMetric.mErrorMessage = e.getMessage();
+                setValidatorResult(builder.build());
+            }
 
             // success!
             return renderResult;

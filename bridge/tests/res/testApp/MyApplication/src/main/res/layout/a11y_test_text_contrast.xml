@@ -30,7 +30,7 @@
         android:layout_marginLeft="0dp"
         android:background="@android:color/holo_green_dark"
         android:textColor="#fe0099cc" />
-    <!-- fails : fe0099cc passes : ff0098cb -->
+    <!-- ATF bypasses transparent views / colors unless image is available. -->
     <Button
         android:id="@+id/low_contrast_button2"
         android:layout_width="wrap_content"

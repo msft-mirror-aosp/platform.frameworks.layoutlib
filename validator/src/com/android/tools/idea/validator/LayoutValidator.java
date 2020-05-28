@@ -21,9 +21,11 @@ import com.android.tools.idea.validator.ValidatorData.Policy;
 import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.accessibility.AccessibilityValidator;
 import com.android.tools.layoutlib.annotations.NotNull;
+import com.android.tools.layoutlib.annotations.Nullable;
 
 import android.view.View;
 
+import java.awt.image.BufferedImage;
 import java.util.EnumSet;
 
 /**
@@ -31,7 +33,7 @@ import java.util.EnumSet;
  */
 public class LayoutValidator {
 
-    private static final ValidatorData.Policy DEFAULT_POLICY = new Policy(
+    private static ValidatorData.Policy sPolicy = new Policy(
             EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
             EnumSet.of(Level.ERROR, Level.WARNING));
 
@@ -42,11 +44,19 @@ public class LayoutValidator {
      * @return The validation results. If no issue is found it'll return empty result.
      */
     @NotNull
-    public static ValidatorResult validate(@NotNull View view) {
+    public static ValidatorResult validate(@NotNull View view, @Nullable BufferedImage image) {
         if (view.isAttachedToWindow()) {
-            return AccessibilityValidator.validateAccessibility(view, DEFAULT_POLICY.mLevels);
+            return AccessibilityValidator.validateAccessibility(view, image, sPolicy.mLevels);
         }
         // TODO: Add non-a11y layout validation later.
         return new ValidatorResult.Builder().build();
+    }
+
+    /**
+     * Update the policy with which to run the validation call.
+     * @param policy new policy.
+     */
+    public static void updatePolicy(@NotNull ValidatorData.Policy policy) {
+        sPolicy = policy;
     }
 }

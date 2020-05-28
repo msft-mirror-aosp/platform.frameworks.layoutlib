@@ -66,7 +66,7 @@ public class LayoutValidatorTests extends RenderTestBase {
 
         render(sBridge, params, -1, session -> {
             ValidatorResult result = LayoutValidator
-                    .validate(((View) session.getRootViews().get(0).getViewObject()));
+                    .validate(((View) session.getRootViews().get(0).getViewObject()), null);
             assertEquals(3, result.getIssues().size());
             for (Issue issue : result.getIssues()) {
                 assertEquals(Type.ACCESSIBILITY, issue.mType);

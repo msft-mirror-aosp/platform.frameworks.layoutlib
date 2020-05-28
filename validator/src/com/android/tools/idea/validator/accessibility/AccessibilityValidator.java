@@ -22,11 +22,13 @@ import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorResult;
+import com.android.tools.idea.validator.ValidatorResult.Metric;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
 import android.view.View;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -38,6 +40,7 @@ import com.google.android.apps.common.testing.accessibility.framework.Accessibil
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult.AccessibilityCheckResultType;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheck;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheckResult;
+import com.google.android.apps.common.testing.accessibility.framework.Parameters;
 import com.google.android.apps.common.testing.accessibility.framework.strings.StringManager;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.AccessibilityHierarchyAndroid;
 import com.google.common.collect.BiMap;
@@ -66,17 +69,21 @@ public class AccessibilityValidator {
     /**
      * Run Accessibility specific validation test and receive results.
      * @param view the root view
+     * @param image the output image of the view. Null if not available.
      * @param filter list of levels to allow
      * @return results with all the accessibility issues and warnings.
      */
     @NotNull
     public static ValidatorResult validateAccessibility(
-            @NotNull View view,
-            @NotNull EnumSet<Level> filter) {
+            @NotNull View view, @Nullable BufferedImage image, @NotNull EnumSet<Level> filter) {
         ValidatorResult.Builder builder = new ValidatorResult.Builder();
+        builder.mMetric.startTimer();
 
-        List<AccessibilityHierarchyCheckResult> results = getHierarchyCheckResults(view,
-                builder.mSrcMap);
+        List<AccessibilityHierarchyCheckResult> results = getHierarchyCheckResults(
+                builder.mMetric,
+                view,
+                builder.mSrcMap,
+                image);
 
         for (AccessibilityHierarchyCheckResult result : results) {
             ValidatorData.Level level = convertLevel(result.getType());
@@ -98,6 +105,7 @@ public class AccessibilityValidator {
             issue.mSourceClass = result.getSourceCheckClass().getSimpleName();
             builder.mIssues.add(issue);
         }
+        builder.mMetric.endTimer();
         return builder.build();
     }
 
@@ -126,15 +134,28 @@ public class AccessibilityValidator {
 
     @NotNull
     private static List<AccessibilityHierarchyCheckResult> getHierarchyCheckResults(
+            @NotNull Metric metric,
             @NotNull View view,
-            @NotNull BiMap<Long, View> originMap) {
+            @NotNull BiMap<Long, View> originMap,
+            @Nullable BufferedImage image) {
+
         @NotNull Set<AccessibilityHierarchyCheck> checks = AccessibilityCheckPreset.getAccessibilityHierarchyChecksForPreset(
                 AccessibilityCheckPreset.LATEST);
-        @NotNull AccessibilityHierarchyAndroid hierarchy = AccessibilityHierarchyAndroid.newBuilder(view).setViewOriginMap(originMap).build();
+
+        @NotNull AccessibilityHierarchyAndroid hierarchy = AccessibilityHierarchyAndroid
+                .newBuilder(view)
+                .setViewOriginMap(originMap)
+                .build();
         ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList();
 
+        Parameters parameters = null;
+        if (image != null) {
+            parameters = new Parameters();
+            parameters.putScreenCapture(new AtfBufferedImage(image, metric));
+        }
+
         for (AccessibilityHierarchyCheck check : checks) {
-            a11yResults.addAll(check.runCheckOnHierarchy(hierarchy));
+            a11yResults.addAll(check.runCheckOnHierarchy(hierarchy, null, parameters));
         }
 
         return a11yResults;
