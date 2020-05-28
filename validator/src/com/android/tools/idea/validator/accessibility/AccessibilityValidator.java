@@ -95,6 +95,7 @@ public class AccessibilityValidator {
                     level,
                     srcId,
                     fix);
+            issue.mSourceClass = result.getSourceCheckClass().getSimpleName();
             builder.mIssues.add(issue);
         }
         return builder.build();

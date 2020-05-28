@@ -41,7 +41,8 @@ public class ValidatorData {
         ERROR,
         WARNING,
         INFO,
-        VERBOSE
+        /** The test not ran or suppressed. */
+        VERBOSE,
     }
 
     /**
@@ -77,6 +78,8 @@ public class ValidatorData {
         @NotNull public final Level mLevel;
         @Nullable public final Long mSrcId;
         @Nullable public final Fix mFix;
+        // Used for debugging.
+        @Nullable public String mSourceClass;
 
         public Issue(
                 @NotNull Type type,
