@@ -384,9 +384,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                     boolean enableLayoutValidation = Boolean.TRUE.equals(
                             params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
                     if (enableLayoutValidation && !scene.getViewInfos().isEmpty()) {
-                        // TODO: Once session can hold ValidatorResult stop using data.
                         ValidatorResult validatorResult = LayoutValidator.validate(((View) scene.getViewInfos().get(0).getViewObject()));
-                        lastResult = lastResult.getCopyWithData(validatorResult);
+                        scene.setValidatorResult(validatorResult);
                     }
                 }
             } finally {

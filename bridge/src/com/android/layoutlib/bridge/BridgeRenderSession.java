@@ -108,15 +108,11 @@ public class BridgeRenderSession extends RenderSession {
             try {
                 Bridge.prepareThread();
                 mLastResult = mSession.acquire(timeout);
-                // If there was any data to preserve from inflate.
-                // TODO: Remove this once session is able to hold data from inflate.
-                Object data = mLastResult.getData();
                 if (mLastResult.isSuccess()) {
                     if (forceMeasure) {
                         mSession.invalidateRenderingSize();
                     }
-                    Result result = mSession.render(false /*freshRender*/);
-                    mLastResult = (data == null) ? result : result.getCopyWithData(data);
+                    mLastResult = mSession.render(false /*freshRender*/);
                 }
             } finally {
                 mSession.release();
@@ -157,5 +153,13 @@ public class BridgeRenderSession extends RenderSession {
             mSession.setScene(this);
         }
         mLastResult = lastResult;
+    }
+
+    @Override
+    public Object getValidationData() {
+        if (mSession != null) {
+            return mSession.getValidatorResult();
+        }
+        return null;
     }
 }

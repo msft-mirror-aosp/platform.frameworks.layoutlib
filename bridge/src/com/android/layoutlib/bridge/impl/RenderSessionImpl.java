@@ -47,6 +47,7 @@ import com.android.layoutlib.bridge.android.support.SupportPreferencesUtil;
 import com.android.layoutlib.bridge.impl.binding.FakeAdapter;
 import com.android.layoutlib.bridge.impl.binding.FakeExpandableAdapter;
 import com.android.tools.layoutlib.java.System_Delegate;
+import com.android.tools.idea.validator.ValidatorResult;
 import com.android.util.Pair;
 
 import android.annotation.NonNull;
@@ -127,6 +128,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private List<ViewInfo> mSystemViewInfoList;
     private Layout.Builder mLayoutBuilder;
     private boolean mNewRenderSize;
+    @Nullable private ValidatorResult mValidatorResult = null;
 
     private static final class PostInflateException extends Exception {
         private static final long serialVersionUID = 1L;
@@ -1128,6 +1130,15 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
     public Map<Object, ResourceReference> getDefaultNamespacedStyles() {
         return getContext().getDefaultNamespacedStyles();
+    }
+
+    @Nullable
+    public ValidatorResult getValidatorResult() {
+        return mValidatorResult;
+    }
+
+    public void setValidatorResult(ValidatorResult result) {
+        mValidatorResult = result;
     }
 
     public void setScene(RenderSession session) {
