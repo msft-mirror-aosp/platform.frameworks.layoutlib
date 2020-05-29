@@ -18,7 +18,7 @@ package com.android.tools.idea.validator.accessibility;
 
 import com.android.tools.idea.validator.ValidatorData;
 import com.android.tools.idea.validator.ValidatorData.Fix;
-import com.android.tools.idea.validator.ValidatorData.Issue;
+import com.android.tools.idea.validator.ValidatorData.Issue.IssueBuilder;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorResult;
@@ -31,6 +31,7 @@ import android.view.View;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -70,20 +71,28 @@ public class AccessibilityValidator {
      * Run Accessibility specific validation test and receive results.
      * @param view the root view
      * @param image the output image of the view. Null if not available.
-     * @param filter list of levels to allow
+     * @param policy e.g: list of levels to allow
      * @return results with all the accessibility issues and warnings.
      */
     @NotNull
     public static ValidatorResult validateAccessibility(
-            @NotNull View view, @Nullable BufferedImage image, @NotNull EnumSet<Level> filter) {
+            @NotNull View view,
+            @Nullable BufferedImage image,
+            @NotNull ValidatorData.Policy policy) {
+
+        EnumSet<Level> filter = policy.mLevels;
         ValidatorResult.Builder builder = new ValidatorResult.Builder();
         builder.mMetric.startTimer();
+        if (!policy.mTypes.contains(Type.ACCESSIBILITY)) {
+            return builder.build();
+        }
 
         List<AccessibilityHierarchyCheckResult> results = getHierarchyCheckResults(
                 builder.mMetric,
                 view,
                 builder.mSrcMap,
-                image);
+                image,
+                policy.mChecks);
 
         for (AccessibilityHierarchyCheckResult result : results) {
             ValidatorData.Level level = convertLevel(result.getType());
@@ -91,19 +100,30 @@ public class AccessibilityValidator {
                 continue;
             }
 
-            ValidatorData.Fix fix = generateFix(result);
-            Long srcId = null;
-            if (result.getElement() != null) {
-                srcId = result.getElement().getCondensedUniqueId();
+            try {
+                IssueBuilder issueBuilder = new IssueBuilder()
+                        .setMsg(result.getMessage(Locale.ENGLISH).toString())
+                        .setLevel(level)
+                        .setFix(generateFix(result))
+                        .setSourceClass(result.getSourceCheckClass().getSimpleName());
+                if (result.getElement() != null) {
+                    issueBuilder.setSrcId(result.getElement().getCondensedUniqueId());
+                }
+                AccessibilityHierarchyCheck subclass = AccessibilityCheckPreset
+                        .getHierarchyCheckForClass(result
+                                .getSourceCheckClass()
+                                .asSubclass(AccessibilityHierarchyCheck.class));
+                if (subclass != null) {
+                    issueBuilder.setHelpfulUrl(subclass.getHelpUrl());
+                }
+                builder.mIssues.add(issueBuilder.build());
+            } catch (Exception e) {
+                builder.mIssues.add(new IssueBuilder()
+                        .setType(Type.INTERNAL_ERROR)
+                        .setMsg(e.getMessage())
+                        .setLevel(Level.ERROR)
+                        .setSourceClass("AccessibilityValidator").build());
             }
-            Issue issue = new Issue(
-                    Type.ACCESSIBILITY,
-                    result.getMessage(Locale.ENGLISH).toString(),
-                    level,
-                    srcId,
-                    fix);
-            issue.mSourceClass = result.getSourceCheckClass().getSimpleName();
-            builder.mIssues.add(issue);
         }
         builder.mMetric.endTimer();
         return builder.build();
@@ -137,10 +157,13 @@ public class AccessibilityValidator {
             @NotNull Metric metric,
             @NotNull View view,
             @NotNull BiMap<Long, View> originMap,
-            @Nullable BufferedImage image) {
+            @Nullable BufferedImage image,
+            HashSet<AccessibilityHierarchyCheck> policyChecks) {
 
-        @NotNull Set<AccessibilityHierarchyCheck> checks = AccessibilityCheckPreset.getAccessibilityHierarchyChecksForPreset(
-                AccessibilityCheckPreset.LATEST);
+        @NotNull Set<AccessibilityHierarchyCheck> checks = policyChecks.isEmpty()
+                ? AccessibilityCheckPreset
+                        .getAccessibilityHierarchyChecksForPreset(AccessibilityCheckPreset.LATEST)
+                : policyChecks;
 
         @NotNull AccessibilityHierarchyAndroid hierarchy = AccessibilityHierarchyAndroid
                 .newBuilder(view)

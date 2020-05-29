@@ -33,9 +33,11 @@ import java.util.EnumSet;
  */
 public class LayoutValidator {
 
-    private static ValidatorData.Policy sPolicy = new Policy(
+    public static final ValidatorData.Policy DEFAULT_POLICY = new Policy(
             EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
             EnumSet.of(Level.ERROR, Level.WARNING));
+
+    private static ValidatorData.Policy sPolicy = DEFAULT_POLICY;
 
     /**
      * Validate the layout using the default policy.
@@ -46,7 +48,7 @@ public class LayoutValidator {
     @NotNull
     public static ValidatorResult validate(@NotNull View view, @Nullable BufferedImage image) {
         if (view.isAttachedToWindow()) {
-            return AccessibilityValidator.validateAccessibility(view, image, sPolicy.mLevels);
+            return AccessibilityValidator.validateAccessibility(view, image, sPolicy);
         }
         // TODO: Add non-a11y layout validation later.
         return new ValidatorResult.Builder().build();

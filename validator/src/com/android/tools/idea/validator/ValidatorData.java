@@ -20,6 +20,9 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheck;
 
 /**
  * Data used for layout validation.
@@ -32,6 +35,7 @@ public class ValidatorData {
     public enum Type {
         ACCESSIBILITY,
         RENDER,
+        INTERNAL_ERROR
     }
 
     /**
@@ -49,8 +53,9 @@ public class ValidatorData {
      * Determine what types and levels of validation to run.
      */
     public static class Policy {
-        @NotNull final EnumSet<Type> mTypes;
-        @NotNull final EnumSet<Level> mLevels;
+        @NotNull public final EnumSet<Type> mTypes;
+        @NotNull public final EnumSet<Level> mLevels;
+        @NotNull public final HashSet<AccessibilityHierarchyCheck> mChecks = new HashSet();
 
         public Policy(@NotNull EnumSet<Type> types, @NotNull EnumSet<Level> levels) {
             mTypes = types;
@@ -72,26 +77,90 @@ public class ValidatorData {
     /**
      * Issue describing the layout problem.
      */
-    public static class Issue{
-        @NotNull public final Type mType;
-        @NotNull public final String mMsg;
-        @NotNull public final Level mLevel;
-        @Nullable public final Long mSrcId;
-        @Nullable public final Fix mFix;
-        // Used for debugging.
-        @Nullable public String mSourceClass;
+    public static class Issue {
+        @NotNull
+        public final Type mType;
+        @NotNull
+        public final String mMsg;
+        @NotNull
+        public final Level mLevel;
+        @Nullable
+        public final Long mSrcId;
+        @Nullable
+        public final Fix mFix;
+        @NotNull
+        public final String mSourceClass;
+        @Nullable
+        public final String mHelpfulUrl;
 
-        public Issue(
+        private Issue(
                 @NotNull Type type,
                 @NotNull String msg,
                 @NotNull Level level,
                 @Nullable Long srcId,
-                @Nullable Fix fix) {
+                @Nullable Fix fix,
+                @NotNull String sourceClass,
+                @Nullable String helpfulUrl) {
             mType = type;
             mMsg = msg;
             mLevel = level;
             mSrcId = srcId;
             mFix = fix;
+            mSourceClass = sourceClass;
+            mHelpfulUrl = helpfulUrl;
+        }
+
+        public static class IssueBuilder {
+            private Type mType = Type.ACCESSIBILITY;
+            private String mMsg;
+            private Level mLevel;
+            private Long mSrcId;
+            private Fix mFix;
+            private String mSourceClass;
+            private String mHelpfulUrl;
+
+            public IssueBuilder setType(Type type) {
+                mType = type;
+                return this;
+            }
+
+            public IssueBuilder setMsg(String msg) {
+                mMsg = msg;
+                return this;
+            }
+
+            public IssueBuilder setLevel(Level level) {
+                mLevel = level;
+                return this;
+            }
+
+            public IssueBuilder setSrcId(Long srcId) {
+                mSrcId = srcId;
+                return this;
+            }
+
+            public IssueBuilder setFix(Fix fix) {
+                mFix = fix;
+                return this;
+            }
+
+            public IssueBuilder setSourceClass(String sourceClass) {
+                mSourceClass = sourceClass;
+                return this;
+            }
+
+            public IssueBuilder setHelpfulUrl(String url) {
+                mHelpfulUrl = url;
+                return this;
+            }
+
+            public Issue build() {
+                assert(mType != null);
+                assert(mMsg != null);
+                assert(mLevel != null);
+                assert(mSourceClass != null);
+                return new Issue(mType, mMsg, mLevel, mSrcId, mFix, mSourceClass, mHelpfulUrl);
+            }
         }
     }
 }
