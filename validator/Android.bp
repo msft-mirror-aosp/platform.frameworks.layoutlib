@@ -28,7 +28,6 @@ java_library_host {
     ],
 
     static_libs: [
-        "atf-prebuilt-jars",
         "hamcrest",
         "jsoup-1.6.3",
         "protobuf-lite",
