@@ -64,7 +64,7 @@ public final class Matrix_Delegate {
      * Returns an {@link AffineTransform} matching the given Matrix.
      */
     public static AffineTransform getAffineTransform(Matrix m) {
-        Matrix_Delegate delegate = sManager.getDelegate(m.native_instance);
+        Matrix_Delegate delegate = sManager.getDelegate(m.ni());
         if (delegate == null) {
             return null;
         }
@@ -73,7 +73,7 @@ public final class Matrix_Delegate {
     }
 
     public static boolean hasPerspective(Matrix m) {
-        Matrix_Delegate delegate = sManager.getDelegate(m.native_instance);
+        Matrix_Delegate delegate = sManager.getDelegate(m.ni());
         if (delegate == null) {
             return false;
         }
