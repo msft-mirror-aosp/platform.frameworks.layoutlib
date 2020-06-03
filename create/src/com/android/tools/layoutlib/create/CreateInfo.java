@@ -169,6 +169,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AdaptiveIconDrawable#<init>",
         "android.graphics.drawable.DrawableInflater#inflateFromClass",
         "android.graphics.FontFamily#addFont",
+        "com.google.android.apps.common.testing.accessibility.framework.uielement" +
+                ".AccessibilityHierarchyAndroid$ViewElementClassNamesAndroid#getClassByName",
         "android.graphics.Typeface#create",
         "android.graphics.Typeface$Builder#createAssetUid",
         "android.graphics.fonts.Font$Builder#createBuffer",

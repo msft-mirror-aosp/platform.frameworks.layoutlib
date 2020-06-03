@@ -23,6 +23,7 @@ java_library_host {
     libs: [
         "tools-common-prebuilt",
         "temp_layoutlib",
+        "layoutlib_api-prebuilt",
         "layoutlib-common",
         "guava",
     ],
