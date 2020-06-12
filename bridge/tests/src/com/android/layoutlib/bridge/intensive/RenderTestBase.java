@@ -46,7 +46,6 @@ import org.junit.runner.Description;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.os.Handler_Delegate;
 import android.view.Choreographer;
 
 import java.awt.image.BufferedImage;
@@ -162,9 +161,6 @@ public class RenderTestBase {
     public TestWatcher sMemoryLeakChecker = new TestWatcher() {
         @Override
         protected void succeeded(Description description) {
-            if (!Handler_Delegate.sRunnablesQueues.isEmpty()) {
-                fail("Memory leak: leftover callbacks are detected in Handler_Delegate");
-            }
             for (int i = Choreographer.CALLBACK_INPUT; i <= Choreographer.CALLBACK_COMMIT; ++i) {
                 if (Choreographer.getInstance().mCallbackQueues[i].mHead != null) {
                     fail("Memory leak: leftover frame callbacks are detected in Choreographer");

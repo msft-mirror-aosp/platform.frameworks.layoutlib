@@ -62,7 +62,6 @@ import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI
 import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
-import android.os.Handler_Delegate;
 import android.preference.Preference_Delegate;
 import android.util.Pair;
 import android.util.TimeUtils;
@@ -1207,7 +1206,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mImage = null;
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
-            Handler_Delegate.dispose(getContext());
+            getContext().getSessionInteractiveData().dispose();
             Choreographer_Delegate.dispose(getContext());
             if (mViewInfoList != null) {
                 mViewInfoList.clear();

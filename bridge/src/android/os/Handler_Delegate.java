@@ -19,13 +19,11 @@ package android.os;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
-import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.util.HandlerMessageQueue;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.annotations.NotNull;
-import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
-import java.util.WeakHashMap;
+import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
 
 /**
  * Delegate overriding selected methods of android.os.Handler
@@ -36,12 +34,6 @@ import java.util.WeakHashMap;
  *
  */
 public class Handler_Delegate {
-
-    // -------- Delegate methods
-    @VisibleForTesting
-    public static final WeakHashMap<BridgeContext, HandlerMessageQueue> sRunnablesQueues =
-            new WeakHashMap<>();
-
     @LayoutlibDelegate
     /*package*/ static boolean sendMessageAtTime(Handler handler, Message msg, long uptimeMillis) {
         // get the callback
@@ -50,11 +42,13 @@ public class Handler_Delegate {
             callback.sendMessageAtTime(handler, msg, uptimeMillis);
         } else {
             if (msg.callback != null) {
-                HandlerMessageQueue queue = currentQueue();
-                if (queue == null) {
+                BridgeContext context = getCurrentContext();
+                if (context == null) {
                     return true;
                 }
-                queue.add(handler, uptimeMillis, msg.callback);
+                context.getSessionInteractiveData()
+                        .getHandlerMessageQueue()
+                        .add(handler, uptimeMillis, msg.callback);
             }
         }
         return true;
@@ -72,11 +66,13 @@ public class Handler_Delegate {
     /*package*/ static boolean sendMessageAtFrontOfQueue(Handler handler, Message msg) {
         // We will also catch calls from the Choreographer that have no callback.
         if (msg.callback != null) {
-            HandlerMessageQueue queue = currentQueue();
-            if (queue == null) {
+            BridgeContext context = getCurrentContext();
+            if (context == null) {
                 return true;
             }
-            queue.add(handler, 0, msg.callback);
+            context.getSessionInteractiveData()
+                    .getHandlerMessageQueue()
+                    .add(handler, 0, msg.callback);
         }
 
         return true;
@@ -89,10 +85,11 @@ public class Handler_Delegate {
      * @return if there are more callbacks to execute
      */
     public static boolean executeCallbacks() {
-        HandlerMessageQueue queue = currentQueue();
-        if (queue == null) {
+        BridgeContext context = getCurrentContext();
+        if (context == null) {
             return false;
         }
+        HandlerMessageQueue queue = context.getSessionInteractiveData().getHandlerMessageQueue();
         long uptimeMillis = SystemClock_Delegate.uptimeMillis();
         Runnable r;
         while ((r = queue.extractFirst(uptimeMillis)) != null) {
@@ -112,10 +109,6 @@ public class Handler_Delegate {
         sCallbacks.set(callback);
     }
 
-    public static void dispose(@NotNull BridgeContext context) {
-        sRunnablesQueues.remove(context);
-    }
-
     /**
      * The runnables we are executing are mostly library/user code and we have no guarantee that it
      * is safe to execute them. Thus, we have to wrap each executing in try/catch block to isolate
@@ -129,13 +122,5 @@ public class Handler_Delegate {
             Bridge.getLog().error(ILayoutLog.TAG_BROKEN, "Failed executing Handler callback", t,
                     null, null);
         }
-    }
-
-    private static HandlerMessageQueue currentQueue() {
-        BridgeContext context = RenderAction.getCurrentContext();
-        if (context == null) {
-            return null;
-        }
-        return sRunnablesQueues.computeIfAbsent(context, c -> new HandlerMessageQueue());
     }
 }

@@ -30,10 +30,12 @@ import com.android.ide.common.rendering.api.ResourceValueImpl;
 import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.BridgeConstants;
+import com.android.layoutlib.bridge.SessionInteractiveData;
 import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.impl.Stack;
 import com.android.resources.ResourceType;
+import com.android.tools.layoutlib.annotations.NotNull;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -199,6 +201,8 @@ public class BridgeContext extends Context {
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
+    private final SessionInteractiveData mSessionInteractiveData;
+
     /**
      * Some applications that target both pre API 17 and post API 17, set the newer attrs to
      * reference the older ones. For example, android:paddingStart will resolve to
@@ -278,6 +282,7 @@ public class BridgeContext extends Context {
 
         mShadowsEnabled = shadowsEnabled;
         mHighQualityShadows = highQualityShadows;
+        mSessionInteractiveData = new SessionInteractiveData();
     }
 
     /**
@@ -2250,5 +2255,10 @@ public class BridgeContext extends Context {
             cacheFromResId.put(resId, value);
         }
 
+    }
+
+    @NotNull
+    public SessionInteractiveData getSessionInteractiveData() {
+        return mSessionInteractiveData;
     }
 }
