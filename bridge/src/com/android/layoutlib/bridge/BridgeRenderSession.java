@@ -23,9 +23,9 @@ import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.ViewInfo;
+import com.android.internal.lang.System_Delegate;
 import com.android.internal.util.ArrayUtils_Delegate;
 import com.android.layoutlib.bridge.impl.RenderSessionImpl;
-import com.android.tools.layoutlib.java.System_Delegate;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -129,12 +129,30 @@ public class BridgeRenderSession extends RenderSession {
 
     @Override
     public void setSystemTimeNanos(long nanos) {
-        System_Delegate.setNanosTime(nanos);
+        if (mSession != null) {
+            try {
+                Bridge.prepareThread();
+                mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
+                System_Delegate.setNanosTime(nanos);
+            } finally {
+                mSession.release();
+                Bridge.cleanupThread();
+            }
+        }
     }
 
     @Override
     public void setSystemBootTimeNanos(long nanos) {
-        System_Delegate.setBootTimeNanos(nanos);
+        if (mSession != null) {
+            try {
+                Bridge.prepareThread();
+                mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
+                System_Delegate.setBootTimeNanos(nanos);
+            } finally {
+                mSession.release();
+                Bridge.cleanupThread();
+            }
+        }
     }
 
     @Override

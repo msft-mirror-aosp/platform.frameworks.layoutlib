@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.internal.lang;
 
-package com.android.tools.layoutlib.java;
+import com.android.layoutlib.bridge.android.BridgeContext;
 
-import com.android.tools.layoutlib.create.ReplaceMethodCallsAdapter;
-
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+
+import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
 
 /**
  * Provides alternative implementations of methods that don't exist on the host VM.
@@ -29,11 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @SuppressWarnings("unused")
 public class System_Delegate {
-    // Current system time
-    private static AtomicLong mNanosTime = new AtomicLong(System.nanoTime());
-    // Time that the system booted up in nanos
-    private static AtomicLong mBootNanosTime = new AtomicLong(System.nanoTime());
-
     public static void log(String message) {
         // ignore.
     }
@@ -43,27 +39,41 @@ public class System_Delegate {
     }
 
     public static void setNanosTime(long nanos) {
-        mNanosTime.set(nanos);
+        BridgeContext context = getCurrentContext();
+        if (context != null) {
+            context.getSessionInteractiveData().setNanosTime(nanos);
+        }
     }
 
     public static void setBootTimeNanos(long nanos) {
-        mBootNanosTime.set(nanos);
+        BridgeContext context = getCurrentContext();
+        if (context != null) {
+            context.getSessionInteractiveData().setBootNanosTime(nanos);
+        }
     }
 
     public static long nanoTime() {
-        return mNanosTime.get();
+        BridgeContext context = getCurrentContext();
+        if (context != null) {
+            return context.getSessionInteractiveData().getNanosTime();
+        }
+        return 0;
     }
 
     public static long currentTimeMillis() {
-        return TimeUnit.NANOSECONDS.toMillis(mNanosTime.get());
+        return TimeUnit.NANOSECONDS.toMillis(nanoTime());
     }
 
     public static long bootTime() {
-        return mBootNanosTime.get();
+        BridgeContext context = getCurrentContext();
+        if (context != null) {
+            return context.getSessionInteractiveData().getBootNanosTime();
+        }
+        return 0;
     }
 
     public static long bootTimeMillis() {
-        return TimeUnit.NANOSECONDS.toMillis(mBootNanosTime.get());
+        return TimeUnit.NANOSECONDS.toMillis(bootTime());
     }
 
     // This is no-op since layoutlib infrastructure loads all the native libraries.

@@ -19,7 +19,6 @@ package com.android.tools.layoutlib.create;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.java.LinkedHashMap_Delegate;
 import com.android.tools.layoutlib.java.NioUtils_Delegate;
-import com.android.tools.layoutlib.java.System_Delegate;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -161,7 +160,6 @@ public final class CreateInfo implements ICreateInfo {
             InjectMethodRunnable.class,
             InjectMethodRunnables.class,
             /* Java package classes */
-            System_Delegate.class,
             LinkedHashMap_Delegate.class,
             NioUtils_Delegate.class,
         };
@@ -537,7 +535,7 @@ public final class CreateInfo implements ICreateInfo {
         @Override
         public void replace(MethodInformation mi) {
             mi.name = "currentTimeMillis";
-            mi.owner = Type.getInternalName(System_Delegate.class);
+            mi.owner = "com/android/internal/lang/System_Delegate";
         }
     }
 
@@ -550,7 +548,7 @@ public final class CreateInfo implements ICreateInfo {
         @Override
         public void replace(MethodInformation mi) {
             mi.name = "nanoTime";
-            mi.owner = Type.getInternalName(System_Delegate.class);
+            mi.owner = "com/android/internal/lang/System_Delegate";
         }
     }
 
@@ -566,7 +564,7 @@ public final class CreateInfo implements ICreateInfo {
             assert mi.desc.equals("(Ljava/lang/String;Ljava/lang/Throwable;)V")
                     || mi.desc.equals("(Ljava/lang/String;)V");
             mi.name = "log";
-            mi.owner = Type.getInternalName(System_Delegate.class);
+            mi.owner = "com/android/internal/lang/System_Delegate";
         }
     }
 
@@ -582,7 +580,7 @@ public final class CreateInfo implements ICreateInfo {
 
         @Override
         public void replace(MethodInformation mi) {
-            mi.owner = Type.getInternalName(System_Delegate.class);
+            mi.owner = "com/android/internal/lang/System_Delegate";
         }
     }
 

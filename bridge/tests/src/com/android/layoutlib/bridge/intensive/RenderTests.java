@@ -26,6 +26,7 @@ import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.XmlParserFactory;
 import com.android.internal.R;
+import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.impl.ParserFactory;
@@ -39,7 +40,6 @@ import com.android.ninepatch.NinePatch;
 import com.android.resources.Density;
 import com.android.resources.Navigation;
 import com.android.resources.ResourceType;
-import com.android.tools.layoutlib.java.System_Delegate;
 
 import org.junit.After;
 import org.junit.Assert;

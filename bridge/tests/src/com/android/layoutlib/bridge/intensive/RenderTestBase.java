@@ -25,6 +25,7 @@ import com.android.ide.common.resources.deprecated.FrameworkResources;
 import com.android.ide.common.resources.deprecated.ResourceItem;
 import com.android.ide.common.resources.deprecated.ResourceRepository;
 import com.android.ide.common.resources.deprecated.TestFolderWrapper;
+import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
@@ -34,7 +35,6 @@ import com.android.layoutlib.bridge.intensive.util.ImageUtils;
 import com.android.layoutlib.bridge.intensive.util.ModuleClassLoader;
 import com.android.layoutlib.bridge.intensive.util.SessionParamsBuilder;
 import com.android.layoutlib.bridge.intensive.util.TestAssetRepository;
-import com.android.tools.layoutlib.java.System_Delegate;
 import com.android.utils.ILogger;
 
 import org.junit.AfterClass;
