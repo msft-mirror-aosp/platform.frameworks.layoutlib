@@ -39,7 +39,7 @@ public class SystemClock_Delegate {
      * @return milliseconds of non-sleep uptime since boot.
      */
     @LayoutlibDelegate
-    /*package*/ static long uptimeMillis() {
+    public static long uptimeMillis() {
         return System_Delegate.currentTimeMillis() - System_Delegate.bootTimeMillis();
     }
 

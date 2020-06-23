@@ -1207,7 +1207,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
             getContext().getSessionInteractiveData().dispose();
-            Choreographer_Delegate.dispose(getContext());
             if (mViewInfoList != null) {
                 mViewInfoList.clear();
             }

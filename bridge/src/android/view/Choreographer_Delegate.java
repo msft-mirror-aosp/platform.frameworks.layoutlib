@@ -18,14 +18,8 @@ package android.view;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
-import com.android.layoutlib.bridge.util.CallbacksDisposer;
-import com.android.layoutlib.bridge.util.CallbacksDisposer.SessionKey;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
-import com.android.tools.layoutlib.annotations.NotNull;
 
-import android.view.Choreographer.FrameCallback;
-
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
 
 /**
@@ -36,22 +30,6 @@ import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
  *
  */
 public class Choreographer_Delegate {
-    static final CallbacksDisposer sCallbacksDisposer = new CallbacksDisposer(
-        action -> {
-            if (action instanceof FrameCallback) {
-                FrameCallback callback = (FrameCallback) action;
-                Choreographer.getInstance().removeFrameCallback(callback);
-            } else if (action instanceof Runnable) {
-                Runnable runnable = (Runnable) action;
-                Choreographer.getInstance().removeCallbacksInternal_Original(
-                        Choreographer.CALLBACK_ANIMATION, runnable, null);
-            } else {
-                Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
-                        "Unexpected action as " + "ANIMATION_CALLBACK", (Object) null, null);
-            }
-        }
-    );
-
     @LayoutlibDelegate
     public static float getRefreshRate() {
         return 60.f;
@@ -72,8 +50,7 @@ public class Choreographer_Delegate {
             Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
                     "Callback with null action", (Object) null, null);
         }
-        sCallbacksDisposer.onCallbackAdded(new SessionKey(context), action);
-        thiz.postCallbackDelayedInternal_Original(callbackType, action, token, delayMillis);
+        context.getSessionInteractiveData().getChoreographerCallbacks().add(action, delayMillis);
     }
 
     @LayoutlibDelegate
@@ -91,11 +68,6 @@ public class Choreographer_Delegate {
             Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
                     "Callback with null action", (Object) null, null);
         }
-        sCallbacksDisposer.onCallbackRemoved(new SessionKey(context), action);
-        thiz.removeCallbacksInternal_Original(callbackType, action, token);
-    }
-
-    public static void dispose(@NotNull BridgeContext bridgeContext) {
-        sCallbacksDisposer.onDispose(new SessionKey(bridgeContext));
+        context.getSessionInteractiveData().getChoreographerCallbacks().remove(action);
     }
 }
