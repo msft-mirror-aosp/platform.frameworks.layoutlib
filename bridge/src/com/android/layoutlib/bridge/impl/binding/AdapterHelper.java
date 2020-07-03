@@ -24,7 +24,7 @@ import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.impl.RenderAction;
-import com.android.util.Pair;
+import com.android.utils.Pair;
 
 import android.view.View;
 import android.view.ViewGroup;

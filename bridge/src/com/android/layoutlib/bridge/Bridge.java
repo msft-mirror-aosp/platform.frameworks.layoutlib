@@ -33,7 +33,7 @@ import com.android.resources.ResourceType;
 import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.create.MethodAdapter;
 import com.android.tools.layoutlib.create.OverrideMethod;
-import com.android.util.Pair;
+import com.android.utils.Pair;
 
 import android.animation.PropertyValuesHolder;
 import android.animation.PropertyValuesHolder_Delegate;
