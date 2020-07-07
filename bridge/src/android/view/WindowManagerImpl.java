@@ -15,7 +15,7 @@
  */
 package android.view;
 
-import com.android.ide.common.rendering.api.LayoutLog;
+import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 
 import android.app.ResourcesManager;
@@ -51,14 +51,14 @@ public class WindowManagerImpl implements WindowManager {
     }
 
     public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
-        Bridge.getLog().fidelityWarning(LayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
                 "The preview does not support multiple windows.",
                 null, null, null);
         return this;
     }
 
     public WindowManagerImpl createPresentationWindowManager(Context displayContext) {
-        Bridge.getLog().fidelityWarning(LayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
                 "The preview does not support multiple windows.",
                 null, null, null);
         return this;

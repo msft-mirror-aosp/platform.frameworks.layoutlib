@@ -17,8 +17,8 @@
 package com.android.layoutlib.bridge.impl.binding;
 
 import com.android.ide.common.rendering.api.DataBindingItem;
+import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.LayoutlibCallback;
-import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.ide.common.rendering.api.LayoutlibCallback.ViewAttribute;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.layoutlib.bridge.Bridge;
@@ -93,7 +93,7 @@ public class AdapterHelper {
                                 resolvedRef, ViewAttribute.TEXT, tv.getText().toString());
                         if (value != null) {
                             if (value.getClass() != ViewAttribute.TEXT.getAttributeClass()) {
-                                Bridge.getLog().error(LayoutLog.TAG_BROKEN, String.format(
+                                Bridge.getLog().error(ILayoutLog.TAG_BROKEN, String.format(
                                         "Wrong Adapter Item value class for TEXT. Expected String, got %s",
                                         value.getClass().getName()), null, null);
                             } else {
@@ -113,7 +113,7 @@ public class AdapterHelper {
                                 resolvedRef, ViewAttribute.IS_CHECKED, cb.isChecked());
                         if (value != null) {
                             if (value.getClass() != ViewAttribute.IS_CHECKED.getAttributeClass()) {
-                                Bridge.getLog().error(LayoutLog.TAG_BROKEN, String.format(
+                                Bridge.getLog().error(ILayoutLog.TAG_BROKEN, String.format(
                                         "Wrong Adapter Item value class for IS_CHECKED. Expected Boolean, got %s",
                                         value.getClass().getName()), null, null);
                             } else {
@@ -133,7 +133,7 @@ public class AdapterHelper {
                                 resolvedRef, ViewAttribute.SRC, iv.getDrawable());
                         if (value != null) {
                             if (value.getClass() != ViewAttribute.SRC.getAttributeClass()) {
-                                Bridge.getLog().error(LayoutLog.TAG_BROKEN, String.format(
+                                Bridge.getLog().error(ILayoutLog.TAG_BROKEN, String.format(
                                         "Wrong Adapter Item value class for SRC. Expected Boolean, got %s",
                                         value.getClass().getName()), null, null);
                             } else {

@@ -16,7 +16,7 @@
 
 package com.android.tools.idea.editors.theme.widgets;
 
-import com.android.ide.common.rendering.api.LayoutLog;
+import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 
 import android.content.Context;
@@ -60,7 +60,7 @@ public class ErrorCatcher extends ViewGroup {
             setMeasuredDimension(resolveSize(child.getMeasuredWidth(), widthMeasureSpec),
                     resolveSize(child.getMeasuredHeight(), heightMeasureSpec));
         } catch (Throwable t) {
-            Bridge.getLog().warning(LayoutLog.TAG_BROKEN, "Failed to do onMeasure for view " +
+            Bridge.getLog().warning(ILayoutLog.TAG_BROKEN, "Failed to do onMeasure for view " +
                     child.getClass().getCanonicalName(), null, t);
             setMeasuredDimension(resolveSize(0, widthMeasureSpec),
                     resolveSize(0, heightMeasureSpec));
@@ -72,7 +72,7 @@ public class ErrorCatcher extends ViewGroup {
         try {
             return super.drawChild(canvas, child, drawingTime);
         } catch (Throwable t) {
-            Bridge.getLog().warning(LayoutLog.TAG_BROKEN, "Failed to draw for view " +
+            Bridge.getLog().warning(ILayoutLog.TAG_BROKEN, "Failed to draw for view " +
                     child.getClass().getCanonicalName(), null, t);
         }
 
@@ -87,7 +87,7 @@ public class ErrorCatcher extends ViewGroup {
         try {
             child.layout(0, 0, child.getMeasuredWidth(), child.getMeasuredHeight());
         } catch (Throwable e) {
-            Bridge.getLog().warning(LayoutLog.TAG_BROKEN, "Failed to do onLayout for view " +
+            Bridge.getLog().warning(ILayoutLog.TAG_BROKEN, "Failed to do onLayout for view " +
                     child.getClass().getCanonicalName(), null, e);
         }
     }
