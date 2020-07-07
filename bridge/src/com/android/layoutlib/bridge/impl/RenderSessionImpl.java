@@ -204,10 +204,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         mMeasuredScreenHeight = hardwareConfig.getScreenHeight();
 
         if (renderingMode != RenderingMode.NORMAL) {
-            int widthMeasureSpecMode = renderingMode.isHorizExpand() ?
+            int widthMeasureSpecMode = renderingMode.getHorizAction() == SizeAction.EXPAND ?
                     MeasureSpec.UNSPECIFIED // this lets us know the actual needed size
                     : MeasureSpec.EXACTLY;
-            int heightMeasureSpecMode = renderingMode.isVertExpand() ?
+            int heightMeasureSpecMode = renderingMode.getVertAction() == SizeAction.EXPAND ?
                     MeasureSpec.UNSPECIFIED // this lets us know the actual needed size
                     : MeasureSpec.EXACTLY;
 
