@@ -698,8 +698,8 @@ public final class Bitmap_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static boolean nativeIsBackedByAshmem(long nativePtr) {
-        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
-                "Shared memory bitmaps are not supported", null /*data*/);
+        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+                "Shared memory bitmaps are not supported", null, null /*data*/);
         return false;
     }
 
