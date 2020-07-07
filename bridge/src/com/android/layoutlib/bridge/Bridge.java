@@ -208,7 +208,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                     continue;
                 }
                 String resTypeName = inner.getSimpleName();
-                ResourceType resType = ResourceType.getEnum(resTypeName);
+                ResourceType resType = ResourceType.fromClassName(resTypeName);
                 if (resType != null) {
                     Map<String, Integer> fullMap = null;
                     switch (resType) {

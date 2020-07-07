@@ -1078,12 +1078,12 @@ public class Resources_Delegate {
             }
             // We have package but no type
             String pkg = name.substring(0, colonIdx);
-            ResourceType type = ResourceType.getEnum(defType);
+            ResourceType type = ResourceType.fromClassName(defType);
             return type != null ? ResourceUrl.create(pkg, type, name.substring(colonIdx + 1)) :
                     null;
         }
 
-        ResourceType type = ResourceType.getEnum(name.substring(0, slashIdx));
+        ResourceType type = ResourceType.fromClassName(name.substring(0, slashIdx));
         if (type == null) {
             return null;
         }
