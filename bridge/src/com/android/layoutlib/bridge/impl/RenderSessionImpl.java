@@ -499,11 +499,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                         newImage = true;
                     }
 
-                    if (params.isBgColorOverridden()) {
+                    if (params.isTransparentBackground()) {
                         // since we override the content, it's the same as if it was a new image.
                         newImage = true;
                         Graphics2D gc = mImage.createGraphics();
-                        gc.setColor(new Color(params.getOverrideBgColor(), true));
+                        gc.setColor(new Color(0, true));
                         gc.setComposite(AlphaComposite.Src);
                         gc.fillRect(0, 0, mMeasuredScreenWidth, mMeasuredScreenHeight);
                         gc.dispose();
