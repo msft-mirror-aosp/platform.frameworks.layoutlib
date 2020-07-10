@@ -96,6 +96,11 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public void powerHint(int hintId, int data) {
+        // pass for now.
+    }
+
+    @Override
     public void setPowerBoost(int boost, int durationMs) {
         // pass for now.
     }
