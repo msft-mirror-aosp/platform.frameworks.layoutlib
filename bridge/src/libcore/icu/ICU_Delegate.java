@@ -34,19 +34,8 @@ public class ICU_Delegate {
     // --- Native methods accessing ICU's database.
 
     @LayoutlibDelegate
-    /*package*/ static String getBestDateTimePatternNative(String skeleton, String localeName) {
-        return DateTimePatternGenerator.getInstance(new ULocale(localeName))
-                .getBestPattern(skeleton);
-    }
-
-    @LayoutlibDelegate
     /*package*/ static String[] getAvailableLocalesNative() {
         return new String[0];
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static String getCurrencyCode(String locale) {
-        return "";
     }
 
     @LayoutlibDelegate
