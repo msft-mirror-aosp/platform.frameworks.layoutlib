@@ -35,7 +35,7 @@ public class LayoutValidator {
 
     public static final ValidatorData.Policy DEFAULT_POLICY = new Policy(
             EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
-            EnumSet.of(Level.ERROR, Level.WARNING));
+            EnumSet.of(Level.ERROR, Level.WARNING, Level.INFO, Level.VERBOSE));
 
     private static ValidatorData.Policy sPolicy = DEFAULT_POLICY;
 
