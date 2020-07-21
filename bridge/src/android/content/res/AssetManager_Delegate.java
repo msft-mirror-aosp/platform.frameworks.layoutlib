@@ -69,10 +69,4 @@ public class AssetManager_Delegate {
             boolean includeOverlays, boolean includeLoaders) {
         return new SparseArray<>();
     }
-
-    @LayoutlibDelegate
-    /*package*/ static String[] nativeCreateIdmapsForStaticOverlaysTargetingAndroid() {
-        // AssetManager requires this not to be null
-        return new String[0];
-    }
 }
