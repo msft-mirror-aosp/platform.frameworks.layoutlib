@@ -129,6 +129,7 @@ public class Main {
                         "android.app.DatePickerDialog",     // b.android.com/28318
                         "android.app.TimePickerDialog",     // b.android.com/61515
                         "com.android.internal.view.menu.ActionMenu",
+                        "libcore.icu.ICU",                  // needed by ICU_Delegate in LayoutLib
                         "android.icu.**",                   // needed by LayoutLib
                         "libcore.io.*",                     // needed to load /usr/share/zoneinfo
                         "android.annotation.NonNull",       // annotations
