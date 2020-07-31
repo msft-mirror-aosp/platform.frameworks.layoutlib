@@ -129,22 +129,22 @@ public class AsmAnalyzerTest {
                 DEFAULT_INCLUDE_FILES);
         Result result = analyzer.analyze();
         assertArrayEquals(new String[] {
+                        "mock_android.fake.InnerTest$NotStaticInner1",
                         "mock_android.fake.FakeClass",
-                        "mock_android.fake.InnerTest$MyIntEnum",
                         "mock_android.util.EmptyArray",
-                        "mock_android.fake.InnerTest$DerivingClass",
                         "mock_android.fake2.FakeClass",
+                        "mock_android.fake.InnerTest$DerivingClass",
+                        "mock_android.fake.InnerTest$NotStaticInner2",
                         "mock_android.fake.subpackage.SubpackageClassC$InnerClass",
                         "mock_android.fake.InnerTest$MyGenerics1",
-                        "mock_android.fake.subpackage.SubpackageClassC$StaticInnerClass",
+                        "mock_android.fake.InnerTest$MyIntEnum",
                         "mock_android.fake.InnerTest$MyStaticInnerClass",
-                        "mock_android.fake.InnerTest$NotStaticInner1",
-                        "mock_android.fake.InnerTest$NotStaticInner2",
-                        "mock_android.fake.subpackage.SubpackageClassA",
                         "mock_android.fake.InnerTest",
-                        "mock_android.fake.InnerTest$1",
-                        "mock_android.fake.subpackage.SubpackageClassC",
                         "mock_android.fake.subpackage.SubpackageClassB",
+                        "mock_android.fake.subpackage.SubpackageClassA",
+                        "mock_android.fake.InnerTest$1",
+                        "mock_android.fake.subpackage.SubpackageClassC$StaticInnerClass",
+                        "mock_android.fake.subpackage.SubpackageClassC",
                 },
                 result.getFound().keySet().toArray());
     }
