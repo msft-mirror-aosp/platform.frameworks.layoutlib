@@ -1186,7 +1186,7 @@ public class BridgeContext extends Context {
 
     public IBinder getBinder() {
         if (mBinder == null) {
-            // create a dummy binder. We only need it be not null.
+            // create a no-op binder. We only need it be not null.
             mBinder = new IBinder() {
                 @Override
                 public String getInterfaceDescriptor() throws RemoteException {
