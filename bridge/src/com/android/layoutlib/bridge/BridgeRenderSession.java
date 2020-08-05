@@ -132,30 +132,12 @@ public class BridgeRenderSession extends RenderSession {
 
     @Override
     public void setSystemTimeNanos(long nanos) {
-        if (mSession != null) {
-            try {
-                Bridge.prepareThread();
-                mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
-                System_Delegate.setNanosTime(nanos);
-            } finally {
-                mSession.release();
-                Bridge.cleanupThread();
-            }
-        }
+        execute(() -> System_Delegate.setNanosTime(nanos));
     }
 
     @Override
     public void setSystemBootTimeNanos(long nanos) {
-        if (mSession != null) {
-            try {
-                Bridge.prepareThread();
-                mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
-                System_Delegate.setBootTimeNanos(nanos);
-            } finally {
-                mSession.release();
-                Bridge.cleanupThread();
-            }
-        }
+        execute(() -> System_Delegate.setBootTimeNanos(nanos));
     }
 
     @Override
@@ -207,12 +189,19 @@ public class BridgeRenderSession extends RenderSession {
 
     @Override
     public void triggerTouchEvent(TouchEventType type, int x, int y) {
-        int motionEventType = toMotionEventType(type);
+        execute(() -> {
+            int motionEventType = toMotionEventType(type);
+            mSession.dispatchTouchEvent(motionEventType, System_Delegate.nanoTime(), x, y);
+        });
+    }
+
+    @Override
+    public void execute(Runnable r) {
         if (mSession != null) {
             try {
                 Bridge.prepareThread();
                 mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
-                mSession.dispatchTouchEvent(motionEventType, System_Delegate.nanoTime(), x, y);
+                r.run();
             } finally {
                 mSession.release();
                 Bridge.cleanupThread();
@@ -222,16 +211,7 @@ public class BridgeRenderSession extends RenderSession {
 
     @Override
     public void dispose() {
-        if (mSession != null) {
-            try {
-                Bridge.prepareThread();
-                mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
-                mSession.dispose();
-            } finally {
-                mSession.release();
-                Bridge.cleanupThread();
-            }
-        }
+        execute(mSession::dispose);
         ArrayUtils_Delegate.clearCache();
     }
 
