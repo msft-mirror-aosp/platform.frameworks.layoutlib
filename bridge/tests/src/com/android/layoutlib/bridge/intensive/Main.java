@@ -48,7 +48,8 @@ import android.util.imagepool.ImagePoolImplTest;
         BridgeRenderSessionTest.class, ResourceHelperTest.class, BridgeContextTest.class,
         Resources_DelegateTest.class, Color_DelegateTest.class, ImagePoolHelperTest.class,
         ImagePoolImplTest.class, HighQualityShadowsRenderTests.class,
-        LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class
+        LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class,
+        ValidatorResultTests.class
 })
 public class Main {
 }
