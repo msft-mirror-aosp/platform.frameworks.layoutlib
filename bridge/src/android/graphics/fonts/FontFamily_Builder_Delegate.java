@@ -91,6 +91,7 @@ public class FontFamily_Builder_Delegate {
             font = loadFontPath(fontBuilder.filePath);
         }
         if (font != null) {
+            font = font.deriveFont(fontBuilder.mAxes);
             familyBuilder.addFont(font, fontBuilder.mWeight, fontBuilder.mItalic);
         }
     }
