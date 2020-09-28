@@ -102,6 +102,21 @@ public class Font_Builder_Delegate {
     }
 
     @LayoutlibDelegate
+    /*package*/ static long nClone(long fontPtr, long builderPtr, int weight, boolean italic,
+            int ttcIndex) {
+        Font_Builder_Delegate cloneBuilder = new Font_Builder_Delegate();
+        Font_Builder_Delegate font = sBuilderManager.getDelegate(builderPtr);
+        if (font != null) {
+            cloneBuilder.mBuffer = font.mBuffer;
+            cloneBuilder.filePath = font.filePath;
+        }
+        cloneBuilder.mWeight = weight;
+        cloneBuilder.mItalic = italic;
+        cloneBuilder.mTtcIndex = ttcIndex;
+        return sBuilderManager.addNewDelegate(cloneBuilder);
+    }
+
+    @LayoutlibDelegate
     /*package*/ static long nGetReleaseNativeFont() {
         synchronized (Font_Builder_Delegate.class) {
             if (sFontFinalizer == -1) {
