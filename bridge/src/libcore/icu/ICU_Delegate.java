@@ -18,9 +18,6 @@ package libcore.icu;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-import android.icu.text.DateTimePatternGenerator;
-import android.icu.util.ULocale;
-
 import java.util.Locale;
 
 /**
@@ -64,12 +61,7 @@ public class ICU_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static void setDefaultLocale(String locale) {
-        ICU.setDefaultLocale(locale);
-    }
-
-    @LayoutlibDelegate
     /*package*/ static String getDefaultLocale() {
-        return ICU.getDefaultLocale();
+        return Locale.getDefault().toString();
     }
 }
