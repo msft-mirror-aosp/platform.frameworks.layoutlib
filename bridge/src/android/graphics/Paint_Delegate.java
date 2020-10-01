@@ -823,12 +823,16 @@ public class Paint_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static void nSetShader(long native_object, long shader) {
+    /*package*/ static long nSetShader(long native_object, long shader) {
         // get the delegate from the native int.
         Paint_Delegate delegate = sManager.getDelegate(native_object);
-        if (delegate != null) {
-            delegate.mShader = Shader_Delegate.getDelegate(shader);
+        if (delegate == null) {
+            return shader;
         }
+
+        delegate.mShader = Shader_Delegate.getDelegate(shader);
+
+        return shader;
     }
 
     @LayoutlibDelegate
