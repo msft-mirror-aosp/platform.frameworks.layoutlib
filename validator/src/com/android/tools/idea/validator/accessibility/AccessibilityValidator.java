@@ -192,6 +192,7 @@ public class AccessibilityValidator {
                 .setViewOriginMap(originMap)
                 .build();
         ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList();
+        metric.recordHierarchyCreationTime();
 
         Parameters parameters = null;
         if (image != null) {
