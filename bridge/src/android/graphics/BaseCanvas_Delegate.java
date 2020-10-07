@@ -592,6 +592,14 @@ public class BaseCanvas_Delegate {
                 "Canvas.drawTextOnPath is not supported.", null, null, null /*data*/);
     }
 
+    @LayoutlibDelegate
+    /*package*/ static void nDrawGlyphs(long nativeCanvas, int[] glyphIds, float[] positions,
+            int glyphIdStart, int positionStart, int glyphCount, long nativeFont,
+            long nativePaint) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "Canvas.drawGlyphs is not supported.", null, null, null /*data*/);
+    }
+
     // ---- Private delegate/helper methods ----
 
     /**
