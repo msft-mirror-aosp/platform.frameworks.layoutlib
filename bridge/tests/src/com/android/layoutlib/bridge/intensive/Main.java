@@ -23,7 +23,8 @@ import com.android.layoutlib.bridge.android.BridgeXmlBlockParserTest;
 import com.android.layoutlib.bridge.impl.LayoutParserWrapperTest;
 import com.android.layoutlib.bridge.impl.ResourceHelperTest;
 import com.android.tools.idea.validator.LayoutValidatorTests;
-import com.android.tools.idea.validator.accessibility.AccessibilityValidatorTests;
+import com.android.tools.idea.validator.ValidatorResultTests;
+import com.android.tools.idea.validator.AccessibilityValidatorTests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

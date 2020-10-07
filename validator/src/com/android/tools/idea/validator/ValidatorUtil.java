@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.tools.idea.validator.accessibility;
+package com.android.tools.idea.validator;
 
-import com.android.tools.idea.validator.ValidatorData;
 import com.android.tools.idea.validator.ValidatorData.Fix;
 import com.android.tools.idea.validator.ValidatorData.Issue.IssueBuilder;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Type;
-import com.android.tools.idea.validator.ValidatorResult;
-import com.android.tools.idea.validator.ValidatorResult.Metric;
+import com.android.tools.idea.validator.ValidatorResult.Builder;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
@@ -34,11 +32,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheck;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckPreset;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult.AccessibilityCheckResultType;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheck;
@@ -46,12 +44,8 @@ import com.google.android.apps.common.testing.accessibility.framework.Accessibil
 import com.google.android.apps.common.testing.accessibility.framework.Parameters;
 import com.google.android.apps.common.testing.accessibility.framework.strings.StringManager;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.AccessibilityHierarchyAndroid;
-import com.google.common.collect.BiMap;
 
-/**
- * Validator specific for running Accessibility specific issues.
- */
-public class AccessibilityValidator {
+public class ValidatorUtil {
 
     static {
         /**
@@ -70,36 +64,81 @@ public class AccessibilityValidator {
     }
 
     /**
-     * Run Accessibility specific validation test and receive results.
-     * @param view the root view
-     * @param image the output image of the view. Null if not available.
-     * @param policy e.g: list of levels to allow
-     * @return results with all the accessibility issues and warnings.
+     * @param policy policy to apply for the hierarchy
+     * @param view root view to build hierarchy from
+     * @param image screenshot image that matches the view
+     * @return The hierarchical data required for running the ATF checks.
      */
-    @NotNull
-    public static ValidatorResult validateAccessibility(
+    public static ValidatorHierarchy buildHierarchy(
+            @NotNull ValidatorData.Policy policy,
             @NotNull View view,
-            @Nullable BufferedImage image,
-            @NotNull ValidatorData.Policy policy) {
-
-        EnumSet<Level> filter = policy.mLevels;
-        ValidatorResult.Builder builder = new ValidatorResult.Builder();
-        builder.mMetric.startTimer();
+            @Nullable BufferedImage image) {
+        ValidatorHierarchy hierarchy = new ValidatorHierarchy();
         if (!policy.mTypes.contains(Type.ACCESSIBILITY)) {
+            return hierarchy;
+        }
+
+        ValidatorResult.Builder builder = new ValidatorResult.Builder();
+        @Nullable Parameters parameters = null;
+        builder.mMetric.startTimer();
+
+        hierarchy.mView = AccessibilityHierarchyAndroid
+                .newBuilder(view)
+                .setViewOriginMap(builder.mSrcMap)
+                .build();
+        if (image != null) {
+            parameters = new Parameters();
+            parameters.putScreenCapture(
+                    new AtfBufferedImage(image, builder.mMetric));
+        }
+        builder.mMetric.recordHierarchyCreationTime();
+
+        hierarchy.mBuilder = builder;
+        hierarchy.mParameters = parameters;
+        return hierarchy;
+    }
+
+    /**
+     * @param hierarchy to build result from. If {@link ValidatorHierarchy#isHierarchyBuilt()}
+     * is false, returns a result with an internal error.
+     * @return Returns ValidatorResult with given hierarchical data.
+     */
+    public static ValidatorResult generateResults(
+            @NotNull ValidatorData.Policy policy,
+            @NotNull ValidatorHierarchy hierarchy) {
+        ValidatorResult.Builder builder = hierarchy.mBuilder;
+        AccessibilityHierarchyAndroid view = hierarchy.mView;
+        Parameters parameters = hierarchy.mParameters;
+
+        if (builder == null || view == null) {
+            // Unable to build.
+            builder = new Builder();
+            builder.mIssues.add(new IssueBuilder()
+                    .setCategory("Accessibility")
+                    .setType(Type.INTERNAL_ERROR)
+                    .setMsg("Hierarchy is not built yet.")
+                    .setLevel(Level.ERROR)
+                    .setSourceClass("ValidatorHierarchy").build());
             return builder.build();
         }
 
-        List<AccessibilityHierarchyCheckResult> results = getHierarchyCheckResults(
-                builder.mMetric,
-                view,
-                builder.mSrcMap,
-                image,
-                policy.mChecks);
+        EnumSet<Level> filter = policy.mLevels;
+        ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList<>();
 
-        for (AccessibilityHierarchyCheckResult result : results) {
-            String category = getCheckClassCategory(result.getSourceCheckClass());
+        HashSet<AccessibilityHierarchyCheck> policyChecks = policy.mChecks;
+        @NotNull Set<AccessibilityHierarchyCheck> checks = policyChecks.isEmpty()
+                ? AccessibilityCheckPreset
+                .getAccessibilityHierarchyChecksForPreset(AccessibilityCheckPreset.LATEST)
+                : policyChecks;
 
-            ValidatorData.Level level = convertLevel(result.getType());
+        for (AccessibilityHierarchyCheck check : checks) {
+            a11yResults.addAll(check.runCheckOnHierarchy(view, null, parameters));
+        }
+
+        for (AccessibilityHierarchyCheckResult result : a11yResults) {
+            String category = ValidatorUtil.getCheckClassCategory(result.getSourceCheckClass());
+
+            ValidatorData.Level level = ValidatorUtil.convertLevel(result.getType());
             if (!filter.contains(level)) {
                 continue;
             }
@@ -109,7 +148,7 @@ public class AccessibilityValidator {
                         .setCategory(category)
                         .setMsg(result.getMessage(Locale.ENGLISH).toString())
                         .setLevel(level)
-                        .setFix(generateFix(result))
+                        .setFix(ValidatorUtil.generateFix(result))
                         .setSourceClass(result.getSourceCheckClass().getSimpleName());
                 if (result.getElement() != null) {
                     issueBuilder.setSrcId(result.getElement().getCondensedUniqueId());
@@ -131,13 +170,17 @@ public class AccessibilityValidator {
                         .setType(Type.INTERNAL_ERROR)
                         .setMsg(sw.toString())
                         .setLevel(Level.ERROR)
-                        .setSourceClass("AccessibilityValidator").build());
+                        .setSourceClass("ValidatorHierarchy").build());
             }
         }
         builder.mMetric.endTimer();
         return builder.build();
     }
 
+    /**
+     * @param checkClass classes expected to extend AccessibilityHierarchyCheck
+     * @return {@link AccessibilityCheck.Category} of the class.
+     */
     @NotNull
     private static String getCheckClassCategory(@NotNull Class<?> checkClass) {
         try {
@@ -151,6 +194,7 @@ public class AccessibilityValidator {
         }
     }
 
+    /** Convert {@link AccessibilityCheckResultType} to {@link ValidatorData.Level} */
     @NotNull
     private static ValidatorData.Level convertLevel(@NotNull AccessibilityCheckResultType type) {
         switch (type) {
@@ -172,38 +216,5 @@ public class AccessibilityValidator {
     private static ValidatorData.Fix generateFix(@NotNull AccessibilityHierarchyCheckResult result) {
         // TODO: Once ATF is ready to return us with appropriate fix, build proper fix here.
         return new Fix("");
-    }
-
-    @NotNull
-    private static List<AccessibilityHierarchyCheckResult> getHierarchyCheckResults(
-            @NotNull Metric metric,
-            @NotNull View view,
-            @NotNull BiMap<Long, View> originMap,
-            @Nullable BufferedImage image,
-            HashSet<AccessibilityHierarchyCheck> policyChecks) {
-
-        @NotNull Set<AccessibilityHierarchyCheck> checks = policyChecks.isEmpty()
-                ? AccessibilityCheckPreset
-                        .getAccessibilityHierarchyChecksForPreset(AccessibilityCheckPreset.LATEST)
-                : policyChecks;
-
-        @NotNull AccessibilityHierarchyAndroid hierarchy = AccessibilityHierarchyAndroid
-                .newBuilder(view)
-                .setViewOriginMap(originMap)
-                .build();
-        ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList();
-        metric.recordHierarchyCreationTime();
-
-        Parameters parameters = null;
-        if (image != null) {
-            parameters = new Parameters();
-            parameters.putScreenCapture(new AtfBufferedImage(image, metric));
-        }
-
-        for (AccessibilityHierarchyCheck check : checks) {
-            a11yResults.addAll(check.runCheckOnHierarchy(hierarchy, null, parameters));
-        }
-
-        return a11yResults;
     }
 }
