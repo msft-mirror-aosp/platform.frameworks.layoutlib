@@ -227,7 +227,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             // first measure the full layout, with EXACTLY to get the size of the
             // content as it is inside the decor/dialog
-            @SuppressWarnings("deprecation")
             Pair<Integer, Integer> exactMeasure = measureView(
                     mViewRoot, measuredView,
                     mMeasuredScreenWidth, MeasureSpec.EXACTLY,
@@ -235,7 +234,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             // now measure the content only using UNSPECIFIED (where applicable, based on
             // the rendering mode). This will give us the size the content needs.
-            @SuppressWarnings("deprecation")
             Pair<Integer, Integer> neededMeasure = measureView(
                     mContentRoot, mContentRoot.getChildAt(0),
                     mMeasuredScreenWidth, widthMeasureSpecMode,
@@ -619,7 +617,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * @param heightMode the MeasureSpec mode to use for the height.
      * @return the measured width/height if measuredView is non-null, null otherwise.
      */
-    @SuppressWarnings("deprecation")  // For the use of Pair
     private static Pair<Integer, Integer> measureView(ViewGroup viewToMeasure, View measuredView,
             int width, int widthMode, int height, int heightMode) {
         int w_spec = MeasureSpec.makeMeasureSpec(width, widthMode);
@@ -643,7 +640,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * @param layoutlibCallback callback to the project.
      * @param skip the view and it's children are not processed.
      */
-    @SuppressWarnings("deprecation")  // For the use of Pair
     private void postInflateProcess(View view, LayoutlibCallback layoutlibCallback, View skip)
             throws PostInflateException {
         if (view == skip) {
@@ -882,9 +878,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             for (int i = 0 ; i < count ; i++) {
                 View child = content.getChildAt(i);
                 String tabSpec = String.format("tab_spec%d", i+1);
-                @SuppressWarnings("ConstantConditions")  // child cannot be null.
                 int id = child.getId();
-                @SuppressWarnings("deprecation")
                 ResourceReference resource = layoutlibCallback.resolveResourceId(id);
                 String name;
                 if (resource != null) {

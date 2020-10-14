@@ -31,7 +31,6 @@ import android.widget.HeterogeneousExpandableList;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("deprecation")
 public class FakeExpandableAdapter implements ExpandableListAdapter, HeterogeneousExpandableList {
 
     private final LayoutlibCallback mCallback;

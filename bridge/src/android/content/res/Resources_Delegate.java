@@ -71,7 +71,6 @@ import static android.content.res.AssetManager.ACCESS_STREAMING;
 import static com.android.SdkConstants.ANDROID_PKG;
 import static com.android.SdkConstants.PREFIX_RESOURCE_REF;
 
-@SuppressWarnings("deprecation")
 public class Resources_Delegate {
     private static WeakHashMap<Resources, LayoutlibCallback> sLayoutlibCallbacks =
             new WeakHashMap<>();

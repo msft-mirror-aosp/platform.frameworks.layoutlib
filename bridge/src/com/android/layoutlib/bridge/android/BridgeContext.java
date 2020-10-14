@@ -120,7 +120,6 @@ import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_AP
 /**
  * Custom implementation of Context/Activity to handle non compiled resources.
  */
-@SuppressWarnings("deprecation")  // For use of Pair.
 public class BridgeContext extends Context {
     private static final String PREFIX_THEME_APPCOMPAT = "Theme.AppCompat";
 

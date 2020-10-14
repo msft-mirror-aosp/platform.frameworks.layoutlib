@@ -38,7 +38,6 @@ import android.widget.TextView;
  */
 public class AdapterHelper {
 
-    @SuppressWarnings("deprecation")
     static Pair<View, Boolean> getView(AdapterItem item, AdapterItem parentItem, ViewGroup parent,
             LayoutlibCallback callback, ResourceReference adapterRef, boolean skipCallbackParser) {
         // we don't care about recycling here because we never scroll.

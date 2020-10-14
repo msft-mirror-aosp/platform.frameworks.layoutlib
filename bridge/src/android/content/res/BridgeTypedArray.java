@@ -809,7 +809,6 @@ public final class BridgeTypedArray extends TypedArray {
     }
 
     @Override
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public int getType(int index) {
         String value = getString(index);
         if (value == null) {
