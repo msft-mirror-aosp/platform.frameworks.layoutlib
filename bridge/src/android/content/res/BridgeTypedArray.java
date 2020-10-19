@@ -73,6 +73,8 @@ import static com.android.ide.common.rendering.api.RenderResources.REFERENCE_UND
  * Custom implementation of TypedArray to handle non compiled resources.
  */
 public final class BridgeTypedArray extends TypedArray {
+    private static final String MATCH_PARENT_INT_STRING = String.valueOf(LayoutParams.MATCH_PARENT);
+    private static final String WRAP_CONTENT_INT_STRING = String.valueOf(LayoutParams.WRAP_CONTENT);
 
     private final Resources mBridgeResources;
     private final BridgeContext mContext;
@@ -382,13 +384,11 @@ public final class BridgeTypedArray extends TypedArray {
             return defValue;
         }
         // Check if the value is a magic constant that doesn't require a unit.
-        try {
-            int i = Integer.parseInt(s);
-            if (i == LayoutParams.MATCH_PARENT || i == LayoutParams.WRAP_CONTENT) {
-                return i;
-            }
-        } catch (NumberFormatException ignored) {
-            // pass
+        if (MATCH_PARENT_INT_STRING.equals(s)) {
+            return LayoutParams.MATCH_PARENT;
+        }
+        if (WRAP_CONTENT_INT_STRING.equals(s)) {
+            return LayoutParams.WRAP_CONTENT;
         }
 
         if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
@@ -440,21 +440,33 @@ public final class BridgeTypedArray extends TypedArray {
      */
     @Override
     public int getDimensionPixelSize(int index, int defValue) {
-        try {
-            return getDimension(index, null);
-        } catch (RuntimeException e) {
-            String s = getString(index);
-
-            if (s != null) {
-                // looks like we were unable to resolve the dimension value
-                Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
-                        String.format("\"%1$s\" in attribute \"%2$s\" is not a valid format.",
-                                s, mNames[index]),
-                        null, null);
-            }
-
+        String s = getString(index);
+        if (s == null) {
             return defValue;
         }
+
+        if (MATCH_PARENT_INT_STRING.equals(s)) {
+            return LayoutParams.MATCH_PARENT;
+        }
+        if (WRAP_CONTENT_INT_STRING.equals(s)) {
+            return LayoutParams.WRAP_CONTENT;
+        }
+
+        if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
+            float f = mValue.getDimension(mBridgeResources.getDisplayMetrics());
+
+            final int res = (int) (f + 0.5f);
+            if (res != 0) return res;
+            if (f == 0) return 0;
+            if (f > 0) return 1;
+        }
+
+        // looks like we were unable to resolve the dimension value
+        Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
+                String.format("\"%1$s\" in attribute \"%2$s\" is not a valid format.", s, mNames[index]),
+                null, null);
+
+        return defValue;
     }
 
     /**
@@ -471,56 +483,39 @@ public final class BridgeTypedArray extends TypedArray {
      */
     @Override
     public int getLayoutDimension(int index, String name) {
-        try {
-            // this will throw an exception if not found.
-            return getDimension(index, name);
-        } catch (RuntimeException e) {
-
-            if (LayoutInflater_Delegate.sIsInInclude) {
-                throw new RuntimeException("Layout Dimension '" + name + "' not found.");
+        String s = getString(index);
+        if (s != null) {
+            // Check if the value is a magic constant that doesn't require a unit.
+            if (MATCH_PARENT_INT_STRING.equals(s)) {
+                return LayoutParams.MATCH_PARENT;
+            }
+            if (WRAP_CONTENT_INT_STRING.equals(s)) {
+                return LayoutParams.WRAP_CONTENT;
             }
 
-            Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
-                    "You must supply a " + name + " attribute.",
-                    null, null);
+            if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
+                float f = mValue.getDimension(mBridgeResources.getDisplayMetrics());
 
-            return 0;
+                final int res = (int) (f + 0.5f);
+                if (res != 0) return res;
+                if (f == 0) return 0;
+                if (f > 0) return 1;
+            }
         }
+
+        if (LayoutInflater_Delegate.sIsInInclude) {
+            throw new RuntimeException("Layout Dimension '" + name + "' not found.");
+        }
+
+        Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
+                "You must supply a " + name + " attribute.", null, null);
+
+        return 0;
     }
 
     @Override
     public int getLayoutDimension(int index, int defValue) {
         return getDimensionPixelSize(index, defValue);
-    }
-
-    /** @param name attribute name, used for error reporting. */
-    private int getDimension(int index, @Nullable String name) {
-        String s = getString(index);
-        if (s == null) {
-            if (name != null) {
-                throw new RuntimeException("Attribute '" + name + "' not found");
-            }
-            throw new RuntimeException();
-        }
-        // Check if the value is a magic constant that doesn't require a unit.
-        try {
-            int i = Integer.parseInt(s);
-            if (i == LayoutParams.MATCH_PARENT || i == LayoutParams.WRAP_CONTENT) {
-                return i;
-            }
-        } catch (NumberFormatException ignored) {
-            // pass
-        }
-        if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
-            float f = mValue.getDimension(mBridgeResources.getDisplayMetrics());
-
-            final int res = (int)(f+0.5f);
-            if (res != 0) return res;
-            if (f == 0) return 0;
-            if (f > 0) return 1;
-        }
-
-        throw new RuntimeException();
     }
 
     /**
