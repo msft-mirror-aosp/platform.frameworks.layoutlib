@@ -806,54 +806,7 @@ public final class BridgeTypedArray extends TypedArray {
     @Override
     public int getType(int index) {
         String value = getString(index);
-        if (value == null) {
-            return TYPE_NULL;
-        }
-        if (value.startsWith(PREFIX_RESOURCE_REF)) {
-            return TYPE_REFERENCE;
-        }
-        if (value.startsWith(PREFIX_THEME_REF)) {
-            return TYPE_ATTRIBUTE;
-        }
-        try {
-            // Don't care about the value. Only called to check if an exception is thrown.
-            convertValueToInt(value, 0);
-            if (value.startsWith("0x") || value.startsWith("0X")) {
-                return TYPE_INT_HEX;
-            }
-            // is it a color?
-            if (value.startsWith("#")) {
-                int length = value.length() - 1;
-                if (length == 3) {  // rgb
-                    return TYPE_INT_COLOR_RGB4;
-                }
-                if (length == 4) {  // argb
-                    return TYPE_INT_COLOR_ARGB4;
-                }
-                if (length == 6) {  // rrggbb
-                    return TYPE_INT_COLOR_RGB8;
-                }
-                if (length == 8) {  // aarrggbb
-                    return TYPE_INT_COLOR_ARGB8;
-                }
-            }
-            if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
-                return TYPE_INT_BOOLEAN;
-            }
-            return TYPE_INT_DEC;
-        } catch (NumberFormatException ignored) {
-            try {
-                Float.parseFloat(value);
-                return TYPE_FLOAT;
-            } catch (NumberFormatException ignore) {
-            }
-            // Might be a dimension.
-            if (ResourceHelper.parseFloatAttribute(null, value, new TypedValue(), false)) {
-                return TYPE_DIMENSION;
-            }
-        }
-        // TODO: handle fractions.
-        return TYPE_STRING;
+        return getType(value);
     }
 
     /**
@@ -1023,6 +976,73 @@ public final class BridgeTypedArray extends TypedArray {
 
         // Use Long, since we want to handle hex ints > 80000000.
         return ((int)Long.parseLong(charSeq.substring(index), base)) * sign;
+    }
+
+    protected static int getType(@Nullable String value) {
+        if (value == null) {
+            return TYPE_NULL;
+        }
+        if (value.startsWith(PREFIX_RESOURCE_REF)) {
+            return TYPE_REFERENCE;
+        }
+        if (value.startsWith(PREFIX_THEME_REF)) {
+            return TYPE_ATTRIBUTE;
+        }
+        if (value.equals("true") || value.equals("false")) {
+            return TYPE_INT_BOOLEAN;
+        }
+        if (value.startsWith("0x") || value.startsWith("0X")) {
+            try {
+                // Check if it is a hex value.
+                Long.parseLong(value.substring(2), 16);
+                return TYPE_INT_HEX;
+            } catch (NumberFormatException e) {
+                return TYPE_STRING;
+            }
+        }
+        if (value.startsWith("#")) {
+            try {
+                // Check if it is a color.
+                ResourceHelper.getColor(value);
+                int length = value.length() - 1;
+                if (length == 3) {  // rgb
+                    return TYPE_INT_COLOR_RGB4;
+                }
+                if (length == 4) {  // argb
+                    return TYPE_INT_COLOR_ARGB4;
+                }
+                if (length == 6) {  // rrggbb
+                    return TYPE_INT_COLOR_RGB8;
+                }
+                if (length == 8) {  // aarrggbb
+                    return TYPE_INT_COLOR_ARGB8;
+                }
+            } catch (NumberFormatException e) {
+                return TYPE_STRING;
+            }
+        }
+        if (!Character.isDigit(value.charAt(value.length() - 1))) {
+            // Check if it is a dimension.
+            if (ResourceHelper.parseFloatAttribute(null, value, new TypedValue(), false)) {
+                return TYPE_DIMENSION;
+            } else {
+                return TYPE_STRING;
+            }
+        }
+        try {
+            // Check if it is an int.
+            convertValueToInt(value, 0);
+            return TYPE_INT_DEC;
+        } catch (NumberFormatException ignored) {
+            try {
+                // Check if it is a float.
+                Float.parseFloat(value);
+                return TYPE_FLOAT;
+            } catch (NumberFormatException ignore) {
+            }
+        }
+        // TODO: handle fractions.
+        return TYPE_STRING;
     }
 
     static TypedArray obtain(Resources res, int len) {
