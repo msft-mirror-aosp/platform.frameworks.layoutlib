@@ -15,12 +15,13 @@
  */
 package android.view;
 
-import com.android.ide.common.rendering.api.ILayoutLog;
-import com.android.layoutlib.bridge.Bridge;
+import static android.view.View.SYSTEM_UI_FLAG_VISIBLE;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
+import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
 import android.app.ResourcesManager;
 import android.content.Context;
-import android.graphics.Insets;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -28,6 +29,9 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.view.Display.Mode;
+
+import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.layoutlib.bridge.Bridge;
 
 public class WindowManagerImpl implements WindowManager {
 
@@ -152,18 +156,20 @@ public class WindowManagerImpl implements WindowManager {
 
     private WindowInsets computeWindowInsets() {
         try {
-            final Rect systemWindowInsets = new Rect();
-            final Rect stableInsets = new Rect();
             final DisplayCutout.ParcelableWrapper displayCutout =
                     new DisplayCutout.ParcelableWrapper();
             final InsetsState insetsState = new InsetsState();
-            WindowManagerGlobal.getWindowManagerService().getWindowInsets(
-                    new WindowManager.LayoutParams(), mContext.getDisplayId(), systemWindowInsets,
-                    stableInsets, displayCutout, insetsState);
-            return new WindowInsets.Builder()
-                    .setSystemWindowInsets(Insets.of(systemWindowInsets))
-                    .setStableInsets(Insets.of(stableInsets))
-                    .setDisplayCutout(displayCutout.get()).build();
+            final boolean alwaysConsumeSystemBars =
+                    WindowManagerGlobal.getWindowManagerService().getWindowInsets(
+                            new WindowManager.LayoutParams(), mContext.getDisplayId(),
+                            displayCutout, insetsState);
+            final Configuration config = mContext.getResources().getConfiguration();
+            final boolean isScreenRound = config.isScreenRound();
+            final int windowingMode = config.windowConfiguration.getWindowingMode();
+            return insetsState.calculateInsets(getCurrentBounds(mContext),
+                    null /* ignoringVisibilityState*/, isScreenRound, alwaysConsumeSystemBars,
+                    displayCutout.get(), SOFT_INPUT_ADJUST_NOTHING, 0, SYSTEM_UI_FLAG_VISIBLE,
+                    TYPE_APPLICATION, windowingMode, null /* typeSideMap */);
         } catch (RemoteException ignore) {
         }
         return null;
