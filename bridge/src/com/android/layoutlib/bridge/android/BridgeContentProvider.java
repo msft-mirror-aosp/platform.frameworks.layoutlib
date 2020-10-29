@@ -184,6 +184,22 @@ public final class BridgeContentProvider implements IContentProvider {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public void uncanonicalizeAsync(String callingPkg, String callingFeatureId, Uri uri,
+            RemoteCallback remoteCallback) {
+        AsyncTask.SERIAL_EXECUTOR.execute(() -> {
+            try {
+                final Bundle bundle = new Bundle();
+                bundle.putParcelable(ContentResolver.REMOTE_CALLBACK_RESULT,
+                        uncanonicalize(callingPkg, callingFeatureId, uri));
+                remoteCallback.sendResult(bundle);
+            } catch (RemoteException e) {
+              // Ignore
+            }
+        });
+    }
+
     @Override
     public boolean refresh(String callingPkg, String callingFeatureId, Uri url, Bundle args,
             ICancellationSignal cancellationSignal) throws RemoteException {
