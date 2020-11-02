@@ -22,6 +22,7 @@ import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
 import com.android.tools.idea.validator.ValidatorResult.Metric;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -65,6 +66,7 @@ public class ValidatorResultTests {
                 .setSourceClass("Source class");
     }
 
+    @Ignore("b/172205439")
     @Test
     public void testMetricElapsed() {
         long expectedElapsed = 100;
@@ -87,6 +89,7 @@ public class ValidatorResultTests {
         assertTrue(diff < EPSILON);
     }
 
+    @Ignore("b/172205439")
     @Test
     public void testMetricRecordHierarchyCreationTime() {
         long expectedElapsed = 100;
