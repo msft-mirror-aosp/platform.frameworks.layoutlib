@@ -64,4 +64,19 @@ public class ICU_Delegate {
     /*package*/ static String getDefaultLocale() {
         return Locale.getDefault().toString();
     }
+
+    @LayoutlibDelegate
+    /*package*/ static String getCldrVersion() {
+        return "";
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static String getIcuVersion() {
+        return "";
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static String getUnicodeVersion() {
+        return "";
+    }
 }
