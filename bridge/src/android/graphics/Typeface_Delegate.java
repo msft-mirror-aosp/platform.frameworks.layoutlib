@@ -39,6 +39,7 @@ import android.graphics.fonts.FontVariationAxis;
 
 import java.awt.Font;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -311,6 +312,20 @@ public final class Typeface_Delegate {
             return;
         }
         sGenericNativeFamilies.put(str, delegate.mFontFamilies);
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static int nativeWriteTypefaces(ByteBuffer buffer, long[] nativePtrs) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "Typeface serialization is not supported", null, null, null);
+        return 0;
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static long[] nativeReadTypefaces(ByteBuffer buffer) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "Typeface serialization is not supported", null, null, null);
+        return null;
     }
 
     // ---- Private delegate/helper methods ----
