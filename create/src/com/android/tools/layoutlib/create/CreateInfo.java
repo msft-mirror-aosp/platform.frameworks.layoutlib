@@ -84,6 +84,11 @@ public final class CreateInfo implements ICreateInfo {
     }
 
     @Override
+    public String[] getUnfinalizedFields() {
+        return UNFINALIZED_FIELDS;
+    }
+
+    @Override
     public String[] getPromotedClasses() {
         return PROMOTED_CLASSES;
     }
@@ -374,6 +379,17 @@ public final class CreateInfo implements ICreateInfo {
         "android.animation.PropertyValuesHolder$FloatPropertyValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiFloatValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiIntValuesHolder#sJNISetterPropertyMap",
+    };
+
+    /**
+     * List of fields that are to be made non-final.
+     */
+    private final static String[] UNFINALIZED_FIELDS = new String[] {
+        "android.graphics.Typeface#DEFAULT",
+        "android.graphics.Typeface#DEFAULT_BOLD",
+        "android.graphics.Typeface#SANS_SERIF",
+        "android.graphics.Typeface#SERIF",
+        "android.graphics.Typeface#MONOSPACE",
     };
 
     /**

@@ -25,6 +25,8 @@ import com.android.layoutlib.bridge.android.BridgeXmlBlockParser;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.layoutlib.bridge.impl.RenderAction;
+import com.android.layoutlib.bridge.util.ReflectionUtils;
+import com.android.layoutlib.bridge.util.ReflectionUtils.ReflectionException;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -39,6 +41,8 @@ import android.graphics.fonts.FontVariationAxis;
 
 import java.awt.Font;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -51,6 +55,8 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
+
+import static com.android.layoutlib.bridge.util.ReflectionUtils.getCause;
 
 /**
  * Delegate implementing the native methods of android.graphics.Typeface
@@ -326,6 +332,19 @@ public final class Typeface_Delegate {
         Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
                 "Typeface serialization is not supported", null, null, null);
         return null;
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static void nativeForceSetStaticFinalField(String fieldName, Typeface typeface) {
+        // Fields should have been made non-final by being added to CreateInfo#UNFINALIZED_FIELDS.
+        try {
+            Field field = Typeface.class.getDeclaredField(fieldName);
+            field.set(null, typeface);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Throwable cause = getCause(e);
+            Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
+                    "Error occurred in Typeface initialization.", cause, null, null);
+        }
     }
 
     // ---- Private delegate/helper methods ----
