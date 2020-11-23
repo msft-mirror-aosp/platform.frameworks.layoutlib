@@ -46,10 +46,9 @@ public class SystemFonts_Delegate {
     /*package*/ static FontConfig.Alias[] buildSystemFallback(@NonNull String xmlPath,
             @NonNull String fontDir,
             @NonNull FontCustomizationParser.Result oemCustomization,
-            @NonNull ArrayMap<String, FontFamily[]> fallbackMap,
-            @NonNull ArrayList<Font> availableFonts) {
+            @NonNull ArrayMap<String, FontFamily[]> fallbackMap) {
         Bridge.sIsTypefaceInitialized = true;
         return SystemFonts.buildSystemFallback_Original(getFontLocation() + "/standard/fonts.xml",
-                getFontLocation() + "/", oemCustomization, fallbackMap, availableFonts);
+                getFontLocation() + "/", oemCustomization, fallbackMap);
     }
 }
