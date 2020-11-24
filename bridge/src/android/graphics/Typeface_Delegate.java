@@ -47,6 +47,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -178,8 +179,8 @@ public final class Typeface_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static synchronized long nativeCreateFromArray(long[] familyArray, int weight,
-            int italic) {
+    /*package*/ static synchronized long nativeCreateFromArray(long[] familyArray,
+            long fallbackTypeface, int weight, int italic) {
         List<FontFamily_Delegate> fontFamilies = new ArrayList<>();
         List<FontFamily_Builder_Delegate> fontFamilyBuilders = new ArrayList<>();
         for (long aFamilyArray : familyArray) {
@@ -188,6 +189,11 @@ public final class Typeface_Delegate {
             } catch (ClassCastException e) {
                 fontFamilyBuilders.add(FontFamily_Builder_Delegate.getDelegate(aFamilyArray));
             }
+        }
+        Typeface_Delegate fallback = sManager.getDelegate(fallbackTypeface);
+        if (fallback != null) {
+            fontFamilies.addAll(Arrays.asList(fallback.mFontFamilies));
+            fontFamilyBuilders.addAll(Arrays.asList(fallback.mFontFamilyBuilders));
         }
         if (weight == Typeface.RESOLVE_BY_FONT_TABLE) {
             weight = 400;
