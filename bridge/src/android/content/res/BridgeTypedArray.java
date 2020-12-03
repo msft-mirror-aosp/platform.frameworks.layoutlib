@@ -26,6 +26,7 @@ import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.ide.common.rendering.api.TextResourceValue;
+import com.android.ide.common.resources.ValueXmlHelper;
 import com.android.internal.util.XmlUtils;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -210,7 +211,9 @@ public final class BridgeTypedArray extends TypedArray {
         ResourceValue resourceValue = mResourceData[index];
         String value = resourceValue.getValue();
         if (resourceValue instanceof TextResourceValue) {
-            String rawValue = resourceValue.getRawXmlValue();
+            String rawValue =
+                    ValueXmlHelper.unescapeResourceString(resourceValue.getRawXmlValue(),
+                            true, false);
             if (rawValue != null && !rawValue.equals(value)) {
                 return Html.fromHtml(rawValue, FROM_HTML_MODE_COMPACT);
             }
