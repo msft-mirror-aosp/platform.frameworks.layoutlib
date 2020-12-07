@@ -21,6 +21,8 @@ import com.android.tools.idea.validator.ValidatorData.Issue.IssueBuilder;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
+import com.android.tools.idea.validator.hierarchy.CustomAccessibilityHierarchyAndroid;
+import com.android.tools.idea.validator.hierarchy.CustomAccessibilityHierarchyAndroid.CustomBuilderAndroid;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
@@ -82,8 +84,8 @@ public class ValidatorUtil {
         @Nullable Parameters parameters = null;
         builder.mMetric.startTimer();
 
-        hierarchy.mView = AccessibilityHierarchyAndroid
-                .newBuilder(view)
+        hierarchy.mView = new CustomAccessibilityHierarchyAndroid
+                .CustomBuilderAndroid(view)
                 .setViewOriginMap(builder.mSrcMap)
                 .build();
         if (image != null) {

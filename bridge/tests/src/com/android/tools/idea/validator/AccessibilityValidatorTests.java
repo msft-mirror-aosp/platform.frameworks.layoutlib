@@ -17,19 +17,15 @@
 package com.android.tools.idea.validator;
 
 import com.android.ide.common.rendering.api.RenderSession;
-import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.intensive.RenderTestBase;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.layoutlib.bridge.intensive.util.SessionParamsBuilder;
-import com.android.tools.idea.validator.LayoutValidator;
-import com.android.tools.idea.validator.ValidatorData;
 import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Policy;
 import com.android.tools.idea.validator.ValidatorData.Type;
-import com.android.tools.idea.validator.ValidatorResult;
 
 import org.junit.Test;
 
@@ -55,18 +51,6 @@ import static org.junit.Assert.assertTrue;
  * studio and it seems to work ok.
  */
 public class AccessibilityValidatorTests extends RenderTestBase {
-
-    @Test
-    public void testScrollingView() throws Exception {
-        render("a11y_scrolling_view_test.xml", session -> {
-            ValidatorResult result = getRenderResult(session);
-            List<Issue> internalError = filter(result.getIssues(), "ValidatorHierarchy");
-
-            ExpectedLevels expectedLevels = new ExpectedLevels();
-            expectedLevels.expectedErrors = 1;
-            expectedLevels.check(internalError);
-        });
-    }
 
     @Test
     public void testDuplicateClickableBoundsCheck() throws Exception {
