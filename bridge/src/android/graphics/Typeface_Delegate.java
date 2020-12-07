@@ -356,6 +356,13 @@ public final class Typeface_Delegate {
     // ---- Private delegate/helper methods ----
 
     /**
+     * Initializes Typeface class by loading the system fonts
+     */
+    public static void init() {
+        Typeface.loadPreinstalledSystemFontMap();
+    }
+
+    /**
      * Return an Iterable of fonts that match the style and variant. The list is ordered
      * according to preference of fonts.
      * <p>
