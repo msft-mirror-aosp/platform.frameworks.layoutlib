@@ -158,6 +158,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.content.res.Resources$Theme#obtainStyledAttributes",
         "android.content.res.Resources$Theme#resolveAttribute",
         "android.content.res.Resources$Theme#resolveAttributes",
+        "android.content.res.AssetManager#createSystemAssetsInZygoteLocked",
         "android.content.res.AssetManager#nativeCreate",
         "android.content.res.AssetManager#nativeDestroy",
         "android.content.res.AssetManager#nativeThemeCreate",

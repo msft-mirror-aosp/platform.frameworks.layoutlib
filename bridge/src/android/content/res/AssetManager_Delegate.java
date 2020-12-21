@@ -69,4 +69,8 @@ public class AssetManager_Delegate {
             boolean includeOverlays, boolean includeLoaders) {
         return new SparseArray<>();
     }
+
+    @LayoutlibDelegate
+    /*package*/ static void createSystemAssetsInZygoteLocked(boolean reinitialize,
+            String frameworkPath) { }
 }
