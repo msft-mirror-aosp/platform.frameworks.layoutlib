@@ -21,8 +21,10 @@ import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.text.FontConfig;
 
+import java.io.File;
 import java.util.Map;
 
 import static android.graphics.FontFamily_Delegate.getFontLocation;
@@ -49,5 +51,16 @@ public class SystemFonts_Delegate {
         Bridge.sIsTypefaceInitialized = true;
         return SystemFonts.buildSystemFallback_Original(getFontLocation() + "/standard/fonts.xml",
                 getFontLocation() + "/", oemCustomization, fallbackMap);
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static FontConfig.Alias[] buildSystemFallback(@NonNull String xmlPath,
+            @NonNull String fontDir,
+            @Nullable Map<String, File> updatableFontMap,
+            @NonNull FontCustomizationParser.Result oemCustomization,
+            @NonNull Map<String, FontFamily[]> fallbackMap) {
+        Bridge.sIsTypefaceInitialized = true;
+        return SystemFonts.buildSystemFallback_Original(getFontLocation() + "/standard/fonts.xml",
+                getFontLocation() + "/", updatableFontMap, oemCustomization, fallbackMap);
     }
 }
