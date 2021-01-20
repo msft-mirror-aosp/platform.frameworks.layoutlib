@@ -44,23 +44,14 @@ import static android.graphics.FontFamily_Delegate.getFontLocation;
 public class SystemFonts_Delegate {
 
     @LayoutlibDelegate
-    /*package*/ static FontConfig.Alias[] buildSystemFallback(@NonNull String xmlPath,
-            @NonNull String fontDir,
-            @NonNull FontCustomizationParser.Result oemCustomization,
-            @NonNull Map<String, FontFamily[]> fallbackMap) {
+    /*package*/ static FontConfig getSystemFontConfigInternal(
+            String fontsXml,
+            String systemFontDir,
+            String oemXml,
+            String productFontDir,
+            Map<String, File> updatableFontMap) {
         Bridge.sIsTypefaceInitialized = true;
-        return SystemFonts.buildSystemFallback_Original(getFontLocation() + "/standard/fonts.xml",
-                getFontLocation() + "/", oemCustomization, fallbackMap);
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static FontConfig.Alias[] buildSystemFallback(@NonNull String xmlPath,
-            @NonNull String fontDir,
-            @Nullable Map<String, File> updatableFontMap,
-            @NonNull FontCustomizationParser.Result oemCustomization,
-            @NonNull Map<String, FontFamily[]> fallbackMap) {
-        Bridge.sIsTypefaceInitialized = true;
-        return SystemFonts.buildSystemFallback_Original(getFontLocation() + "/standard/fonts.xml",
-                getFontLocation() + "/", updatableFontMap, oemCustomization, fallbackMap);
+        return SystemFonts.getSystemFontConfigInternal(getFontLocation() + "/standard/fonts.xml",
+                getFontLocation() + "/", null, null, updatableFontMap);
     }
 }
