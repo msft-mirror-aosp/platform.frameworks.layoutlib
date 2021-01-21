@@ -175,7 +175,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Typeface#create",
         "android.graphics.Typeface$Builder#createAssetUid",
         "android.graphics.fonts.Font$Builder#createBuffer",
-        "android.graphics.fonts.SystemFonts#buildSystemFallback",
+        "android.graphics.fonts.SystemFonts#getSystemFontConfigInternal",
         "android.os.Binder#getNativeBBinderHolder",
         "android.os.Binder#getNativeFinalizer",
         "android.os.Handler#sendMessageAtTime",
