@@ -51,7 +51,8 @@ public class SystemFonts_Delegate {
             String productFontDir,
             Map<String, File> updatableFontMap) {
         Bridge.sIsTypefaceInitialized = true;
-        return SystemFonts.getSystemFontConfigInternal(getFontLocation() + "/standard/fonts.xml",
-                getFontLocation() + "/", null, null, updatableFontMap);
+        return SystemFonts.getSystemFontConfigInternal_Original(
+                getFontLocation() + "/standard/fonts.xml", getFontLocation() + "/",
+                null, null, updatableFontMap);
     }
 }
