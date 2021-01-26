@@ -47,6 +47,16 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public BatterySaverPolicyConfig getFullPowerSavePolicy() {
+        return new BatterySaverPolicyConfig.Builder().build();
+    }
+
+    @Override
+    public boolean setFullPowerSavePolicy(BatterySaverPolicyConfig config) {
+        return false;
+    }
+
+    @Override
     public boolean setDynamicPowerSaveHint(boolean powerSaveHint, int disableThreshold)
             throws RemoteException {
         return false;
