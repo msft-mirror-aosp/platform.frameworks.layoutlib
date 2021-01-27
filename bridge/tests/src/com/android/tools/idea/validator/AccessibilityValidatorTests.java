@@ -53,6 +53,26 @@ import static org.junit.Assert.assertTrue;
 public class AccessibilityValidatorTests extends RenderTestBase {
 
     @Test
+    public void testPaused() throws Exception {
+        try {
+            LayoutValidator.setPaused(true);
+            render("a11y_test_dup_clickable_bounds.xml", session -> {
+                ValidatorResult result = getRenderResult(session);
+                List<Issue> dupBounds = filter(result.getIssues(), "DuplicateClickableBoundsCheck");
+
+                /**
+                 * Expects no errors since disabled. When enabled it should print
+                 * the same result as {@link #testDuplicateClickableBoundsCheck}
+                 */
+                ExpectedLevels expectedLevels = new ExpectedLevels();
+                expectedLevels.check(dupBounds);
+            });
+        } finally {
+            LayoutValidator.setPaused(false);
+        }
+    }
+
+    @Test
     public void testDuplicateClickableBoundsCheck() throws Exception {
         render("a11y_test_dup_clickable_bounds.xml", session -> {
             ValidatorResult result = getRenderResult(session);
