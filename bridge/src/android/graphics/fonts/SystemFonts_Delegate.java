@@ -53,6 +53,6 @@ public class SystemFonts_Delegate {
         Bridge.sIsTypefaceInitialized = true;
         return SystemFonts.getSystemFontConfigInternal_Original(
                 getFontLocation() + "/standard/fonts.xml", getFontLocation() + "/",
-                null, null, updatableFontMap);
+                null, null, updatableFontMap, 0, 0);
     }
 }
