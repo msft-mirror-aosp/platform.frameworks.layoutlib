@@ -22,8 +22,7 @@ import com.android.tools.idea.validator.ValidatorData.Issue.IssueBuilder;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
-import com.android.tools.idea.validator.hierarchy.CustomAccessibilityHierarchyAndroid;
-import com.android.tools.idea.validator.hierarchy.CustomAccessibilityHierarchyAndroid.CustomBuilderAndroid;
+import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
@@ -49,6 +48,9 @@ import com.google.android.apps.common.testing.accessibility.framework.Accessibil
 import com.google.android.apps.common.testing.accessibility.framework.Parameters;
 import com.google.android.apps.common.testing.accessibility.framework.strings.StringManager;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.AccessibilityHierarchyAndroid;
+import com.google.android.apps.common.testing.accessibility.framework.uielement.CustomViewBuilderAndroid;
+import com.google.android.apps.common.testing.accessibility.framework.uielement.DefaultCustomViewBuilderAndroid;
+import com.google.android.apps.common.testing.accessibility.framework.uielement.ViewHierarchyElementAndroid;
 
 public class ValidatorUtil {
 
@@ -67,6 +69,9 @@ public class ValidatorUtil {
          */
         StringManager.setResourceBundleProvider(locale -> ResourceBundle.getBundle("strings"));
     }
+
+    private static DefaultCustomViewBuilderAndroid sDefaultCustomViewBuilderAndroid =
+            new DefaultCustomViewBuilderAndroid();
 
     /**
      * @param policy policy to apply for the hierarchy
@@ -87,9 +92,28 @@ public class ValidatorUtil {
         @Nullable Parameters parameters = null;
         builder.mMetric.startTimer();
 
-        hierarchy.mView = new CustomAccessibilityHierarchyAndroid
-                .CustomBuilderAndroid(view)
+        hierarchy.mView = AccessibilityHierarchyAndroid
+                .newBuilder(view)
                 .setViewOriginMap(builder.mSrcMap)
+                .setCustomViewBuilder(new CustomViewBuilderAndroid() {
+                    @Override
+                    public Class<?> getClassByName(
+                            ViewHierarchyElementAndroid viewHierarchyElementAndroid,
+                            String className) {
+                        Class<?> toReturn = sDefaultCustomViewBuilderAndroid.getClassByName(
+                                viewHierarchyElementAndroid,
+                                className);
+                        if (toReturn == null) {
+                            toReturn = CustomHierarchyHelper.getClassByName(className);
+                        }
+                        return toReturn;
+                    }
+
+                    @Override
+                    public boolean isCheckable(View view) {
+                        return CustomHierarchyHelper.isCheckable(view);
+                    }
+                })
                 .build();
         if (image != null) {
             parameters = new Parameters();
