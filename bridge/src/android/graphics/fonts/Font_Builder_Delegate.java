@@ -108,8 +108,8 @@ public class Font_Builder_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static long nBuild(long builderPtr, ByteBuffer buffer, String filePath, int weight,
-            boolean italic, int ttcIndex) {
+    /*package*/ static long nBuild(long builderPtr, ByteBuffer buffer, String filePath,
+            String localeList, int weight, boolean italic, int ttcIndex) {
         Font_Builder_Delegate font = sBuilderManager.getDelegate(builderPtr);
         if (font != null) {
             font.mBuffer = buffer;
