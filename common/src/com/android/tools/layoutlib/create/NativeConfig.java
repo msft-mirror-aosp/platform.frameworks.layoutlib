@@ -30,9 +30,8 @@ public class NativeConfig {
             "android.graphics.Matrix",
             "android.graphics.Path",
             // Order is important! Fonts and FontFamily have to be initialized before Typeface
-            "android.graphics.fonts.Font$Builder",
+            "android.graphics.fonts.Font",
             "android.graphics.fonts.FontFamily$Builder",
-            "android.graphics.fonts.NativeFontBufferHelper",
             "android.graphics.Typeface",
             "android.graphics.text.PositionedGlyphs",
             "android.graphics.text.LineBreaker",
