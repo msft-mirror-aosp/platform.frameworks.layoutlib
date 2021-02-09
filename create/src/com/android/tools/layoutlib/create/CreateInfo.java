@@ -180,6 +180,7 @@ public final class CreateInfo implements ICreateInfo {
                 ".AccessibilityHierarchyAndroid$ViewElementClassNamesAndroid#getClassByName",
         "android.graphics.Typeface#create",
         "android.graphics.Typeface$Builder#createAssetUid",
+        "android.graphics.fonts.Font#nGetPackedStyle",
         "android.graphics.fonts.Font$Builder#createBuffer",
         "android.graphics.fonts.SystemFonts#getSystemFontConfigInternal",
         "android.os.Binder#getNativeBBinderHolder",
