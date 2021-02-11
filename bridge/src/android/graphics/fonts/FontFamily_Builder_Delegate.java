@@ -24,14 +24,14 @@ import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.graphics.FontFamily_Delegate.FontInfo;
-import android.graphics.FontFamily_Delegate.FontVariant;
-import android.graphics.Paint;
 
 import java.awt.Font;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
@@ -60,20 +60,17 @@ public class FontFamily_Builder_Delegate {
     // Order does not really matter but we use a LinkedHashMap to get reproducible results across
     // render calls
     private Map<FontInfo, Font> mFonts = new LinkedHashMap<>();
-    /**
-     * The variant of the Font Family - compact or elegant.
-     * <p/>
-     * 0 is unspecified, 1 is compact and 2 is elegant. This needs to be kept in sync with values in
-     * android.graphics.FontFamily
-     *
-     * @see Paint#setElegantTextHeight(boolean)
-     */
-    private FontVariant mVariant;
+    private int mVariant;
     private boolean mIsCustomFallback;
+    private long mNativePtr;
+    public List<Long> mFontsList = new ArrayList<>();
 
     @LayoutlibDelegate
     /*package*/ static long nInitBuilder() {
-        return sBuilderManager.addNewDelegate(new FontFamily_Builder_Delegate());
+        FontFamily_Builder_Delegate delegate = new FontFamily_Builder_Delegate();
+        long nativePtr = sBuilderManager.addNewDelegate(delegate);
+        delegate.mNativePtr = nativePtr;
+        return nativePtr;
     }
 
     @LayoutlibDelegate
@@ -93,6 +90,7 @@ public class FontFamily_Builder_Delegate {
         if (font != null) {
             font = font.deriveFont(fontBuilder.mAxes);
             familyBuilder.addFont(font, fontBuilder.mWeight, fontBuilder.mItalic);
+            familyBuilder.mFontsList.add(fontPtr);
         }
     }
 
@@ -102,7 +100,7 @@ public class FontFamily_Builder_Delegate {
         FontFamily_Builder_Delegate builder = sBuilderManager.getDelegate(builderPtr);
         if (builder != null) {
             assert variant < 3;
-            builder.mVariant = FontVariant.values()[variant];
+            builder.mVariant = variant;
             builder.mIsCustomFallback = isCustomFallback;
         }
         return builderPtr;
@@ -165,8 +163,16 @@ public class FontFamily_Builder_Delegate {
         return desiredStyle.mFont;
     }
 
-    public FontVariant getVariant() {
+    public int getVariant() {
         return mVariant;
+    }
+
+    public int getSize() {
+        return mFonts.size();
+    }
+
+    public long getNativePtr() {
+        return mNativePtr;
     }
 
     // ---- private helper methods ----

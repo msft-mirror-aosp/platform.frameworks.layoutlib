@@ -25,8 +25,6 @@ import com.android.layoutlib.bridge.android.BridgeXmlBlockParser;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.layoutlib.bridge.impl.RenderAction;
-import com.android.layoutlib.bridge.util.ReflectionUtils;
-import com.android.layoutlib.bridge.util.ReflectionUtils.ReflectionException;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -35,14 +33,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.res.FontResourcesParser;
-import android.graphics.FontFamily_Delegate.FontVariant;
 import android.graphics.fonts.FontFamily_Builder_Delegate;
 import android.graphics.fonts.FontVariationAxis;
+import android.text.FontConfig;
 
 import java.awt.Font;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -57,6 +54,7 @@ import java.util.Spliterators;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
 
+import static android.text.FontConfig.FontFamily.VARIANT_DEFAULT;
 import static com.android.layoutlib.bridge.util.ReflectionUtils.getCause;
 
 /**
@@ -353,6 +351,24 @@ public final class Typeface_Delegate {
         }
     }
 
+    @LayoutlibDelegate
+    /*package*/ static int nativeGetFamilySize(long nativePtr) {
+        Typeface_Delegate delegate = sManager.getDelegate(nativePtr);
+        if (delegate == null) {
+            return 0;
+        }
+        return delegate.mFontFamilyBuilders.length;
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static long nativeGetFamily(long nativePtr, int index) {
+        Typeface_Delegate delegate = sManager.getDelegate(nativePtr);
+        if (delegate == null) {
+            return 0;
+        }
+        return delegate.mFontFamilyBuilders[index].getNativePtr();
+    }
+
     // ---- Private delegate/helper methods ----
 
     /**
@@ -370,12 +386,13 @@ public final class Typeface_Delegate {
      * render with this list of fonts, then a warning should be logged letting the user know that
      * some font failed to load.
      *
-     * @param variant The variant preferred. Can only be {@link FontVariant#COMPACT} or {@link
-     * FontVariant#ELEGANT}
+     * @param variant The variant preferred. Can only be
+     * {@link FontConfig.FontFamily#VARIANT_COMPACT} or
+     * {@link FontConfig.FontFamily##VARIANT_ELEGANT}
      */
     @NonNull
-    public Iterable<Font> getFonts(final FontVariant variant) {
-        assert variant != FontVariant.NONE;
+    public Iterable<Font> getFonts(final int variant) {
+        assert variant != VARIANT_DEFAULT;
 
         return new FontsIterator(mFontFamilies, mFontFamilyBuilders, variant, mWeight, mStyle);
     }
@@ -385,13 +402,13 @@ public final class Typeface_Delegate {
         private final FontFamily_Builder_Delegate[] fontFamilyBuilders;
         private final int weight;
         private final boolean isItalic;
-        private final FontVariant variant;
+        private final int variant;
 
         private int index = 0;
 
         private FontsIterator(@NonNull FontFamily_Delegate[] fontFamilies,
                 @NonNull FontFamily_Builder_Delegate[] fontFamilyBuilders,
-                @NonNull FontVariant variant, int weight, int style) {
+                int variant, int weight, int style) {
             // Calculate the required weight based on style and weight of this typeface.
             int boldExtraWeight =
                     ((style & Font.BOLD) == 0 ? 0 : FontFamily_Delegate.BOLD_FONT_WEIGHT_DELTA);
@@ -411,7 +428,7 @@ public final class Typeface_Delegate {
         @Nullable
         public Font next() {
             Font font;
-            FontVariant ffdVariant;
+            int ffdVariant;
             if (index < fontFamilies.length) {
                 FontFamily_Delegate ffd = fontFamilies[index++];
                 if (ffd == null || !ffd.isValid()) {
@@ -436,7 +453,7 @@ public final class Typeface_Delegate {
                 return null;
             }
 
-            if (ffdVariant == FontVariant.NONE || ffdVariant == variant) {
+            if (ffdVariant == VARIANT_DEFAULT || ffdVariant == variant) {
                 return font;
             }
 

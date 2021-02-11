@@ -304,6 +304,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AnimatedVectorDrawable",
         "android.graphics.drawable.VectorDrawable",
         "android.graphics.fonts.Font$Builder",
+        "android.graphics.fonts.FontFamily",
         "android.graphics.fonts.FontFamily$Builder",
         "android.graphics.text.MeasuredText",
         "android.graphics.text.MeasuredText$Builder",
