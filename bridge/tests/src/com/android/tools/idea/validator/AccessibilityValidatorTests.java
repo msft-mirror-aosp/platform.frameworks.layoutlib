@@ -32,6 +32,9 @@ import org.junit.Test;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.google.android.apps.common.testing.accessibility.framework.uielement.DefaultCustomViewBuilderAndroid;
+import com.google.android.apps.common.testing.accessibility.framework.uielement.ViewHierarchyElementAndroid;
+
 import static com.android.tools.idea.validator.ValidatorUtil.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -222,6 +225,49 @@ public class AccessibilityValidatorTests extends RenderTestBase {
     }
 
     @Test
+    public void testClassLoaderOverride() throws Exception {
+        final boolean[] overriddenClassLoaderCalled = {false};
+
+        // testAndroid will fail to find class - so to trigger LayoutlibCallback
+        DefaultCustomViewBuilderAndroid testAndroid = new DefaultCustomViewBuilderAndroid() {
+            @Override
+            public Class<?> getClassByName(
+                    ViewHierarchyElementAndroid view, String className) {
+                return null;
+            }
+        };
+        // Callback when CustomViewBuilderAndroid fails.
+        LayoutLibTestCallback testCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader) {
+                    @Override
+                    public Class<?> findClass(String name) throws ClassNotFoundException {
+                        if (name.contains("ImageView")) {
+                            // Make sure one of the view (ImageView) passes thru here
+                            overriddenClassLoaderCalled[0] = true;
+                        }
+                        return mDefaultClassLoader.loadClass(name);
+                    }
+                };
+        try {
+            ValidatorUtil.sDefaultCustomViewBuilderAndroid = testAndroid;
+            render("a11y_test_image_contrast.xml", session -> {
+                ValidatorResult result = getRenderResult(session);
+                List<Issue> imageContrast = filter(result.getIssues(), "ImageContrastCheck");
+
+                ExpectedLevels expectedLevels = new ExpectedLevels();
+                expectedLevels.expectedWarnings = 1;
+                expectedLevels.expectedVerboses = 1;
+                expectedLevels.check(imageContrast);
+
+                // Ensure that the check went thru the overridden class loader.
+                assertTrue(overriddenClassLoaderCalled[0]);
+            }, true, testCallback);
+        } finally {
+            ValidatorUtil.sDefaultCustomViewBuilderAndroid = new DefaultCustomViewBuilderAndroid();
+        }
+    }
+
+    @Test
     public void testImageContrastCheckNoImage() throws Exception {
         render("a11y_test_image_contrast.xml", session -> {
             ValidatorResult result = getRenderResult(session);
@@ -278,13 +324,23 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             String fileName,
             RenderSessionListener verifier,
             boolean enableImageCheck) throws Exception {
+        render(
+                fileName,
+                verifier,
+                enableImageCheck,
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader));
+    }
+
+    private void render(
+            String fileName,
+            RenderSessionListener verifier,
+            boolean enableImageCheck,
+            LayoutLibTestCallback layoutLibCallback) throws Exception {
         LayoutValidator.updatePolicy(new Policy(
                 EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
                 EnumSet.of(Level.ERROR, Level.WARNING, Level.INFO, Level.VERBOSE)));
 
         LayoutPullParser parser = createParserFromPath(fileName);
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
         SessionParamsBuilder params = getSessionParamsBuilder()
                 .setParser(parser)

@@ -83,7 +83,8 @@ public class ValidatorUtil {
         StringManager.setResourceBundleProvider(locale -> ResourceBundle.getBundle("strings"));
     }
 
-    private static DefaultCustomViewBuilderAndroid sDefaultCustomViewBuilderAndroid =
+    // Visible for testing.
+    protected static DefaultCustomViewBuilderAndroid sDefaultCustomViewBuilderAndroid =
             new DefaultCustomViewBuilderAndroid();
 
     /**
