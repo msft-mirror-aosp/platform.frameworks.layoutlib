@@ -369,6 +369,11 @@ public final class Typeface_Delegate {
         return delegate.mFontFamilyBuilders[index].getNativePtr();
     }
 
+    @LayoutlibDelegate
+    /*package*/ static void nativeWarmUpCache(String fileName) {
+        // Ignore, this is an optimization for Android that doesn't make sense for layoutlib.
+    }
+
     // ---- Private delegate/helper methods ----
 
     /**
