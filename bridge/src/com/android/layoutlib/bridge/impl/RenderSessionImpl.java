@@ -50,7 +50,6 @@ import com.android.tools.idea.validator.LayoutValidator;
 import com.android.tools.idea.validator.ValidatorResult;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
 import com.android.tools.layoutlib.java.System_Delegate;
-import com.android.utils.Pair;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -60,6 +59,7 @@ import android.graphics.Canvas;
 import android.graphics.NinePatch_Delegate;
 import android.os.Looper;
 import android.preference.Preference_Delegate;
+import android.util.Pair;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
 import android.view.Choreographer_Delegate;
@@ -238,15 +238,15 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     mContentRoot, mContentRoot.getChildAt(0),
                     mMeasuredScreenWidth, widthMeasureSpecMode,
                     mMeasuredScreenHeight, heightMeasureSpecMode);
-            int neededWidth = neededMeasure.getFirst();
-            int neededHeight = neededMeasure.getSecond();
+            int neededWidth = neededMeasure.first;
+            int neededHeight = neededMeasure.second;
 
             // If measuredView is not null, exactMeasure nor result will be null.
             assert (exactMeasure != null && neededMeasure != null) || measuredView == null;
 
             // now look at the difference and add what is needed.
             if (renderingMode.getHorizAction() == SizeAction.EXPAND) {
-                int measuredWidth = exactMeasure.getFirst();
+                int measuredWidth = exactMeasure.first;
                 if (neededWidth > measuredWidth) {
                     mMeasuredScreenWidth += neededWidth - measuredWidth;
                 }
@@ -260,7 +260,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             if (renderingMode.getVertAction() == SizeAction.EXPAND) {
-                int measuredHeight = exactMeasure.getSecond();
+                int measuredHeight = exactMeasure.second;
                 if (neededHeight > measuredHeight) {
                     mMeasuredScreenHeight += neededHeight - measuredHeight;
                 }
@@ -624,7 +624,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         viewToMeasure.measure(w_spec, h_spec);
 
         if (measuredView != null) {
-            return Pair.of(measuredView.getMeasuredWidth(), measuredView.getMeasuredHeight());
+            return Pair.create(measuredView.getMeasuredWidth(), measuredView.getMeasuredHeight());
         }
 
         return null;
@@ -683,11 +683,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                 Pair<View, Boolean> pair = context.inflateView(
                                         binding.getHeaderAt(i),
                                         list, false, skipCallbackParser);
-                                if (pair.getFirst() != null) {
-                                    list.addHeaderView(pair.getFirst());
+                                if (pair.first != null) {
+                                    list.addHeaderView(pair.first);
                                 }
 
-                                skipCallbackParser |= pair.getSecond();
+                                skipCallbackParser |= pair.second;
                             }
 
                             count = binding.getFooterCount();
@@ -695,11 +695,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                 Pair<View, Boolean> pair = context.inflateView(
                                         binding.getFooterAt(i),
                                         list, false, skipCallbackParser);
-                                if (pair.getFirst() != null) {
-                                    list.addFooterView(pair.getFirst());
+                                if (pair.first != null) {
+                                    list.addFooterView(pair.first);
                                 }
 
-                                skipCallbackParser |= pair.getSecond();
+                                skipCallbackParser |= pair.second;
                             }
                         }
 
