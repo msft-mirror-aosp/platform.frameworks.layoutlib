@@ -33,7 +33,6 @@ import com.android.resources.ResourceType;
 import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.create.MethodAdapter;
 import com.android.tools.layoutlib.create.OverrideMethod;
-import com.android.utils.Pair;
 
 import android.animation.PropertyValuesHolder;
 import android.animation.PropertyValuesHolder_Delegate;
@@ -46,6 +45,7 @@ import android.graphics.Typeface_Delegate;
 import android.icu.util.ULocale;
 import android.os.Looper;
 import android.os.Looper_Accessor;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -234,7 +234,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                         Class<?> type = f.getType();
                         if (!type.isArray()) {
                             Integer value = (Integer) f.get(null);
-                            sRMap.put(value, Pair.of(resType, f.getName()));
+                            sRMap.put(value, Pair.create(resType, f.getName()));
                             fullMap.put(f.getName(), value);
                         }
                     }
@@ -324,10 +324,10 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             if (arrayValue != null) {
                 String attrName = name.substring(arrayName.length() + 1);
                 int attrValue = arrayValue[index];
-                sRMap.put(attrValue, Pair.of(ResourceType.ATTR, attrName));
+                sRMap.put(attrValue, Pair.create(ResourceType.ATTR, attrName));
                 revRAttrMap.put(attrName, attrValue);
             }
-            sRMap.put(index, Pair.of(ResourceType.STYLEABLE, name));
+            sRMap.put(index, Pair.create(ResourceType.STYLEABLE, name));
             revRStyleableMap.put(name, index);
         }
     }
@@ -537,7 +537,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         }
 
         if (pair != null) {
-            return new ResourceReference(ResourceNamespace.ANDROID, pair.getFirst(), pair.getSecond());
+            return new ResourceReference(ResourceNamespace.ANDROID, pair.first, pair.second);
         }
         return null;
     }
