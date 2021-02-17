@@ -107,6 +107,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedVerboses = 3;
             expectedLevels.expectedWarnings = 1;
+            expectedLevels.expectedFixes = 1;
             expectedLevels.check(redundant);
         });
     }
@@ -149,6 +150,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedVerboses = 1;
             expectedLevels.expectedErrors = 1;
+            expectedLevels.expectedFixes = 1;
             expectedLevels.check(speakableCheck);
 
             // Make sure no other errors in the system.
@@ -171,6 +173,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             expectedLevels.expectedErrors = 3;
             expectedLevels.expectedWarnings = 1; // This is true only if image is passed.
             expectedLevels.expectedVerboses = 2;
+            expectedLevels.expectedFixes = 4;
             expectedLevels.check(textContrast);
 
             // Make sure no other errors in the system.
@@ -190,6 +193,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedErrors = 3;
             expectedLevels.expectedVerboses = 3;
+            expectedLevels.expectedFixes = 3;
             expectedLevels.check(textContrast);
 
             // Make sure no other errors in the system.
@@ -243,6 +247,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedErrors = 5;
             expectedLevels.expectedVerboses = 1;
+            expectedLevels.expectedFixes = 5;
             expectedLevels.check(targetSizes);
 
             // Make sure no other errors in the system.
@@ -307,12 +312,15 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         public int expectedInfos = 0;
         // Number of verboses expected
         public int expectedVerboses = 0;
+        // Number of fixes expected
+        public int expectedFixes = 0;
 
         public void check(List<Issue> issues) {
             int errors = 0;
             int warnings = 0;
             int infos = 0;
             int verboses = 0;
+            int fixes = 0;
 
             for (Issue issue : issues) {
                 switch (issue.mLevel) {
@@ -329,12 +337,17 @@ public class AccessibilityValidatorTests extends RenderTestBase {
                         verboses++;
                         break;
                 }
+
+                if (issue.mFix != null) {
+                    fixes ++;
+                }
             }
 
             assertEquals("Number of expected errors", expectedErrors, errors);
             assertEquals("Number of expected warnings",expectedWarnings, warnings);
             assertEquals("Number of expected infos", expectedInfos, infos);
             assertEquals("Number of expected verboses", expectedVerboses, verboses);
+            assertEquals("Number of expected fixes", expectedFixes, fixes);
 
             int size = expectedErrors + expectedWarnings + expectedInfos + expectedVerboses;
             assertEquals("expected size", size, issues.size());

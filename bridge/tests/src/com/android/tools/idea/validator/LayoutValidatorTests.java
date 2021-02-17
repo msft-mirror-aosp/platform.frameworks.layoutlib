@@ -21,8 +21,11 @@ import com.android.layoutlib.bridge.intensive.RenderTestBase;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
+import com.android.tools.idea.validator.ValidatorData.CompoundFix;
 import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Level;
+import com.android.tools.idea.validator.ValidatorData.SetViewAttributeFix;
+
 import com.android.tools.idea.validator.ValidatorData.Type;
 
 import org.junit.Test;
@@ -79,14 +82,26 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertEquals("https://support.google.com/accessibility/android/answer/7158690",
                          first.mHelpfulUrl);
             assertEquals("SpeakableTextPresentCheck", first.mSourceClass);
+            assertTrue(first.mFix instanceof SetViewAttributeFix);
+            assertEquals("Set the view attribute android:contentDescription to a " +
+                    "meaningful non-empty string or resource reference.",
+                    first.mFix.getDescription());
 
             Issue second = errorIssues.get(1);
+            CompoundFix compoundFix = (CompoundFix) second.mFix;
             assertEquals("This item's size is 10dp x 10dp. Consider making this touch target " +
                             "48dp wide and 48dp high or larger.",
                          second.mMsg);
             assertEquals("https://support.google.com/accessibility/android/answer/7101858",
                          second.mHelpfulUrl);
             assertEquals("TouchTargetSizeCheck", second.mSourceClass);
+            assertTrue(compoundFix.mFixes.size() == 2);
+            assertEquals(
+                    "Set the view attribute android:layout_width to 48dp.",
+                    compoundFix.mFixes.get(0).getDescription());
+            assertEquals(
+                    "Set the view attribute android:layout_height to 48dp.",
+                    compoundFix.mFixes.get(1).getDescription());
 
             Issue third = errorIssues.get(2);
             assertEquals("The item's text contrast ratio is 1.00. This ratio is based on a text color " +
@@ -96,6 +111,9 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertEquals("https://support.google.com/accessibility/android/answer/7158390",
                          third.mHelpfulUrl);
             assertEquals("TextContrastCheck", third.mSourceClass);
+            assertTrue(third.mFix instanceof SetViewAttributeFix);
+            assertEquals("Set the view attribute android:textColor to #FFFFFF.",
+                    third.mFix.getDescription());
         });
     }
 

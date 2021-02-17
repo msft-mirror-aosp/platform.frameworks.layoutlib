@@ -16,15 +16,19 @@
 
 package com.android.tools.idea.validator;
 
-import com.android.tools.idea.validator.ValidatorData.Fix;
+import com.android.tools.idea.validator.ValidatorData.CompoundFix;
 import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Issue.IssueBuilder;
 import com.android.tools.idea.validator.ValidatorData.Level;
+import com.android.tools.idea.validator.ValidatorData.RemoveViewAttributeFix;
+import com.android.tools.idea.validator.ValidatorData.SetViewAttributeFix;
 import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
 import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
+
+import org.jsoup.Jsoup;
 
 import android.view.View;
 
@@ -42,15 +46,24 @@ import java.util.stream.Collectors;
 
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheck;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckPreset;
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult.AccessibilityCheckResultType;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheck;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheckResult;
 import com.google.android.apps.common.testing.accessibility.framework.Parameters;
 import com.google.android.apps.common.testing.accessibility.framework.strings.StringManager;
+import com.google.android.apps.common.testing.accessibility.framework.suggestions.CompoundFixSuggestions;
+import com.google.android.apps.common.testing.accessibility.framework.suggestions.FixSuggestion;
+import com.google.android.apps.common.testing.accessibility.framework.suggestions.FixSuggestionPreset;
+import com.google.android.apps.common.testing.accessibility.framework.suggestions.RemoveViewAttributeFixSuggestion;
+import com.google.android.apps.common.testing.accessibility.framework.suggestions.SetViewAttributeFixSuggestion;
+import com.google.android.apps.common.testing.accessibility.framework.suggestions.ViewAttribute;
+import com.google.android.apps.common.testing.accessibility.framework.uielement.AccessibilityHierarchy;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.AccessibilityHierarchyAndroid;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.CustomViewBuilderAndroid;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.DefaultCustomViewBuilderAndroid;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.ViewHierarchyElementAndroid;
+import com.google.common.collect.ImmutableList;
 
 public class ValidatorUtil {
 
@@ -181,7 +194,7 @@ public class ValidatorUtil {
                         .setCategory(category)
                         .setMsg(result.getMessage(Locale.ENGLISH).toString())
                         .setLevel(level)
-                        .setFix(ValidatorUtil.generateFix(result))
+                        .setFix(ValidatorUtil.generateFix(result, view, parameters))
                         .setSourceClass(result.getSourceCheckClass().getSimpleName());
                 if (result.getElement() != null) {
                     issueBuilder.setSrcId(result.getElement().getCondensedUniqueId());
@@ -271,9 +284,69 @@ public class ValidatorUtil {
         }
     }
 
+    /**
+     * Create a {@link ValidatorData.Fix} for the given result, or {@code null} if there is no
+     * fixes available.
+     *
+     * <p>If there are multiple fixes available, return the first fix which is considered to be the
+     * best fix available.
+     *
+     * @param result to generate a fix from.
+     * @param hierarchy The hierarchy from which the result is generated from.
+     * @param parameters Optional input data or preferences.
+     */
     @Nullable
-    private static ValidatorData.Fix generateFix(@NotNull AccessibilityHierarchyCheckResult result) {
-        // TODO: Once ATF is ready to return us with appropriate fix, build proper fix here.
-        return new Fix("");
+    private static ValidatorData.Fix generateFix(
+            @NotNull AccessibilityHierarchyCheckResult result,
+            @NotNull AccessibilityHierarchy hierarchy,
+            @Nullable Parameters parameters) {
+        ImmutableList<FixSuggestion> fixSuggestions =
+                FixSuggestionPreset.provideFixSuggestions(result, hierarchy, parameters);
+        return fixSuggestions.isEmpty() ? null : convertFix(fixSuggestions.get(0));
+    }
+
+    /** Convert {@link FixSuggestion} to {@link ValidatorData.Fix} */
+    @Nullable
+    private static ValidatorData.Fix convertFix(@NotNull FixSuggestion fixSuggestion) {
+        if (fixSuggestion instanceof CompoundFixSuggestions) {
+            CompoundFixSuggestions compoundFixSuggestions = (CompoundFixSuggestions)fixSuggestion;
+            List<ValidatorData.Fix> fixes =
+                    compoundFixSuggestions
+                            .getFixSuggestions()
+                            .stream()
+                            .map(ValidatorUtil::convertFix)
+                            .collect(Collectors.toList());
+            return new CompoundFix(
+                    fixes,
+                    convertHtml(compoundFixSuggestions.getDescription(Locale.ENGLISH)));
+        } else if (fixSuggestion instanceof RemoveViewAttributeFixSuggestion) {
+            RemoveViewAttributeFixSuggestion removeViewAttributeFix =
+                    (RemoveViewAttributeFixSuggestion)fixSuggestion;
+            return new RemoveViewAttributeFix(
+                    convertViewAttribute(removeViewAttributeFix.getViewAttribute()),
+                    convertHtml(removeViewAttributeFix.getDescription(Locale.ENGLISH)));
+        } else if (fixSuggestion instanceof SetViewAttributeFixSuggestion) {
+            SetViewAttributeFixSuggestion setViewAttributeFixSuggestion =
+                    (SetViewAttributeFixSuggestion)fixSuggestion;
+            return new SetViewAttributeFix(
+                    convertViewAttribute(setViewAttributeFixSuggestion.getViewAttribute()),
+                    setViewAttributeFixSuggestion.getSuggestedValue(),
+                    convertHtml(setViewAttributeFixSuggestion.getDescription(Locale.ENGLISH)));
+        }
+        return null;
+    }
+
+    @NotNull
+    private static String convertHtml(CharSequence html) {
+        //TODO: Provide descriptions without formatting markup in ATF
+        return Jsoup.parse(html.toString()).text();
+    }
+
+    /** Convert {@link ViewAttribute} to {@link ValidatorData.ViewAttribute} */
+    @NotNull
+    private static ValidatorData.ViewAttribute convertViewAttribute(
+            @NotNull ViewAttribute viewAttribute) {
+        return new ValidatorData.ViewAttribute(viewAttribute.getNamespace(),
+                viewAttribute.getAttributeName());
     }
 }
