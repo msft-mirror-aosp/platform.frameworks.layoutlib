@@ -16,7 +16,7 @@
 
 package android.graphics;
 
-import com.android.SdkConstants;
+import com.android.ide.common.rendering.api.AndroidConstants;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.layoutlib.bridge.Bridge;
@@ -64,7 +64,7 @@ public final class Typeface_Delegate {
         }
 
         String lowerCaseValue = path.toLowerCase();
-        if (lowerCaseValue.endsWith(SdkConstants.DOT_XML)) {
+        if (lowerCaseValue.endsWith(AndroidConstants.DOT_XML)) {
             // create a block parser for the file
             Boolean psiParserSupport = context.getLayoutlibCallback().getFlag(
                     RenderParamsFlags.FLAG_KEY_XML_FILE_PARSER_SUPPORT);

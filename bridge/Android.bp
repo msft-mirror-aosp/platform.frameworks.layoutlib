@@ -27,7 +27,6 @@ java_library_host {
     libs: [
         "kxml2-2.3.0",
         "layoutlib_api-prebuilt",
-        "tools-common-prebuilt",
         "guava",
     ],
 
@@ -62,7 +61,6 @@ java_library_host {
     static_libs: [
         "layoutlib_create",
         "layoutlib_api-prebuilt",
-        "tools-common-prebuilt",
         "ninepatch-prebuilt",
         "layoutlib-common",
         "layoutlib-common-delegates",

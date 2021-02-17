@@ -15,7 +15,7 @@
  */
 package com.android.layoutlib.bridge.impl;
 
-import com.android.SdkConstants;
+import com.android.ide.common.rendering.api.AndroidConstants;
 import com.android.ide.common.rendering.api.AssetRepository;
 import com.android.ide.common.rendering.api.DensityBasedResourceValue;
 import com.android.ide.common.rendering.api.ILayoutLog;
@@ -108,7 +108,7 @@ public final class ResourceHelper {
         }
 
         if (value.charAt(0) != '#') {
-            if (value.startsWith(SdkConstants.PREFIX_THEME_REF)) {
+            if (value.startsWith(AndroidConstants.PREFIX_THEME_REF)) {
                 throw new NumberFormatException(String.format(
                         "Attribute '%s' not found. Are you using the right theme?", value));
             }

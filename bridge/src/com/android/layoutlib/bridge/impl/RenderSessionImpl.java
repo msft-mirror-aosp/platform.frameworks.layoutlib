@@ -49,7 +49,6 @@ import com.android.layoutlib.bridge.impl.binding.FakeExpandableAdapter;
 import com.android.tools.idea.validator.LayoutValidator;
 import com.android.tools.idea.validator.ValidatorResult;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
-import com.android.utils.Pair;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -65,6 +64,7 @@ import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.os.Handler_Delegate;
 import android.preference.Preference_Delegate;
+import android.util.Pair;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
 import android.view.Choreographer_Delegate;
@@ -264,10 +264,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             assert (exactMeasure != null && neededMeasure != null);
 
             // now look at the difference and add what is needed.
-            mMeasuredScreenWidth = calcSize(mMeasuredScreenWidth, neededMeasure.getFirst(),
-                    exactMeasure.getFirst(), renderingMode.getHorizAction());
-            mMeasuredScreenHeight = calcSize(mMeasuredScreenHeight, neededMeasure.getSecond(),
-                    exactMeasure.getSecond(), renderingMode.getVertAction());
+            mMeasuredScreenWidth = calcSize(mMeasuredScreenWidth, neededMeasure.first,
+                    exactMeasure.first, renderingMode.getHorizAction());
+            mMeasuredScreenHeight = calcSize(mMeasuredScreenHeight, neededMeasure.second,
+                    exactMeasure.second, renderingMode.getVertAction());
         }
         mNewRenderSize =
                 mMeasuredScreenWidth != previousWidth || mMeasuredScreenHeight != previousHeight;
@@ -637,7 +637,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         viewToMeasure.measure(w_spec, h_spec);
 
         if (measuredView != null) {
-            return Pair.of(measuredView.getMeasuredWidth(), measuredView.getMeasuredHeight());
+            return Pair.create(measuredView.getMeasuredWidth(), measuredView.getMeasuredHeight());
         }
 
         return null;
@@ -696,11 +696,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                 Pair<View, Boolean> pair = context.inflateView(
                                         binding.getHeaderAt(i),
                                         list, false, skipCallbackParser);
-                                if (pair.getFirst() != null) {
-                                    list.addHeaderView(pair.getFirst());
+                                if (pair.first != null) {
+                                    list.addHeaderView(pair.first);
                                 }
 
-                                skipCallbackParser |= pair.getSecond();
+                                skipCallbackParser |= pair.second;
                             }
 
                             count = binding.getFooterCount();
@@ -708,11 +708,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                 Pair<View, Boolean> pair = context.inflateView(
                                         binding.getFooterAt(i),
                                         list, false, skipCallbackParser);
-                                if (pair.getFirst() != null) {
-                                    list.addFooterView(pair.getFirst());
+                                if (pair.first != null) {
+                                    list.addFooterView(pair.first);
                                 }
 
-                                skipCallbackParser |= pair.getSecond();
+                                skipCallbackParser |= pair.second;
                             }
                         }
 

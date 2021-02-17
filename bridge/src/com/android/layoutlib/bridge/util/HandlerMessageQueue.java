@@ -18,9 +18,9 @@ package com.android.layoutlib.bridge.util;
 
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
-import com.android.utils.Pair;
 
 import android.os.Handler;
+import android.util.Pair;
 
 import java.util.LinkedList;
 import java.util.WeakHashMap;
@@ -48,13 +48,13 @@ public class HandlerMessageQueue {
 
         int idx = 0;
         while (idx < runnables.size()) {
-            if (runnables.get(idx).getFirst() <= uptimeMillis) {
+            if (runnables.get(idx).first <= uptimeMillis) {
                 idx++;
             } else {
                 break;
             }
         }
-        runnables.add(idx, Pair.of(uptimeMillis, r));
+        runnables.add(idx, Pair.create(uptimeMillis, r));
     }
 
     private static class HandlerWrapper {
@@ -72,17 +72,17 @@ public class HandlerMessageQueue {
         final HandlerWrapper w = new HandlerWrapper();
         runnablesMap.forEach((h, l) -> {
             if (!l.isEmpty()) {
-                long currentUptime = l.getFirst().getFirst();
+                long currentUptime = l.getFirst().first;
                 if (currentUptime <= uptimeMillis) {
                     if (w.handler == null || currentUptime <
-                            runnablesMap.get(w.handler).getFirst().getFirst()) {
+                            runnablesMap.get(w.handler).getFirst().first) {
                         w.handler = h;
                     }
                 }
             }
         });
         if (w.handler != null) {
-            return runnablesMap.get(w.handler).pollFirst().getSecond();
+            return runnablesMap.get(w.handler).pollFirst().second;
         }
         return null;
     }
