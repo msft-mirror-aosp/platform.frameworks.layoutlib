@@ -27,8 +27,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="layoutlib_api-prebuilt" level="project" />
-    <orderEntry type="module-library">
-      <library name="tools-common-prebuilt" scope="TEST">
+    <orderEntry type="module-library" scope="TEST">
+      <library name="tools-common-prebuilt">
         <ANNOTATIONS>
           <root url="file://$MODULE_DIR$/.." />
         </ANNOTATIONS>
