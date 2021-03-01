@@ -182,13 +182,18 @@ public class ValidatorData {
      * Represents a view attribute which contains a namespace and an attribute name.
      */
     public static class ViewAttribute {
-        //TODO: Consider adding uri info as well for xml modifications.
+        /** The namespace used in XML files for this view attribute. */
+        @NotNull public final String mNamespaceUri;
         /** The namespace of this view attribute. */
         @NotNull public final String mNamespace;
         /** The attribute name of this view attribute. */
         @NotNull public final String mAttributeName;
 
-        public ViewAttribute(@NotNull String namespace, @NotNull String attributeName) {
+        public ViewAttribute(
+                @NotNull String namespaceUri,
+                @NotNull String namespace,
+                @NotNull String attributeName) {
+            mNamespaceUri = namespaceUri;
             mNamespace = namespace;
             mAttributeName = attributeName;
         }
