@@ -15,7 +15,7 @@ OUT_INTERMEDIATES=${SCRIPT_DIR}"/../../../../out/soong/.intermediates"
 NATIVE_LIBRARIES=${SCRIPT_DIR}"/../../../../out/host/linux-x86/lib64/"
 SDK=${SCRIPT_DIR}"/../../../../out/host/linux-x86/sdk/sdk*/android-sdk*"
 FONT_DIR=${SCRIPT_DIR}"/../../../../out/host/common/obj/PACKAGING/fonts_intermediates"
-ICU_DIR=${SCRIPT_DIR}"/../../../../out/host/linux-x86/com.android.i18n/etc/icu"
+ICU_DATA_PATH=${SCRIPT_DIR}"/../../../../out/host/linux-x86/com.android.i18n/etc/icu/icudt68l.dat"
 TMP_DIR=$(mktemp -d)
 PLATFORM=${TMP_DIR}/"android"
 
@@ -39,7 +39,7 @@ cp -RL ${TMP_DIR}/res ${PLATFORM}/data
 ${STUDIO_JDK}/bin/java -ea \
     -Dnative.lib.path=${NATIVE_LIBRARIES} \
     -Dfont.dir=${FONT_DIR} \
-    -Dicu.dir=${ICU_DIR} \
+    -Dicu.data.path=${ICU_DATA_PATH} \
     -Dplatform.dir=${PLATFORM} \
     -Dtest_res.dir=${SCRIPT_DIR}/res \
     -Dtest_failure.dir=${OUT_DIR}/${FAILURE_DIR} \
