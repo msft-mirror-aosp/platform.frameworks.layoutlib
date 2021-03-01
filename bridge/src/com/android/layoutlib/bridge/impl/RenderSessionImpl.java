@@ -65,6 +65,7 @@ import android.media.ImageReader;
 import android.os.Handler_Delegate;
 import android.preference.Preference_Delegate;
 import android.util.Pair;
+import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
 import android.view.Choreographer_Delegate;
@@ -1184,8 +1185,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             return;
         }
 
-        MotionEvent event = MotionEvent.obtain(mLastActionDownTimeNanos, currentTimeNanos,
+        MotionEvent event = MotionEvent.obtain(
+                mLastActionDownTimeNanos / TimeUtils.NANOS_PER_MS,
+                currentTimeNanos / TimeUtils.NANOS_PER_MS,
                 motionEventType, x, y, 0);
+
         mViewRoot.dispatchTouchEvent(event);
     }
 
