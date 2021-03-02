@@ -18,7 +18,12 @@ package android.view;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
+import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
+import com.android.tools.layoutlib.annotations.Nullable;
+
+import java.lang.StackWalker.StackFrame;
+import java.util.Optional;
 
 import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
 
@@ -40,7 +45,17 @@ public class Choreographer_Delegate {
             Choreographer thiz, int callbackType, Object action, Object token, long delayMillis) {
         BridgeContext context = getCurrentContext();
         if (context == null) {
-            return;
+            if (!Thread.currentThread().getName().equals("kotlinx.coroutines.DefaultExecutor")) {
+                return;
+            }
+            ClassLoader moduleClassLoader = findCallingClassLoader();
+            if (moduleClassLoader == null) {
+                return;
+            }
+            context = RenderAction.findContextFor(moduleClassLoader);
+            if (context == null) {
+                return;
+            }
         }
         if (callbackType != Choreographer.CALLBACK_ANIMATION) {
             // Ignore non-animation callbacks
@@ -69,5 +84,26 @@ public class Choreographer_Delegate {
                     "Callback with null action", (Object) null, null);
         }
         context.getSessionInteractiveData().getChoreographerCallbacks().remove(action);
+    }
+
+    /**
+     * With this method we are trying to find a child ClassLoader that calls this method. We assume
+     * that the child ClassLoader is the first ClassLoader in the callstack that is different from
+     * the current one.
+     */
+    @Nullable
+    private static ClassLoader findCallingClassLoader() {
+        final ClassLoader current = Choreographer_Delegate.class.getClassLoader();
+        StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+        try {
+            return walker.walk(stackFrameStream -> {
+                Optional<StackFrame> stackFrame = stackFrameStream
+                        .filter(sf -> sf.getDeclaringClass().getClassLoader() != current)
+                        .findFirst();
+                return stackFrame.map(f -> f.getDeclaringClass().getClassLoader()).orElse(null);
+            });
+        } catch (Throwable ex) {
+            return null;
+        }
     }
 }

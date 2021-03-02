@@ -1199,6 +1199,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         }
     }
 
+    @Override
     public void dispose() {
         try {
             mRenderer.destroy();
@@ -1218,5 +1219,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         } catch (Throwable t) {
             getContext().error("Error while disposing a RenderSession", t);
         }
+        super.dispose();
     }
 }

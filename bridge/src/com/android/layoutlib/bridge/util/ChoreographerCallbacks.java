@@ -41,7 +41,7 @@ public class ChoreographerCallbacks {
 
     private final RangeList<Pair<Object, Long>> mCallbacks = new RangeList<>();
 
-    public void add(Object action, long delayMillis) {
+    public synchronized void add(Object action, long delayMillis) {
         int idx = 0;
         final long now = SystemClock_Delegate.uptimeMillis();
         final long dueTime = now + delayMillis;
@@ -55,11 +55,11 @@ public class ChoreographerCallbacks {
         mCallbacks.add(idx, Pair.create(action, dueTime));
     }
 
-    public void remove(Object action) {
+    public synchronized void remove(Object action) {
         mCallbacks.removeIf(el -> el.first == action);
     }
 
-    public void execute(long currentTimeMs, @NotNull ILayoutLog logger) {
+    public synchronized void execute(long currentTimeMs, @NotNull ILayoutLog logger) {
         int idx = 0;
         final long currentTimeNanos = currentTimeMs * TimeUtils.NANOS_PER_MS;
         while (idx < mCallbacks.size()) {
@@ -74,7 +74,7 @@ public class ChoreographerCallbacks {
         toExecute.forEach(p -> executeSafely(p.first, currentTimeNanos, logger));
     }
 
-    public void clear() {
+    public synchronized void clear() {
         mCallbacks.clear();
     }
 

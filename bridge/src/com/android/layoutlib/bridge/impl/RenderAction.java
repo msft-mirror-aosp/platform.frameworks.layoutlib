@@ -28,6 +28,8 @@ import com.android.resources.Density;
 import com.android.resources.ScreenOrientation;
 import com.android.resources.ScreenRound;
 import com.android.resources.ScreenSize;
+import com.android.tools.layoutlib.annotations.NotNull;
+import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.animation.PropertyValuesHolder_Accessor;
@@ -41,7 +43,10 @@ import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
 import android.view.inputmethod.InputMethodManager_Accessor;
 
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -63,6 +68,7 @@ import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
  */
 public abstract class RenderAction<T extends RenderParams> {
 
+    private static String COMPOSE_CLASS = "androidx.compose.ui.tooling.preview.ComposeViewAdapter";
     /**
      * The current context being rendered. This is set through {@link #acquire(long)} and
      * {@link #init(long)}, and unset in {@link #release()}.
@@ -73,6 +79,10 @@ public abstract class RenderAction<T extends RenderParams> {
     private final T mParams;
 
     private BridgeContext mContext;
+
+    private static final Object sContextLock = new Object();
+    private static final Set<BridgeContext> sContexts =
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     /**
      * Creates a renderAction.
@@ -132,6 +142,9 @@ public abstract class RenderAction<T extends RenderParams> {
                 Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_ENABLE_SHADOW)),
                 Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_RENDER_HIGH_QUALITY_SHADOW)));
 
+        synchronized (sContextLock) {
+            sContexts.add(mContext);
+        }
         setUp();
 
         return SUCCESS.createResult();
@@ -413,5 +426,31 @@ public abstract class RenderAction<T extends RenderParams> {
         // TODO: fill in more config info.
 
         return config;
+    }
+
+    @Nullable
+    public static BridgeContext findContextFor(@NotNull ClassLoader classLoader) {
+        synchronized (sContextLock) {
+            for (BridgeContext c : RenderAction.sContexts) {
+                if (c == null) {
+                    continue;
+                }
+                try {
+                    ClassLoader cl =
+                            c.getLayoutlibCallback().findClass(COMPOSE_CLASS).getClassLoader();
+                    if (cl == classLoader) {
+                        return c;
+                    }
+                } catch (Throwable ignore) {
+                }
+            }
+            return null;
+        }
+    }
+
+    protected void dispose() {
+        synchronized (sContextLock) {
+            sContexts.remove(mContext);
+        }
     }
 }
