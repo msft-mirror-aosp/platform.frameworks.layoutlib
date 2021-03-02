@@ -78,7 +78,7 @@ public class BitmapShader_Delegate extends Shader_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static long nativeCreate(long nativeMatrix, long bitmapHandle,
-            int shaderTileModeX, int shaderTileModeY) {
+            int shaderTileModeX, int shaderTileModeY, boolean filter) {
         Bitmap_Delegate bitmap = Bitmap_Delegate.getDelegate(bitmapHandle);
         if (bitmap == null) {
             return 0;

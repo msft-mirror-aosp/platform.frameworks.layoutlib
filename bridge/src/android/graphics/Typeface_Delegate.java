@@ -33,15 +33,18 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.res.FontResourcesParser;
-import android.graphics.FontFamily_Delegate.FontVariant;
 import android.graphics.fonts.FontFamily_Builder_Delegate;
 import android.graphics.fonts.FontVariationAxis;
+import android.text.FontConfig;
 
 import java.awt.Font;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +53,9 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
+
+import static android.text.FontConfig.FontFamily.VARIANT_DEFAULT;
+import static com.android.layoutlib.bridge.util.ReflectionUtils.getCause;
 
 /**
  * Delegate implementing the native methods of android.graphics.Typeface
@@ -171,8 +177,8 @@ public final class Typeface_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static synchronized long nativeCreateFromArray(long[] familyArray, int weight,
-            int italic) {
+    /*package*/ static synchronized long nativeCreateFromArray(long[] familyArray,
+            long fallbackTypeface, int weight, int italic) {
         List<FontFamily_Delegate> fontFamilies = new ArrayList<>();
         List<FontFamily_Builder_Delegate> fontFamilyBuilders = new ArrayList<>();
         for (long aFamilyArray : familyArray) {
@@ -181,6 +187,11 @@ public final class Typeface_Delegate {
             } catch (ClassCastException e) {
                 fontFamilyBuilders.add(FontFamily_Builder_Delegate.getDelegate(aFamilyArray));
             }
+        }
+        Typeface_Delegate fallback = sManager.getDelegate(fallbackTypeface);
+        if (fallback != null) {
+            fontFamilies.addAll(Arrays.asList(fallback.mFontFamilies));
+            fontFamilyBuilders.addAll(Arrays.asList(fallback.mFontFamilyBuilders));
         }
         if (weight == Typeface.RESOLVE_BY_FONT_TABLE) {
             weight = 400;
@@ -313,7 +324,64 @@ public final class Typeface_Delegate {
         sGenericNativeFamilies.put(str, delegate.mFontFamilies);
     }
 
+    @LayoutlibDelegate
+    /*package*/ static int nativeWriteTypefaces(ByteBuffer buffer, long[] nativePtrs) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "Typeface serialization is not supported", null, null, null);
+        return 0;
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static long[] nativeReadTypefaces(ByteBuffer buffer) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "Typeface serialization is not supported", null, null, null);
+        return null;
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static void nativeForceSetStaticFinalField(String fieldName, Typeface typeface) {
+        // Fields should have been made non-final by being added to CreateInfo#UNFINALIZED_FIELDS.
+        try {
+            Field field = Typeface.class.getDeclaredField(fieldName);
+            field.set(null, typeface);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Throwable cause = getCause(e);
+            Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
+                    "Error occurred in Typeface initialization.", cause, null, null);
+        }
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static int nativeGetFamilySize(long nativePtr) {
+        Typeface_Delegate delegate = sManager.getDelegate(nativePtr);
+        if (delegate == null) {
+            return 0;
+        }
+        return delegate.mFontFamilyBuilders.length;
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static long nativeGetFamily(long nativePtr, int index) {
+        Typeface_Delegate delegate = sManager.getDelegate(nativePtr);
+        if (delegate == null) {
+            return 0;
+        }
+        return delegate.mFontFamilyBuilders[index].getNativePtr();
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static void nativeWarmUpCache(String fileName) {
+        // Ignore, this is an optimization for Android that doesn't make sense for layoutlib.
+    }
+
     // ---- Private delegate/helper methods ----
+
+    /**
+     * Initializes Typeface class by loading the system fonts
+     */
+    public static void init() {
+        Typeface.loadPreinstalledSystemFontMap();
+    }
 
     /**
      * Return an Iterable of fonts that match the style and variant. The list is ordered
@@ -323,12 +391,13 @@ public final class Typeface_Delegate {
      * render with this list of fonts, then a warning should be logged letting the user know that
      * some font failed to load.
      *
-     * @param variant The variant preferred. Can only be {@link FontVariant#COMPACT} or {@link
-     * FontVariant#ELEGANT}
+     * @param variant The variant preferred. Can only be
+     * {@link FontConfig.FontFamily#VARIANT_COMPACT} or
+     * {@link FontConfig.FontFamily##VARIANT_ELEGANT}
      */
     @NonNull
-    public Iterable<Font> getFonts(final FontVariant variant) {
-        assert variant != FontVariant.NONE;
+    public Iterable<Font> getFonts(final int variant) {
+        assert variant != VARIANT_DEFAULT;
 
         return new FontsIterator(mFontFamilies, mFontFamilyBuilders, variant, mWeight, mStyle);
     }
@@ -338,13 +407,13 @@ public final class Typeface_Delegate {
         private final FontFamily_Builder_Delegate[] fontFamilyBuilders;
         private final int weight;
         private final boolean isItalic;
-        private final FontVariant variant;
+        private final int variant;
 
         private int index = 0;
 
         private FontsIterator(@NonNull FontFamily_Delegate[] fontFamilies,
                 @NonNull FontFamily_Builder_Delegate[] fontFamilyBuilders,
-                @NonNull FontVariant variant, int weight, int style) {
+                int variant, int weight, int style) {
             // Calculate the required weight based on style and weight of this typeface.
             int boldExtraWeight =
                     ((style & Font.BOLD) == 0 ? 0 : FontFamily_Delegate.BOLD_FONT_WEIGHT_DELTA);
@@ -364,7 +433,7 @@ public final class Typeface_Delegate {
         @Nullable
         public Font next() {
             Font font;
-            FontVariant ffdVariant;
+            int ffdVariant;
             if (index < fontFamilies.length) {
                 FontFamily_Delegate ffd = fontFamilies[index++];
                 if (ffd == null || !ffd.isValid()) {
@@ -389,7 +458,7 @@ public final class Typeface_Delegate {
                 return null;
             }
 
-            if (ffdVariant == FontVariant.NONE || ffdVariant == variant) {
+            if (ffdVariant == VARIANT_DEFAULT || ffdVariant == variant) {
                 return font;
             }
 

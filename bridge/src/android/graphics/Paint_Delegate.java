@@ -23,7 +23,6 @@ import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.graphics.FontFamily_Delegate.FontVariant;
 import android.graphics.Paint.FontMetrics;
 import android.graphics.Paint.FontMetricsInt;
 import android.text.TextUtils;
@@ -42,6 +41,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
+
+import static android.text.FontConfig.FontFamily.VARIANT_COMPACT;
+import static android.text.FontConfig.FontFamily.VARIANT_ELEGANT;
 
 /**
  * Delegate implementing the native methods of android.graphics.Paint
@@ -104,7 +106,7 @@ public class Paint_Delegate {
     private float mLetterSpacing;  // not used in actual text rendering.
     private float mWordSpacing;  // not used in actual text rendering.
     // Variant of the font. A paint's variant can only be compact or elegant.
-    private FontVariant mFontVariant = FontVariant.COMPACT;
+    private int mFontVariant = VARIANT_COMPACT;
 
     private int mPorterDuffMode = Xfermode.DEFAULT;
     private ColorFilter_Delegate mColorFilter;
@@ -471,7 +473,7 @@ public class Paint_Delegate {
     /*package*/ static boolean nIsElegantTextHeight(long nativePaint) {
         // get the delegate from the native int.
         Paint_Delegate delegate = sManager.getDelegate(nativePaint);
-        return delegate != null && delegate.mFontVariant == FontVariant.ELEGANT;
+        return delegate != null && delegate.mFontVariant == VARIANT_ELEGANT;
     }
 
     @LayoutlibDelegate
@@ -483,7 +485,7 @@ public class Paint_Delegate {
             return;
         }
 
-        delegate.mFontVariant = elegant ? FontVariant.ELEGANT : FontVariant.COMPACT;
+        delegate.mFontVariant = elegant ? VARIANT_ELEGANT : VARIANT_COMPACT;
     }
 
     @LayoutlibDelegate
