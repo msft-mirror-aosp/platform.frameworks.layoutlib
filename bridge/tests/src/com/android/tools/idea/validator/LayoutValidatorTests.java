@@ -28,6 +28,7 @@ import com.android.tools.idea.validator.ValidatorData.SetViewAttributeFix;
 
 import com.android.tools.idea.validator.ValidatorData.Type;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import android.view.View;
@@ -62,6 +63,7 @@ public class LayoutValidatorTests extends RenderTestBase {
         renderAndVerify(params, "a11y_test1.png");
     }
 
+    @Ignore("b/181711213")
     @Test
     public void testValidation() throws Exception {
         render(sBridge, generateParams(), -1, session -> {
