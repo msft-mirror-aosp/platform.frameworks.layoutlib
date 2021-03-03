@@ -63,7 +63,6 @@ public class LayoutValidatorTests extends RenderTestBase {
         renderAndVerify(params, "a11y_test1.png");
     }
 
-    @Ignore("b/181711213")
     @Test
     public void testValidation() throws Exception {
         render(sBridge, generateParams(), -1, session -> {
@@ -84,10 +83,7 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertEquals("https://support.google.com/accessibility/android/answer/7158690",
                          first.mHelpfulUrl);
             assertEquals("SpeakableTextPresentCheck", first.mSourceClass);
-            assertTrue(first.mFix instanceof SetViewAttributeFix);
-            assertEquals("Set the view attribute android:contentDescription to a " +
-                    "meaningful non-empty string or resource reference.",
-                    first.mFix.getDescription());
+            assertEquals(first.mFix, null);
 
             Issue second = errorIssues.get(1);
             CompoundFix compoundFix = (CompoundFix) second.mFix;
