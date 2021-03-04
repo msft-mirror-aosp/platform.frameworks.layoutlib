@@ -592,12 +592,20 @@ public class BaseCanvas_Delegate {
                 "Canvas.drawTextOnPath is not supported.", null, null, null /*data*/);
     }
 
+    @LayoutlibDelegate
+    /*package*/ static void nDrawGlyphs(long nativeCanvas, int[] glyphIds, float[] positions,
+            int glyphIdStart, int positionStart, int glyphCount, long nativeFont,
+            long nativePaint) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "Canvas.drawGlyphs is not supported.", null, null, null /*data*/);
+    }
+
     // ---- Private delegate/helper methods ----
 
     /**
      * Executes a {@link GcSnapshot.Drawable} with a given canvas and paint.
      * <p>Note that the drawable may actually be executed several times if there are
-     * layers involved (see {@link #saveLayer(RectF, Paint_Delegate, int)}.
+     * layers involved (see {@link #saveLayer(RectF, Paint_Delegate)}.
      */
     private static void draw(long nCanvas, long nPaint, boolean compositeOnly, boolean forceSrcMode,
             GcSnapshot.Drawable drawable) {
@@ -617,7 +625,7 @@ public class BaseCanvas_Delegate {
      * Executes a {@link GcSnapshot.Drawable} with a given canvas. No paint object will be provided
      * to {@link GcSnapshot.Drawable#draw(Graphics2D, Paint_Delegate)}.
      * <p>Note that the drawable may actually be executed several times if there are
-     * layers involved (see {@link #saveLayer(RectF, Paint_Delegate, int)}.
+     * layers involved (see {@link #saveLayer(RectF, Paint_Delegate)}.
      */
     private static void draw(long nCanvas, GcSnapshot.Drawable drawable) {
         // get the delegate from the native int.
@@ -778,17 +786,17 @@ public class BaseCanvas_Delegate {
         return count;
     }
 
-    protected int saveLayerAlpha(RectF rect, int alpha, int saveFlags) {
+    protected int saveLayerAlpha(RectF rect, int alpha) {
         Paint_Delegate paint = new Paint_Delegate();
         paint.setAlpha(alpha);
-        return saveLayer(rect, paint, saveFlags);
+        return saveLayer(rect, paint);
     }
 
-    protected int saveLayer(RectF rect, Paint_Delegate paint, int saveFlags) {
+    protected int saveLayer(RectF rect, Paint_Delegate paint) {
         // get the current save count
         int count = mSnapshot.size();
 
-        mSnapshot = mSnapshot.saveLayer(rect, paint, saveFlags);
+        mSnapshot = mSnapshot.saveLayer(rect, paint, Canvas.ALL_SAVE_FLAG);
 
         // return the old save count
         return count;
