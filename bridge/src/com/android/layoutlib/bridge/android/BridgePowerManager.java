@@ -214,7 +214,8 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
-    public void userActivity(long time, int event, int flags) throws RemoteException {
+    public void userActivity(int displayId, long time, int event, int flags)
+            throws RemoteException {
         // pass for now.
     }
 
