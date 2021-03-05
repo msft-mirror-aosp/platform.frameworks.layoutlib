@@ -430,11 +430,6 @@ public class ConnectivityManager {
     public void setBackgroundDataSetting(boolean allowBackgroundData) {}
 
     @Deprecated
-    public NetworkQuotaInfo getActiveNetworkQuotaInfo() {
-        return null;
-    }
-
-    @Deprecated
     public boolean getMobileDataEnabled() {
         return false;
     }
