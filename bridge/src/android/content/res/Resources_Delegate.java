@@ -523,7 +523,14 @@ public class Resources_Delegate {
 
     @LayoutlibDelegate
     static TypedArray obtainAttributes(Resources resources, AttributeSet set, int[] attrs) {
-        return getContext(resources).obtainStyledAttributes(set, attrs);
+        BridgeContext context = getContext(resources);
+        RenderResources renderResources = context.getRenderResources();
+        // Remove all themes, including default, to ensure theme attributes are not resolved
+        renderResources.getAllThemes().clear();
+        BridgeTypedArray ta = context.internalObtainStyledAttributes(set, attrs, 0, 0);
+        // Reset styles to only the default if present
+        renderResources.clearStyles();
+        return ta;
     }
 
     @LayoutlibDelegate
