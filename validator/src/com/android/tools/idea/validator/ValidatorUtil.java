@@ -98,8 +98,7 @@ public class ValidatorUtil {
      */
     private final static ImmutableSet<Class<? extends AccessibilityHierarchyCheck>>
             sAllowedCheckResultClassSet4Fix = ImmutableSet.of(TextContrastCheck.class,
-            TouchTargetSizeCheck.class, RedundantDescriptionCheck.class,
-            EditableContentDescCheck.class);
+            TouchTargetSizeCheck.class,  EditableContentDescCheck.class);
 
     /**s
      * @param policy policy to apply for the hierarchy

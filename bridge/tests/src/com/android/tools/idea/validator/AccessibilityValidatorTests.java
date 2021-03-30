@@ -110,7 +110,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedVerboses = 3;
             expectedLevels.expectedWarnings = 1;
-            expectedLevels.expectedFixes = 1;
+            expectedLevels.expectedFixes = 0;
             expectedLevels.check(redundant);
         });
     }
