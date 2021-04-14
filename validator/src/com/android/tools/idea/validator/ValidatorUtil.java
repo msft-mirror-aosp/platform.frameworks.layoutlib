@@ -196,6 +196,9 @@ public class ValidatorUtil {
         }
 
         for (AccessibilityHierarchyCheckResult result : a11yResults) {
+            // TODO: b/183726816 replace this with
+            // AccessibilityCheckPreset.getHierarchyCheckForClassName(checkClassName)
+            // .getTitleMessage(Locale.ENGLISH)
             String category = ValidatorUtil.getCheckClassCategory(result.getSourceCheckClass());
 
             ValidatorData.Level level = ValidatorUtil.convertLevel(result.getType());

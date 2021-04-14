@@ -40,6 +40,8 @@ public class LayoutValidator {
 
     private static boolean sPaused = false;
 
+    private static boolean sSaveCroppedImages = false;
+
     /**
      * @return true if validator is paused. False otherwise.
      */
@@ -54,6 +56,18 @@ public class LayoutValidator {
      */
     public static void setPaused(boolean paused) {
         sPaused = paused;
+    }
+
+    public static boolean shouldSaveCroppedImages() {
+        return sSaveCroppedImages;
+    }
+
+    /**
+     * For Debugging purpose. Save all cropped images used by atf if enabled.
+     * @param save
+     */
+    public static void setSaveCroppedImages(boolean save) {
+        sSaveCroppedImages = save;
     }
 
     /**

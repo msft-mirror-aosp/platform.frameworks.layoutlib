@@ -19,13 +19,20 @@ package com.android.tools.idea.validator;
 import com.android.tools.idea.validator.ValidatorResult.Metric;
 import com.android.tools.layoutlib.annotations.NotNull;
 
+import android.annotation.NonNull;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 import com.google.android.apps.common.testing.accessibility.framework.utils.contrast.Image;
+import javax.imageio.ImageIO;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
+import static java.io.File.separatorChar;
 
 /**
  * Image implementation to be used in Accessibility Test Framework.
@@ -80,6 +87,7 @@ public class AtfBufferedImage implements Image {
     @Override
     @NotNull
     public Image crop(int left, int top, int width, int height) {
+        // Here do saving.
         return new AtfBufferedImage(mBufferedImage, mMetric, left, top, width, height);
     }
 
@@ -93,6 +101,40 @@ public class AtfBufferedImage implements Image {
                 cropped.getRaster().createCompatibleWritableRaster());
         int[] toReturn = ((DataBufferInt) raster.getDataBuffer()).getData();
         mMetric.mImageMemoryBytes += toReturn.length * 4;
+
+        if (LayoutValidator.shouldSaveCroppedImages()) {
+            saveImage(cropped);
+        }
+
         return toReturn;
+    }
+
+    private void saveImage(BufferedImage image) {
+        try {
+            String name = "img_for_atf_bounds_WxH_" + image.getWidth() + "x" + image.getHeight();
+
+            File output = new File(getDebugDir(), name);
+            if (output.exists()) {
+                output.delete();
+            }
+            ImageIO.write(image, "PNG", output);
+        } catch (IOException ioe) {
+            mMetric.mErrorMessage = ioe.getMessage();
+        }
+    }
+
+    @NonNull
+    private File getDebugDir() {
+        File failureDir;
+        String failureDirString = System.getProperty("debug.dir");
+        if (failureDirString != null) {
+            failureDir = new File(failureDirString);
+        } else {
+            String workingDirString = System.getProperty("user.dir");
+            failureDir = new File(workingDirString, "out/debugs");
+        }
+
+        failureDir.mkdirs();
+        return failureDir;
     }
 }

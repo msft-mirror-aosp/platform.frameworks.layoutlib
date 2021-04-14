@@ -41,9 +41,15 @@ import com.google.android.apps.common.testing.accessibility.framework.Accessibil
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheck;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class LayoutValidatorTests extends RenderTestBase {
+
+    @Test
+    public void testEnsureDebuggingOff() {
+        assertFalse(LayoutValidator.shouldSaveCroppedImages());
+    }
 
     @Test
     public void testRenderAndVerify() throws Exception {
