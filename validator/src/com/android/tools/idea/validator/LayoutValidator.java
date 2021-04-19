@@ -42,6 +42,8 @@ public class LayoutValidator {
 
     private static boolean sSaveCroppedImages = false;
 
+    private static boolean sObtainCharacterLocations = false;
+
     /**
      * @return true if validator is paused. False otherwise.
      */
@@ -71,6 +73,15 @@ public class LayoutValidator {
     }
 
     /**
+     * Indicates whether text character locations should be requested.
+     *
+     * @param obtainCharacterLocations true if text character locations should be requested.
+     */
+    public static void setObtainCharacterLocations(boolean obtainCharacterLocations) {
+        sObtainCharacterLocations = obtainCharacterLocations;
+    }
+
+    /**
      * Validate the layout using the default policy.
      * Precondition: View must be attached to the window.
      *
@@ -79,7 +90,8 @@ public class LayoutValidator {
     @NotNull
     public static ValidatorResult validate(@NotNull View view, @Nullable BufferedImage image) {
         if (!sPaused && view.isAttachedToWindow()) {
-            ValidatorHierarchy hierarchy = ValidatorUtil.buildHierarchy(sPolicy, view, image);
+            ValidatorHierarchy hierarchy =
+                    ValidatorUtil.buildHierarchy(sPolicy, view, image, sObtainCharacterLocations);
             return ValidatorUtil.generateResults(sPolicy, hierarchy);
         }
         // TODO: Add non-a11y layout validation later.
@@ -96,7 +108,7 @@ public class LayoutValidator {
     public static ValidatorHierarchy buildHierarchy(
             @NotNull View view, @Nullable BufferedImage image) {
         if (!sPaused && view.isAttachedToWindow()) {
-            return ValidatorUtil.buildHierarchy(sPolicy, view, image);
+            return ValidatorUtil.buildHierarchy(sPolicy, view, image, sObtainCharacterLocations);
         }
         return new ValidatorHierarchy();
     }

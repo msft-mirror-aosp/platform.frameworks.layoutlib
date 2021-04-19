@@ -28,8 +28,6 @@ import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
-import org.jsoup.Jsoup;
-
 import android.view.View;
 
 import java.awt.image.BufferedImage;
@@ -46,13 +44,11 @@ import java.util.stream.Collectors;
 
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheck;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckPreset;
-import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult.AccessibilityCheckResultType;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheck;
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheckResult;
 import com.google.android.apps.common.testing.accessibility.framework.Parameters;
 import com.google.android.apps.common.testing.accessibility.framework.checks.EditableContentDescCheck;
-import com.google.android.apps.common.testing.accessibility.framework.checks.RedundantDescriptionCheck;
 import com.google.android.apps.common.testing.accessibility.framework.checks.TextContrastCheck;
 import com.google.android.apps.common.testing.accessibility.framework.checks.TouchTargetSizeCheck;
 import com.google.android.apps.common.testing.accessibility.framework.strings.StringManager;
@@ -104,12 +100,14 @@ public class ValidatorUtil {
      * @param policy policy to apply for the hierarchy
      * @param view root view to build hierarchy from
      * @param image screenshot image that matches the view
+     * @param obtainCharacterLocations whether text character locations should be requested
      * @return The hierarchical data required for running the ATF checks.
      */
     public static ValidatorHierarchy buildHierarchy(
             @NotNull ValidatorData.Policy policy,
             @NotNull View view,
-            @Nullable BufferedImage image) {
+            @Nullable BufferedImage image,
+            boolean obtainCharacterLocations) {
         ValidatorHierarchy hierarchy = new ValidatorHierarchy();
         if (!policy.mTypes.contains(Type.ACCESSIBILITY)) {
             return hierarchy;
@@ -122,6 +120,7 @@ public class ValidatorUtil {
         hierarchy.mView = AccessibilityHierarchyAndroid
                 .newBuilder(view)
                 .setViewOriginMap(builder.mSrcMap)
+                .setObtainCharacterLocations(obtainCharacterLocations)
                 .setCustomViewBuilder(new CustomViewBuilderAndroid() {
                     @Override
                     public Class<?> getClassByName(
