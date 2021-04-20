@@ -109,15 +109,19 @@ public class AtfBufferedImage implements Image {
         return toReturn;
     }
 
+    // FOR DEBUGGING ONLY
+    private static int SAVE_IMAGE_COUNTER = 0;
     private void saveImage(BufferedImage image) {
         try {
-            String name = "img_for_atf_bounds_WxH_" + image.getWidth() + "x" + image.getHeight();
+            String name = SAVE_IMAGE_COUNTER + "_img_for_atf_WxH_" +
+                            image.getWidth() + "x" + image.getHeight();
 
             File output = new File(getDebugDir(), name);
             if (output.exists()) {
                 output.delete();
             }
             ImageIO.write(image, "PNG", output);
+            SAVE_IMAGE_COUNTER++;
         } catch (IOException ioe) {
             mMetric.mErrorMessage = ioe.getMessage();
         }
