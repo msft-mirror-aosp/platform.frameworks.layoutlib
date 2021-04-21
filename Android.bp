@@ -54,7 +54,7 @@ java_genrule_host {
     out: ["temp_layoutlib.jar"],
     srcs: [
         ":atf-prebuilt{.jar}",
-        ":core-icu4j{.jar}",
+        ":core-icu4j-for-host{.jar}",
         ":core-libart-for-host{.jar}",
         ":framework-all{.jar}",
         ":ext{.jar}",
