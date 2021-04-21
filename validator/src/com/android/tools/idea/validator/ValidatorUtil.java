@@ -100,14 +100,16 @@ public class ValidatorUtil {
      * @param policy policy to apply for the hierarchy
      * @param view root view to build hierarchy from
      * @param image screenshot image that matches the view
-     * @param obtainCharacterLocations whether text character locations should be requested
+     * @param scaleX scaling done via layoutlib in x coord
+     * @param scaleY scaling done via layoutlib in y coord
      * @return The hierarchical data required for running the ATF checks.
      */
     public static ValidatorHierarchy buildHierarchy(
             @NotNull ValidatorData.Policy policy,
             @NotNull View view,
             @Nullable BufferedImage image,
-            boolean obtainCharacterLocations) {
+            float scaleX,
+            float scaleY) {
         ValidatorHierarchy hierarchy = new ValidatorHierarchy();
         if (!policy.mTypes.contains(Type.ACCESSIBILITY)) {
             return hierarchy;
@@ -120,7 +122,7 @@ public class ValidatorUtil {
         hierarchy.mView = AccessibilityHierarchyAndroid
                 .newBuilder(view)
                 .setViewOriginMap(builder.mSrcMap)
-                .setObtainCharacterLocations(obtainCharacterLocations)
+                .setObtainCharacterLocations(LayoutValidator.obtainCharacterLocations())
                 .setCustomViewBuilder(new CustomViewBuilderAndroid() {
                     @Override
                     public Class<?> getClassByName(
@@ -144,7 +146,7 @@ public class ValidatorUtil {
         if (image != null) {
             parameters = new Parameters();
             parameters.putScreenCapture(
-                    new AtfBufferedImage(image, builder.mMetric));
+                    new AtfBufferedImage(image, builder.mMetric, scaleX, scaleY));
         }
         builder.mMetric.recordHierarchyCreationTime();
 
@@ -237,6 +239,13 @@ public class ValidatorUtil {
         }
         builder.mMetric.endTimer();
         return builder.build();
+    }
+
+    /**
+     * @return the list of internal errors in results. Useful for testing and debugging.
+     */
+    public static List<Issue> filterInternalErrors(List<ValidatorData.Issue> results) {
+        return filterByTypes(results, EnumSet.of(Type.INTERNAL_ERROR));
     }
 
     /**

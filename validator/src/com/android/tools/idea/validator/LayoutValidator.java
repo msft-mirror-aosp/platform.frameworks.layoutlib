@@ -82,16 +82,31 @@ public class LayoutValidator {
     }
 
     /**
+     * @return true if text character locations should be requested.
+     */
+    public static boolean obtainCharacterLocations() {
+        return sObtainCharacterLocations;
+    }
+
+    /**
      * Validate the layout using the default policy.
      * Precondition: View must be attached to the window.
      *
      * @return The validation results. If no issue is found it'll return empty result.
      */
     @NotNull
-    public static ValidatorResult validate(@NotNull View view, @Nullable BufferedImage image) {
+    public static ValidatorResult validate(
+            @NotNull View view,
+            @Nullable BufferedImage image,
+            float scaleX,
+            float scaleY) {
         if (!sPaused && view.isAttachedToWindow()) {
-            ValidatorHierarchy hierarchy =
-                    ValidatorUtil.buildHierarchy(sPolicy, view, image, sObtainCharacterLocations);
+            ValidatorHierarchy hierarchy = ValidatorUtil.buildHierarchy(
+                    sPolicy,
+                    view,
+                    image,
+                    scaleX,
+                    scaleY);
             return ValidatorUtil.generateResults(sPolicy, hierarchy);
         }
         // TODO: Add non-a11y layout validation later.
@@ -106,9 +121,17 @@ public class LayoutValidator {
      */
     @NotNull
     public static ValidatorHierarchy buildHierarchy(
-            @NotNull View view, @Nullable BufferedImage image) {
+            @NotNull View view,
+            @Nullable BufferedImage image,
+            float scaleX,
+            float scaleY) {
         if (!sPaused && view.isAttachedToWindow()) {
-            return ValidatorUtil.buildHierarchy(sPolicy, view, image, sObtainCharacterLocations);
+            return ValidatorUtil.buildHierarchy(
+                    sPolicy,
+                    view,
+                    image,
+                    scaleX,
+                    scaleY);
         }
         return new ValidatorHierarchy();
     }
