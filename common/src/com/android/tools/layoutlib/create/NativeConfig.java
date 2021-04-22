@@ -44,12 +44,26 @@ public class NativeConfig {
     };
 
     /**
-     * The list of classes to register with JNI
+     * The list of core classes to register with JNI
      */
-    public final static String[] CLASS_NATIVES = new String[] {
+    public final static String[] CORE_CLASS_NATIVES = new String[] {
             "android.animation.PropertyValuesHolder",
             "android.content.res.StringBlock",
             "android.content.res.XmlBlock",
+            "android.media.ImageReader",
+            "android.os.SystemProperties",
+            "android.os.Trace",
+            "android.text.AndroidCharacter",
+            "android.util.Log",
+            "android.view.MotionEvent",
+            "android.view.Surface",
+            "com.android.internal.util.VirtualRefBasePtr",
+    };
+
+    /**
+     * The list of graphics classes to register with JNI
+     */
+    public final static String[] GRAPHICS_CLASS_NATIVES = new String[] {
             "android.graphics.Bitmap",
             "android.graphics.BitmapFactory",
             "android.graphics.ByteBufferStreamAdaptor",
@@ -86,14 +100,6 @@ public class NativeConfig {
             "android.graphics.text.LineBreaker",
             "android.graphics.text.MeasuredText",
             "android.graphics.text.TextRunShaper",
-            "android.media.ImageReader",
-            "android.os.SystemProperties",
-            "android.os.Trace",
-            "android.text.AndroidCharacter",
-            "android.util.Log",
             "android.util.PathParser",
-            "android.view.MotionEvent",
-            "android.view.Surface",
-            "com.android.internal.util.VirtualRefBasePtr",
     };
 }

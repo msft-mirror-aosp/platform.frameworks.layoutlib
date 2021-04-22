@@ -705,8 +705,10 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         }
         try {
             // set the system property so LayoutLibLoader.cpp can read it
-            System.setProperty("native_classes", String.join(",",
-                    NativeConfig.CLASS_NATIVES));
+            System.setProperty("core_native_classes", String.join(",",
+                    NativeConfig.CORE_CLASS_NATIVES));
+            System.setProperty("graphics_native_classes", String.join(",",
+                    NativeConfig.GRAPHICS_CLASS_NATIVES));
             System.setProperty("icu.data.path", Bridge.getIcuDataPath());
             System.setProperty("use_bridge_for_logging", "true");
             System.setProperty("register_properties_during_load", "true");
