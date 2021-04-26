@@ -253,7 +253,7 @@ public abstract class RenderAction<T extends RenderParams> {
 
         // make sure the Resources object references the context (and other objects) for this
         // scene
-        mContext.initResources();
+        mContext.initResources(mParams.getAssets());
         sCurrentContext = mContext;
 
         // Set-up WindowManager

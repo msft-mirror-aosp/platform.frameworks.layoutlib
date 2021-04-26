@@ -291,8 +291,10 @@ public class BridgeContext extends Context {
      *
      * @see #disposeResources()
      */
-    public void initResources() {
+    public void initResources(@NonNull AssetRepository assetRepository) {
         AssetManager assetManager = AssetManager.getSystem();
+
+        mAssets.setAssetRepository(assetRepository);
 
         mSystemResources = Resources_Delegate.initSystem(
                 this,
