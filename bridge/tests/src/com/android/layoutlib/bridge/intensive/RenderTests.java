@@ -1066,7 +1066,7 @@ public class RenderTests extends RenderTestBase {
                 new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                         params.getAssets(), params.getLayoutlibCallback(), configuration,
                         params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
-        mContext.initResources();
+        mContext.initResources(params.getAssets());
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(mContext);
 
         try {
