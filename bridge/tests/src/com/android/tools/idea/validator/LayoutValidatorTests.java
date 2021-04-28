@@ -99,7 +99,10 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertEquals("https://support.google.com/accessibility/android/answer/7158690",
                          first.mHelpfulUrl);
             assertEquals("SpeakableTextPresentCheck", first.mSourceClass);
-            assertEquals(first.mFix, null);
+            assertTrue(first.mFix instanceof SetViewAttributeFix);
+            assertEquals("Set this item's android:contentDescription to a meaningful" +
+                            " non-empty string or resource reference.",
+                    first.mFix.getDescription());
 
             Issue second = errorIssues.get(1);
             CompoundFix compoundFix = (CompoundFix) second.mFix;

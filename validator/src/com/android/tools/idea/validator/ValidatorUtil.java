@@ -49,6 +49,7 @@ import com.google.android.apps.common.testing.accessibility.framework.Accessibil
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheckResult;
 import com.google.android.apps.common.testing.accessibility.framework.Parameters;
 import com.google.android.apps.common.testing.accessibility.framework.checks.EditableContentDescCheck;
+import com.google.android.apps.common.testing.accessibility.framework.checks.SpeakableTextPresentCheck;
 import com.google.android.apps.common.testing.accessibility.framework.checks.TextContrastCheck;
 import com.google.android.apps.common.testing.accessibility.framework.checks.TouchTargetSizeCheck;
 import com.google.android.apps.common.testing.accessibility.framework.strings.StringManager;
@@ -93,10 +94,10 @@ public class ValidatorUtil {
      * a predefined set of {@link AccessibilityHierarchyCheck}s.
      */
     private final static ImmutableSet<Class<? extends AccessibilityHierarchyCheck>>
-            sAllowedCheckResultClassSet4Fix = ImmutableSet.of(TextContrastCheck.class,
-            TouchTargetSizeCheck.class,  EditableContentDescCheck.class);
+            sAllowedCheckResultClassSet4Fix = ImmutableSet.of(SpeakableTextPresentCheck.class,
+            TextContrastCheck.class, TouchTargetSizeCheck.class,  EditableContentDescCheck.class);
 
-    /**s
+    /**
      * @param policy policy to apply for the hierarchy
      * @param view root view to build hierarchy from
      * @param image screenshot image that matches the view
