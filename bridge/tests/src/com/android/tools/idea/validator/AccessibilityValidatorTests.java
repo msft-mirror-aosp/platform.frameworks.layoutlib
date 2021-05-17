@@ -17,26 +17,25 @@
 package com.android.tools.idea.validator;
 
 import com.android.ide.common.rendering.api.RenderSession;
-import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.intensive.RenderTestBase;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.layoutlib.bridge.intensive.util.SessionParamsBuilder;
-import com.android.tools.idea.validator.LayoutValidator;
-import com.android.tools.idea.validator.ValidatorData;
 import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Policy;
 import com.android.tools.idea.validator.ValidatorData.Type;
-import com.android.tools.idea.validator.ValidatorResult;
 
 import org.junit.Test;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.google.android.apps.common.testing.accessibility.framework.uielement.DefaultCustomViewBuilderAndroid;
+import com.google.android.apps.common.testing.accessibility.framework.uielement.ViewHierarchyElementAndroid;
+
+import static com.android.tools.idea.validator.ValidatorUtil.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -57,15 +56,23 @@ import static org.junit.Assert.assertTrue;
 public class AccessibilityValidatorTests extends RenderTestBase {
 
     @Test
-    public void testScrollingView() throws Exception {
-        render("a11y_scrolling_view_test.xml", session -> {
-            ValidatorResult result = getRenderResult(session);
-            List<Issue> internalError = filter(result.getIssues(), "ValidatorHierarchy");
+    public void testPaused() throws Exception {
+        try {
+            LayoutValidator.setPaused(true);
+            render("a11y_test_dup_clickable_bounds.xml", session -> {
+                ValidatorResult result = getRenderResult(session);
+                List<Issue> dupBounds = filter(result.getIssues(), "DuplicateClickableBoundsCheck");
 
-            ExpectedLevels expectedLevels = new ExpectedLevels();
-            expectedLevels.expectedErrors = 1;
-            expectedLevels.check(internalError);
-        });
+                /**
+                 * Expects no errors since disabled. When enabled it should print
+                 * the same result as {@link #testDuplicateClickableBoundsCheck}
+                 */
+                ExpectedLevels expectedLevels = new ExpectedLevels();
+                expectedLevels.check(dupBounds);
+            });
+        } finally {
+            LayoutValidator.setPaused(false);
+        }
     }
 
     @Test
@@ -103,6 +110,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedVerboses = 3;
             expectedLevels.expectedWarnings = 1;
+            expectedLevels.expectedFixes = 1;
             expectedLevels.check(redundant);
         });
     }
@@ -145,6 +153,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedVerboses = 1;
             expectedLevels.expectedErrors = 1;
+            expectedLevels.expectedFixes = 0;
             expectedLevels.check(speakableCheck);
 
             // Make sure no other errors in the system.
@@ -167,6 +176,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             expectedLevels.expectedErrors = 3;
             expectedLevels.expectedWarnings = 1; // This is true only if image is passed.
             expectedLevels.expectedVerboses = 2;
+            expectedLevels.expectedFixes = 4;
             expectedLevels.check(textContrast);
 
             // Make sure no other errors in the system.
@@ -186,6 +196,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedErrors = 3;
             expectedLevels.expectedVerboses = 3;
+            expectedLevels.expectedFixes = 3;
             expectedLevels.check(textContrast);
 
             // Make sure no other errors in the system.
@@ -214,6 +225,49 @@ public class AccessibilityValidatorTests extends RenderTestBase {
     }
 
     @Test
+    public void testClassLoaderOverride() throws Exception {
+        final boolean[] overriddenClassLoaderCalled = {false};
+
+        // testAndroid will fail to find class - so to trigger LayoutlibCallback
+        DefaultCustomViewBuilderAndroid testAndroid = new DefaultCustomViewBuilderAndroid() {
+            @Override
+            public Class<?> getClassByName(
+                    ViewHierarchyElementAndroid view, String className) {
+                return null;
+            }
+        };
+        // Callback when CustomViewBuilderAndroid fails.
+        LayoutLibTestCallback testCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader) {
+                    @Override
+                    public Class<?> findClass(String name) throws ClassNotFoundException {
+                        if (name.contains("ImageView")) {
+                            // Make sure one of the view (ImageView) passes thru here
+                            overriddenClassLoaderCalled[0] = true;
+                        }
+                        return mDefaultClassLoader.loadClass(name);
+                    }
+                };
+        try {
+            ValidatorUtil.sDefaultCustomViewBuilderAndroid = testAndroid;
+            render("a11y_test_image_contrast.xml", session -> {
+                ValidatorResult result = getRenderResult(session);
+                List<Issue> imageContrast = filter(result.getIssues(), "ImageContrastCheck");
+
+                ExpectedLevels expectedLevels = new ExpectedLevels();
+                expectedLevels.expectedWarnings = 1;
+                expectedLevels.expectedVerboses = 1;
+                expectedLevels.check(imageContrast);
+
+                // Ensure that the check went thru the overridden class loader.
+                assertTrue(overriddenClassLoaderCalled[0]);
+            }, true, testCallback);
+        } finally {
+            ValidatorUtil.sDefaultCustomViewBuilderAndroid = new DefaultCustomViewBuilderAndroid();
+        }
+    }
+
+    @Test
     public void testImageContrastCheckNoImage() throws Exception {
         render("a11y_test_image_contrast.xml", session -> {
             ValidatorResult result = getRenderResult(session);
@@ -239,6 +293,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedErrors = 5;
             expectedLevels.expectedVerboses = 1;
+            expectedLevels.expectedFixes = 5;
             expectedLevels.check(targetSizes);
 
             // Make sure no other errors in the system.
@@ -255,17 +310,6 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         }
     }
 
-    private List<Issue> filter(List<ValidatorData.Issue> results, EnumSet<Level> errors) {
-        return results.stream().filter(
-                issue -> errors.contains(issue.mLevel)).collect(Collectors.toList());
-    }
-
-    private List<Issue> filter(
-            List<ValidatorData.Issue> results, String sourceClass) {
-        return results.stream().filter(
-                issue -> sourceClass.equals(issue.mSourceClass)).collect(Collectors.toList());
-    }
-
     private ValidatorResult getRenderResult(RenderSession session) {
         Object validationData = session.getValidationData();
         assertNotNull(validationData);
@@ -280,13 +324,23 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             String fileName,
             RenderSessionListener verifier,
             boolean enableImageCheck) throws Exception {
+        render(
+                fileName,
+                verifier,
+                enableImageCheck,
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader));
+    }
+
+    private void render(
+            String fileName,
+            RenderSessionListener verifier,
+            boolean enableImageCheck,
+            LayoutLibTestCallback layoutLibCallback) throws Exception {
         LayoutValidator.updatePolicy(new Policy(
                 EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
                 EnumSet.of(Level.ERROR, Level.WARNING, Level.INFO, Level.VERBOSE)));
 
         LayoutPullParser parser = createParserFromPath(fileName);
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
         SessionParamsBuilder params = getSessionParamsBuilder()
                 .setParser(parser)
@@ -314,12 +368,15 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         public int expectedInfos = 0;
         // Number of verboses expected
         public int expectedVerboses = 0;
+        // Number of fixes expected
+        public int expectedFixes = 0;
 
         public void check(List<Issue> issues) {
             int errors = 0;
             int warnings = 0;
             int infos = 0;
             int verboses = 0;
+            int fixes = 0;
 
             for (Issue issue : issues) {
                 switch (issue.mLevel) {
@@ -336,12 +393,17 @@ public class AccessibilityValidatorTests extends RenderTestBase {
                         verboses++;
                         break;
                 }
+
+                if (issue.mFix != null) {
+                    fixes ++;
+                }
             }
 
             assertEquals("Number of expected errors", expectedErrors, errors);
             assertEquals("Number of expected warnings",expectedWarnings, warnings);
             assertEquals("Number of expected infos", expectedInfos, infos);
             assertEquals("Number of expected verboses", expectedVerboses, verboses);
+            assertEquals("Number of expected fixes", expectedFixes, fixes);
 
             int size = expectedErrors + expectedWarnings + expectedInfos + expectedVerboses;
             assertEquals("expected size", size, issues.size());
