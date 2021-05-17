@@ -107,20 +107,24 @@ public class ValidatorUtil {
             @NotNull ValidatorData.Policy policy,
             @NotNull ValidatorHierarchy hierarchy) {
         ValidatorResult.Builder builder = hierarchy.mBuilder;
-        AccessibilityHierarchyAndroid view = hierarchy.mView;
-        Parameters parameters = hierarchy.mParameters;
 
-        if (builder == null || view == null) {
+        if (!hierarchy.isHierarchyBuilt()) {
             // Unable to build.
             builder = new Builder();
+            String errorMsg = hierarchy.mErrorMessage != null
+                    ? hierarchy.mErrorMessage
+                    : "Hierarchy is not built yet.";
             builder.mIssues.add(new IssueBuilder()
                     .setCategory("Accessibility")
                     .setType(Type.INTERNAL_ERROR)
-                    .setMsg("Hierarchy is not built yet.")
+                    .setMsg(errorMsg)
                     .setLevel(Level.ERROR)
                     .setSourceClass("ValidatorHierarchy").build());
             return builder.build();
         }
+
+        AccessibilityHierarchyAndroid view = hierarchy.mView;
+        Parameters parameters = hierarchy.mParameters;
 
         EnumSet<Level> filter = policy.mLevels;
         ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList<>();
