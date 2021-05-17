@@ -38,6 +38,24 @@ public class LayoutValidator {
 
     private static ValidatorData.Policy sPolicy = DEFAULT_POLICY;
 
+    private static boolean sPaused = false;
+
+    /**
+     * @return true if validator is paused. False otherwise.
+     */
+    public static boolean isPaused() {
+        return sPaused;
+    }
+
+    /**
+     * Pause or resume validator. {@link RenderParamsFlags#FLAG_ENABLE_LAYOUT_VALIDATOR} must be
+     * enabled.
+     * @param paused true if validator should be paused. False to resume.
+     */
+    public static void setPaused(boolean paused) {
+        sPaused = paused;
+    }
+
     /**
      * Validate the layout using the default policy.
      * Precondition: View must be attached to the window.
@@ -46,7 +64,7 @@ public class LayoutValidator {
      */
     @NotNull
     public static ValidatorResult validate(@NotNull View view, @Nullable BufferedImage image) {
-        if (view.isAttachedToWindow()) {
+        if (!sPaused && view.isAttachedToWindow()) {
             ValidatorHierarchy hierarchy = ValidatorUtil.buildHierarchy(sPolicy, view, image);
             return ValidatorUtil.generateResults(sPolicy, hierarchy);
         }
@@ -63,7 +81,7 @@ public class LayoutValidator {
     @NotNull
     public static ValidatorHierarchy buildHierarchy(
             @NotNull View view, @Nullable BufferedImage image) {
-        if (view.isAttachedToWindow()) {
+        if (!sPaused && view.isAttachedToWindow()) {
             return ValidatorUtil.buildHierarchy(sPolicy, view, image);
         }
         return new ValidatorHierarchy();

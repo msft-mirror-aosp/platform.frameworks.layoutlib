@@ -54,6 +54,7 @@ import com.android.tools.idea.validator.ValidatorHierarchy;
 import com.android.tools.idea.validator.ValidatorResult;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
 import com.android.tools.idea.validator.ValidatorUtil;
+import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 
 import android.annotation.NonNull;
@@ -596,7 +597,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             try {
                 if (enableLayoutValidation && !getViewInfos().isEmpty()) {
-                    AccessibilityHierarchyAndroid_ViewElementClassNamesAndroid_Delegate.sLayoutlibCallback =
+                    CustomHierarchyHelper.sLayoutlibCallback =
                             getContext().getLayoutlibCallback();
 
                     BufferedImage imageToPass =
@@ -632,7 +633,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     setValidatorResult(builder.build());
                 }
             } finally {
-                AccessibilityHierarchyAndroid_ViewElementClassNamesAndroid_Delegate.sLayoutlibCallback = null;
+                CustomHierarchyHelper.sLayoutlibCallback = null;
             }
 
             // success!
