@@ -53,8 +53,14 @@ public class ValidatorData {
      * Determine what types and levels of validation to run.
      */
     public static class Policy {
+        /** Sets of types to filter by. */
         @NotNull public final EnumSet<Type> mTypes;
+        /** Sets of levels to filter by. */
         @NotNull public final EnumSet<Level> mLevels;
+        /**
+         * List of checks to use for the scan. If empty we use the default set
+         * defined by {@link AccessibilityCheckPreset.LATEST}
+         */
         @NotNull public final HashSet<AccessibilityHierarchyCheck> mChecks = new HashSet();
 
         public Policy(@NotNull EnumSet<Type> types, @NotNull EnumSet<Level> levels) {

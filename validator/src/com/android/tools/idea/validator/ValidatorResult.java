@@ -107,6 +107,9 @@ public class ValidatorResult {
         /** Records how long validation took */
         public long mElapsedMs = 0;
 
+        /** Record how long hierarchy creation took */
+        public long mHierarchyCreationMs = 0;
+
         /** How many new memories (bytes) validator creates for images. */
         public long mImageMemoryBytes = 0;
 
@@ -118,6 +121,10 @@ public class ValidatorResult {
             mStart = System.currentTimeMillis();
         }
 
+        public void recordHierarchyCreationTime() {
+            mHierarchyCreationMs = System.currentTimeMillis() - mStart;
+        }
+
         public void endTimer() {
             mElapsedMs = System.currentTimeMillis() - mStart;
         }
@@ -125,7 +132,8 @@ public class ValidatorResult {
         @Override
         public String toString() {
             return "Validation result metric: { elapsed=" + mElapsedMs +
-                    "ms, image memory=" + readableBytes() + " }";
+                    "ms, hierarchy creation=" + mHierarchyCreationMs
+                    +"ms, image memory=" + readableBytes() + " }";
         }
 
         private String readableBytes() {

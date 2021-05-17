@@ -110,7 +110,10 @@ public class LayoutValidatorTests extends RenderTestBase {
             render(sBridge, generateParams(), -1, session -> {
                 ValidatorResult result = LayoutValidator.validate(
                         ((View) session.getRootViews().get(0).getViewObject()), null);
-                assertTrue(result.getIssues().isEmpty());
+
+                assertEquals(1, result.getIssues().size());
+                assertEquals("Hierarchy is not built yet.",
+                        result.getIssues().get(0).mMsg);
             });
         } finally {
             LayoutValidator.updatePolicy(LayoutValidator.DEFAULT_POLICY);
