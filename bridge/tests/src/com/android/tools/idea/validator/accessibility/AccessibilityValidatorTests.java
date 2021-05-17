@@ -57,6 +57,18 @@ import static org.junit.Assert.assertTrue;
 public class AccessibilityValidatorTests extends RenderTestBase {
 
     @Test
+    public void testScrollingView() throws Exception {
+        render("a11y_scrolling_view_test.xml", session -> {
+            ValidatorResult result = getRenderResult(session);
+            List<Issue> internalError = filter(result.getIssues(), "AccessibilityValidator");
+
+            ExpectedLevels expectedLevels = new ExpectedLevels();
+            expectedLevels.expectedErrors = 1;
+            expectedLevels.check(internalError);
+        });
+    }
+
+    @Test
     public void testDuplicateClickableBoundsCheck() throws Exception {
         render("a11y_test_dup_clickable_bounds.xml", session -> {
             ValidatorResult result = getRenderResult(session);
