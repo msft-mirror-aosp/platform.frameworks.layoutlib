@@ -63,7 +63,7 @@ public class SystemFonts_Delegate {
             int configVersion) {
         sIsTypefaceInitialized = true;
         return SystemFonts.getSystemFontConfigInternal_Original(
-            sFontLocation + "native/fonts.xml", sFontLocation, null, null, updatableFontMap,
+            sFontLocation + "fonts.xml", sFontLocation, null, null, updatableFontMap,
             lastModifiedDate, configVersion);
     }
 
