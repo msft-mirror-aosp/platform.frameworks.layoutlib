@@ -23,7 +23,8 @@ import com.android.layoutlib.bridge.android.BridgeXmlBlockParserTest;
 import com.android.layoutlib.bridge.impl.LayoutParserWrapperTest;
 import com.android.layoutlib.bridge.impl.ResourceHelperTest;
 import com.android.tools.idea.validator.LayoutValidatorTests;
-import com.android.tools.idea.validator.accessibility.AccessibilityValidatorTests;
+import com.android.tools.idea.validator.ValidatorResultTests;
+import com.android.tools.idea.validator.AccessibilityValidatorTests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -48,7 +49,8 @@ import android.util.imagepool.ImagePoolImplTest;
         BridgeRenderSessionTest.class, ResourceHelperTest.class, BridgeContextTest.class,
         Resources_DelegateTest.class, Color_DelegateTest.class, ImagePoolHelperTest.class,
         ImagePoolImplTest.class, HighQualityShadowsRenderTests.class,
-        LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class
+        LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class,
+        ValidatorResultTests.class
 })
 public class Main {
 }

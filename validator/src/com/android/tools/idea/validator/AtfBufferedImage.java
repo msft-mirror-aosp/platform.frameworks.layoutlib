@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.tools.idea.validator.accessibility;
+package com.android.tools.idea.validator;
 
 import com.android.tools.idea.validator.ValidatorResult.Metric;
 import com.android.tools.layoutlib.annotations.NotNull;

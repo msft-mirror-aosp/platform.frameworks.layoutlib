@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.tools.idea.validator.accessibility;
+package com.android.tools.idea.validator;
 
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.SessionParams;
@@ -60,7 +60,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
     public void testScrollingView() throws Exception {
         render("a11y_scrolling_view_test.xml", session -> {
             ValidatorResult result = getRenderResult(session);
-            List<Issue> internalError = filter(result.getIssues(), "AccessibilityValidator");
+            List<Issue> internalError = filter(result.getIssues(), "ValidatorHierarchy");
 
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedErrors = 1;
