@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,20 +64,23 @@ public class LayoutValidatorTests extends RenderTestBase {
         render(sBridge, generateParams(), -1, session -> {
             ValidatorResult result = LayoutValidator
                     .validate(((View) session.getRootViews().get(0).getViewObject()), null);
-            assertEquals(3, result.getIssues().size());
+            assertEquals(30, result.getIssues().size());
+            ArrayList<Issue> errorIssues = new ArrayList<>();
             for (Issue issue : result.getIssues()) {
                 assertEquals(Type.ACCESSIBILITY, issue.mType);
-                assertEquals(Level.ERROR, issue.mLevel);
+                if (issue.mLevel == Level.ERROR) {
+                    errorIssues.add(issue);
+                }
             }
 
-            Issue first = result.getIssues().get(0);
+            Issue first = errorIssues.get(0);
             assertEquals("This item may not have a label readable by screen readers.",
                          first.mMsg);
             assertEquals("https://support.google.com/accessibility/android/answer/7158690",
                          first.mHelpfulUrl);
             assertEquals("SpeakableTextPresentCheck", first.mSourceClass);
 
-            Issue second = result.getIssues().get(1);
+            Issue second = errorIssues.get(1);
             assertEquals("This item's size is 10dp x 10dp. Consider making this touch target " +
                             "48dp wide and 48dp high or larger.",
                          second.mMsg);
@@ -84,7 +88,7 @@ public class LayoutValidatorTests extends RenderTestBase {
                          second.mHelpfulUrl);
             assertEquals("TouchTargetSizeCheck", second.mSourceClass);
 
-            Issue third = result.getIssues().get(2);
+            Issue third = errorIssues.get(2);
             assertEquals("The item's text contrast ratio is 1.00. This ratio is based on a text color " +
                             "of #000000 and background color of #000000. Consider increasing this item's" +
                             " text contrast ratio to 4.50 or greater.",
