@@ -226,6 +226,9 @@ public class BridgeRenderSession extends RenderSession {
     @Override
     public Object getValidationData() {
         if (mSession != null) {
+            if (mSession.isLayoutValidatorOptimizationEnabled()) {
+                return mSession.getValidatorHierarchy();
+            }
             return mSession.getValidatorResult();
         }
         return null;
