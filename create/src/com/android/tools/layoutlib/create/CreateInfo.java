@@ -264,8 +264,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.view.inputmethod.InputMethodManager#isInEditMode",
         "com.android.internal.util.XmlUtils#convertValueToInt",
         "com.android.internal.view.menu.MenuBuilder#createNewMenuItem",
-        "com.google.android.apps.common.testing.accessibility.framework.uielement" +
-            ".AccessibilityHierarchyAndroid$ViewElementClassNamesAndroid#getClassByName",
         "dalvik.system.VMRuntime#getNotifyNativeInterval",
         "dalvik.system.VMRuntime#newUnpaddedArray",
         "libcore.io.MemoryMappedFile#bigEndianIterator",

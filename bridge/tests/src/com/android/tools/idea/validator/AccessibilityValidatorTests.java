@@ -153,7 +153,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             ExpectedLevels expectedLevels = new ExpectedLevels();
             expectedLevels.expectedVerboses = 1;
             expectedLevels.expectedErrors = 1;
-            expectedLevels.expectedFixes = 0;
+            expectedLevels.expectedFixes = 1;
             expectedLevels.check(speakableCheck);
 
             // Make sure no other errors in the system.
@@ -177,6 +177,28 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             expectedLevels.expectedWarnings = 1; // This is true only if image is passed.
             expectedLevels.expectedVerboses = 2;
             expectedLevels.expectedFixes = 4;
+            expectedLevels.check(textContrast);
+
+            // Make sure no other errors in the system.
+            textContrast = filter(textContrast, EnumSet.of(Level.ERROR));
+            List<Issue> filtered = filter(result.getIssues(), EnumSet.of(Level.ERROR));
+            checkEquals(filtered, textContrast);
+        });
+    }
+
+    @Test
+    public void testSwitchTextContrastCheck() throws Exception {
+        render("a11y_test_switch_text_contrast.xml", session -> {
+            ValidatorResult result = getRenderResult(session);
+            List<Issue> textContrast = filter(result.getIssues(), "TextContrastCheck");
+
+            // ATF doesn't count alpha values in a Switch unless image is passed and the character
+            // locations are available.
+            ExpectedLevels expectedLevels = new ExpectedLevels();
+            expectedLevels.expectedErrors = 0;
+            expectedLevels.expectedWarnings = 1; // True only if character locations are available.
+            expectedLevels.expectedVerboses = 2;
+            expectedLevels.expectedFixes = 1;
             expectedLevels.check(textContrast);
 
             // Make sure no other errors in the system.
@@ -339,6 +361,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         LayoutValidator.updatePolicy(new Policy(
                 EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
                 EnumSet.of(Level.ERROR, Level.WARNING, Level.INFO, Level.VERBOSE)));
+        LayoutValidator.setObtainCharacterLocations(true);
 
         LayoutPullParser parser = createParserFromPath(fileName);
         layoutLibCallback.initResources();
