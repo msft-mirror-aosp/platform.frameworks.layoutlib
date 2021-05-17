@@ -29,6 +29,8 @@ import com.android.tools.layoutlib.annotations.Nullable;
 import android.view.View;
 
 import java.awt.image.BufferedImage;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -121,10 +123,13 @@ public class AccessibilityValidator {
                 }
                 builder.mIssues.add(issueBuilder.build());
             } catch (Exception e) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
                 builder.mIssues.add(new IssueBuilder()
                         .setCategory(category)
                         .setType(Type.INTERNAL_ERROR)
-                        .setMsg(e.getMessage())
+                        .setMsg(sw.toString())
                         .setLevel(Level.ERROR)
                         .setSourceClass("AccessibilityValidator").build());
             }
