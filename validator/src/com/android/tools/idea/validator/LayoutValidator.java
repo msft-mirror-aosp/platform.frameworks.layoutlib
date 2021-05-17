@@ -55,6 +55,29 @@ public class LayoutValidator {
     }
 
     /**
+     * Build the hierarchy necessary for validating the layout.
+     * The operation is quick thus can be used frequently.
+     *
+     * @return The hierarchy to be used for validation.
+     */
+    @NotNull
+    public static ValidatorHierarchy buildHierarchy(
+            @NotNull View view, @Nullable BufferedImage image) {
+        if (view.isAttachedToWindow()) {
+            return ValidatorUtil.buildHierarchy(sPolicy, view, image);
+        }
+        return new ValidatorHierarchy();
+    }
+
+    /**
+     * @return The validator result that matches the hierarchy
+     */
+    @NotNull
+    public static ValidatorResult validate(@NotNull ValidatorHierarchy hierarchy) {
+        return ValidatorUtil.generateResults(sPolicy, hierarchy);
+    }
+
+    /**
      * Update the policy with which to run the validation call.
      * @param policy new policy.
      */

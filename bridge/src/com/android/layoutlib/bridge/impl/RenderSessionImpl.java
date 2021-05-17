@@ -47,8 +47,14 @@ import com.android.layoutlib.bridge.android.support.SupportPreferencesUtil;
 import com.android.layoutlib.bridge.impl.binding.FakeAdapter;
 import com.android.layoutlib.bridge.impl.binding.FakeExpandableAdapter;
 import com.android.tools.idea.validator.LayoutValidator;
+import com.android.tools.idea.validator.ValidatorData.Issue.IssueBuilder;
+import com.android.tools.idea.validator.ValidatorData.Level;
+import com.android.tools.idea.validator.ValidatorData.Type;
+import com.android.tools.idea.validator.ValidatorHierarchy;
 import com.android.tools.idea.validator.ValidatorResult;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
+import com.android.tools.idea.validator.ValidatorUtil;
+import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.java.System_Delegate;
 
 import android.annotation.NonNull;
@@ -86,6 +92,8 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -131,6 +139,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private Layout.Builder mLayoutBuilder;
     private boolean mNewRenderSize;
     @Nullable private ValidatorResult mValidatorResult = null;
+    @Nullable private ValidatorHierarchy mValidatorHierarchy = null;
 
     private static final class PostInflateException extends Exception {
         private static final long serialVersionUID = 1L;
@@ -566,25 +575,49 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
                     false);
 
-            try {
-                boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
-                boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
-                         params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK));
+            boolean enableOptimization = Boolean.TRUE.equals(
+                    params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION));
+            boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
+            boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
+                    params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK));
 
+            try {
                 if (enableLayoutValidation && !getViewInfos().isEmpty()) {
                     AccessibilityHierarchyAndroid_ViewElementClassNamesAndroid_Delegate.sLayoutlibCallback =
                             getContext().getLayoutlibCallback();
 
                     BufferedImage imageToPass =
                             enableLayoutValidationImageCheck ? getImage() : null;
-                    ValidatorResult validatorResult =
-                            LayoutValidator.validate(((View) getViewInfos().get(0).getViewObject()), imageToPass);
-                    setValidatorResult(validatorResult);
+
+                    if (enableOptimization) {
+                        ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
+                                ((View) getViewInfos().get(0).getViewObject()), imageToPass);
+                        setValidatorHierarchy(hierarchy);
+                    } else {
+                        ValidatorResult validatorResult = LayoutValidator.validate(
+                                ((View) getViewInfos().get(0).getViewObject()), imageToPass);
+                        setValidatorResult(validatorResult);
+                    }
                 }
             } catch (Throwable e) {
-                ValidatorResult.Builder builder = new Builder();
-                builder.mMetric.mErrorMessage = e.getMessage();
-                setValidatorResult(builder.build());
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+
+                if (enableOptimization) {
+                    ValidatorHierarchy hierarchy = new ValidatorHierarchy();
+                    hierarchy.mErrorMessage = sw.toString();
+                    setValidatorHierarchy(hierarchy);
+                } else {
+                    ValidatorResult.Builder builder = new Builder();
+                    builder.mIssues.add(new IssueBuilder()
+                            .setCategory("Unknown")
+                            .setType(Type.INTERNAL_ERROR)
+                            .setMsg(sw.toString())
+                            .setLevel(Level.ERROR)
+                            .setSourceClass("RenderSessionImpl").build());
+                    setValidatorResult(builder.build());
+                }
             } finally {
                 AccessibilityHierarchyAndroid_ViewElementClassNamesAndroid_Delegate.sLayoutlibCallback = null;
             }
@@ -1151,6 +1184,20 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         mValidatorResult = result;
     }
 
+    public boolean isLayoutValidatorOptimizationEnabled() {
+        return Boolean.TRUE.equals(
+                getParams().getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION));
+    }
+
+    @Nullable
+    public ValidatorHierarchy getValidatorHierarchy() {
+        return mValidatorHierarchy;
+    }
+
+    public void setValidatorHierarchy(@NotNull ValidatorHierarchy validatorHierarchy) {
+        mValidatorHierarchy = validatorHierarchy;
+    }
+
     public void setScene(RenderSession session) {
         mScene = session;
     }
@@ -1181,6 +1228,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 mSystemViewInfoList.clear();
             }
             mImage = null;
+            mValidatorResult = null;
+            mValidatorHierarchy = null;
             mViewRoot = null;
             mContentRoot = null;
             NinePatch_Delegate.clearCache();

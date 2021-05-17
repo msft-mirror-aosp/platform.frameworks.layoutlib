@@ -33,6 +33,8 @@ public class ValidatorHierarchy {
     /** Contains screen capture of the view */
     public @Nullable Parameters mParameters = null;
 
+    public @Nullable String mErrorMessage = null;
+
     /** Returns true if hierarchical data is available to build results. */
     public boolean isHierarchyBuilt() {
         return mBuilder != null && mView != null;
