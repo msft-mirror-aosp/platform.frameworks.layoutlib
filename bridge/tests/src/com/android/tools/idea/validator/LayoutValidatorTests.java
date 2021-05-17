@@ -41,9 +41,23 @@ import com.google.android.apps.common.testing.accessibility.framework.Accessibil
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheck;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class LayoutValidatorTests extends RenderTestBase {
+
+    private static final float SCALE_X_FOR_NEXUS_5 = 1.0f;
+    private static final float SCALE_Y_FOR_NEXUS_5 = 1.0f;
+
+    @Test
+    public void testEnsureDebuggingOff() {
+        assertFalse(LayoutValidator.shouldSaveCroppedImages());
+    }
+
+    @Test
+    public void testEnsureObtainCharacterLocation() {
+        assertFalse(LayoutValidator.obtainCharacterLocations());
+    }
 
     @Test
     public void testRenderAndVerify() throws Exception {
@@ -65,8 +79,11 @@ public class LayoutValidatorTests extends RenderTestBase {
     @Test
     public void testValidation() throws Exception {
         render(sBridge, generateParams(), -1, session -> {
-            ValidatorResult result = LayoutValidator
-                    .validate(((View) session.getRootViews().get(0).getViewObject()), null);
+            ValidatorResult result = LayoutValidator.validate(
+                    ((View) session.getRootViews().get(0).getViewObject()),
+                    null,
+                    SCALE_X_FOR_NEXUS_5,
+                    SCALE_Y_FOR_NEXUS_5);
             assertEquals(30, result.getIssues().size());
             ArrayList<Issue> errorIssues = new ArrayList<>();
             for (Issue issue : result.getIssues()) {
@@ -82,7 +99,10 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertEquals("https://support.google.com/accessibility/android/answer/7158690",
                          first.mHelpfulUrl);
             assertEquals("SpeakableTextPresentCheck", first.mSourceClass);
-            assertEquals(first.mFix, null);
+            assertTrue(first.mFix instanceof SetViewAttributeFix);
+            assertEquals("Set this item's android:contentDescription to a meaningful" +
+                            " non-empty string or resource reference.",
+                    first.mFix.getDescription());
 
             Issue second = errorIssues.get(1);
             CompoundFix compoundFix = (CompoundFix) second.mFix;
@@ -124,7 +144,10 @@ public class LayoutValidatorTests extends RenderTestBase {
 
             render(sBridge, generateParams(), -1, session -> {
                 ValidatorResult result = LayoutValidator.validate(
-                        ((View) session.getRootViews().get(0).getViewObject()), null);
+                        ((View) session.getRootViews().get(0).getViewObject()),
+                        null,
+                        SCALE_X_FOR_NEXUS_5,
+                        SCALE_Y_FOR_NEXUS_5);
 
                 assertEquals(1, result.getIssues().size());
                 assertEquals("Hierarchy is not built yet.",
@@ -145,7 +168,10 @@ public class LayoutValidatorTests extends RenderTestBase {
 
             render(sBridge, generateParams(), -1, session -> {
                 ValidatorResult result = LayoutValidator.validate(
-                        ((View) session.getRootViews().get(0).getViewObject()), null);
+                        ((View) session.getRootViews().get(0).getViewObject()),
+                        null,
+                        SCALE_X_FOR_NEXUS_5,
+                        SCALE_Y_FOR_NEXUS_5);
                 assertEquals(27, result.getIssues().size());
                 result.getIssues().forEach(issue ->assertEquals(Level.VERBOSE, issue.mLevel));
             });
@@ -172,7 +198,10 @@ public class LayoutValidatorTests extends RenderTestBase {
 
             render(sBridge, generateParams(), -1, session -> {
                 ValidatorResult result = LayoutValidator.validate(
-                        ((View) session.getRootViews().get(0).getViewObject()), null);
+                        ((View) session.getRootViews().get(0).getViewObject()),
+                        null,
+                        SCALE_X_FOR_NEXUS_5,
+                        SCALE_Y_FOR_NEXUS_5);
                 assertEquals(1, result.getIssues().size());
                 Issue textCheck = result.getIssues().get(0);
                 assertEquals("The item's text contrast ratio is 1.00. This ratio is based on a text color " +

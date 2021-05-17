@@ -40,6 +40,10 @@ public class LayoutValidator {
 
     private static boolean sPaused = false;
 
+    private static boolean sSaveCroppedImages = false;
+
+    private static boolean sObtainCharacterLocations = false;
+
     /**
      * @return true if validator is paused. False otherwise.
      */
@@ -56,6 +60,34 @@ public class LayoutValidator {
         sPaused = paused;
     }
 
+    public static boolean shouldSaveCroppedImages() {
+        return sSaveCroppedImages;
+    }
+
+    /**
+     * For Debugging purpose. Save all cropped images used by atf if enabled.
+     * @param save
+     */
+    public static void setSaveCroppedImages(boolean save) {
+        sSaveCroppedImages = save;
+    }
+
+    /**
+     * Indicates whether text character locations should be requested.
+     *
+     * @param obtainCharacterLocations true if text character locations should be requested.
+     */
+    public static void setObtainCharacterLocations(boolean obtainCharacterLocations) {
+        sObtainCharacterLocations = obtainCharacterLocations;
+    }
+
+    /**
+     * @return true if text character locations should be requested.
+     */
+    public static boolean obtainCharacterLocations() {
+        return sObtainCharacterLocations;
+    }
+
     /**
      * Validate the layout using the default policy.
      * Precondition: View must be attached to the window.
@@ -63,9 +95,18 @@ public class LayoutValidator {
      * @return The validation results. If no issue is found it'll return empty result.
      */
     @NotNull
-    public static ValidatorResult validate(@NotNull View view, @Nullable BufferedImage image) {
+    public static ValidatorResult validate(
+            @NotNull View view,
+            @Nullable BufferedImage image,
+            float scaleX,
+            float scaleY) {
         if (!sPaused && view.isAttachedToWindow()) {
-            ValidatorHierarchy hierarchy = ValidatorUtil.buildHierarchy(sPolicy, view, image);
+            ValidatorHierarchy hierarchy = ValidatorUtil.buildHierarchy(
+                    sPolicy,
+                    view,
+                    image,
+                    scaleX,
+                    scaleY);
             return ValidatorUtil.generateResults(sPolicy, hierarchy);
         }
         // TODO: Add non-a11y layout validation later.
@@ -80,9 +121,17 @@ public class LayoutValidator {
      */
     @NotNull
     public static ValidatorHierarchy buildHierarchy(
-            @NotNull View view, @Nullable BufferedImage image) {
+            @NotNull View view,
+            @Nullable BufferedImage image,
+            float scaleX,
+            float scaleY) {
         if (!sPaused && view.isAttachedToWindow()) {
-            return ValidatorUtil.buildHierarchy(sPolicy, view, image);
+            return ValidatorUtil.buildHierarchy(
+                    sPolicy,
+                    view,
+                    image,
+                    scaleX,
+                    scaleY);
         }
         return new ValidatorHierarchy();
     }

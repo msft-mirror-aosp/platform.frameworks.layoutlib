@@ -53,7 +53,6 @@ import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorHierarchy;
 import com.android.tools.idea.validator.ValidatorResult;
 import com.android.tools.idea.validator.ValidatorResult.Builder;
-import com.android.tools.idea.validator.ValidatorUtil;
 import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.java.System_Delegate;
@@ -99,8 +98,6 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.android.apps.common.testing.accessibility.framework.uielement.AccessibilityHierarchyAndroid_ViewElementClassNamesAndroid_Delegate;
 
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_INFLATION;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_NOT_INFLATED;
@@ -476,6 +473,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             HardwareConfig hardwareConfig = params.getHardwareConfig();
             Result renderResult = SUCCESS.createResult();
+            float scaleX = 1.0f;
+            float scaleY = 1.0f;
             if (onlyMeasure) {
                 // delete the canvas and image to reset them on the next full rendering
                 mImage = null;
@@ -535,8 +534,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                     RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE));
 
                     if (enableImageResizing) {
-                        float scaleX = (float)mImage.getWidth() / mMeasuredScreenWidth;
-                        float scaleY = (float)mImage.getHeight() / mMeasuredScreenHeight;
+                        scaleX = (float)mImage.getWidth() / mMeasuredScreenWidth;
+                        scaleY = (float)mImage.getHeight() / mMeasuredScreenHeight;
                         mCanvas.scale(scaleX, scaleY);
                     }
 
@@ -592,11 +591,17 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
                     if (enableOptimization) {
                         ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
-                                ((View) getViewInfos().get(0).getViewObject()), imageToPass);
+                                ((View) getViewInfos().get(0).getViewObject()),
+                                imageToPass,
+                                scaleX,
+                                scaleY);
                         setValidatorHierarchy(hierarchy);
                     } else {
                         ValidatorResult validatorResult = LayoutValidator.validate(
-                                ((View) getViewInfos().get(0).getViewObject()), imageToPass);
+                                ((View) getViewInfos().get(0).getViewObject()),
+                                imageToPass,
+                                scaleX,
+                                scaleY);
                         setValidatorResult(validatorResult);
                     }
                 }

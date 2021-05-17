@@ -16,14 +16,20 @@
 
 package com.android.tools.idea.validator;
 
+import com.android.tools.idea.validator.ValidatorResult.ImageSize;
 import com.android.tools.idea.validator.ValidatorResult.Metric;
 import com.android.tools.layoutlib.annotations.NotNull;
+
+import android.annotation.NonNull;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 
 import com.google.android.apps.common.testing.accessibility.framework.utils.contrast.Image;
+import javax.imageio.ImageIO;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 
@@ -33,23 +39,42 @@ import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 public class AtfBufferedImage implements Image {
 
     // The source buffered image, expected to contain the full screen rendered image of the layout.
-    @NotNull private final BufferedImage mBufferedImage;
+    @NotNull private final BufferedImage mImage;
     // Metrics to be returned
     @NotNull private final Metric mMetric;
 
+    // Points in before scaled coord
     private final int mLeft;
     private final int mTop;
     private final int mWidth;
     private final int mHeight;
 
-    AtfBufferedImage(@NotNull BufferedImage image, @NotNull Metric metric) {
+    // Scale factors in case layoutlib scaled the screen.
+    private final float mScaleX;
+    private final float mScaleY;
+
+    AtfBufferedImage(
+            @NotNull BufferedImage image,
+            @NotNull Metric metric,
+            float scaleX,
+            float scaleY) {
+        // Without unscaling, atf does not recognize bounds that goes over the scaled image.
+        // E.g. if pxl4 is scaled to 1k x 2k (originally 2k x 4k), then atf could request for
+        // bounds at x:1.5k y:0, then without unscaling the call would fail.
+        this(image,
+            metric,
+            0,
+            0,
+            (int) (image.getWidth() * 1.0f / scaleX),
+            (int) (image.getHeight() * 1.0f / scaleY),
+            scaleX,
+            scaleY);
         assert(image.getType() == TYPE_INT_ARGB);
-        mBufferedImage = image;
-        mMetric = metric;
-        mWidth = mBufferedImage.getWidth();
-        mHeight = mBufferedImage.getHeight();
-        mLeft = 0;
-        mTop = 0;
+
+        // FOR DEBUGGING ONLY
+        if (LayoutValidator.shouldSaveCroppedImages()) {
+            saveImage(image);
+        }
     }
 
     private AtfBufferedImage(
@@ -58,13 +83,17 @@ public class AtfBufferedImage implements Image {
             int left,
             int top,
             int width,
-            int height) {
-        mBufferedImage = image;
+            int height,
+            float scaleX,
+            float scaleY) {
+        mImage = image;
         mMetric = metric;
         mLeft = left;
         mTop = top;
         mWidth = width;
         mHeight = height;
+        mScaleX = scaleX;
+        mScaleY = scaleY;
     }
 
     @Override
@@ -80,19 +109,68 @@ public class AtfBufferedImage implements Image {
     @Override
     @NotNull
     public Image crop(int left, int top, int width, int height) {
-        return new AtfBufferedImage(mBufferedImage, mMetric, left, top, width, height);
+        return new AtfBufferedImage(mImage, mMetric, left, top, width, height, mScaleX, mScaleY);
     }
 
+    /**
+     * @return the region that matches the scaled buffered image. The returned image
+     * will not have the width same as {@link #getWidth()} but rather width * mScaleX.
+     */
     @Override
     @NotNull
     public int[] getPixels() {
-        // ATF unfortunately writes in-place on returned int[] for color analysis.
-        // It must return copied list otherwise it won't work.
-        BufferedImage cropped = mBufferedImage.getSubimage(mLeft, mTop, mWidth, mHeight);
-        WritableRaster raster = cropped.copyData(
-                cropped.getRaster().createCompatibleWritableRaster());
+        int scaledLeft = (int)(mLeft * mScaleX);
+        int scaledTop = (int)(mTop * mScaleY);
+        int scaledWidth = (int)(mWidth * mScaleX);
+        int scaledHeight = (int)(mHeight * mScaleY);
+
+        BufferedImage cropped = mImage.getSubimage(
+                scaledLeft, scaledTop, scaledWidth, scaledHeight);
+        WritableRaster raster =
+                cropped.copyData(cropped.getRaster().createCompatibleWritableRaster());
         int[] toReturn = ((DataBufferInt) raster.getDataBuffer()).getData();
         mMetric.mImageMemoryBytes += toReturn.length * 4;
+
+        if (LayoutValidator.shouldSaveCroppedImages()) {
+            saveImage(cropped);
+        }
+
         return toReturn;
+    }
+
+    // FOR DEBUGGING ONLY
+    private static int SAVE_IMAGE_COUNTER = 0;
+    private void saveImage(BufferedImage image) {
+        try {
+            String name = SAVE_IMAGE_COUNTER + "_img_for_atf_LxT:WxH_" +
+                    mLeft + "x" + mTop + ":" +
+                    mWidth + "x" + mHeight;
+
+            mMetric.mImageSizes.add(new ImageSize(mLeft, mTop, mWidth, mHeight));
+
+            File output = new File(getDebugDir(), name);
+            if (output.exists()) {
+                output.delete();
+            }
+            ImageIO.write(image, "PNG", output);
+            SAVE_IMAGE_COUNTER++;
+        } catch (IOException ioe) {
+            mMetric.mErrorMessage = ioe.getMessage();
+        }
+    }
+
+    @NonNull
+    private File getDebugDir() {
+        File failureDir;
+        String failureDirString = System.getProperty("debug.dir");
+        if (failureDirString != null) {
+            failureDir = new File(failureDirString);
+        } else {
+            String workingDirString = System.getProperty("user.dir");
+            failureDir = new File(workingDirString, "out/debugs");
+        }
+
+        failureDir.mkdirs();
+        return failureDir;
     }
 }
