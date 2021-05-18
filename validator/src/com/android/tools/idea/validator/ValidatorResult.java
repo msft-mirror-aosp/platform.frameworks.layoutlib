@@ -107,8 +107,14 @@ public class ValidatorResult {
         /** Records how long validation took */
         public long mElapsedMs = 0;
 
+        /** Record how long hierarchy creation took */
+        public long mHierarchyCreationMs = 0;
+
         /** How many new memories (bytes) validator creates for images. */
         public long mImageMemoryBytes = 0;
+
+        /** Debugging purpose only. Use it with {@link LayoutValidator#shouldSaveCroppedImages()} */
+        public List<ImageSize> mImageSizes = new ArrayList<>();
 
         private long mStart;
 
@@ -118,6 +124,10 @@ public class ValidatorResult {
             mStart = System.currentTimeMillis();
         }
 
+        public void recordHierarchyCreationTime() {
+            mHierarchyCreationMs = System.currentTimeMillis() - mStart;
+        }
+
         public void endTimer() {
             mElapsedMs = System.currentTimeMillis() - mStart;
         }
@@ -125,7 +135,8 @@ public class ValidatorResult {
         @Override
         public String toString() {
             return "Validation result metric: { elapsed=" + mElapsedMs +
-                    "ms, image memory=" + readableBytes() + " }";
+                    "ms, hierarchy creation=" + mHierarchyCreationMs
+                    +"ms, image memory=" + readableBytes() + " }";
         }
 
         private String readableBytes() {
@@ -139,6 +150,26 @@ public class ValidatorResult {
                 return mImageMemoryBytes / 1000 + "kb";
             }
             return mImageMemoryBytes + "bytes";
+        }
+    }
+
+    public static class ImageSize {
+        private final int mLeft;
+        private final int mTop;
+        private final int mWidth;
+        private final int mHeight;
+
+        public ImageSize(int left, int top, int width, int height) {
+            mLeft = left;
+            mTop = top;
+            mWidth = width;
+            mHeight = height;
+        }
+
+        @Override
+        public String toString() {
+            return "ImageSize{" + "mLeft=" + mLeft + ", mTop=" + mTop + ", mWidth=" + mWidth +
+                    ", mHeight=" + mHeight + '}';
         }
     }
 }
