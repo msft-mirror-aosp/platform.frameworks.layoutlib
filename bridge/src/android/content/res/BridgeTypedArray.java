@@ -990,6 +990,9 @@ public final class BridgeTypedArray extends TypedArray {
         if (value == null) {
             return TYPE_NULL;
         }
+        if (value.isEmpty()) {
+            return TYPE_STRING;
+        }
         if (value.startsWith(PREFIX_RESOURCE_REF)) {
             return TYPE_REFERENCE;
         }
