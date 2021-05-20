@@ -59,6 +59,8 @@ public class NativeAllocationRegistry_Delegate {
             NativeAllocationRegistry_Delegate delegate = sManager.getDelegate(freeFunction);
             if (delegate != null) {
                 delegate.mFinalizer.free(nativePtr);
+            } else if (freeFunction != 0) {
+                nativeApplyFreeFunction(freeFunction, nativePtr);
             }
         } catch (Throwable ignore) {
         }
@@ -67,4 +69,6 @@ public class NativeAllocationRegistry_Delegate {
     public interface FreeFunction {
         void free(long nativePtr);
     }
+
+    private static native void nativeApplyFreeFunction(long freeFunction, long nativePtr);
 }

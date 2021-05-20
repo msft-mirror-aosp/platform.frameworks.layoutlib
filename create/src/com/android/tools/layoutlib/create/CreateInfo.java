@@ -252,6 +252,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.view.PointerIcon#loadResource",
         "android.view.PointerIcon#registerDisplayListener",
         "android.view.SurfaceControl#nativeCreateTransaction",
+        "android.view.SurfaceControl#nativeGetNativeTransactionFinalizer",
         "android.view.TextureView#getTextureLayer",
         "android.view.View#draw",
         "android.view.View#dispatchDetachedFromWindow",

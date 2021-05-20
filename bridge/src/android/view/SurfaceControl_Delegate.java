@@ -26,9 +26,20 @@ public class SurfaceControl_Delegate {
     // ---- delegate manager ----
     private static final DelegateManager<SurfaceControl_Delegate> sManager =
             new DelegateManager<>(SurfaceControl_Delegate.class);
+    private static long sFinalizer = -1;
 
     @LayoutlibDelegate
     /*package*/ static long nativeCreateTransaction() {
         return sManager.addNewDelegate(new SurfaceControl_Delegate());
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static long nativeGetNativeTransactionFinalizer() {
+        synchronized (SurfaceControl_Delegate.class) {
+            if (sFinalizer == -1) {
+                sFinalizer = NativeAllocationRegistry_Delegate.createFinalizer(sManager::removeJavaReferenceFor);
+            }
+        }
+        return sFinalizer;
     }
 }

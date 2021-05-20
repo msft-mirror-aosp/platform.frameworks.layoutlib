@@ -58,6 +58,7 @@ public class NativeConfig {
             "android.view.MotionEvent",
             "android.view.Surface",
             "com.android.internal.util.VirtualRefBasePtr",
+            "libcore.util.NativeAllocationRegistry_Delegate",
     };
 
     /**

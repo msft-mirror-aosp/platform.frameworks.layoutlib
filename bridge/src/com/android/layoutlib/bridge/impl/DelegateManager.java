@@ -122,7 +122,6 @@ public final class DelegateManager<T> {
                 }
             }
 
-            assert delegate != null;
             //noinspection unchecked
             return (T)delegate;
         }
