@@ -16,13 +16,13 @@
 
 package com.android.layoutlib.bridge.libcore.util;
 
-import java.lang.ref.Cleaner.Cleanable;
-
 public class Cleaner {
-    private final Cleanable mCleanable;
+    private static final java.lang.ref.Cleaner sCleaner = java.lang.ref.Cleaner.create();
 
-    private Cleaner(Cleanable cleanable) {
-        mCleanable = cleanable;
+    private final Runnable mThunk;
+
+    private Cleaner(Runnable thunk) {
+        mThunk = thunk;
     }
 
     /**
@@ -37,16 +37,17 @@ public class Cleaner {
      * @return  The new cleaner
      */
     public static Cleaner create(Object ob, Runnable thunk) {
-        if (thunk == null)
+        if (thunk == null) {
             return null;
-        java.lang.ref.Cleaner cleaner = java.lang.ref.Cleaner.create();
-        return new Cleaner(cleaner.register(ob, thunk));
+        }
+        sCleaner.register(ob, thunk);
+        return new Cleaner(thunk);
     }
 
     /**
      * Runs this cleaner, if it has not been run before.
      */
     public void clean() {
-        mCleanable.clean();
+        mThunk.run();
     }
 }
