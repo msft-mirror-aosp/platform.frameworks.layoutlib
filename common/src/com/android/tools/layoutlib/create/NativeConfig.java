@@ -89,6 +89,7 @@ public class NativeConfig {
             "android.graphics.Picture",
             "android.graphics.RecordingCanvas",
             "android.graphics.Region",
+            "android.graphics.RenderEffect",
             "android.graphics.RenderNode",
             "android.graphics.Shader",
             "android.graphics.Typeface",

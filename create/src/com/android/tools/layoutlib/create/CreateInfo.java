@@ -329,6 +329,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.RecordingCanvas",
         "android.graphics.Region",
         "android.graphics.RegionIterator",
+        "android.graphics.RenderEffect",
         "android.graphics.RenderNode",
         "android.graphics.RuntimeShader",
         "android.graphics.Shader",
