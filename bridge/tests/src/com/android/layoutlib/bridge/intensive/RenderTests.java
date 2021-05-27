@@ -1979,4 +1979,35 @@ public class RenderTests extends RenderTestBase {
         renderAndVerify(params, "non-styled_resources.png",
                 TimeUnit.SECONDS.toNanos(2));
     }
+
+    @Test
+    public void testRenderEffect() throws ClassNotFoundException {
+        // Create the layout pull parser.
+        LayoutPullParser parser = LayoutPullParser.createFromString(
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:background=\"#999\"" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"match_parent\"\n" +
+                        "              android:layout_height=\"match_parent\">\n" +
+                        "    <com.android.layoutlib.bridge.test.widgets.BlurryImageView\n" +
+                        "        android:layout_width=\"100dp\"\n" +
+                        "        android:layout_height=\"100dp\"/>\n" +
+                        "</LinearLayout>");
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "render_effect.png",
+                TimeUnit.SECONDS.toNanos(2));
+    }
 }
