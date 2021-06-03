@@ -16,6 +16,7 @@
 package android.view;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.impl.RenderAction;
@@ -84,6 +85,11 @@ public class Choreographer_Delegate {
                     "Callback with null action", (Object) null, null);
         }
         context.getSessionInteractiveData().getChoreographerCallbacks().remove(action);
+    }
+
+    @LayoutlibDelegate
+    public static long getFrameTimeNanos(Choreographer thiz) {
+        return System.nanoTime();
     }
 
     /**

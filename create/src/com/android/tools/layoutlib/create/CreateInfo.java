@@ -239,6 +239,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.provider.DeviceConfig#getString",
         "android.text.format.DateFormat#is24HourFormat",
         "android.util.Xml#newPullParser",
+        "android.view.Choreographer#getFrameTimeNanos",
         "android.view.Choreographer#getRefreshRate",
         "android.view.Choreographer#postCallbackDelayedInternal",
         "android.view.Choreographer#removeCallbacksInternal",
@@ -418,6 +419,9 @@ public final class CreateInfo implements ICreateInfo {
      * needed when access from the delegate classes is needed.
      */
     private final static String[] PROMOTED_FIELDS = new String[] {
+        "android.animation.AnimationHandler#mDelayedCallbackStartTime",
+        "android.animation.AnimationHandler#mAnimationCallbacks",
+        "android.animation.AnimationHandler#mCommitCallbacks",
         "android.animation.AnimatorSet#mLastFrameTime",
         "android.animation.PropertyValuesHolder#sSetterPropertyMap",
         "android.animation.PropertyValuesHolder#sGetterPropertyMap",
