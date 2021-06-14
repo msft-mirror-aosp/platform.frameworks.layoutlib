@@ -360,7 +360,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             context.popParser();
 
             // set the AttachInfo on the root view.
-            AttachInfo_Accessor.setAttachInfo(mViewRoot);
+            AttachInfo_Accessor.setAttachInfo(mViewRoot, mRenderer);
 
             // post-inflate process. For now this supports TabHost/TabWidget
             postInflateProcess(view, params.getLayoutlibCallback(), isPreference ? view : null);

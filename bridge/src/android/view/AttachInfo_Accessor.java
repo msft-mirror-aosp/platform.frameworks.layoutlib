@@ -17,6 +17,8 @@
 package android.view;
 
 import android.content.Context;
+import android.graphics.HardwareRenderer;
+import android.graphics.RenderNode;
 import android.os.Handler;
 import android.view.View.AttachInfo;
 
@@ -27,11 +29,22 @@ import com.android.layoutlib.common.util.ReflectionUtils;
  */
 public class AttachInfo_Accessor {
 
-    public static void setAttachInfo(View view) {
+    public static void setAttachInfo(View view, HardwareRenderer renderer) {
         Context context = view.getContext();
         WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         ViewRootImpl root = new ViewRootImpl(context, display);
+        root.mAttachInfo.mThreadedRenderer = new ThreadedRenderer(context, false,
+                "delegate-renderer") {
+            @Override
+            public void registerAnimatingRenderNode(RenderNode animator) {
+                if (renderer != null) {
+                    renderer.registerAnimatingRenderNode(animator);
+                } else {
+                    super.registerAnimatingRenderNode(animator);
+                }
+            }
+        };
         AttachInfo info = new AttachInfo(ReflectionUtils.createProxy(IWindowSession.class),
                 ReflectionUtils.createProxy(IWindow.class), display, root, new Handler(), null,
                 context);
@@ -56,6 +69,11 @@ public class AttachInfo_Accessor {
                 final ThreadedRenderer threadedRenderer = attachInfo.mThreadedRenderer;
                 if(threadedRenderer != null) {
                     threadedRenderer.destroy();
+                }
+                ThreadedRenderer rootRenderer =
+                        attachInfo.mViewRootImpl.mAttachInfo.mThreadedRenderer;
+                if (rootRenderer != null) {
+                    rootRenderer.destroy();
                 }
             }
         }
