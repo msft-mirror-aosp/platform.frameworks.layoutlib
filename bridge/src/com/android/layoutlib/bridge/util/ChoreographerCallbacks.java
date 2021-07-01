@@ -26,6 +26,7 @@ import android.view.Choreographer.FrameCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Manages {@link android.view.Choreographer} callbacks. Keeps track of the currently active
@@ -41,41 +42,53 @@ public class ChoreographerCallbacks {
 
     private final RangeList<Pair<Object, Long>> mCallbacks = new RangeList<>();
 
-    public synchronized void add(Object action, long delayMillis) {
-        int idx = 0;
-        final long now = SystemClock_Delegate.uptimeMillis();
-        final long dueTime = now + delayMillis;
-        while (idx < mCallbacks.size()) {
-            if (mCallbacks.get(idx).second > dueTime) {
-                break;
-            } else {
-                ++idx;
+    public void add(Object action, long delayMillis) {
+        synchronized (mCallbacks) {
+            int idx = 0;
+            final long now = SystemClock_Delegate.uptimeMillis();
+            final long dueTime = now + delayMillis;
+            while (idx < mCallbacks.size()) {
+                if (mCallbacks.get(idx).second > dueTime) {
+                    break;
+                } else {
+                    ++idx;
+                }
             }
+            mCallbacks.add(idx, Pair.create(action, dueTime));
         }
-        mCallbacks.add(idx, Pair.create(action, dueTime));
     }
 
-    public synchronized void remove(Object action) {
-        mCallbacks.removeIf(el -> el.first == action);
+    public void remove(Object action) {
+        synchronized (mCallbacks) {
+            mCallbacks.removeIf(el -> el.first == action);
+        }
     }
 
-    public synchronized void execute(long currentTimeMs, @NotNull ILayoutLog logger) {
-        int idx = 0;
+    public void execute(long currentTimeMs, @NotNull ILayoutLog logger) {
         final long currentTimeNanos = currentTimeMs * TimeUtils.NANOS_PER_MS;
-        while (idx < mCallbacks.size()) {
-            if (mCallbacks.get(idx).second > currentTimeMs) {
-                break;
-            } else {
-                ++idx;
+        List<Pair<Object, Long>> toExecute;
+        synchronized (mCallbacks) {
+            int idx = 0;
+            while (idx < mCallbacks.size()) {
+                if (mCallbacks.get(idx).second > currentTimeMs) {
+                    break;
+                } else {
+                    ++idx;
+                }
             }
+            toExecute = new ArrayList<>(mCallbacks.subList(0, idx));
+            mCallbacks.removeFrontElements(idx);
         }
-        List<Pair<Object, Long>> toExecute = new ArrayList<>(mCallbacks.subList(0, idx));
-        mCallbacks.removeFrontElements(idx);
+
+        // We run the callbacks outside of the synchronized block to avoid deadlocks caused by
+        // callbacks calling back into ChoreographerCallbacks.
         toExecute.forEach(p -> executeSafely(p.first, currentTimeNanos, logger));
     }
 
-    public synchronized void clear() {
-        mCallbacks.clear();
+    public void clear() {
+        synchronized (mCallbacks) {
+            mCallbacks.clear();
+        }
     }
 
     private static void executeSafely(@NotNull Object action, long frameTimeNanos,
