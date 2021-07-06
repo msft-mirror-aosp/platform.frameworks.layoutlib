@@ -281,18 +281,11 @@ public abstract class RenderAction<T extends RenderParams> {
             mContext.disposeResources();
         }
 
-        if (sCurrentContext != null) {
-            // quit HandlerThread created during this session.
-            HandlerThread_Delegate.cleanUp(sCurrentContext);
-        }
-
         // clear the stored ViewConfiguration since the map is per density and not per context.
         ViewConfiguration_Accessor.clearConfigurations();
 
         // remove the InputMethodManager
         InputMethodManager_Accessor.tearDownEditMode();
-
-        sCurrentContext = null;
 
         Bridge.setLog(null);
         if (mContext != null) {
@@ -452,5 +445,12 @@ public abstract class RenderAction<T extends RenderParams> {
         synchronized (sContextLock) {
             sContexts.remove(mContext);
         }
+
+        if (sCurrentContext != null) {
+            // quit HandlerThread created during this session.
+            HandlerThread_Delegate.cleanUp(sCurrentContext);
+        }
+
+        sCurrentContext = null;
     }
 }
