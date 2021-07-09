@@ -68,7 +68,10 @@ import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
  */
 public abstract class RenderAction<T extends RenderParams> {
 
-    private static String COMPOSE_CLASS = "androidx.compose.ui.tooling.preview.ComposeViewAdapter";
+    private static final Set<String> COMPOSE_CLASS_FQNS =
+            Set.of("androidx.compose.ui.tooling.ComposeViewAdapter",
+                    "androidx.compose.ui.tooling.preview.ComposeViewAdapter");
+
     /**
      * The current context being rendered. This is set through {@link #acquire(long)} and
      * {@link #init(long)}, and unset in {@link #release()}.
@@ -429,6 +432,17 @@ public abstract class RenderAction<T extends RenderParams> {
     }
 
     @Nullable
+    private static ClassLoader findComposeClassLoader(@NotNull BridgeContext context) {
+        for (String composeClassName: COMPOSE_CLASS_FQNS) {
+            try {
+                return context.getLayoutlibCallback().findClass(composeClassName).getClassLoader();
+            } catch (Throwable ignore) {}
+        }
+
+        return null;
+    }
+
+    @Nullable
     public static BridgeContext findContextFor(@NotNull ClassLoader classLoader) {
         synchronized (sContextLock) {
             for (BridgeContext c : RenderAction.sContexts) {
@@ -436,9 +450,7 @@ public abstract class RenderAction<T extends RenderParams> {
                     continue;
                 }
                 try {
-                    ClassLoader cl =
-                            c.getLayoutlibCallback().findClass(COMPOSE_CLASS).getClassLoader();
-                    if (cl == classLoader) {
+                    if (findComposeClassLoader(c) == classLoader) {
                         return c;
                     }
                 } catch (Throwable ignore) {
