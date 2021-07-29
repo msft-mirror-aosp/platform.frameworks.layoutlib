@@ -35,6 +35,12 @@ import com.android.ninepatch.NinePatch;
 import com.android.resources.Density;
 import com.android.resources.ResourceType;
 
+import org.ccil.cowan.tagsoup.HTMLSchema;
+import org.ccil.cowan.tagsoup.Parser;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -47,6 +53,8 @@ import android.content.res.ComplexColor_Accessor;
 import android.content.res.GradientColor;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
+import android.content.res.StringBlock;
+import android.content.res.StringBlock.Height;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -59,17 +67,41 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
+import android.text.Annotation;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.TextUtils;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BulletSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
+import android.text.style.SubscriptSpan;
+import android.text.style.SuperscriptSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
 import android.util.TypedValue;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.common.base.Strings;
 
 import static android.content.res.AssetManager.ACCESS_STREAMING;
 
@@ -500,6 +532,175 @@ public final class ResourceHelper {
         return getBooleanThemeValue(resources, attrRef, defaultValue);
     }
 
+    /**
+     * This takes a resource string containing HTML tags for styling,
+     * and returns it correctly formatted to be displayed.
+     */
+    public static CharSequence parseHtml(String string) {
+        // The parser requires <li> tags to be surrounded by <ul> tags to handle whitespace
+        // correctly, though Android does not support <ul> tags.
+        String str = string.replaceAll("<li>", "<ul><li>")
+                .replaceAll("</li>","</li></ul>");
+        int firstTagIndex = str.indexOf('<');
+        int lastTagIndex = str.lastIndexOf('>');
+        StringBuilder stringBuilder = new StringBuilder(str.substring(0, firstTagIndex));
+        List<Tag> tagList = new ArrayList<>();
+        Map<String, Deque<Tag>> startStacks = new HashMap<>();
+        Parser parser = new Parser();
+        parser.setContentHandler(new DefaultHandler() {
+            @Override
+            public void startElement(String uri, String localName, String qName,
+                    Attributes attributes) {
+                if (!Strings.isNullOrEmpty(localName)) {
+                    Tag tag = new Tag(localName);
+                    tag.mStart = stringBuilder.length();
+                    tag.mAttributes = attributes;
+                    startStacks.computeIfAbsent(localName, key -> new ArrayDeque<>()).addFirst(tag);
+                }
+            }
+
+            @Override
+            public void endElement(String uri, String localName, String qName) {
+                if (!Strings.isNullOrEmpty(localName)) {
+                    Tag tag = startStacks.get(localName).removeFirst();
+                    tag.mEnd = stringBuilder.length();
+                    tagList.add(tag);
+                }
+            }
+
+            @Override
+            public void characters(char[] ch, int start, int length) {
+                stringBuilder.append(ch, start, length);
+            }
+        });
+        try {
+            parser.setProperty(Parser.schemaProperty, new HTMLSchema());
+            parser.parse(new InputSource(
+                    new StringReader(str.substring(firstTagIndex, lastTagIndex + 1))));
+        } catch (SAXException | IOException e) {
+            Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
+                    "The string " + str + " is not valid HTML", null, null);
+            return str;
+        }
+        stringBuilder.append(str.substring(lastTagIndex + 1));
+        return applyStyles(stringBuilder, tagList);
+    }
+
+    /**
+     * This applies the styles from tagList that are supported by Android
+     * and returns a {@link SpannedString}.
+     * This should mirror {@link StringBlock#applyStyles}
+     */
+    @NonNull
+    private static SpannedString applyStyles(@NonNull StringBuilder stringBuilder,
+            @NonNull List<Tag> tagList) {
+        SpannableString spannableString = new SpannableString(stringBuilder);
+        for (Tag tag : tagList) {
+            int start = tag.mStart;
+            int end = tag.mEnd;
+            Attributes attrs = tag.mAttributes;
+            switch (tag.mLabel) {
+                case "b":
+                    spannableString.setSpan(new StyleSpan(Typeface.BOLD), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "i":
+                    spannableString.setSpan(new StyleSpan(Typeface.ITALIC), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "u":
+                    spannableString.setSpan(new UnderlineSpan(), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "tt":
+                    spannableString.setSpan(new TypefaceSpan("monospace"), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "big":
+                    spannableString.setSpan(new RelativeSizeSpan(1.25f), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "small":
+                    spannableString.setSpan(new RelativeSizeSpan(0.8f), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "sup":
+                    spannableString.setSpan(new SuperscriptSpan(), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "sub":
+                    spannableString.setSpan(new SubscriptSpan(), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "strike":
+                    spannableString.setSpan(new StrikethroughSpan(), start, end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case "li":
+                    StringBlock.addParagraphSpan(spannableString, new BulletSpan(10), start, end);
+                    break;
+                case "marquee":
+                    spannableString.setSpan(TextUtils.TruncateAt.MARQUEE, start, end,
+                            Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                    break;
+                case "font":
+                    String heightAttr = attrs.getValue("height");
+                    if (heightAttr != null) {
+                        int height = Integer.parseInt(heightAttr);
+                        StringBlock.addParagraphSpan(spannableString, new Height(height), start,
+                                end);
+                    }
+
+                    String sizeAttr = attrs.getValue("size");
+                    if (sizeAttr != null) {
+                        int size = Integer.parseInt(sizeAttr);
+                        spannableString.setSpan(new AbsoluteSizeSpan(size, true), start, end,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+
+                    String fgcolorAttr = attrs.getValue("fgcolor");
+                    if (fgcolorAttr != null) {
+                        spannableString.setSpan(StringBlock.getColor(fgcolorAttr, true), start, end,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+
+                    String colorAttr = attrs.getValue("color");
+                    if (colorAttr != null) {
+                        spannableString.setSpan(StringBlock.getColor(colorAttr, true), start, end,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+
+                    String bgcolorAttr = attrs.getValue("bgcolor");
+                    if (bgcolorAttr != null) {
+                        spannableString.setSpan(StringBlock.getColor(bgcolorAttr, false), start,
+                                end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+
+                    String faceAttr = attrs.getValue("face");
+                    if (faceAttr != null) {
+                        spannableString.setSpan(new TypefaceSpan(faceAttr), start, end,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    break;
+                case "a":
+                    String href = tag.mAttributes.getValue("href");
+                    if (href != null) {
+                        spannableString.setSpan(new URLSpan(href), start, end,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    break;
+                case "annotation":
+                    for (int i = 0; i < attrs.getLength(); i++) {
+                        String key = attrs.getLocalName(i);
+                        String value = attrs.getValue(i);
+                        spannableString.setSpan(new Annotation(key, value), start, end,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+            }
+        }
+        return new SpannedString(spannableString);
+    }
+
     // ------- TypedValue stuff
     // This is taken from //device/libs/utils/ResourceTypes.cpp
 
@@ -684,6 +885,17 @@ public final class ResourceHelper {
         //noinspection PointlessBitwiseExpression
         outValue.data = unit.unit << TypedValue.COMPLEX_UNIT_SHIFT;
         outScale[0] = unit.scale;
+    }
+
+    private static class Tag {
+        private String mLabel;
+        private int mStart;
+        private int mEnd;
+        private Attributes mAttributes;
+
+        private Tag(String label) {
+            mLabel = label;
+        }
     }
 }
 

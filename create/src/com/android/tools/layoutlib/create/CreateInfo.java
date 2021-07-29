@@ -447,6 +447,8 @@ public final class CreateInfo implements ICreateInfo {
      */
     private final static String[] PROMOTED_METHODS = new String[] {
         "android.animation.AnimationHandler#doAnimationFrame",
+        "android.content.res.StringBlock#addParagraphSpan",
+        "android.content.res.StringBlock#getColor",
         "android.graphics.Bitmap#setNinePatchChunk",
         "android.graphics.NinePatch#validateNinePatchChunk",
         "android.media.ImageReader#nativeClassInit",
@@ -460,6 +462,7 @@ public final class CreateInfo implements ICreateInfo {
      * if possible.
      */
     private final static String[] PROMOTED_CLASSES = new String[] {
+        "android.content.res.StringBlock$Height",
         "android.graphics.ImageDecoder$InputStreamSource",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorUI",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimator",
