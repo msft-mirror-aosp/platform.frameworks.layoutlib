@@ -215,6 +215,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.content.res.Resources$Theme#resolveAttributes",
         "android.content.res.TypedArray#getValueAt",
         "android.content.res.TypedArray#obtain",
+        "android.graphics.Canvas#getClipBounds",
         "android.graphics.ImageDecoder#decodeBitmapImpl",
         "android.graphics.Typeface#create",
         "android.graphics.Typeface$Builder#createAssetUid",
