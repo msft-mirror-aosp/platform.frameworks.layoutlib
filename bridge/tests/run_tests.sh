@@ -15,7 +15,7 @@ OUT_INTERMEDIATES=${SCRIPT_DIR}"/../../../../out/soong/.intermediates"
 NATIVE_LIBRARIES=${SCRIPT_DIR}"/../../../../out/host/linux-x86/lib64/"
 SDK=${SCRIPT_DIR}"/../../../../out/host/linux-x86/sdk/sdk*/android-sdk*"
 FONT_DIR=${SCRIPT_DIR}"/../../../../out/host/common/obj/PACKAGING/fonts_intermediates"
-ICU_DATA_PATH=${SCRIPT_DIR}"/../../../../out/host/linux-x86/com.android.i18n/etc/icu/icudt68l.dat"
+ICU_DATA_PATH=${SCRIPT_DIR}"/../../../../out/host/linux-x86/com.android.i18n/etc/icu/icudt69l.dat"
 TMP_DIR=$(mktemp -d)
 PLATFORM=${TMP_DIR}/"android"
 
