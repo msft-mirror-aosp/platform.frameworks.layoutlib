@@ -367,7 +367,7 @@ public class AsmGenerator {
 
         // Rewrite the new class from scratch, without reusing the constant pool from the
         // original class reader.
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
         ClassVisitor cv = cw;
 

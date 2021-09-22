@@ -147,6 +147,7 @@ public final class CreateInfo implements ICreateInfo {
         new ProcessInitializerInitSchedReplacer(),
         new ValidateNinePatchChunkReplacer(),
         new NativeInitPathReplacer(),
+        new ActivityThreadInAnimationReplacer(),
     };
 
     /**
@@ -751,6 +752,22 @@ public final class CreateInfo implements ICreateInfo {
         public void replace(MethodInformation mi) {
             mi.owner = "android/graphics/Path_Delegate";
             mi.opcode = Opcodes.INVOKESTATIC;
+        }
+    }
+
+    public static class ActivityThreadInAnimationReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return ("android/app/ActivityThread").equals(owner) &&
+                    name.equals("getSystemUiContext") &&
+                    sourceClass.equals("android/view/animation/Animation");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "android/app/ActivityThread_Delegate";
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.desc = "()Landroid/content/Context;";
         }
     }
 }

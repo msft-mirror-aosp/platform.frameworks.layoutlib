@@ -35,5 +35,7 @@ java_binary_host {
         "asm-commons-6.0",
         "guava",
         "layoutlib-common",
+        "layoutlib_create-classpath",
+        "atf-prebuilt-371374941",
     ],
 }
