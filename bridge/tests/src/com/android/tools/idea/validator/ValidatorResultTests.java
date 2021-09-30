@@ -68,34 +68,11 @@ public class ValidatorResultTests {
 
     @Ignore("b/172205439")
     @Test
-    public void testMetricElapsed() {
-        long expectedElapsed = 100;
-        Metric metric = new Builder().mMetric;
-
-        metric.startTimer();
-        try {
-            Thread.sleep(expectedElapsed);
-        } catch (Exception e) {
-            String msg = "Unexpected exception. ";
-            if (e.getMessage() == null) {
-                msg += e.getMessage();
-            }
-            fail(msg);
-        }
-        metric.endTimer();
-
-        long diff = Math.abs(expectedElapsed - metric.mElapsedMs);
-        System.out.println(diff);
-        assertTrue(diff < EPSILON);
-    }
-
-    @Ignore("b/172205439")
-    @Test
     public void testMetricRecordHierarchyCreationTime() {
         long expectedElapsed = 100;
         Metric metric = new Builder().mMetric;
 
-        metric.startTimer();
+        metric.startHierarchyCreationTimer();
         try {
             Thread.sleep(expectedElapsed);
         } catch (Exception e) {
@@ -120,7 +97,7 @@ public class ValidatorResultTests {
         metric.mImageMemoryBytes = Long.MAX_VALUE;
 
         assertEquals(
-                "Validation result metric: { elapsed=0ms, hierarchy creation=0ms, image memory=9223372036gb }",
+                "Validation result metric: { hierarchy creation=0ms, image memory=9223372036gb }",
                 metric.toString());
     }
 
