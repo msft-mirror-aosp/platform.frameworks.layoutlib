@@ -22,6 +22,7 @@ import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 import android.app.ResourcesManager;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -29,6 +30,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.view.Display.Mode;
+import android.widget.FrameLayout;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.layoutlib.bridge.Bridge;
@@ -38,6 +40,15 @@ public class WindowManagerImpl implements WindowManager {
     private final Context mContext;
     private final DisplayMetrics mMetrics;
     private final Display mDisplay;
+    /**
+     * Root view of the base window, new windows will be added on top of this.
+     */
+    private ViewGroup mBaseRootView;
+    /**
+     * Root view of the current window at the top of the display,
+     * null if there is only the base window present.
+     */
+    private ViewGroup mCurrentRootView;
 
     public WindowManagerImpl(Context context, DisplayMetrics metrics) {
         mContext = context;
@@ -55,15 +66,12 @@ public class WindowManagerImpl implements WindowManager {
     }
 
     public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
-        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
-                "The preview does not support multiple windows.",
-                null, null, null);
         return this;
     }
 
     public WindowManagerImpl createPresentationWindowManager(Context displayContext) {
         Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
-                "The preview does not support multiple windows.",
+                "The preview does not fully support multiple windows.",
                 null, null, null);
         return this;
     }
@@ -86,12 +94,43 @@ public class WindowManagerImpl implements WindowManager {
 
     @Override
     public void addView(View arg0, android.view.ViewGroup.LayoutParams arg1) {
-        // pass
+        if (mBaseRootView == null) {
+            return;
+        }
+        if (mCurrentRootView == null) {
+            FrameLayout layout = new FrameLayout(mContext);
+            // The window root view should not handle touch events.
+            // Events need to be dispatched to the base view inside the window,
+            // with coordinates shifted accordingly.
+            layout.setOnTouchListener((v, event) -> {
+                event.offsetLocation(-arg0.getX(), -arg0.getY());
+                return arg0.dispatchTouchEvent(event);
+            });
+            mBaseRootView.addView(layout, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT));
+            mCurrentRootView = layout;
+        }
+
+        FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(arg1);
+        if (arg1 instanceof WindowManager.LayoutParams) {
+            LayoutParams params = (LayoutParams) arg1;
+            frameLayoutParams.gravity = params.gravity;
+            if ((params.flags & LayoutParams.FLAG_DIM_BEHIND) != 0) {
+                mCurrentRootView.setBackgroundColor(Color.argb(params.dimAmount, 0, 0, 0));
+            }
+        }
+        mCurrentRootView.addView(arg0, frameLayoutParams);
     }
 
     @Override
     public void removeView(View arg0) {
-        // pass
+        if (mCurrentRootView != null) {
+            mCurrentRootView.removeView(arg0);
+            if (mBaseRootView != null && mCurrentRootView.getChildCount() == 0) {
+                mBaseRootView.removeView(mCurrentRootView);
+                mCurrentRootView = null;
+            }
+        }
     }
 
     @Override
@@ -102,7 +141,7 @@ public class WindowManagerImpl implements WindowManager {
 
     @Override
     public void removeViewImmediate(View arg0) {
-        // pass
+        removeView(arg0);
     }
 
     @Override
@@ -170,5 +209,15 @@ public class WindowManagerImpl implements WindowManager {
         } catch (RemoteException ignore) {
         }
         return null;
+    }
+
+    // ---- Extra methods for layoutlib ----
+
+    public void setBaseRootView(ViewGroup baseRootView) {
+        mBaseRootView = baseRootView;
+    }
+
+    public ViewGroup getCurrentRootView() {
+        return mCurrentRootView;
     }
 }

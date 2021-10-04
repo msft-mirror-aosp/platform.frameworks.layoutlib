@@ -59,6 +59,7 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import android.animation.AnimationHandler;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.HardwareRenderer;
@@ -82,6 +83,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
+import android.view.WindowManagerImpl;
 import android.widget.AbsListView;
 import android.widget.AbsSpinner;
 import android.widget.ActionMenuView;
@@ -1234,7 +1236,14 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     public void dispatchTouchEvent(int motionEventType, long currentTimeNanos, float x, float y) {
-        if (mViewRoot == null) {
+        // Events should be dispatched to the top window if there are more than one present.
+        WindowManagerImpl wm =
+                (WindowManagerImpl)getContext().getSystemService(Context.WINDOW_SERVICE);
+        ViewGroup root = wm.getCurrentRootView();
+        if (root == null) {
+            root = mViewRoot;
+        }
+        if (root == null) {
             return;
         }
         if (motionEventType == MotionEvent.ACTION_DOWN) {
@@ -1261,7 +1270,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             1, mPointerProperties, mPointerCoords,
             0, 0, 1.0f, 1.0f, 0, 0, 0, 0);
 
-        mViewRoot.dispatchTouchEvent(event);
+        root.dispatchTouchEvent(event);
     }
 
     private void disposeImageSurface() {
