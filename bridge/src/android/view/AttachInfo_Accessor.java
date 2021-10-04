@@ -29,9 +29,10 @@ import com.android.layoutlib.common.util.ReflectionUtils;
  */
 public class AttachInfo_Accessor {
 
-    public static void setAttachInfo(View view, HardwareRenderer renderer) {
+    public static void setAttachInfo(ViewGroup view, HardwareRenderer renderer) {
         Context context = view.getContext();
-        WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManagerImpl wm = (WindowManagerImpl)context.getSystemService(Context.WINDOW_SERVICE);
+        wm.setBaseRootView(view);
         Display display = wm.getDefaultDisplay();
         ViewRootImpl root = new ViewRootImpl(context, display);
         root.mAttachInfo.mThreadedRenderer = new ThreadedRenderer(context, false,
