@@ -183,6 +183,11 @@ public class Resources_Delegate {
                 drawable =
                         ResourceHelper.getDrawable(value.second, getContext(resources), theme);
 
+                if (drawable == null) {
+                    throwException(resources, id);
+                    return null;
+                }
+
                 if (key != null) {
                     sDrawableCache.put(key, drawable.getConstantState());
                 }
