@@ -337,9 +337,11 @@ public class AccessibilityValidatorTests extends RenderTestBase {
 
     private ValidatorResult getRenderResult(RenderSession session) {
         Object validationData = session.getValidationData();
-        assertNotNull(validationData);
-        assertTrue(validationData instanceof ValidatorResult);
-        return (ValidatorResult) validationData;
+        assertTrue(validationData instanceof ValidatorHierarchy);
+
+        ValidatorResult result = ValidatorUtil.generateResults(LayoutValidator.DEFAULT_POLICY,
+                (ValidatorHierarchy) validationData);
+        return result;
     }
     private void render(String fileName, RenderSessionListener verifier) throws Exception {
         render(fileName, verifier, true);
