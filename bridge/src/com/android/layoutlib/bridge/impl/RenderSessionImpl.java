@@ -575,8 +575,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
                     false);
 
-            boolean enableOptimization = Boolean.TRUE.equals(
-                    params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION));
             boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
             boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
                     params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK));
@@ -589,41 +587,21 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     BufferedImage imageToPass =
                             enableLayoutValidationImageCheck ? getImage() : null;
 
-                    if (enableOptimization) {
-                        ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
-                                ((View) getViewInfos().get(0).getViewObject()),
-                                imageToPass,
-                                scaleX,
-                                scaleY);
-                        setValidatorHierarchy(hierarchy);
-                    } else {
-                        ValidatorResult validatorResult = LayoutValidator.validate(
-                                ((View) getViewInfos().get(0).getViewObject()),
-                                imageToPass,
-                                scaleX,
-                                scaleY);
-                        setValidatorResult(validatorResult);
-                    }
+                    ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
+                            ((View) getViewInfos().get(0).getViewObject()),
+                            imageToPass,
+                            scaleX,
+                            scaleY);
+                    setValidatorHierarchy(hierarchy);
                 }
             } catch (Throwable e) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
 
-                if (enableOptimization) {
-                    ValidatorHierarchy hierarchy = new ValidatorHierarchy();
-                    hierarchy.mErrorMessage = sw.toString();
-                    setValidatorHierarchy(hierarchy);
-                } else {
-                    ValidatorResult.Builder builder = new Builder();
-                    builder.mIssues.add(new IssueBuilder()
-                            .setCategory("Unknown")
-                            .setType(Type.INTERNAL_ERROR)
-                            .setMsg(sw.toString())
-                            .setLevel(Level.ERROR)
-                            .setSourceClass("RenderSessionImpl").build());
-                    setValidatorResult(builder.build());
-                }
+                ValidatorHierarchy hierarchy = new ValidatorHierarchy();
+                hierarchy.mErrorMessage = sw.toString();
+                setValidatorHierarchy(hierarchy);
             } finally {
                 CustomHierarchyHelper.sLayoutlibCallback = null;
             }
@@ -1188,11 +1166,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
     public void setValidatorResult(ValidatorResult result) {
         mValidatorResult = result;
-    }
-
-    public boolean isLayoutValidatorOptimizationEnabled() {
-        return Boolean.TRUE.equals(
-                getParams().getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION));
     }
 
     @Nullable
