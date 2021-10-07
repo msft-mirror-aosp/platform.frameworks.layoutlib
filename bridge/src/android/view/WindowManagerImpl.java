@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,30 +11,27 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
+ * limitations under the License
  */
-package com.android.layoutlib.bridge.android.view;
+package android.view;
+
+import static android.view.View.SYSTEM_UI_FLAG_VISIBLE;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
+import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
 import android.app.ResourcesManager;
 import android.content.Context;
-import android.graphics.Insets;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
-import android.util.Size;
-import android.view.Display;
 import android.view.Display.Mode;
-import android.view.DisplayAdjustments;
-import android.view.DisplayCutout;
-import android.view.DisplayInfo;
-import android.view.InsetsState;
-import android.view.View;
-import android.view.WindowInsets;
-import android.view.WindowManager;
-import android.view.WindowManagerGlobal;
-import android.view.WindowMetrics;
+
+import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.layoutlib.bridge.Bridge;
 
 public class WindowManagerImpl implements WindowManager {
 
@@ -55,6 +52,30 @@ public class WindowManagerImpl implements WindowManager {
         info.logicalDensityDpi = mMetrics.densityDpi;
         mDisplay = new Display(null, Display.DEFAULT_DISPLAY, info,
                 DisplayAdjustments.DEFAULT_DISPLAY_ADJUSTMENTS);
+    }
+
+    public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "The preview does not support multiple windows.",
+                null, null, null);
+        return this;
+    }
+
+    public WindowManagerImpl createPresentationWindowManager(Context displayContext) {
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "The preview does not support multiple windows.",
+                null, null, null);
+        return this;
+    }
+
+    /**
+     * Sets the window token to assign when none is specified by the client or
+     * available from the parent window.
+     *
+     * @param token The default token to assign.
+     */
+    public void setDefaultToken(IBinder token) {
+
     }
 
     @Override
@@ -105,7 +126,7 @@ public class WindowManagerImpl implements WindowManager {
     }
 
     @Override
-    public void setShouldShowIme(int displayId, boolean shouldShow) {
+    public void setDisplayImePolicy(int displayId, int imePolicy) {
         // pass
     }
 
@@ -135,18 +156,17 @@ public class WindowManagerImpl implements WindowManager {
 
     private WindowInsets computeWindowInsets() {
         try {
-            final Rect systemWindowInsets = new Rect();
-            final Rect stableInsets = new Rect();
-            final DisplayCutout.ParcelableWrapper displayCutout =
-                    new DisplayCutout.ParcelableWrapper();
             final InsetsState insetsState = new InsetsState();
-            WindowManagerGlobal.getWindowManagerService().getWindowInsets(
-                    new WindowManager.LayoutParams(), mContext.getDisplayId(), systemWindowInsets,
-                    stableInsets, displayCutout, insetsState);
-            return new WindowInsets.Builder()
-                    .setSystemWindowInsets(Insets.of(systemWindowInsets))
-                    .setStableInsets(Insets.of(stableInsets))
-                    .setDisplayCutout(displayCutout.get()).build();
+            final boolean alwaysConsumeSystemBars =
+                    WindowManagerGlobal.getWindowManagerService().getWindowInsets(
+                            new WindowManager.LayoutParams(), mContext.getDisplayId(), insetsState);
+            final Configuration config = mContext.getResources().getConfiguration();
+            final boolean isScreenRound = config.isScreenRound();
+            final int windowingMode = config.windowConfiguration.getWindowingMode();
+            return insetsState.calculateInsets(getCurrentBounds(mContext),
+                    null /* ignoringVisibilityState*/, isScreenRound, alwaysConsumeSystemBars,
+                    SOFT_INPUT_ADJUST_NOTHING, 0, SYSTEM_UI_FLAG_VISIBLE, TYPE_APPLICATION,
+                    windowingMode, null /* typeSideMap */);
         } catch (RemoteException ignore) {
         }
         return null;

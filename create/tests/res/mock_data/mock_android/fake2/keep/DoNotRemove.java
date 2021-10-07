@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.tools.idea.editors.theme.widgets;
+package mock_android.fake2.keep;
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.Button;
+public class DoNotRemove {
 
-@SuppressWarnings("unused")
-public class PressedButton extends Button {
-    public PressedButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
-
-        setPressed(true);
-        jumpDrawablesToCurrentState();
-    }
 }
