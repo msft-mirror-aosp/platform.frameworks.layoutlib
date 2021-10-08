@@ -147,6 +147,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private Image mNativeImage;
     private LayoutlibRenderer mRenderer = new LayoutlibRenderer();
 
+    // Passed in MotionEvent initialization when dispatching a touch event.
+    private final MotionEvent.PointerProperties[] mPointerProperties =
+            MotionEvent.PointerProperties.createArray(1);
+    private final MotionEvent.PointerCoords[] mPointerCoords =
+            MotionEvent.PointerCoords.createArray(1);
+
     private long mLastActionDownTimeNanos = -1;
     @Nullable private ValidatorResult mValidatorResult = null;
     @Nullable private ValidatorHierarchy mValidatorHierarchy = null;
@@ -1209,10 +1215,21 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             return;
         }
 
+        mPointerProperties[0].id = 0;
+        mPointerProperties[0].toolType = MotionEvent.TOOL_TYPE_FINGER;
+
+        mPointerCoords[0].clear();
+        mPointerCoords[0].x = x;
+        mPointerCoords[0].y = y;
+        mPointerCoords[0].pressure = 1.0f;
+        mPointerCoords[0].size = 1.0f;
+
         MotionEvent event = MotionEvent.obtain(
-                mLastActionDownTimeNanos / TimeUtils.NANOS_PER_MS,
-                currentTimeNanos / TimeUtils.NANOS_PER_MS,
-                motionEventType, x, y, 0);
+            mLastActionDownTimeNanos / TimeUtils.NANOS_PER_MS,
+            currentTimeNanos / TimeUtils.NANOS_PER_MS,
+            motionEventType,
+            1, mPointerProperties, mPointerCoords,
+            0, 0, 1.0f, 1.0f, 0, 0, 0, 0);
 
         mViewRoot.dispatchTouchEvent(event);
     }
