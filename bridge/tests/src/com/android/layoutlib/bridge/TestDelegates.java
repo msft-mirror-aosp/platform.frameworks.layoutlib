@@ -55,18 +55,18 @@ public class TestDelegates extends TestCase {
         assertTrue(getErrors(), mErrors.isEmpty());
     }
 
-//    public void testMethodDelegates() {
-//        final String[] methods = CreateInfo.DELEGATE_METHODS;
-//        mErrors.clear();
-//        for (String methodName : methods) {
-//            // extract the class name
-//            String className = methodName.substring(0, methodName.indexOf('#'));
-//            String targetClassName = className.replace('$', '_') + "_Delegate";
-//
-//            loadAndCompareClasses(className, targetClassName);
-//        }
-//        assertTrue(getErrors(), mErrors.isEmpty());
-//    }
+    public void testMethodDelegates() {
+        final String[] methods = NativeConfig.DELEGATE_METHODS;
+        mErrors.clear();
+        for (String methodName : methods) {
+            // extract the class name
+            String className = methodName.substring(0, methodName.indexOf('#'));
+            String targetClassName = className.replace('$', '_') + "_Delegate";
+
+            loadAndCompareClasses(className, targetClassName);
+        }
+        assertTrue(getErrors(), mErrors.isEmpty());
+    }
 
     private void loadAndCompareClasses(String originalClassName, String delegateClassName) {
         // load the classes
