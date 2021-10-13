@@ -145,10 +145,6 @@ public abstract class RenderAction<T extends RenderParams> {
                 Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_ENABLE_SHADOW)),
                 Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_RENDER_HIGH_QUALITY_SHADOW)));
 
-        // make sure the Resources object references the context (and other objects) for this
-        // scene
-        mContext.initResources(mParams.getAssets());
-
         synchronized (sContextLock) {
             sContexts.add(mContext);
         }
@@ -257,6 +253,10 @@ public abstract class RenderAction<T extends RenderParams> {
     private void setUp() {
         // setup the ParserFactory
         ParserFactory.setParserFactory(mParams.getLayoutlibCallback());
+
+        // make sure the Resources object references the context (and other objects) for this
+        // scene
+        mContext.initResources(mParams.getAssets());
         sCurrentContext = mContext;
 
         // Set-up WindowManager
@@ -278,6 +278,12 @@ public abstract class RenderAction<T extends RenderParams> {
      * The counterpart is {@link #setUp()}.
      */
     private void tearDown() {
+        // The context may be null, if there was an error during init().
+        if (mContext != null) {
+            // Make sure to remove static references, otherwise we could not unload the lib
+            mContext.disposeResources();
+        }
+
         // clear the stored ViewConfiguration since the map is per density and not per context.
         ViewConfiguration_Accessor.clearConfigurations();
 
@@ -450,12 +456,6 @@ public abstract class RenderAction<T extends RenderParams> {
     protected void dispose() {
         synchronized (sContextLock) {
             sContexts.remove(mContext);
-        }
-
-        // The context may be null, if there was an error during init().
-        if (mContext != null) {
-            // Make sure to remove static references, otherwise we could not unload the lib
-            mContext.disposeResources();
         }
 
         if (sCurrentContext != null) {
