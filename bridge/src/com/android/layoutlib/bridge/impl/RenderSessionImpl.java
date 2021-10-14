@@ -147,6 +147,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private Image mNativeImage;
     private LayoutlibRenderer mRenderer = new LayoutlibRenderer();
 
+    // Passed in MotionEvent initialization when dispatching a touch event.
+    private final MotionEvent.PointerProperties[] mPointerProperties =
+            MotionEvent.PointerProperties.createArray(1);
+    private final MotionEvent.PointerCoords[] mPointerCoords =
+            MotionEvent.PointerCoords.createArray(1);
+
     private long mLastActionDownTimeNanos = -1;
     @Nullable private ValidatorResult mValidatorResult = null;
     @Nullable private ValidatorHierarchy mValidatorHierarchy = null;
@@ -587,8 +593,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
                     false);
 
-            boolean enableOptimization = Boolean.TRUE.equals(
-                    params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION));
             boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
             boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
                     params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK));
@@ -601,41 +605,21 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     BufferedImage imageToPass =
                             enableLayoutValidationImageCheck ? getImage() : null;
 
-                    if (enableOptimization) {
-                        ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
-                                ((View) getViewInfos().get(0).getViewObject()),
-                                imageToPass,
-                                scaleX,
-                                scaleY);
-                        setValidatorHierarchy(hierarchy);
-                    } else {
-                        ValidatorResult validatorResult = LayoutValidator.validate(
-                                ((View) getViewInfos().get(0).getViewObject()),
-                                imageToPass,
-                                scaleX,
-                                scaleY);
-                        setValidatorResult(validatorResult);
-                    }
+                    ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
+                            ((View) getViewInfos().get(0).getViewObject()),
+                            imageToPass,
+                            scaleX,
+                            scaleY);
+                    setValidatorHierarchy(hierarchy);
                 }
             } catch (Throwable e) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
 
-                if (enableOptimization) {
-                    ValidatorHierarchy hierarchy = new ValidatorHierarchy();
-                    hierarchy.mErrorMessage = sw.toString();
-                    setValidatorHierarchy(hierarchy);
-                } else {
-                    ValidatorResult.Builder builder = new Builder();
-                    builder.mIssues.add(new IssueBuilder()
-                            .setCategory("Unknown")
-                            .setType(Type.INTERNAL_ERROR)
-                            .setMsg(sw.toString())
-                            .setLevel(Level.ERROR)
-                            .setSourceClass("RenderSessionImpl").build());
-                    setValidatorResult(builder.build());
-                }
+                ValidatorHierarchy hierarchy = new ValidatorHierarchy();
+                hierarchy.mErrorMessage = sw.toString();
+                setValidatorHierarchy(hierarchy);
             } finally {
                 CustomHierarchyHelper.sLayoutlibCallback = null;
             }
@@ -1202,11 +1186,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         mValidatorResult = result;
     }
 
-    public boolean isLayoutValidatorOptimizationEnabled() {
-        return Boolean.TRUE.equals(
-                getParams().getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION));
-    }
-
     @Nullable
     public ValidatorHierarchy getValidatorHierarchy() {
         return mValidatorHierarchy;
@@ -1236,10 +1215,21 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             return;
         }
 
+        mPointerProperties[0].id = 0;
+        mPointerProperties[0].toolType = MotionEvent.TOOL_TYPE_FINGER;
+
+        mPointerCoords[0].clear();
+        mPointerCoords[0].x = x;
+        mPointerCoords[0].y = y;
+        mPointerCoords[0].pressure = 1.0f;
+        mPointerCoords[0].size = 1.0f;
+
         MotionEvent event = MotionEvent.obtain(
-                mLastActionDownTimeNanos / TimeUtils.NANOS_PER_MS,
-                currentTimeNanos / TimeUtils.NANOS_PER_MS,
-                motionEventType, x, y, 0);
+            mLastActionDownTimeNanos / TimeUtils.NANOS_PER_MS,
+            currentTimeNanos / TimeUtils.NANOS_PER_MS,
+            motionEventType,
+            1, mPointerProperties, mPointerCoords,
+            0, 0, 1.0f, 1.0f, 0, 0, 0, 0);
 
         mViewRoot.dispatchTouchEvent(event);
     }

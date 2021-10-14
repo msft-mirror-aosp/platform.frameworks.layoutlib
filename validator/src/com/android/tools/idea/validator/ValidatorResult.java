@@ -104,11 +104,11 @@ public class ValidatorResult {
         /** Error message. If null no error was thrown. */
         public String mErrorMessage = null;
 
-        /** Records how long validation took */
-        public long mElapsedMs = 0;
-
         /** Record how long hierarchy creation took */
         public long mHierarchyCreationMs = 0;
+
+        /** Record how long generating results took */
+        public long mGenerateResultsMs = 0;
 
         /** How many new memories (bytes) validator creates for images. */
         public long mImageMemoryBytes = 0;
@@ -116,26 +116,31 @@ public class ValidatorResult {
         /** Debugging purpose only. Use it with {@link LayoutValidator#shouldSaveCroppedImages()} */
         public List<ImageSize> mImageSizes = new ArrayList<>();
 
-        private long mStart;
+        private long mHierarchyCreationTimeStart;
+
+        private long mGenerateRulesTimeStart;
 
         private Metric() { }
 
-        public void startTimer() {
-            mStart = System.currentTimeMillis();
+        public void startHierarchyCreationTimer() {
+            mHierarchyCreationTimeStart = System.currentTimeMillis();
         }
 
         public void recordHierarchyCreationTime() {
-            mHierarchyCreationMs = System.currentTimeMillis() - mStart;
+            mHierarchyCreationMs = System.currentTimeMillis() - mHierarchyCreationTimeStart;
         }
 
-        public void endTimer() {
-            mElapsedMs = System.currentTimeMillis() - mStart;
+        public void startGenerateResultsTimer() {
+            mGenerateRulesTimeStart = System.currentTimeMillis();
+        }
+
+        public void recordGenerateResultsTime() {
+            mGenerateResultsMs = System.currentTimeMillis() - mGenerateRulesTimeStart;
         }
 
         @Override
         public String toString() {
-            return "Validation result metric: { elapsed=" + mElapsedMs +
-                    "ms, hierarchy creation=" + mHierarchyCreationMs
+            return "Validation result metric: { hierarchy creation=" + mHierarchyCreationMs
                     +"ms, image memory=" + readableBytes() + " }";
         }
 

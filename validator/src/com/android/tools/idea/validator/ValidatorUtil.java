@@ -118,38 +118,38 @@ public class ValidatorUtil {
 
         ValidatorResult.Builder builder = new ValidatorResult.Builder();
         @Nullable Parameters parameters = null;
-        builder.mMetric.startTimer();
-
-        hierarchy.mView = AccessibilityHierarchyAndroid
-                .newBuilder(view)
-                .setViewOriginMap(builder.mSrcMap)
-                .setObtainCharacterLocations(LayoutValidator.obtainCharacterLocations())
-                .setCustomViewBuilder(new CustomViewBuilderAndroid() {
-                    @Override
-                    public Class<?> getClassByName(
-                            ViewHierarchyElementAndroid viewHierarchyElementAndroid,
-                            String className) {
-                        Class<?> toReturn = sDefaultCustomViewBuilderAndroid.getClassByName(
-                                viewHierarchyElementAndroid,
-                                className);
-                        if (toReturn == null) {
-                            toReturn = CustomHierarchyHelper.getClassByName(className);
+        builder.mMetric.startHierarchyCreationTimer();
+        try {
+            hierarchy.mView = AccessibilityHierarchyAndroid
+                    .newBuilder(view)
+                    .setViewOriginMap(builder.mSrcMap)
+                    .setObtainCharacterLocations(LayoutValidator.obtainCharacterLocations())
+                    .setCustomViewBuilder(new CustomViewBuilderAndroid() {
+                        @Override
+                        public Class<?> getClassByName(
+                                ViewHierarchyElementAndroid viewHierarchyElementAndroid,
+                                String className) {
+                            Class<?> toReturn = sDefaultCustomViewBuilderAndroid.getClassByName(
+                                    viewHierarchyElementAndroid, className);
+                            if (toReturn == null) {
+                                toReturn = CustomHierarchyHelper.getClassByName(className);
+                            }
+                            return toReturn;
                         }
-                        return toReturn;
-                    }
 
-                    @Override
-                    public boolean isCheckable(View view) {
-                        return CustomHierarchyHelper.isCheckable(view);
-                    }
-                })
-                .build();
-        if (image != null) {
-            parameters = new Parameters();
-            parameters.putScreenCapture(
-                    new AtfBufferedImage(image, builder.mMetric, scaleX, scaleY));
+                        @Override
+                        public boolean isCheckable(View view) {
+                            return CustomHierarchyHelper.isCheckable(view);
+                        }
+                    }).build();
+            if (image != null) {
+                parameters = new Parameters();
+                parameters.putScreenCapture(
+                        new AtfBufferedImage(image, builder.mMetric, scaleX, scaleY));
+            }
+        } finally {
+            builder.mMetric.recordHierarchyCreationTime();
         }
-        builder.mMetric.recordHierarchyCreationTime();
 
         hierarchy.mBuilder = builder;
         hierarchy.mParameters = parameters;
@@ -165,80 +165,80 @@ public class ValidatorUtil {
             @NotNull ValidatorData.Policy policy,
             @NotNull ValidatorHierarchy hierarchy) {
         ValidatorResult.Builder builder = hierarchy.mBuilder;
-
-        if (!hierarchy.isHierarchyBuilt()) {
-            // Unable to build.
-            builder = new Builder();
-            String errorMsg = hierarchy.mErrorMessage != null
-                    ? hierarchy.mErrorMessage
-                    : "Hierarchy is not built yet.";
-            builder.mIssues.add(new IssueBuilder()
-                    .setCategory("Accessibility")
-                    .setType(Type.INTERNAL_ERROR)
-                    .setMsg(errorMsg)
-                    .setLevel(Level.ERROR)
-                    .setSourceClass("ValidatorHierarchy").build());
-            return builder.build();
-        }
-
-        AccessibilityHierarchyAndroid view = hierarchy.mView;
-        Parameters parameters = hierarchy.mParameters;
-
-        EnumSet<Level> filter = policy.mLevels;
-        ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList<>();
-
-        HashSet<AccessibilityHierarchyCheck> policyChecks = policy.mChecks;
-        @NotNull Set<AccessibilityHierarchyCheck> checks = policyChecks.isEmpty()
-                ? AccessibilityCheckPreset
-                .getAccessibilityHierarchyChecksForPreset(AccessibilityCheckPreset.LATEST)
-                : policyChecks;
-
-        for (AccessibilityHierarchyCheck check : checks) {
-            a11yResults.addAll(check.runCheckOnHierarchy(view, null, parameters));
-        }
-
-        for (AccessibilityHierarchyCheckResult result : a11yResults) {
-            // TODO: b/183726816 replace this with
-            // AccessibilityCheckPreset.getHierarchyCheckForClassName(checkClassName)
-            // .getTitleMessage(Locale.ENGLISH)
-            String category = ValidatorUtil.getCheckClassCategory(result.getSourceCheckClass());
-
-            ValidatorData.Level level = ValidatorUtil.convertLevel(result.getType());
-            if (!filter.contains(level)) {
-                continue;
-            }
-
-            try {
-                IssueBuilder issueBuilder = new IssueBuilder()
-                        .setCategory(category)
-                        .setMsg(result.getMessage(Locale.ENGLISH).toString())
-                        .setLevel(level)
-                        .setFix(ValidatorUtil.generateFix(result, view, parameters))
-                        .setSourceClass(result.getSourceCheckClass().getSimpleName());
-                if (result.getElement() != null) {
-                    issueBuilder.setSrcId(result.getElement().getCondensedUniqueId());
-                }
-                AccessibilityHierarchyCheck subclass = AccessibilityCheckPreset
-                        .getHierarchyCheckForClass(result
-                                .getSourceCheckClass()
-                                .asSubclass(AccessibilityHierarchyCheck.class));
-                if (subclass != null) {
-                    issueBuilder.setHelpfulUrl(subclass.getHelpUrl());
-                }
-                builder.mIssues.add(issueBuilder.build());
-            } catch (Exception e) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
+        try {
+            if (!hierarchy.isHierarchyBuilt()) {
+                // Unable to build.
+                builder = new Builder();
+                String errorMsg = hierarchy.mErrorMessage != null ? hierarchy.mErrorMessage :
+                        "Hierarchy is not built yet.";
                 builder.mIssues.add(new IssueBuilder()
-                        .setCategory(category)
+                        .setCategory("Accessibility")
                         .setType(Type.INTERNAL_ERROR)
-                        .setMsg(sw.toString())
+                        .setMsg(errorMsg)
                         .setLevel(Level.ERROR)
-                        .setSourceClass("ValidatorHierarchy").build());
+                        .setSourceClass("ValidatorHierarchy")
+                        .build());
+                return builder.build();
             }
+            builder.mMetric.startGenerateResultsTimer();
+
+            AccessibilityHierarchyAndroid view = hierarchy.mView;
+            Parameters parameters = hierarchy.mParameters;
+
+            EnumSet<Level> filter = policy.mLevels;
+            ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList<>();
+
+            HashSet<AccessibilityHierarchyCheck> policyChecks = policy.mChecks;
+            @NotNull Set<AccessibilityHierarchyCheck> checks = policyChecks.isEmpty() ?
+                    AccessibilityCheckPreset.getAccessibilityHierarchyChecksForPreset(
+                            AccessibilityCheckPreset.LATEST) : policyChecks;
+
+            for (AccessibilityHierarchyCheck check : checks) {
+                a11yResults.addAll(check.runCheckOnHierarchy(view, null, parameters));
+            }
+
+            for (AccessibilityHierarchyCheckResult result : a11yResults) {
+                // TODO: b/183726816 replace this with
+                // AccessibilityCheckPreset.getHierarchyCheckForClassName(checkClassName)
+                // .getTitleMessage(Locale.ENGLISH)
+                String category = ValidatorUtil.getCheckClassCategory(result.getSourceCheckClass());
+
+                ValidatorData.Level level = ValidatorUtil.convertLevel(result.getType());
+                if (!filter.contains(level)) {
+                    continue;
+                }
+
+                try {
+                    IssueBuilder issueBuilder = new IssueBuilder().setCategory(category).setMsg(
+                            result.getMessage(Locale.ENGLISH).toString()).setLevel(level).setFix(
+                            ValidatorUtil.generateFix(result, view, parameters)).setSourceClass(
+                            result.getSourceCheckClass().getSimpleName());
+                    if (result.getElement() != null) {
+                        issueBuilder.setSrcId(result.getElement().getCondensedUniqueId());
+                    }
+                    AccessibilityHierarchyCheck subclass =
+                            AccessibilityCheckPreset.getHierarchyCheckForClass(
+                                    result.getSourceCheckClass().asSubclass(
+                                            AccessibilityHierarchyCheck.class));
+                    if (subclass != null) {
+                        issueBuilder.setHelpfulUrl(subclass.getHelpUrl());
+                    }
+                    builder.mIssues.add(issueBuilder.build());
+                } catch (Exception e) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    builder.mIssues.add(new IssueBuilder()
+                            .setCategory(category)
+                            .setType(Type.INTERNAL_ERROR)
+                            .setMsg(sw.toString())
+                            .setLevel(Level.ERROR)
+                            .setSourceClass("ValidatorHierarchy").build());
+                }
+            }
+        } finally {
+            builder.mMetric.recordGenerateResultsTime();
         }
-        builder.mMetric.endTimer();
         return builder.build();
     }
 
