@@ -14,6 +14,7 @@ MISC_COMMON=${SCRIPT_DIR}"/../../../../prebuilts/misc/common"
 OUT_INTERMEDIATES=${SCRIPT_DIR}"/../../../../out/soong/.intermediates"
 NATIVE_LIBRARIES=${SCRIPT_DIR}"/../../../../out/host/darwin-x86/lib64/"
 SDK=${SCRIPT_DIR}"/../../../../out/host/darwin-x86/sdk/sdk*/android-sdk*"
+SDK_REPO=${SCRIPT_DIR}"/../../../../out/soong/host/linux-x86/sdk-repo"
 FONT_DIR=${SCRIPT_DIR}"/../../../../out/host/common/obj/PACKAGING/fonts_intermediates"
 ICU_DATA_PATH=${SCRIPT_DIR}"/../../../../out/host/darwin-x86/com.android.i18n/etc/icu/icudt69l.dat"
 TMP_DIR=$(mktemp -d -t tmp)
@@ -21,6 +22,10 @@ PLATFORM=${TMP_DIR}/"android"
 
 # Copy resources to a temp directory
 cp -r ${SDK}/platforms/android* ${PLATFORM}
+
+# Unzip build-tools to access aapt2
+mkdir ${TMP_DIR}/build-tools
+unzip -q ${SDK_REPO}/sdk-repo-linux-build-tools.zip -d ${TMP_DIR}/build-tools
 
 # Compile 9-patch files
 mkdir ${TMP_DIR}/compiled
@@ -31,8 +36,8 @@ echo \
 > ${TMP_DIR}/manifest/AndroidManifest.xml
 for f in ${SDK}/platforms/android*/data/res/*
 do
-    find $f -name "*.9.png" -print0 | xargs -0 ${SDK}/build-tools/android-*/aapt2 compile -o ${TMP_DIR}/compiled/
-    find ${TMP_DIR}/compiled -name "*.flat" -print0 | xargs -0 ${SDK}/build-tools/android-*/aapt2 link -o ${TMP_DIR}/compiled.apk --manifest ${TMP_DIR}/manifest/AndroidManifest.xml -R
+    find $f -name "*.9.png" -print0 | xargs -0 ${TMP_DIR}/build-tools/android-*/aapt2 compile -o ${TMP_DIR}/compiled/
+    find ${TMP_DIR}/compiled -name "*.flat" -print0 | xargs -0 ${TMP_DIR}/build-tools/android-*/aapt2 link -o ${TMP_DIR}/compiled.apk --manifest ${TMP_DIR}/manifest/AndroidManifest.xml -R
     if [[ -f "${TMP_DIR}/compiled.apk" ]]; then
         unzip -qo ${TMP_DIR}/compiled.apk -d ${TMP_DIR}
         rm -r ${TMP_DIR}/compiled/*
