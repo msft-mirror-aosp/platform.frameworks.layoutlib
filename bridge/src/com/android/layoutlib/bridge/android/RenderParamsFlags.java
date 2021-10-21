@@ -101,13 +101,11 @@ public final class RenderParamsFlags {
             new Key<>("enableLayoutValidatorImageCheck", Boolean.class);
 
     /**
-     * Enables layout validation optimization where it creates hierarchy only during render,
-     * and delegate actual validation on a separate thread later.
-     * {@link #FLAG_ENABLE_LAYOUT_VALIDATOR} must be enabled before this can be effective.
+     * TODO: remove after ag/15997527 and ag/15997989 has landed.
      */
+    @Deprecated
     public static final Key<Boolean> FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION =
             new Key<>("enableLayoutValidatorOptimization", Boolean.class);
-
     // Disallow instances.
     private RenderParamsFlags() {}
 }
