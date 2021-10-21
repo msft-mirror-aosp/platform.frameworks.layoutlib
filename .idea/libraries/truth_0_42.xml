@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="truth-0.42">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../prebuilts/tools/common/m2/repository/com/google/truth/truth/0.42/truth-0.42.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
