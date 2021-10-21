@@ -2040,4 +2040,35 @@ public class RenderTests extends RenderTestBase {
         renderAndVerify(params, "dialog.png",
                 TimeUnit.SECONDS.toNanos(2));
     }
+
+    @Test
+    public void testWindowBackgroundWithThemeAttribute() throws Exception {
+        String layout =
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"fill_parent\"\n" +
+                        "              android:layout_height=\"fill_parent\">\n" +
+                        "    <TextView\n" +
+                        "             android:layout_height=\"wrap_content\"\n" +
+                        "             android:layout_width=\"wrap_content\"\n" +
+                        "             android:text=\"Hello World!\" />\n" +
+                        "</LinearLayout>\n";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("WindowBackgroundTheme", true)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "window_background.png",
+                TimeUnit.SECONDS.toNanos(2));
+    }
 }
