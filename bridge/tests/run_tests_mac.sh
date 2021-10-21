@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# There is no macOS build of the SDK anymore
+# Do not run layoutlib tests
+exit 0
+
 readonly OUT_DIR="$1"
 readonly DIST_DIR="$2"
 readonly BUILD_NUMBER="$3"
