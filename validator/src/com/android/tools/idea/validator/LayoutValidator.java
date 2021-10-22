@@ -21,6 +21,7 @@ import com.android.tools.idea.validator.ValidatorData.Policy;
 import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
+import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.view.View;
 
@@ -92,9 +93,12 @@ public class LayoutValidator {
      * Validate the layout using the default policy.
      * Precondition: View must be attached to the window.
      *
+     * Used for testing.
+     *
      * @return The validation results. If no issue is found it'll return empty result.
      */
     @NotNull
+    @VisibleForTesting
     public static ValidatorResult validate(
             @NotNull View view,
             @Nullable BufferedImage image,
