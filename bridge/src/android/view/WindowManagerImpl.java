@@ -98,7 +98,16 @@ public class WindowManagerImpl implements WindowManager {
             return;
         }
         if (mCurrentRootView == null) {
-            FrameLayout layout = new FrameLayout(mContext);
+            FrameLayout layout = new FrameLayout(mContext) {
+                @Override
+                public boolean dispatchTouchEvent(MotionEvent ev) {
+                    View baseRootParent = (View)mBaseRootView.getParent();
+                    if (baseRootParent != null) {
+                        ev.offsetLocation(-baseRootParent.getX(), -baseRootParent.getY());
+                    }
+                    return super.dispatchTouchEvent(ev);
+                }
+            };
             // The window root view should not handle touch events.
             // Events need to be dispatched to the base view inside the window,
             // with coordinates shifted accordingly.
@@ -214,7 +223,26 @@ public class WindowManagerImpl implements WindowManager {
     // ---- Extra methods for layoutlib ----
 
     public void setBaseRootView(ViewGroup baseRootView) {
-        mBaseRootView = baseRootView;
+        // If used within Compose Preview, use the ComposeViewAdapter as the root
+        // so that the preview attributes are handled correctly.
+        ViewGroup composableRoot = findComposableRoot(baseRootView);
+        mBaseRootView = composableRoot != null ? composableRoot : baseRootView;
+    }
+
+    private ViewGroup findComposableRoot(ViewGroup baseRootView) {
+        if (baseRootView.getClass().getName().endsWith("ComposeViewAdapter")) {
+            return baseRootView;
+        }
+        for (int i = 0; i < baseRootView.getChildCount(); i++) {
+            View child = baseRootView.getChildAt(i);
+            if (child instanceof ViewGroup) {
+                ViewGroup composableRoot = findComposableRoot((ViewGroup)child);
+                if (composableRoot != null) {
+                    return composableRoot;
+                }
+            }
+        }
+        return null;
     }
 
     public ViewGroup getCurrentRootView() {
