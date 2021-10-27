@@ -16,6 +16,7 @@
 package android.view;
 
 import static android.view.View.SYSTEM_UI_FLAG_VISIBLE;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
@@ -33,6 +34,7 @@ import android.view.Display.Mode;
 import android.widget.FrameLayout;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.internal.R;
 import com.android.layoutlib.bridge.Bridge;
 
 public class WindowManagerImpl implements WindowManager {
@@ -106,6 +108,32 @@ public class WindowManagerImpl implements WindowManager {
                         ev.offsetLocation(-baseRootParent.getX(), -baseRootParent.getY());
                     }
                     return super.dispatchTouchEvent(ev);
+                }
+
+                @Override
+                protected void measureChildWithMargins(View child, int parentWidthMeasureSpec,
+                        int widthUsed, int parentHeightMeasureSpec, int heightUsed) {
+                    // This reproduces ViewRootImpl#measureHierarchy as this FrameLayout should
+                    // be treated as a ViewRoot.
+                    ViewGroup.LayoutParams lp = child.getLayoutParams();
+                    int parentWidth = MeasureSpec.getSize(parentWidthMeasureSpec);
+                    int parentHeight = MeasureSpec.getSize(parentHeightMeasureSpec);
+                    int childWidthMeasureSpec = 0;
+                    int childHeightMeasureSpec = ViewRootImpl.getRootMeasureSpec(parentHeight,
+                            lp.height);
+                    if (lp.width == WRAP_CONTENT) {
+                        int baseSize =
+                                mContext.getResources().getDimensionPixelSize(R.dimen.config_prefDialogWidth);
+                        if (baseSize != 0 && baseSize < parentWidth) {
+                            childWidthMeasureSpec = ViewRootImpl.getRootMeasureSpec(baseSize,
+                                    lp.width);
+                        }
+                    }
+                    if (childWidthMeasureSpec == 0) {
+                        childWidthMeasureSpec = ViewRootImpl.getRootMeasureSpec(parentWidth,
+                                lp.width);
+                    }
+                    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
                 }
             };
             // The window root view should not handle touch events.
