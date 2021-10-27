@@ -353,6 +353,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.view.Choreographer#doFrame",
         "android.view.Choreographer#postCallbackDelayedInternal",
         "android.view.Choreographer#removeCallbacksInternal",
+        "android.view.ViewRootImpl#getRootMeasureSpec",
     };
 
     /**
