@@ -145,7 +145,6 @@ public final class CreateInfo implements ICreateInfo {
         new ImageReaderNativeInitReplacer(),
         new NioUtilsFreeBufferReplacer(),
         new ProcessInitializerInitSchedReplacer(),
-        new ValidateNinePatchChunkReplacer(),
         new NativeInitPathReplacer(),
         new ActivityThreadInAnimationReplacer(),
     };
@@ -347,7 +346,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.content.res.StringBlock#addParagraphSpan",
         "android.content.res.StringBlock#getColor",
         "android.graphics.Bitmap#setNinePatchChunk",
-        "android.graphics.NinePatch#validateNinePatchChunk",
         "android.graphics.Path#nInit",
         "android.media.ImageReader#nativeClassInit",
         "android.view.Choreographer#doFrame",
@@ -619,20 +617,6 @@ public final class CreateInfo implements ICreateInfo {
             mi.owner = "android/graphics/HardwareRenderer_ProcessInitializer_Delegate";
             mi.opcode = Opcodes.INVOKESTATIC;
             mi.desc = "(J)V";
-        }
-    }
-
-    public static class ValidateNinePatchChunkReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "android/graphics/NinePatch".equals(owner) &&
-                    name.equals("validateNinePatchChunk");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "android/graphics/NinePatch_Delegate";
-            mi.opcode = Opcodes.INVOKESTATIC;
         }
     }
 
