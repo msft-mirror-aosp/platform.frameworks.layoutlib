@@ -16,6 +16,9 @@
 
 package com.android.tools.layoutlib.java.nio;
 
+import com.android.layoutlib.common.util.ReflectionUtils;
+import com.android.layoutlib.common.util.ReflectionUtils.ReflectionException;
+
 import java.nio.Buffer;
 
 /**
@@ -35,12 +38,15 @@ public final class NIOAccess_Delegate {
      */
     // @VisibleForTesting : was default
     public static long getBasePointer(Buffer b) {
-        throw new UnsupportedOperationException("implement me");
-//        long address = b.address;
-//        if (address == 0L) {
-//            return 0L;
-//        }
-//        return address + (b.position() << b._elementSizeShift);
+        try {
+            long address = (long)ReflectionUtils.getFieldValue(Buffer.class, b, "address");
+            if (address == 0L || !b.isDirect()) {
+                return 0L;
+            }
+            return address + ((long)b.position() << Buffer_Delegate.elementSizeShift(b));
+        } catch (ReflectionException e) {
+            return 0L;
+        }
     }
 
     /**
@@ -59,8 +65,8 @@ public final class NIOAccess_Delegate {
      * meaningful if getBaseArray() returns non-null.
      */
     static int getBaseArrayOffset(Buffer b) {
-        throw new UnsupportedOperationException("implement me");
-        //return b.hasArray() ? ((b.arrayOffset() + b.position()) << b._elementSizeShift) : 0;
+        return b.hasArray() ?
+                ((b.arrayOffset() + b.position()) << Buffer_Delegate.elementSizeShift(b)) : 0;
     }
 
 
