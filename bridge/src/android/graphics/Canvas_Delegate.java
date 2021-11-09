@@ -31,6 +31,6 @@ public class Canvas_Delegate {
 
     @LayoutlibDelegate
     static Rect getClipBounds(Canvas thisCanvas) {
-        return thisCanvas.getClipBounds();
+        return thisCanvas.getClipBounds_Original();
     }
 }
