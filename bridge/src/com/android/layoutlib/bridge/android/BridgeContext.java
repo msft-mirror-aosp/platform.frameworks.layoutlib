@@ -677,6 +677,7 @@ public class BridgeContext extends Context {
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
+            case ALARM_SERVICE:
                 return null;
             default:
                 assert false : "Unsupported Service: " + service;
