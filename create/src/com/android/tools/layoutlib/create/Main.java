@@ -138,6 +138,7 @@ public class Main {
                         "com.android.internal.graphics.drawable.AnimationScaleListDrawable",
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
+                        "android.service.wallpaper.*",      // needed for Wear OS watch faces
                     },
                     info.getExcludedClasses(),
                     new String[] {
