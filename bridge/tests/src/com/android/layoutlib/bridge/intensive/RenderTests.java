@@ -36,13 +36,11 @@ import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
-import com.android.ninepatch.NinePatch;
 import com.android.resources.Density;
 import com.android.resources.Navigation;
 import com.android.resources.ResourceType;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kxml2.io.KXmlParser;
@@ -56,8 +54,6 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.Resources_Delegate;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.StateSet;
@@ -71,8 +67,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
@@ -1750,19 +1744,6 @@ public class RenderTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "shadow_scrollview_test_high_quality.png");
-    }
-
-    @Test
-    public void testNinePatchChunk() throws IOException {
-        InputStream compiled =
-                getClass().getResourceAsStream("/com/android/layoutlib/testdata/compiled.9.png");
-        Bitmap compiledBitmap = BitmapFactory.decodeStream(compiled, null, null);
-
-        InputStream nonCompiled = getClass().getResourceAsStream(
-                "/com/android/layoutlib/testdata/non_compiled.9.png");
-        NinePatch ninePatch = NinePatch.load(nonCompiled, true, false);
-
-        Assert.assertArrayEquals(compiledBitmap.getNinePatchChunk(), ninePatch.getChunk().getSerializedChunk());
     }
 
     @Test
