@@ -191,7 +191,10 @@ public class Resources_Delegate {
                 }
 
                 if (key != null) {
-                    sDrawableCache.put(key, drawable.getConstantState());
+                    Drawable.ConstantState state = drawable.getConstantState();
+                    if (state != null) {
+                        sDrawableCache.put(key, state);
+                    }
                 }
             }
 
