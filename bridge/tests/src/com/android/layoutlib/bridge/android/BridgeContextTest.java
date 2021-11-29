@@ -146,5 +146,6 @@ public class BridgeContextTest extends RenderTestBase {
                 params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
 
         assertNull(context.getSystemService("my_custom_service"));
+        sRenderMessages.removeIf(message -> message.equals("Service my_custom_service was not found or is unsupported"));
     }
 }
