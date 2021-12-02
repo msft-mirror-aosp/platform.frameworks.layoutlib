@@ -682,7 +682,12 @@ public class BridgeContext extends Context {
             case ALARM_SERVICE:
                 return null;
             default:
-                assert false : "Unsupported Service: " + service;
+                // Only throw exception if the required service is unsupported but recognized as
+                // an existing system service.
+                assert SystemServiceRegistry.getSystemServiceClassName(service) == null :
+                        "Unsupported Service: " + service;
+                Bridge.getLog().warning(ILayoutLog.TAG_UNSUPPORTED, "Service " + service +
+                        " was not found or is unsupported", null, null);
         }
 
         return null;

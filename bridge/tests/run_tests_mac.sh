@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Tests cannot run anymore as SDK is not built on mac
+# Disable for now
+exit 0
+
 readonly OUT_DIR="$1"
 readonly DIST_DIR="$2"
 readonly BUILD_NUMBER="$3"
