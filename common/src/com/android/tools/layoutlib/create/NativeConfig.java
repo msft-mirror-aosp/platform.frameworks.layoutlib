@@ -158,6 +158,7 @@ public class NativeConfig {
             "android.content.res.StringBlock",
             "android.content.res.XmlBlock",
             "android.media.ImageReader",
+            "android.media.PublicFormatUtils",
             "android.os.SystemProperties",
             "android.os.Trace",
             "android.text.AndroidCharacter",

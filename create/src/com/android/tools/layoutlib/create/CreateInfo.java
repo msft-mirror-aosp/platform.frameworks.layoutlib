@@ -254,6 +254,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.text.TextRunShaper",
         "android.media.ImageReader",
         "android.media.ImageReader$SurfaceImage",
+        "android.media.PublicFormatUtils",
         "android.os.SystemProperties",
         "android.os.Trace",
         "android.text.AndroidCharacter",
