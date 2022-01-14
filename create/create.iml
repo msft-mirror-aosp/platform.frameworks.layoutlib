@@ -11,24 +11,24 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="asm-6.0">
+      <library name="asm-7.0">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/asm/asm-6.0/linux_glibc_common/combined/asm-6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/asm/asm-7.0/linux_glibc_common/combined/asm-7.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/asm/src-6.0.zip!/" />
+          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/asm/src-7.0.zip!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="asm-commons-6.0">
+      <library name="asm-commons-7.0">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/asm/asm-commons-6.0/linux_glibc_common/combined/asm-commons-6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/asm/asm-commons-7.0/linux_glibc_common/combined/asm-commons-7.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/asm/src-6.0.zip!/" />
+          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/asm/src-7.0.zip!/" />
         </SOURCES>
       </library>
     </orderEntry>
