@@ -60,19 +60,17 @@ public class Choreographer_Delegate {
         AnimationUtils.lockAnimationClock(frameTimeNanos / TimeUtils.NANOS_PER_MS);
 
         try {
-            Choreographer.FrameData frameData = new Choreographer.FrameData();
-            frameData.setFrameTimeNanos(frameTimeNanos);
             thisChoreographer.mLastFrameTimeNanos = frameTimeNanos - thisChoreographer.getFrameIntervalNanos();
             thisChoreographer.mFrameInfo.markInputHandlingStart();
-            thisChoreographer.doCallbacks(Choreographer.CALLBACK_INPUT, frameData, MS_16);
+            thisChoreographer.doCallbacks(Choreographer.CALLBACK_INPUT, frameTimeNanos, MS_16);
 
             thisChoreographer.mFrameInfo.markAnimationsStart();
-            thisChoreographer.doCallbacks(Choreographer.CALLBACK_ANIMATION, frameData, MS_16);
+            thisChoreographer.doCallbacks(Choreographer.CALLBACK_ANIMATION, frameTimeNanos, MS_16);
 
             thisChoreographer.mFrameInfo.markPerformTraversalsStart();
-            thisChoreographer.doCallbacks(Choreographer.CALLBACK_TRAVERSAL, frameData, MS_16);
+            thisChoreographer.doCallbacks(Choreographer.CALLBACK_TRAVERSAL, frameTimeNanos, MS_16);
 
-            thisChoreographer.doCallbacks(Choreographer.CALLBACK_COMMIT, frameData, MS_16);
+            thisChoreographer.doCallbacks(Choreographer.CALLBACK_COMMIT, frameTimeNanos, MS_16);
         } finally {
             AnimationUtils.unlockAnimationClock();
         }
