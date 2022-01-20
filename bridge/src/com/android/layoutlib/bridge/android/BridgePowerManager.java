@@ -20,6 +20,7 @@ import android.os.BatterySaverPolicyConfig;
 import android.os.ParcelDuration;
 import android.os.IBinder;
 import android.os.IPowerManager;
+import android.os.IWakeLockCallback;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeReason;
 import android.os.PowerSaveState;
@@ -106,7 +107,7 @@ public class BridgePowerManager implements IPowerManager {
 
     @Override
     public void acquireWakeLock(IBinder arg0, int arg1, String arg2, String arg2_5, WorkSource arg3,
-            String arg4, int arg5)
+            String arg4, int arg5, IWakeLockCallback callback)
             throws RemoteException {
         // pass for now.
     }
@@ -119,7 +120,7 @@ public class BridgePowerManager implements IPowerManager {
 
     @Override
     public void acquireWakeLockWithUid(IBinder arg0, int arg1, String arg2, String arg2_5,
-            int arg3, int arg4)
+            int arg3, int arg4, IWakeLockCallback callback)
             throws RemoteException {
         // pass for now.
     }
@@ -206,6 +207,11 @@ public class BridgePowerManager implements IPowerManager {
 
     @Override
     public void updateWakeLockWorkSource(IBinder arg0, WorkSource arg1, String arg2) throws RemoteException {
+        // pass for now.
+    }
+
+    @Override
+    public void updateWakeLockCallback(IBinder arg0, IWakeLockCallback arg1) throws RemoteException {
         // pass for now.
     }
 
