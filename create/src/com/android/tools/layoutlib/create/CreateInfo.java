@@ -19,10 +19,13 @@ package com.android.tools.layoutlib.create;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.java.LinkedHashMap_Delegate;
 import com.android.tools.layoutlib.java.NioUtils_Delegate;
+import com.android.tools.layoutlib.java.Reference_Delegate;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -147,6 +150,7 @@ public final class CreateInfo implements ICreateInfo {
         new ProcessInitializerInitSchedReplacer(),
         new NativeInitPathReplacer(),
         new ActivityThreadInAnimationReplacer(),
+        new ReferenceRefersToReplacer(),
     };
 
     /**
@@ -164,6 +168,7 @@ public final class CreateInfo implements ICreateInfo {
             /* Java package classes */
             LinkedHashMap_Delegate.class,
             NioUtils_Delegate.class,
+            Reference_Delegate.class,
         };
 
     /**
@@ -648,6 +653,22 @@ public final class CreateInfo implements ICreateInfo {
             mi.owner = "android/app/ActivityThread_Delegate";
             mi.opcode = Opcodes.INVOKESTATIC;
             mi.desc = "()Landroid/content/Context;";
+        }
+    }
+
+    public static class ReferenceRefersToReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return Type.getInternalName(WeakReference.class).equals(owner) &&
+                    "refersTo".equals(name);
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.owner = Type.getInternalName(Reference_Delegate.class);
+            mi.desc = Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(Reference.class),
+                    Type.getType(Object.class));
         }
     }
 }
