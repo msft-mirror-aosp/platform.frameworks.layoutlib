@@ -258,6 +258,11 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public void setLowPowerStandbyActiveDuringMaintenance(boolean activeDuringMaintenance) {
+        // pass for now
+    }
+
+    @Override
     public void forceLowPowerStandbyActive(boolean active) {
         // pass for now
     }
