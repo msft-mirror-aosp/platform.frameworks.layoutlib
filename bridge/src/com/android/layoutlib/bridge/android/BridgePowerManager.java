@@ -243,6 +243,31 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public boolean isLowPowerStandbySupported() {
+        return false;
+    }
+
+    @Override
+    public boolean isLowPowerStandbyEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setLowPowerStandbyEnabled(boolean enabled) {
+        // pass for now
+    }
+
+    @Override
+    public void setLowPowerStandbyActiveDuringMaintenance(boolean activeDuringMaintenance) {
+        // pass for now
+    }
+
+    @Override
+    public void forceLowPowerStandbyActive(boolean active) {
+        // pass for now
+    }
+
+    @Override
     public boolean isScreenBrightnessBoosted() throws RemoteException {
         return false;
     }
