@@ -54,13 +54,20 @@ public class RecyclerViewUtil {
      */
     public static void setAdapter(@NonNull View recyclerView, @NonNull BridgeContext context,
             @NonNull LayoutlibCallback layoutlibCallback, int adapterLayout, int itemCount) {
-        String recyclerViewClassName =
+        Class<?> recyclerViewClass =
                 ReflectionUtils.getParentClass(recyclerView, RecyclerViewUtil.CN_RECYCLER_VIEW);
+        if (recyclerViewClass == null) {
+            Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
+                    "Unable to setup RecyclerView. No parent found.", null, null, null);
+            return;
+        }
+        String recyclerViewClassName = recyclerViewClass.getName();
+        String recyclerViewPackageName = recyclerViewClass.getPackage().getName();
         String adapterClassName = recyclerViewClassName + "$Adapter";
         String layoutMgrClassName = recyclerViewClassName + "$LayoutManager";
 
         try {
-            setLayoutManager(recyclerView, layoutMgrClassName, context, layoutlibCallback);
+            setLayoutManager(recyclerView, recyclerViewPackageName, layoutMgrClassName, context, layoutlibCallback);
             Object adapter = createAdapter(layoutlibCallback, adapterClassName);
             if (adapter != null) {
                 setProperty(recyclerView, adapterClassName, adapter, "setAdapter");
@@ -78,11 +85,11 @@ public class RecyclerViewUtil {
     }
 
     private static void setLayoutManager(@NonNull View recyclerView,
+            @NonNull String recyclerViewPackageName,
             @NonNull String layoutMgrClassName, @NonNull BridgeContext context,
             @NonNull LayoutlibCallback callback) throws ReflectionException {
         if (getLayoutManager(recyclerView) == null) {
-            String linearLayoutMgrClassManager =
-                    recyclerView.getClass().getPackage().getName() + ".LinearLayoutManager";
+            String linearLayoutMgrClassManager = recyclerViewPackageName + ".LinearLayoutManager";
             // Only set the layout manager if not already set by the recycler view.
             Object layoutManager =
                     createLayoutManager(context, linearLayoutMgrClassManager, callback);
