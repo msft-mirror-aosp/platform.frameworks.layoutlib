@@ -1058,7 +1058,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             int shiftX = -scrollX + Math.round(view.getTranslationX()) + hOffset;
             int shiftY = -scrollY + Math.round(view.getTranslationY()) + vOffset;
             result = new ViewInfo(view.getClass().getName(),
-                    getContext().getViewKey(view),
+                    getViewKey(view),
                     shiftX + view.getLeft(),
                     shiftY + view.getTop(),
                     shiftX + view.getRight(),
@@ -1125,6 +1125,17 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Nullable
     private Object getViewKey(View view) {
         BridgeContext context = getContext();
+        if ("com.google.android.material.tabs.TabLayout.TabView".equals(
+                view.getClass().getCanonicalName())) {
+            // TabView from the material library is a LinearLayout, but it is defined in XML
+            // as a TabItem. Because of this, TabView doesn't get the correct cookie, but its
+            // children do. So this reassigns the cookie from the first child to link the XML
+            // TabItem to the actual TabView view.
+            ViewGroup tabView = (ViewGroup)view;
+            if (tabView.getChildCount() > 0) {
+                return context.getViewKey(tabView.getChildAt(0));
+            }
+        }
         if (!(view instanceof MenuView.ItemView)) {
             return context.getViewKey(view);
         }
