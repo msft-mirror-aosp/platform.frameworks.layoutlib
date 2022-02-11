@@ -166,7 +166,6 @@ public class RenderTests extends RenderTestBase {
                 .setParser(parser)
                 .setConfigGenerator(ConfigGenerator.NEXUS_5)
                 .setCallback(layoutLibCallback)
-                .disableShadows()
                 .build();
 
         renderAndVerify(params, "allwidgets.png");
@@ -187,7 +186,6 @@ public class RenderTests extends RenderTestBase {
                 .setParser(parser)
                 .setConfigGenerator(ConfigGenerator.NEXUS_7_2012)
                 .setCallback(layoutLibCallback)
-                .disableShadows()
                 .build();
         renderAndVerify(params, "allwidgets_tab.png");
     }
@@ -828,7 +826,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
         // Test
@@ -870,7 +868,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
 
@@ -981,7 +979,7 @@ public class RenderTests extends RenderTestBase {
         BridgeContext mContext =
                 new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                         params.getAssets(), params.getLayoutlibCallback(), configuration,
-                        params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                        params.getTargetSdkVersion(), params.isRtlSupported());
 
         TypedValue outValue = new TypedValue();
         mContext.resolveThemeAttribute(android.R.attr.colorPrimary, outValue, true);
@@ -1059,7 +1057,7 @@ public class RenderTests extends RenderTestBase {
         BridgeContext mContext =
                 new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                         params.getAssets(), params.getLayoutlibCallback(), configuration,
-                        params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                        params.getTargetSdkVersion(), params.isRtlSupported());
         mContext.initResources(params.getAssets());
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(mContext);
 
@@ -1111,40 +1109,6 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testShadowFlagsNoShadows() throws Exception {
-        LayoutPullParser parser = createParserFromPath("shadows_test.xml");
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setConfigGenerator(ConfigGenerator.NEXUS_5)
-                .setCallback(layoutLibCallback)
-                .disableDecoration()
-                .disableShadows()
-                .build();
-
-        renderAndVerify(params, "shadows_test_no_shadow.png");
-    }
-
-    @Test
-    public void testRectangleShadow() throws Exception {
-        LayoutPullParser parser = createParserFromPath("shadows_test.xml");
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setConfigGenerator(ConfigGenerator.NEXUS_5)
-                .setCallback(layoutLibCallback)
-                .disableDecoration()
-                .disableHighQualityShadows()
-                .build();
-
-        renderAndVerify(params, "shadows_test.png");
-    }
-
-    @Test
     public void testResourcesGetIdentifier() throws Exception {
         // Setup
         // Create the layout pull parser for our resources (empty.xml can not be part of the test
@@ -1164,7 +1128,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
         Integer id =
@@ -1593,7 +1557,6 @@ public class RenderTests extends RenderTestBase {
                         new BufferedImage(width / 10, height / 10,
                         BufferedImage.TYPE_INT_ARGB))
                 .setFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE, true)
-                .disableShadows()
                 .build();
 
         renderAndVerify(params, "auto-scale-image.png");
@@ -1730,20 +1693,6 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "many_line_breaks.png",
                 TimeUnit.SECONDS.toNanos(2));
-    }
-
-    @Test
-    public void testHighQualityShadowWidgetWithScroll() throws Exception {
-        LayoutPullParser parser = createParserFromPath("shadows_scrollview.xml");
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .build();
-
-        renderAndVerify(params, "shadow_scrollview_test_high_quality.png");
     }
 
     @Test
