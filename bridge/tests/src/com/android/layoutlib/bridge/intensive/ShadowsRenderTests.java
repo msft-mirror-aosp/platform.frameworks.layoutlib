@@ -24,14 +24,14 @@ import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import org.junit.After;
 import org.junit.Test;
 
-public class HighQualityShadowsRenderTests extends RenderTestBase {
+public class ShadowsRenderTests extends RenderTestBase {
     @After
     public void afterTestCase() {
         com.android.layoutlib.bridge.test.widgets.HookWidget.reset();
     }
 
     @Test
-    public void testHighQualityRectangleShadow() throws Exception {
+    public void testRectangleShadow() throws Exception {
         LayoutPullParser parser = createParserFromPath("shadows_test.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -43,7 +43,7 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .disableDecoration()
                 .build();
 
-        renderAndVerify(params, "shadows_test_high_quality.png");
+        renderAndVerify(params, "shadows_test.png");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .build();
 
-        renderAndVerify(params, "shadows_test_high_quality_rounded_edge.png");
+        renderAndVerify(params, "shadows_test_rounded_edge.png");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .disableDecoration()
                 .build();
 
-        renderAndVerify(params, "large_shadows_test_high_quality.png");
+        renderAndVerify(params, "large_shadows_test.png");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .build();
 
-        renderAndVerify(params, "shadow_sizes_test_high_quality.png");
+        renderAndVerify(params, "shadow_sizes_test.png");
     }
 
     @Test
@@ -103,6 +103,6 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .build();
 
-        renderAndVerify(params, "shadow_scrollview_test_high_quality.png");
+        renderAndVerify(params, "shadow_scrollview_test.png");
     }
 }
