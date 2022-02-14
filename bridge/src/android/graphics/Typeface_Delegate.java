@@ -22,7 +22,6 @@ import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.BridgeXmlBlockParser;
-import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
@@ -66,14 +65,7 @@ public final class Typeface_Delegate {
         String lowerCaseValue = path.toLowerCase();
         if (lowerCaseValue.endsWith(AndroidConstants.DOT_XML)) {
             // create a block parser for the file
-            Boolean psiParserSupport = context.getLayoutlibCallback().getFlag(
-                    RenderParamsFlags.FLAG_KEY_XML_FILE_PARSER_SUPPORT);
-            XmlPullParser parser;
-            if (psiParserSupport != null && psiParserSupport) {
-                parser = context.getLayoutlibCallback().createXmlParserForPsiFile(path);
-            } else {
-                parser = context.getLayoutlibCallback().createXmlParserForFile(path);
-            }
+            XmlPullParser parser = context.getLayoutlibCallback().createXmlParserForPsiFile(path);
 
             if (parser != null) {
                 // TODO(b/156609434): The aapt namespace should not matter for parsing font files?
