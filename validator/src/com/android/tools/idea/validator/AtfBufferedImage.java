@@ -124,6 +124,10 @@ public class AtfBufferedImage implements Image {
         int scaledWidth = (int)(mWidth * mScaleX);
         int scaledHeight = (int)(mHeight * mScaleY);
 
+        if (scaledWidth <= 0 || scaledHeight <= 0) {
+            return new int[0];
+        }
+
         BufferedImage cropped = mImage.getSubimage(
                 scaledLeft, scaledTop, scaledWidth, scaledHeight);
         WritableRaster raster =
