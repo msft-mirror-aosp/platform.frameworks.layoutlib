@@ -65,6 +65,7 @@ public class SessionParamsBuilder {
     private boolean highQualityShadows = true;
     private boolean enableLayoutValidator = false;
     private boolean enableLayoutValidatorImageCheck = false;
+    private boolean transparentBackground = false;
 
     @NonNull
     public SessionParamsBuilder setParser(@NonNull LayoutPullParser layoutParser) {
@@ -188,6 +189,12 @@ public class SessionParamsBuilder {
         this.enableLayoutValidatorImageCheck = true;
         return this;
     }
+    
+    @NonNull
+    public SessionParamsBuilder setTransparentBackground() {
+        this.transparentBackground = true;
+        return this;
+    }
 
     @NonNull
     public SessionParams build() {
@@ -225,6 +232,10 @@ public class SessionParamsBuilder {
 
         if (!mDecor) {
             params.setForceNoDecor();
+        }
+
+        if (transparentBackground) {
+            params.setTransparentBackground();
         }
 
         return params;

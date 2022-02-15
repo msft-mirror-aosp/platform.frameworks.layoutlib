@@ -18,6 +18,7 @@ package com.android.layoutlib.bridge.intensive;
 
 import com.android.layoutlib.bridge.BridgeRenderSessionTest;
 import com.android.layoutlib.bridge.TestDelegates;
+import com.android.layoutlib.bridge.android.BitmapTest;
 import com.android.layoutlib.bridge.android.BridgeContextTest;
 import com.android.layoutlib.bridge.android.BridgeXmlBlockParserTest;
 import com.android.layoutlib.bridge.impl.LayoutParserWrapperTest;
@@ -32,11 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import android.content.res.BridgeTypedArrayTest;
 import android.content.res.Resources_DelegateTest;
-import android.graphics.Color_DelegateTest;
-import android.graphics.Matrix_DelegateTest;
 import android.util.BridgeXmlPullAttributesTest;
-import android.util.imagepool.ImagePoolHelperTest;
-import android.util.imagepool.ImagePoolImplTest;
 
 /**
  * Suite used by the layoutlib build system
@@ -45,12 +42,10 @@ import android.util.imagepool.ImagePoolImplTest;
 @SuiteClasses({
         RenderTests.class, LayoutParserWrapperTest.class,
         BridgeXmlBlockParserTest.class, BridgeXmlPullAttributesTest.class,
-        Matrix_DelegateTest.class, TestDelegates.class,
-        BridgeRenderSessionTest.class, ResourceHelperTest.class, BridgeContextTest.class,
-        Resources_DelegateTest.class, Color_DelegateTest.class, ImagePoolHelperTest.class,
-        ImagePoolImplTest.class, HighQualityShadowsRenderTests.class,
+        TestDelegates.class, BridgeRenderSessionTest.class, ResourceHelperTest.class,
+        BridgeContextTest.class, Resources_DelegateTest.class, HighQualityShadowsRenderTests.class,
         LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class,
-        ValidatorResultTests.class
+        ValidatorResultTests.class, BitmapTest.class
 })
 public class Main {
 }

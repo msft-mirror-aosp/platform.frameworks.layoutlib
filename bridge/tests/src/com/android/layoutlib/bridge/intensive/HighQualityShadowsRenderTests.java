@@ -44,9 +44,6 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "shadows_test_high_quality.png");
-        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
-        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
-        sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 
     @Test
@@ -62,9 +59,6 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "shadows_test_high_quality_rounded_edge.png");
-        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
-        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
-        sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 
     @Test
@@ -81,8 +75,6 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "large_shadows_test_high_quality.png");
-        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
-        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
     }
 
     @Test
@@ -98,8 +90,6 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "shadow_sizes_test_high_quality.png");
-        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
-        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
     }
 
     @Test
@@ -114,8 +104,5 @@ public class HighQualityShadowsRenderTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "shadow_scrollview_test_high_quality.png");
-        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
-        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
-        sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 }

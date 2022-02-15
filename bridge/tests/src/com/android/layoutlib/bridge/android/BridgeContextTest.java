@@ -65,7 +65,7 @@ public class BridgeContextTest extends RenderTestBase {
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
                 params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
 
-        context.initResources();
+        context.initResources(params.getAssets());
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(context);
         try {
             Context themeContext = new ContextThemeWrapper(context, style.Theme_Material);
@@ -112,7 +112,7 @@ public class BridgeContextTest extends RenderTestBase {
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
                 params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
 
-        context.initResources();
+        context.initResources(params.getAssets());
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(context);
         try {
             Context themeContext = new ContextThemeWrapper(context, style.Theme_Material);
