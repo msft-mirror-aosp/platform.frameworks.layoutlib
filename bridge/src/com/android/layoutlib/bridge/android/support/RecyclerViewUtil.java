@@ -20,7 +20,6 @@ import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
-import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.common.util.ReflectionUtils;
 import com.android.layoutlib.common.util.ReflectionUtils.ReflectionException;
 
@@ -120,11 +119,6 @@ public class RecyclerViewUtil {
     @Nullable
     private static Object createAdapter(@NonNull LayoutlibCallback layoutlibCallback,
             @NonNull String adapterClassName) throws ReflectionException {
-        Boolean ideSupport =
-                layoutlibCallback.getFlag(RenderParamsFlags.FLAG_KEY_RECYCLER_VIEW_SUPPORT);
-        if (ideSupport != Boolean.TRUE) {
-            return null;
-        }
         try {
             return layoutlibCallback.loadClass(adapterClassName, new Class[0], new Object[0]);
         } catch (Exception e) {

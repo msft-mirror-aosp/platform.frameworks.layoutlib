@@ -188,6 +188,11 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
     }
 
     @Override
+    public String getResourcePackage() {
+        return PACKAGE_NAME;
+    }
+
+    @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
         return mModuleClassLoader.loadClass(name);
     }
