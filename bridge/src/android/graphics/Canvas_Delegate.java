@@ -169,8 +169,9 @@ public final class Canvas_Delegate extends BaseCanvas_Delegate {
     }
 
     @LayoutlibDelegate
-    public static int nSaveLayer(long nativeCanvas, float l, float t, float r, float b,
-            long paint) {
+    public static int nSaveLayer(long nativeCanvas, float l,
+                                               float t, float r, float b,
+                                               long paint, int layerFlags) {
         // get the delegate from the native int.
         Canvas_Delegate canvasDelegate = Canvas_Delegate.getDelegate(nativeCanvas);
         if (canvasDelegate == null) {
@@ -179,24 +180,26 @@ public final class Canvas_Delegate extends BaseCanvas_Delegate {
 
         Paint_Delegate paintDelegate = Paint_Delegate.getDelegate(paint);
 
-        return canvasDelegate.saveLayer(new RectF(l, t, r, b), paintDelegate);
+        return canvasDelegate.saveLayer(new RectF(l, t, r, b),
+                paintDelegate, layerFlags);
     }
 
     @LayoutlibDelegate
     public static int nSaveUnclippedLayer(long nativeCanvas, int l, int t, int r, int b) {
-        return nSaveLayer(nativeCanvas, l, t, r, b, 0);
+        return nSaveLayer(nativeCanvas, l, t, r, b, 0, 0);
     }
 
     @LayoutlibDelegate
-    public static int nSaveLayerAlpha(long nativeCanvas, float l, float t, float r, float b,
-            int alpha) {
+    public static int nSaveLayerAlpha(long nativeCanvas, float l,
+                                                    float t, float r, float b,
+                                                    int alpha, int layerFlags) {
         // get the delegate from the native int.
         Canvas_Delegate canvasDelegate = Canvas_Delegate.getDelegate(nativeCanvas);
         if (canvasDelegate == null) {
             return 0;
         }
 
-        return canvasDelegate.saveLayerAlpha(new RectF(l, t, r, b), alpha);
+        return canvasDelegate.saveLayerAlpha(new RectF(l, t, r, b), alpha, layerFlags);
     }
 
     @LayoutlibDelegate

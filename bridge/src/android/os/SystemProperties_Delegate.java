@@ -37,9 +37,6 @@ public class SystemProperties_Delegate {
     @LayoutlibDelegate
     /*package*/ static String native_get(String key, String def) {
         Map<String, String> properties = Bridge.getPlatformProperties();
-        if (key != null && key.startsWith("ro.product.cpu.abilist")) {
-            key = key.replace("ro.product.cpu.abilist", "ro.system.product.cpu.abilist");
-        }
         String value = properties.get(key);
         if (value != null) {
             return value;

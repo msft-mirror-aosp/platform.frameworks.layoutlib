@@ -68,11 +68,6 @@ class CreateInfoAdapter implements ICreateInfo {
     }
 
     @Override
-    public String[] getUnfinalizedFields() {
-        return EMPTY_STRING_ARRAY;
-    }
-
-    @Override
     public String[] getPromotedClasses() {
         return EMPTY_STRING_ARRAY;
     }
