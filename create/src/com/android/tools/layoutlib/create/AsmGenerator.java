@@ -77,8 +77,6 @@ public class AsmGenerator {
     private final Map<String, ICreateInfo.InjectMethodRunnable> mInjectedMethodsMap;
     /** A map { FQCN => set { field names } } which should be promoted to public visibility */
     private final Map<String, Set<String>> mPromotedFields;
-    /** A map { FQCN => set { field names } } which should be made non-final */
-    private final Map<String, Set<String>> mUnfinalizedFields;
     /** A list of classes to be promoted to public visibility */
     private final Set<String> mPromotedClasses;
 
@@ -184,9 +182,6 @@ public class AsmGenerator {
 
         mPromotedFields = new HashMap<>();
         addToMap(createInfo.getPromotedFields(), mPromotedFields);
-
-        mUnfinalizedFields = new HashMap<>();
-        addToMap(createInfo.getUnfinalizedFields(), mUnfinalizedFields);
 
         mInjectedMethodsMap = createInfo.getInjectedMethodsMap();
 
@@ -371,10 +366,6 @@ public class AsmGenerator {
         Set<String> promoteFields = mPromotedFields.get(className);
         if (promoteFields != null && !promoteFields.isEmpty()) {
             cv = new PromoteFieldClassAdapter(cv, promoteFields);
-        }
-        Set<String> unfinalizeFields = mUnfinalizedFields.get(className);
-        if (unfinalizeFields != null && !unfinalizeFields.isEmpty()) {
-            cv = new UnfinalizeFieldClassAdapter(cv, unfinalizeFields);
         }
         if (!mPromotedClasses.isEmpty()) {
             cv = new PromoteClassClassAdapter(cv, mPromotedClasses);

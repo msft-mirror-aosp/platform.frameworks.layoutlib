@@ -38,7 +38,6 @@ public class BridgeTypedArrayTest {
     @Test
     public void getType() {
         assertEquals(TYPE_NULL, BridgeTypedArray.getType(null));
-        assertEquals(TYPE_STRING, BridgeTypedArray.getType(""));
         assertEquals(TYPE_REFERENCE, BridgeTypedArray.getType("@drawable/my_drawable"));
         assertEquals(TYPE_ATTRIBUTE, BridgeTypedArray.getType("?attr/colorPrimary"));
         assertEquals(TYPE_INT_BOOLEAN, BridgeTypedArray.getType("true"));
