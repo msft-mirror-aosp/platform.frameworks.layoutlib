@@ -141,9 +141,7 @@ public abstract class RenderAction<T extends RenderParams> {
         // build the context
         mContext = new BridgeContext(mParams.getProjectKey(), metrics, resources,
                 mParams.getAssets(), mParams.getLayoutlibCallback(), getConfiguration(mParams),
-                mParams.getTargetSdkVersion(), mParams.isRtlSupported(),
-                Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_ENABLE_SHADOW)),
-                Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_RENDER_HIGH_QUALITY_SHADOW)));
+                mParams.getTargetSdkVersion(), mParams.isRtlSupported());
 
         synchronized (sContextLock) {
             sContexts.add(mContext);
