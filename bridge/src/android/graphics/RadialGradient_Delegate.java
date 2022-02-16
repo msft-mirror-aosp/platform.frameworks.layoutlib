@@ -18,7 +18,6 @@ package android.graphics;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.layoutlib.bridge.Bridge;
-import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
@@ -60,15 +59,10 @@ public class RadialGradient_Delegate extends Gradient_Delegate {
     // ---- native methods ----
 
     @LayoutlibDelegate
-    /*package*/ static long nativeCreate(long matrix, float startX, float startY,
-            float startRadius, float endX, float endY, float endRadius, long[] colors,
-            float[] positions, int tileMode, long colorSpaceHandle) {
-        if (startRadius > 0 || startX != endX || startY != endY) {
-            Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
-                    "Focal points are not supported for radial gradients", null, null, null);
-        }
-        RadialGradient_Delegate newDelegate = new RadialGradient_Delegate(matrix, startX, startY,
-                endRadius, colors, positions, Shader_Delegate.getTileMode(tileMode));
+    /*package*/ static long nativeCreate(long matrix, float x, float y, float radius,
+            long[] colors, float[] positions, int tileMode, long colorSpaceHandle) {
+        RadialGradient_Delegate newDelegate = new RadialGradient_Delegate(matrix, x, y, radius,
+                colors, positions, Shader_Delegate.getTileMode(tileMode));
         return sManager.addNewDelegate(newDelegate);
     }
 
