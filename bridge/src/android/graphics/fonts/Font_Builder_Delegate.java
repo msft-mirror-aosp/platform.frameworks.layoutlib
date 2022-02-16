@@ -16,25 +16,22 @@
 
 package android.graphics.fonts;
 
+import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.annotation.NonNull;
 import android.content.res.AssetManager;
 
-import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.HashMap;
-import java.util.Map;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
-
-import static android.graphics.FontFamily_Delegate.BOLD_FONT_WEIGHT;
 
 /**
  * Delegate implementing the native methods of android.graphics.fonts.Font$Builder
@@ -51,10 +48,6 @@ import static android.graphics.FontFamily_Delegate.BOLD_FONT_WEIGHT;
 public class Font_Builder_Delegate {
     protected static final DelegateManager<Font_Builder_Delegate> sBuilderManager =
             new DelegateManager<>(Font_Builder_Delegate.class);
-    private static final int ITALIC = FontVariationAxis.makeTag("ital");
-    private static final int WEIGHT = FontVariationAxis.makeTag("wght");
-    private static final int WIDTH = FontVariationAxis.makeTag("wdth");
-
     private static long sFontFinalizer = -1;
 
     protected ByteBuffer mBuffer;
@@ -62,7 +55,6 @@ public class Font_Builder_Delegate {
     protected boolean mItalic;
     protected int mTtcIndex;
     protected String filePath;
-    protected Map<TextAttribute, Float> mAxes = new HashMap<>();
 
     @LayoutlibDelegate
     /*package*/ static long nInitBuilder() {
@@ -91,25 +83,13 @@ public class Font_Builder_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static void nAddAxis(long builderPtr, int tag, float value) {
-        Font_Builder_Delegate font = sBuilderManager.getDelegate(builderPtr);
-        if (font != null) {
-            if (tag == ITALIC) {
-                font.mAxes.put(TextAttribute.POSTURE, value);
-            } else if (tag == WEIGHT) {
-                font.mAxes.put(TextAttribute.WEIGHT,
-                        value >= BOLD_FONT_WEIGHT ? TextAttribute.WEIGHT_BOLD :
-                                TextAttribute.WEIGHT_REGULAR);
-            } else if (tag == WIDTH) {
-                font.mAxes.put(TextAttribute.WIDTH,
-                        value < 100 ? TextAttribute.WIDTH_SEMI_CONDENSED :
-                                TextAttribute.WIDTH_REGULAR);
-            }
-        }
+        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+                "Font$Builder.nAddAxis is not supported.", null, null, null);
     }
 
     @LayoutlibDelegate
-    /*package*/ static long nBuild(long builderPtr, ByteBuffer buffer, String filePath,
-            String localeList, int weight, boolean italic, int ttcIndex) {
+    /*package*/ static long nBuild(long builderPtr, ByteBuffer buffer, String filePath, int weight,
+            boolean italic, int ttcIndex) {
         Font_Builder_Delegate font = sBuilderManager.getDelegate(builderPtr);
         if (font != null) {
             font.mBuffer = buffer;
@@ -119,21 +99,6 @@ public class Font_Builder_Delegate {
             font.filePath = filePath;
         }
         return builderPtr;
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static long nClone(long fontPtr, long builderPtr, int weight, boolean italic,
-            int ttcIndex) {
-        Font_Builder_Delegate cloneBuilder = new Font_Builder_Delegate();
-        Font_Builder_Delegate font = sBuilderManager.getDelegate(builderPtr);
-        if (font != null) {
-            cloneBuilder.mBuffer = font.mBuffer;
-            cloneBuilder.filePath = font.filePath;
-        }
-        cloneBuilder.mWeight = weight;
-        cloneBuilder.mItalic = italic;
-        cloneBuilder.mTtcIndex = ttcIndex;
-        return sBuilderManager.addNewDelegate(cloneBuilder);
     }
 
     @LayoutlibDelegate

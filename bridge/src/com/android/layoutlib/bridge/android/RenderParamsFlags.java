@@ -95,17 +95,11 @@ public final class RenderParamsFlags {
 
     /**
      * Enables image-related validation checks within layout validation.
-     * {@link #FLAG_ENABLE_LAYOUT_VALIDATOR} must be enabled before this can be effective.
+     * {@link FLAG_ENABLE_LAYOUT_VALIDATOR} must be enabled before this can be effective.
      */
     public static final Key<Boolean> FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK =
             new Key<>("enableLayoutValidatorImageCheck", Boolean.class);
 
-    /**
-     * TODO: remove after ag/15997527 and ag/15997989 has landed.
-     */
-    @Deprecated
-    public static final Key<Boolean> FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION =
-            new Key<>("enableLayoutValidatorOptimization", Boolean.class);
     // Disallow instances.
     private RenderParamsFlags() {}
 }
