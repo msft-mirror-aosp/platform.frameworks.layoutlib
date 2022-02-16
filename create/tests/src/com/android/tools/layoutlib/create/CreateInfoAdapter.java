@@ -23,6 +23,11 @@ class CreateInfoAdapter implements ICreateInfo {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     @Override
+    public MethodReplacer[] getMethodReplacers() {
+        return new MethodReplacer[0];
+    }
+
+    @Override
     public Class<?>[] getInjectedClasses() {
         return new Class<?>[0];
     }
@@ -34,6 +39,21 @@ class CreateInfoAdapter implements ICreateInfo {
 
     @Override
     public String[] getDelegateClassNatives() {
+        return EMPTY_STRING_ARRAY;
+    }
+
+    @Override
+    public String[] getDelegateClassNativesToNatives() {
+        return EMPTY_STRING_ARRAY;
+    }
+
+    @Override
+    public boolean shouldKeepAllNativeClasses() {
+        return false;
+    }
+
+    @Override
+    public String[] getKeepClassNatives() {
         return EMPTY_STRING_ARRAY;
     }
 
@@ -68,7 +88,7 @@ class CreateInfoAdapter implements ICreateInfo {
     }
 
     @Override
-    public String[] getUnfinalizedFields() {
+    public String[] getPromotedMethods() {
         return EMPTY_STRING_ARRAY;
     }
 
@@ -80,5 +100,10 @@ class CreateInfoAdapter implements ICreateInfo {
     @Override
     public Map<String, InjectMethodRunnable> getInjectedMethodsMap() {
         return Collections.emptyMap();
+    }
+
+    @Override
+    public String[] getDeferredStaticInitializerClasses() {
+        return EMPTY_STRING_ARRAY;
     }
 }
