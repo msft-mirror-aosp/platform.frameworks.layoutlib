@@ -787,7 +787,7 @@ public class Resources_Delegate {
     private static String getPackageName(ResourceReference resourceInfo, Resources resources) {
         String packageName = resourceInfo.getNamespace().getPackageName();
         if (packageName == null) {
-            packageName = getContext(resources).getPackageName();
+            packageName = getLayoutlibCallback(resources).getResourcePackage();
             if (packageName == null) {
                 packageName = APP_PREFIX;
             }
@@ -1114,7 +1114,7 @@ public class Resources_Delegate {
                 return Bridge.getResourceId(url.type, url.name);
             }
 
-            if (getContext(resources).getPackageName().equals(url.namespace)) {
+            if (getLayoutlibCallback(resources).getResourcePackage().equals(url.namespace)) {
                 return getLayoutlibCallback(resources).getOrGenerateResourceId(
                         new ResourceReference(ResourceNamespace.RES_AUTO, url.type, url.name));
             }
