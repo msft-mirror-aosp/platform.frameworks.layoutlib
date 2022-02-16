@@ -88,12 +88,6 @@ public final class RenderParamsFlags {
     public static final Key<Boolean> FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK =
             new Key<>("enableLayoutValidatorImageCheck", Boolean.class);
 
-    /**
-     * TODO: remove after ag/15997527 and ag/15997989 has landed.
-     */
-    @Deprecated
-    public static final Key<Boolean> FLAG_ENABLE_LAYOUT_VALIDATOR_OPTIMIZATION =
-            new Key<>("enableLayoutValidatorOptimization", Boolean.class);
     // Disallow instances.
     private RenderParamsFlags() {}
 }
