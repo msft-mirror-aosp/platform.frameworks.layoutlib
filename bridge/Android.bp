@@ -27,15 +27,16 @@ java_library_host {
     libs: [
         "kxml2-2.3.0",
         "layoutlib_api-prebuilt",
+        "tools-common-prebuilt",
         "guava",
-        "ninepatch-prebuilt",
-        "sdk-common",
     ],
 
     static_libs: [
         "temp_layoutlib",
+        "ninepatch-prebuilt",
         "layoutlib-common",
         "layoutlib-validator",
+        "sdk-common",
     ],
 
     jarjar_rules: "jarjar-rules.txt",
@@ -55,15 +56,16 @@ java_library_host {
         "kxml2-2.3.0",
         "temp_layoutlib",
         "guava",
-        "ninepatch-prebuilt",
-        "sdk-common",
     ],
 
     static_libs: [
         "layoutlib_create",
         "layoutlib_api-prebuilt",
+        "tools-common-prebuilt",
+        "ninepatch-prebuilt",
         "layoutlib-common",
         "layoutlib-validator",
+        "sdk-common",
     ],
 
     jarjar_rules: "jarjar-rules.txt",

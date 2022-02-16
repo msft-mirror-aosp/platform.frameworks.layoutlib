@@ -20,6 +20,8 @@ import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.text.FontConfig;
 
 import java.io.File;
@@ -47,12 +49,10 @@ public class SystemFonts_Delegate {
             String systemFontDir,
             String oemXml,
             String productFontDir,
-            Map<String, File> updatableFontMap,
-            long lastModifiedDate,
-            int configVersion) {
+            Map<String, File> updatableFontMap) {
         Bridge.sIsTypefaceInitialized = true;
         return SystemFonts.getSystemFontConfigInternal_Original(
                 getFontLocation() + "/standard/fonts.xml", getFontLocation() + "/",
-                null, null, updatableFontMap, lastModifiedDate, configVersion);
+                null, null, updatableFontMap, 0, 0);
     }
 }
