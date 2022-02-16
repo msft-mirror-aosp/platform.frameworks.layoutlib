@@ -409,7 +409,6 @@ public abstract class RenderAction<T extends RenderParams> {
         if (locale != null && !locale.isEmpty()) config.locale = new Locale(locale);
 
         config.fontScale = params.getFontScale();
-        config.uiMode = params.getUiMode();
 
         // TODO: fill in more config info.
 
