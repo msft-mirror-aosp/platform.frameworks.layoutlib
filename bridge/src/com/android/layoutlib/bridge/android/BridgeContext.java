@@ -30,10 +30,12 @@ import com.android.ide.common.rendering.api.ResourceValueImpl;
 import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.BridgeConstants;
+import com.android.layoutlib.bridge.SessionInteractiveData;
 import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.impl.Stack;
 import com.android.resources.ResourceType;
+import com.android.tools.layoutlib.annotations.NotNull;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -68,7 +70,6 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
-import android.graphics.Typeface_Delegate;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
@@ -158,8 +159,6 @@ public class BridgeContext extends Context {
      */
     private final HashMap<Object, Object> mViewKeyHelpMap = new HashMap<>();
     private final BridgeAssetManager mAssets;
-    private final boolean mShadowsEnabled;
-    private final boolean mHighQualityShadows;
     private Resources mSystemResources;
     private final Object mProjectKey;
     private final DisplayMetrics mMetrics;
@@ -198,6 +197,8 @@ public class BridgeContext extends Context {
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
+    private final SessionInteractiveData mSessionInteractiveData;
+
     /**
      * Some applications that target both pre API 17 and post API 17, set the newer attrs to
      * reference the older ones. For example, android:paddingStart will resolve to
@@ -234,9 +235,7 @@ public class BridgeContext extends Context {
             @NonNull LayoutlibCallback layoutlibCallback,
             @NonNull Configuration config,
             int targetSdkVersion,
-            boolean hasRtlSupport,
-            boolean shadowsEnabled,
-            boolean highQualityShadows) {
+            boolean hasRtlSupport) {
         mProjectKey = projectKey;
         mMetrics = metrics;
         mLayoutlibCallback = layoutlibCallback;
@@ -275,8 +274,7 @@ public class BridgeContext extends Context {
             mAppCompatNamespace = ResourceNamespace.RES_AUTO;
         }
 
-        mShadowsEnabled = shadowsEnabled;
-        mHighQualityShadows = highQualityShadows;
+        mSessionInteractiveData = new SessionInteractiveData();
     }
 
     /**
@@ -285,8 +283,10 @@ public class BridgeContext extends Context {
      *
      * @see #disposeResources()
      */
-    public void initResources() {
+    public void initResources(@NonNull AssetRepository assetRepository) {
         AssetManager assetManager = AssetManager.getSystem();
+
+        mAssets.setAssetRepository(assetRepository);
 
         mSystemResources = Resources_Delegate.initSystem(
                 this,
@@ -295,12 +295,6 @@ public class BridgeContext extends Context {
                 mConfig,
                 mLayoutlibCallback);
         mTheme = mSystemResources.newTheme();
-
-        // If Typeface has not yet been initialized, do it here to ensure that default fonts are
-        // correctly set up and all font information is available for rendering.
-        if (!Bridge.sIsTypefaceInitialized) {
-            Typeface_Delegate.init();
-        }
     }
 
     /**
@@ -2116,20 +2110,6 @@ public class BridgeContext extends Context {
         return true;
     }
 
-    /**
-     * Returns whether shadows should be rendered or not
-     */
-    public boolean isShadowsEnabled() {
-        return mShadowsEnabled;
-    }
-
-    /**
-     * Returns whether high quality shadows should be used
-     */
-    public boolean isHighQualityShadows() {
-        return mHighQualityShadows;
-    }
-
     public <T> void putUserData(@NonNull Key<T> key, @Nullable T data) {
         mUserData.put(key, data);
     }
@@ -2268,5 +2248,10 @@ public class BridgeContext extends Context {
             cacheFromResId.put(resId, value);
         }
 
+    }
+
+    @NotNull
+    public SessionInteractiveData getSessionInteractiveData() {
+        return mSessionInteractiveData;
     }
 }

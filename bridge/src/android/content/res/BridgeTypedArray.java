@@ -40,7 +40,6 @@ import android.content.res.Resources.Theme;
 import android.graphics.Typeface;
 import android.graphics.Typeface_Accessor;
 import android.graphics.drawable.Drawable;
-import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater_Delegate;
@@ -50,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.util.TypedValue.TYPE_ATTRIBUTE;
 import static android.util.TypedValue.TYPE_DIMENSION;
 import static android.util.TypedValue.TYPE_FLOAT;
@@ -215,7 +213,7 @@ public final class BridgeTypedArray extends TypedArray {
                     ValueXmlHelper.unescapeResourceString(resourceValue.getRawXmlValue(),
                             true, false);
             if (rawValue != null && !rawValue.equals(value)) {
-                return Html.fromHtml(rawValue, FROM_HTML_MODE_COMPACT);
+                return ResourceHelper.parseHtml(rawValue);
             }
         }
         return value;
