@@ -87,11 +87,6 @@ public interface ICreateInfo {
     String[] getPromotedFields();
 
     /**
-     * Returns a list of fields that should be made non-final.
-     */
-    String[] getUnfinalizedFields();
-
-    /**
      * Returns a list of classes to be promoted to public visibility.
      */
     String[] getPromotedClasses();
