@@ -71,6 +71,8 @@ public class AssetManager_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/ static void createSystemAssetsInZygoteLocked(boolean reinitialize,
-            String frameworkPath) { }
+    /*package*/ static String[] nativeCreateIdmapsForStaticOverlaysTargetingAndroid() {
+        // AssetManager requires this not to be null
+        return new String[0];
+    }
 }
