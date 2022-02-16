@@ -84,11 +84,6 @@ public final class CreateInfo implements ICreateInfo {
     }
 
     @Override
-    public String[] getUnfinalizedFields() {
-        return UNFINALIZED_FIELDS;
-    }
-
-    @Override
     public String[] getPromotedClasses() {
         return PROMOTED_CLASSES;
     }
@@ -158,7 +153,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.content.res.Resources$Theme#obtainStyledAttributes",
         "android.content.res.Resources$Theme#resolveAttribute",
         "android.content.res.Resources$Theme#resolveAttributes",
-        "android.content.res.AssetManager#createSystemAssetsInZygoteLocked",
         "android.content.res.AssetManager#nativeCreate",
         "android.content.res.AssetManager#nativeDestroy",
         "android.content.res.AssetManager#nativeThemeCreate",
@@ -176,9 +170,10 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.DrawableInflater#inflateFromClass",
         "android.graphics.drawable.NinePatchDrawable#getOpacity",
         "android.graphics.FontFamily#addFont",
+        "com.google.android.apps.common.testing.accessibility.framework.uielement" +
+                ".AccessibilityHierarchyAndroid$ViewElementClassNamesAndroid#getClassByName",
         "android.graphics.Typeface#create",
         "android.graphics.Typeface$Builder#createAssetUid",
-        "android.graphics.fonts.Font#nGetPackedStyle",
         "android.graphics.fonts.Font$Builder#createBuffer",
         "android.graphics.fonts.SystemFonts#getSystemFontConfigInternal",
         "android.os.Binder#getNativeBBinderHolder",
@@ -187,7 +182,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.os.HandlerThread#run",
         "android.preference.Preference#getView",
         "android.text.format.DateFormat#is24HourFormat",
-        "android.util.Log#println_native",
         "android.util.Xml#newPullParser",
         "android.view.Choreographer#getInstance",
         "android.view.Choreographer#getRefreshRate",
@@ -302,7 +296,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AnimatedVectorDrawable",
         "android.graphics.drawable.VectorDrawable",
         "android.graphics.fonts.Font$Builder",
-        "android.graphics.fonts.FontFamily",
         "android.graphics.fonts.FontFamily$Builder",
         "android.graphics.text.MeasuredText",
         "android.graphics.text.MeasuredText$Builder",
@@ -380,17 +373,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.animation.PropertyValuesHolder$FloatPropertyValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiFloatValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiIntValuesHolder#sJNISetterPropertyMap",
-    };
-
-    /**
-     * List of fields that are to be made non-final.
-     */
-    private final static String[] UNFINALIZED_FIELDS = new String[] {
-        "android.graphics.Typeface#DEFAULT",
-        "android.graphics.Typeface#DEFAULT_BOLD",
-        "android.graphics.Typeface#SANS_SERIF",
-        "android.graphics.Typeface#SERIF",
-        "android.graphics.Typeface#MONOSPACE",
     };
 
     /**

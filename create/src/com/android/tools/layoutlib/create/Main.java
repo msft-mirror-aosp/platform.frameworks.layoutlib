@@ -64,7 +64,7 @@ public class Main {
         private boolean createStubLib = false;
     }
 
-    public static final int ASM_VERSION = Opcodes.ASM7;
+    public static final int ASM_VERSION = Opcodes.ASM6;
 
     private static final Options sOptions = new Options();
 
@@ -138,7 +138,6 @@ public class Main {
                         "com.android.internal.graphics.drawable.AnimationScaleListDrawable",
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
-                        "android.service.wallpaper.*",      // needed for Wear OS watch faces
                     },
                     info.getExcludedClasses(),
                     new String[] {

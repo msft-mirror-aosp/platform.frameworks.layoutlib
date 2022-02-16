@@ -16,6 +16,7 @@
 
 package android.content.res;
 
+import com.android.SdkConstants;
 import com.android.ide.common.rendering.api.ArrayResourceValue;
 import com.android.ide.common.rendering.api.AssetRepository;
 import com.android.ide.common.rendering.api.DensityBasedResourceValue;
@@ -41,6 +42,7 @@ import com.android.resources.ResourceType;
 import com.android.resources.ResourceUrl;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
+import com.android.utils.Pair;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -56,7 +58,6 @@ import android.icu.text.PluralRules;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.LruCache;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.DisplayAdjustments;
 import android.view.ViewGroup.LayoutParams;
@@ -67,9 +68,8 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 
 import static android.content.res.AssetManager.ACCESS_STREAMING;
-import static com.android.ide.common.rendering.api.AndroidConstants.ANDROID_PKG;
-import static com.android.ide.common.rendering.api.AndroidConstants.APP_PREFIX;
-import static com.android.ide.common.rendering.api.AndroidConstants.PREFIX_RESOURCE_REF;
+import static com.android.SdkConstants.ANDROID_PKG;
+import static com.android.SdkConstants.PREFIX_RESOURCE_REF;
 
 public class Resources_Delegate {
     private static WeakHashMap<Resources, LayoutlibCallback> sLayoutlibCallbacks =
@@ -160,7 +160,7 @@ public class Resources_Delegate {
                 value = new ResourceValueImpl(resourceInfo.getNamespace(),
                         resourceInfo.getResourceType(), attributeName, attributeName);
             }
-            return Pair.create(attributeName, value);
+            return Pair.of(attributeName, value);
         }
 
         return null;
@@ -175,7 +175,7 @@ public class Resources_Delegate {
     static Drawable getDrawable(Resources resources, int id, Theme theme) {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
         if (value != null) {
-            String key = value.second.getValue();
+            String key = value.getSecond().getValue();
 
             Drawable.ConstantState constantState = key != null ? sDrawableCache.get(key) : null;
             Drawable drawable;
@@ -183,18 +183,10 @@ public class Resources_Delegate {
                 drawable = constantState.newDrawable(resources, theme);
             } else {
                 drawable =
-                        ResourceHelper.getDrawable(value.second, getContext(resources), theme);
-
-                if (drawable == null) {
-                    throwException(resources, id);
-                    return null;
-                }
+                        ResourceHelper.getDrawable(value.getSecond(), getContext(resources), theme);
 
                 if (key != null) {
-                    Drawable.ConstantState state = drawable.getConstantState();
-                    if (state != null) {
-                        sDrawableCache.put(key, state);
-                    }
+                    sDrawableCache.put(key, drawable.getConstantState());
                 }
             }
 
@@ -218,7 +210,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resourceValue = value.second;
+            ResourceValue resourceValue = value.getSecond();
             try {
                 return ResourceHelper.getColor(resourceValue.getValue());
             } catch (NumberFormatException e) {
@@ -255,7 +247,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> resValue = getResourceValue(resources, id);
 
         if (resValue != null) {
-            ColorStateList stateList = ResourceHelper.getColorStateList(resValue.second,
+            ColorStateList stateList = ResourceHelper.getColorStateList(resValue.getSecond(),
                     getContext(resources), theme);
             if (stateList != null) {
                 return stateList;
@@ -274,7 +266,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             assert resValue != null;
             if (resValue != null) {
@@ -293,7 +285,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             assert resValue != null;
             if (resValue != null) {
@@ -433,7 +425,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> v = getResourceValue(resources, id);
 
         if (v != null) {
-            ResourceValue resValue = v.second;
+            ResourceValue resValue = v.getSecond();
 
             assert resValue != null;
             if (resValue != null) {
@@ -486,7 +478,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> v = getResourceValue(resources, id);
 
         if (v != null) {
-            ResourceValue value = v.second;
+            ResourceValue value = v.getSecond();
 
             try {
                 BridgeXmlBlockParser parser =
@@ -513,7 +505,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> v = getResourceValue(resources, id);
 
         if (v != null) {
-            ResourceValue value = v.second;
+            ResourceValue value = v.getSecond();
 
             try {
                 return ResourceHelper.getXmlBlockParser(getContext(resources), value);
@@ -533,14 +525,7 @@ public class Resources_Delegate {
 
     @LayoutlibDelegate
     static TypedArray obtainAttributes(Resources resources, AttributeSet set, int[] attrs) {
-        BridgeContext context = getContext(resources);
-        RenderResources renderResources = context.getRenderResources();
-        // Remove all themes, including default, to ensure theme attributes are not resolved
-        renderResources.getAllThemes().clear();
-        BridgeTypedArray ta = context.internalObtainStyledAttributes(set, attrs, 0, 0);
-        // Reset styles to only the default if present
-        renderResources.clearStyles();
-        return ta;
+        return getContext(resources).obtainStyledAttributes(set, attrs);
     }
 
     @LayoutlibDelegate
@@ -588,7 +573,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             assert resValue != null;
             if (resValue != null) {
@@ -602,7 +587,7 @@ public class Resources_Delegate {
                     }
                     TypedValue tmpValue = new TypedValue();
                     if (ResourceHelper.parseFloatAttribute(
-                            value.first, v, tmpValue, true /*requireUnit*/) &&
+                            value.getFirst(), v, tmpValue, true /*requireUnit*/) &&
                             tmpValue.type == TypedValue.TYPE_DIMENSION) {
                         return tmpValue.getDimension(resources.getDisplayMetrics());
                     }
@@ -622,7 +607,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             assert resValue != null;
             if (resValue != null) {
@@ -630,7 +615,7 @@ public class Resources_Delegate {
                 if (v != null) {
                     TypedValue tmpValue = new TypedValue();
                     if (ResourceHelper.parseFloatAttribute(
-                            value.first, v, tmpValue, true /*requireUnit*/) &&
+                            value.getFirst(), v, tmpValue, true /*requireUnit*/) &&
                             tmpValue.type == TypedValue.TYPE_DIMENSION) {
                         return TypedValue.complexToDimensionPixelOffset(tmpValue.data,
                                 resources.getDisplayMetrics());
@@ -651,7 +636,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             assert resValue != null;
             if (resValue != null) {
@@ -659,7 +644,7 @@ public class Resources_Delegate {
                 if (v != null) {
                     TypedValue tmpValue = new TypedValue();
                     if (ResourceHelper.parseFloatAttribute(
-                            value.first, v, tmpValue, true /*requireUnit*/) &&
+                            value.getFirst(), v, tmpValue, true /*requireUnit*/) &&
                             tmpValue.type == TypedValue.TYPE_DIMENSION) {
                         return TypedValue.complexToDimensionPixelSize(tmpValue.data,
                                 resources.getDisplayMetrics());
@@ -680,7 +665,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             assert resValue != null;
             if (resValue != null) {
@@ -707,7 +692,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             if (resValue != null) {
                 String v = resValue.getValue();
@@ -727,7 +712,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resValue = value.second;
+            ResourceValue resValue = value.getSecond();
 
             if (resValue != null) {
                 String v = resValue.getValue();
@@ -791,7 +776,7 @@ public class Resources_Delegate {
         if (packageName == null) {
             packageName = getContext(resources).getPackageName();
             if (packageName == null) {
-                packageName = APP_PREFIX;
+                packageName = SdkConstants.APP_PREFIX;
             }
         }
         return packageName;
@@ -817,8 +802,8 @@ public class Resources_Delegate {
     static String getString(Resources resources, int id) throws NotFoundException {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
-        if (value != null && value.second.getValue() != null) {
-            return value.second.getValue();
+        if (value != null && value.getSecond().getValue() != null) {
+            return value.getSecond().getValue();
         }
 
         // id was not found or not resolved. Throw a NotFoundException.
@@ -834,8 +819,8 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            if (value.second instanceof PluralsResourceValue) {
-                PluralsResourceValue pluralsResourceValue = (PluralsResourceValue) value.second;
+            if (value.getSecond() instanceof PluralsResourceValue) {
+                PluralsResourceValue pluralsResourceValue = (PluralsResourceValue) value.getSecond();
                 PluralRules pluralRules = PluralRules.forLocale(resources.getConfiguration().getLocales()
                         .get(0));
                 String strValue = pluralsResourceValue.getValue(pluralRules.select(quantity));
@@ -846,7 +831,7 @@ public class Resources_Delegate {
                 return strValue;
             }
             else {
-                return value.second.getValue();
+                return value.getSecond().getValue();
             }
         }
 
@@ -875,7 +860,7 @@ public class Resources_Delegate {
             NotFoundException {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
         if (value != null) {
-            return ResourceHelper.getFont(value.second, getContext(resources), null);
+            return ResourceHelper.getFont(value.getSecond(), getContext(resources), null);
         }
 
         throwException(resources, id);
@@ -907,11 +892,11 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            ResourceValue resVal = value.second;
+            ResourceValue resVal = value.getSecond();
             String v = resVal != null ? resVal.getValue() : null;
 
             if (v != null) {
-                if (ResourceHelper.parseFloatAttribute(value.first, v, outValue,
+                if (ResourceHelper.parseFloatAttribute(value.getFirst(), v, outValue,
                         false /*requireUnit*/)) {
                     return resVal;
                 }
@@ -955,7 +940,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> v = getResourceValue(resources, id);
 
         if (v != null) {
-            ResourceValue value = v.second;
+            ResourceValue value = v.getSecond();
 
             try {
                 return ResourceHelper.getXmlBlockParser(getContext(resources), value);
@@ -988,8 +973,8 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> result = getResourceValue(resources, id);
 
         ResourceNamespace layoutNamespace;
-        if (result != null && result.second != null) {
-            layoutNamespace = result.second.getNamespace();
+        if (result != null && result.getSecond() != null) {
+            layoutNamespace = result.getSecond().getNamespace();
         } else {
             // We need to pick something, even though the resource system never heard about a layout
             // with this numeric id.
@@ -1011,7 +996,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            String path = value.second.getValue();
+            String path = value.getSecond().getValue();
             if (path != null) {
                 return openRawResource(resources, path);
             }
