@@ -76,18 +76,6 @@ public final class RenderParamsFlags {
             new Key<Boolean>("enableResultImageAutoScale", Boolean.class);
 
     /**
-     * Enables Ray Traced shadows in layoutlib.
-     */
-    public static final Key<Boolean> FLAG_RENDER_HIGH_QUALITY_SHADOW =
-            new Key<>("renderHighQualityShadow", Boolean.class);
-
-    /**
-     * Flags to enable shadows in layoutlib.
-     */
-    public static final Key<Boolean> FLAG_ENABLE_SHADOW =
-            new Key<>("enableShadow", Boolean.class);
-
-    /**
      * Enables layout validation calls within rendering.
      */
     public static final Key<Boolean> FLAG_ENABLE_LAYOUT_VALIDATOR =
