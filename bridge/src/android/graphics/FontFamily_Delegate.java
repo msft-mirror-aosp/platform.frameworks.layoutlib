@@ -137,11 +137,27 @@ public class FontFamily_Delegate {
     // render calls
     private Map<FontInfo, Font> mFonts = new LinkedHashMap<>();
 
-    private int mVariant;
+    /**
+     * The variant of the Font Family - compact or elegant.
+     * <p/>
+     * 0 is unspecified, 1 is compact and 2 is elegant. This needs to be kept in sync with values in
+     * android.graphics.FontFamily
+     *
+     * @see Paint#setElegantTextHeight(boolean)
+     */
+    private FontVariant mVariant;
     // List of runnables to process fonts after sFontLoader is initialized.
     private List<Runnable> mPostInitRunnables = new ArrayList<Runnable>();
     /** @see #isValid() */
     private boolean mValid = false;
+
+
+    // ---- Public helper class ----
+
+    public enum FontVariant {
+        // The order needs to be kept in sync with android.graphics.FontFamily.
+        NONE, COMPACT, ELEGANT
+    }
 
     // ---- Public Helper methods ----
 
@@ -224,7 +240,7 @@ public class FontFamily_Delegate {
         return desiredStyle.mFont;
     }
 
-    public int getVariant() {
+    public FontVariant getVariant() {
         return mVariant;
     }
 
@@ -290,7 +306,7 @@ public class FontFamily_Delegate {
         FontFamily_Delegate delegate = new FontFamily_Delegate();
         // variant can be 0, 1 or 2.
         assert variant < 3;
-        delegate.mVariant = variant;
+        delegate.mVariant = FontVariant.values()[variant];
         if (sFontLocation != null) {
             delegate.init();
         } else {
