@@ -35,6 +35,7 @@ java_library_host {
     static_libs: [
         "temp_layoutlib",
         "layoutlib-common",
+        "layoutlib-common-delegates",
         "layoutlib-validator",
     ],
 
@@ -63,6 +64,8 @@ java_library_host {
         "layoutlib_create",
         "layoutlib_api-prebuilt",
         "layoutlib-common",
+        "layoutlib-common-delegates",
+        "layoutlib-native-delegates",
         "layoutlib-validator",
     ],
 
