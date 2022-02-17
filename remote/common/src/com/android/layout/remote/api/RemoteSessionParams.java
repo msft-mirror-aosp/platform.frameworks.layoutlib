@@ -16,26 +16,16 @@
 
 package com.android.layout.remote.api;
 
-import com.android.ide.common.rendering.api.AdapterBinding;
-import com.android.ide.common.rendering.api.IImageFactory;
-import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.SessionParams;
-import com.android.ide.common.rendering.api.SessionParams.Key;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Map;
 
 /**
  * Remote version of the {@link SessionParams} class
  */
 public interface RemoteSessionParams extends RemoteRenderParams {
     RenderingMode getRenderingMode() throws RemoteException;
-
-    boolean isLayoutOnly() throws RemoteException;
-
-    Map<ResourceReference, AdapterBinding> getAdapterBindings() throws RemoteException;
 
     boolean getExtendedViewInfoMode() throws RemoteException;
 
