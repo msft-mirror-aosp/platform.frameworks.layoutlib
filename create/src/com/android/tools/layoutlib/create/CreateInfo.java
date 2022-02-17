@@ -26,7 +26,6 @@ import org.objectweb.asm.Type;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.ZipEntry;
 
 /**
  * Describes the work to be done by {@link AsmGenerator}.
@@ -139,7 +137,6 @@ public final class CreateInfo implements ICreateInfo {
         new SystemLoadLibraryReplacer(),
         new SystemArrayCopyReplacer(),
         new LocaleGetDefaultReplacer(),
-        new LocaleAdjustLanguageCodeReplacer(),
         new SystemLogReplacer(),
         new SystemNanoTimeReplacer(),
         new SystemCurrentTimeMillisReplacer(),
@@ -529,21 +526,6 @@ public final class CreateInfo implements ICreateInfo {
         }
     }
 
-    public static class LocaleAdjustLanguageCodeReplacer implements MethodReplacer {
-
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return Type.getInternalName(java.util.Locale.class).equals(owner)
-                    && ("adjustLanguageCode".equals(name)
-                    && desc.equals(Type.getMethodDescriptor(Type.getType(String.class), Type.getType(String.class))));
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "com/android/tools/layoutlib/java/util/LocaleAdjustLanguageCodeReplacement";
-        }
-    }
-
     private static class SystemArrayCopyReplacer implements MethodReplacer {
         /**
          * Descriptors for specialized versions {@link System#arraycopy} that are not present on the
@@ -564,41 +546,6 @@ public final class CreateInfo implements ICreateInfo {
             mi.desc = "(Ljava/lang/Object;ILjava/lang/Object;II)V";
         }
     }
-
-    public static class DateFormatSet24HourTimePrefReplacer implements MethodReplacer {
-
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return Type.getInternalName(DateFormat.class).equals(owner) &&
-                    "set24HourTimePref".equals(name);
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "com/android/tools/layoutlib/java/text/DateFormat_Delegate";
-        }
-    }
-
-    /**
-     * Replace references to ZipEntry.getDataOffset with a delegate, since it does not exist in the JDK.
-     * @see {@link com.android.tools.layoutlib.java.util.zip.ZipEntry_Delegate#getDataOffset(ZipEntry)}
-     */
-    public static class ZipEntryGetDataOffsetReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return Type.getInternalName(ZipEntry.class).equals(owner)
-                    && "getDataOffset".equals(name);
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.opcode = Opcodes.INVOKESTATIC;
-            mi.owner = "com/android/tools/layoutlib/java/util/zip/ZipEntry_Delegate";
-            mi.desc = Type.getMethodDescriptor(
-                    Type.getType(long.class), Type.getType(ZipEntry.class));
-        }
-    }
-
     public static class NioUtilsFreeBufferReplacer implements MethodReplacer {
         @Override
         public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
