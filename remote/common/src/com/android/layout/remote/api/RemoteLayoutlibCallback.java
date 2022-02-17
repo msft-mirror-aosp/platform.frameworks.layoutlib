@@ -21,7 +21,6 @@ import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.LayoutlibCallback.ViewAttribute;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
-import com.android.ide.common.rendering.api.SessionParams.Key;
 
 import java.nio.file.Path;
 import java.rmi.Remote;
@@ -50,7 +49,7 @@ public interface RemoteLayoutlibCallback extends Remote {
 
     RemoteActionBarCallback getActionBarCallback() throws RemoteException;
 
-    <T> T getFlag(Key<T> key) throws RemoteException;
+    String getApplicationId() throws RemoteException;
 
     String getResourcePackage() throws RemoteException;
 
