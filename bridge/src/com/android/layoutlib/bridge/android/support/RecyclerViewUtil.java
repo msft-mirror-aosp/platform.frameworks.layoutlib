@@ -20,18 +20,17 @@ import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
-import com.android.layoutlib.bridge.android.RenderParamsFlags;
-import com.android.layoutlib.bridge.util.ReflectionUtils;
-import com.android.layoutlib.bridge.util.ReflectionUtils.ReflectionException;
+import com.android.layoutlib.common.util.ReflectionUtils;
+import com.android.layoutlib.common.util.ReflectionUtils.ReflectionException;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.view.View;
 
-import static com.android.layoutlib.bridge.util.ReflectionUtils.getCause;
-import static com.android.layoutlib.bridge.util.ReflectionUtils.getMethod;
-import static com.android.layoutlib.bridge.util.ReflectionUtils.invoke;
+import static com.android.layoutlib.common.util.ReflectionUtils.getCause;
+import static com.android.layoutlib.common.util.ReflectionUtils.getMethod;
+import static com.android.layoutlib.common.util.ReflectionUtils.invoke;
 
 /**
  * Utility class for working with android.support.v7.widget.RecyclerView and
@@ -120,11 +119,6 @@ public class RecyclerViewUtil {
     @Nullable
     private static Object createAdapter(@NonNull LayoutlibCallback layoutlibCallback,
             @NonNull String adapterClassName) throws ReflectionException {
-        Boolean ideSupport =
-                layoutlibCallback.getFlag(RenderParamsFlags.FLAG_KEY_RECYCLER_VIEW_SUPPORT);
-        if (ideSupport != Boolean.TRUE) {
-            return null;
-        }
         try {
             return layoutlibCallback.loadClass(adapterClassName, new Class[0], new Object[0]);
         } catch (Exception e) {

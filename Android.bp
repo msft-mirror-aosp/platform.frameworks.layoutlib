@@ -40,3 +40,26 @@ java_genrule_host {
     ],
     cmd: "rm -f $(out) && $(location layoutlib_create) --create-stub $(out) $(in)",
 }
+
+java_genrule_host {
+    name: "layoutlib-native-delegates",
+    tools: ["layoutlib_create"],
+    out: ["layoutlib-native-delegates.jar"],
+    srcs: [
+        ":framework{.jar}",
+    ],
+    cmd: "rm -f $(out) && $(location layoutlib_create) --create-native-only-delegates $(out) $(in)",
+}
+
+java_device_for_host {
+    name: "layoutlib_create-classpath",
+    libs: [
+        "conscrypt-for-host",
+        "core-icu4j-for-host",
+        "core-libart-for-host",
+        "ext",
+        "framework-all",
+        "icu4j-icudata-jarjar",
+        "icu4j-icutzdata-jarjar",
+    ],
+}
