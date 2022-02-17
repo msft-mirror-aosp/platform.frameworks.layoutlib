@@ -17,7 +17,6 @@
 package com.android.layoutlib.bridge.android;
 
 import com.android.ide.common.rendering.api.IImageFactory;
-import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.RenderParams;
 import com.android.ide.common.rendering.api.SessionParams.Key;
 
@@ -44,7 +43,7 @@ public final class RenderParamsFlags {
     public static final Key<Boolean> FLAG_DO_NOT_RENDER_ON_CREATE =
             new Key<Boolean>("doNotRenderOnCreate", Boolean.class);
     /**
-     * The adaptive icon mask path. Used via {@link LayoutlibCallback#getFlag(Key)}
+     * To tell Layoutlib which path to use for the adaptive icon mask.
      */
     public static final Key<String> FLAG_KEY_ADAPTIVE_ICON_MASK_PATH =
             new Key<>("adaptiveIconMaskPath", String.class);
