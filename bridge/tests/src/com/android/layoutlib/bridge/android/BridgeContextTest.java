@@ -63,9 +63,9 @@ public class BridgeContextTest extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
 
-        context.initResources();
+        context.initResources(params.getAssets());
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(context);
         try {
             Context themeContext = new ContextThemeWrapper(context, style.Theme_Material);
@@ -110,9 +110,9 @@ public class BridgeContextTest extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
 
-        context.initResources();
+        context.initResources(params.getAssets());
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(context);
         try {
             Context themeContext = new ContextThemeWrapper(context, style.Theme_Material);
@@ -143,7 +143,7 @@ public class BridgeContextTest extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
 
         assertNull(context.getSystemService("my_custom_service"));
         sRenderMessages.removeIf(message -> message.equals("Service my_custom_service was not found or is unsupported"));
