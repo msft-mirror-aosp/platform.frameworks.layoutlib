@@ -149,6 +149,7 @@ public final class CreateInfo implements ICreateInfo {
         new NioUtilsFreeBufferReplacer(),
         new ProcessInitializerInitSchedReplacer(),
         new NativeInitPathReplacer(),
+        new AdaptiveIconMaskReplacer(),
         new ActivityThreadInAnimationReplacer(),
         new ReferenceRefersToReplacer(),
     };
@@ -337,7 +338,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorUI#mSet",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorRT#mPendingAnimationActions",
         "android.graphics.drawable.AnimatedVectorDrawable#mAnimatorSet",
-        "android.graphics.drawable.AdaptiveIconDrawable#sMask",
         "android.graphics.drawable.DrawableInflater#mRes",
         "android.view.Choreographer#mCallbackQueues", // required for tests only
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
@@ -637,6 +637,23 @@ public final class CreateInfo implements ICreateInfo {
         public void replace(MethodInformation mi) {
             mi.owner = "android/graphics/Path_Delegate";
             mi.opcode = Opcodes.INVOKESTATIC;
+        }
+    }
+
+    public static class AdaptiveIconMaskReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return "android/graphics/drawable/AdaptiveIconDrawable".equals(sourceClass) &&
+                    "android/content/res/Resources".equals(owner) &&
+                    name.equals("getString");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "android/graphics/drawable/AdaptiveIconDrawable_Delegate";
+            mi.name = "getResourceString";
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.desc = Type.getMethodDescriptor(Type.getType(String.class), Type.INT_TYPE);
         }
     }
 
