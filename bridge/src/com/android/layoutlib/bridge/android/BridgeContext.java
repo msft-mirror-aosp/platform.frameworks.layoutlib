@@ -118,7 +118,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static android.os._Original_Build.VERSION_CODES.JELLY_BEAN_MR1;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_APPLICATION_PACKAGE;
 
 /**
  * Custom implementation of Context/Activity to handle non compiled resources.
@@ -1018,7 +1017,7 @@ public class BridgeContext extends Context {
     @Override
     public String getPackageName() {
         if (mApplicationInfo.packageName == null) {
-            mApplicationInfo.packageName = mLayoutlibCallback.getFlag(FLAG_KEY_APPLICATION_PACKAGE);
+            mApplicationInfo.packageName = mLayoutlibCallback.getApplicationId();
         }
         return mApplicationInfo.packageName;
     }

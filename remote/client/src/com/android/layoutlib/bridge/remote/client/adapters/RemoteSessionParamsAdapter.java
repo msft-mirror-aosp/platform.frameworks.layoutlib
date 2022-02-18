@@ -16,24 +16,14 @@
 
 package com.android.layoutlib.bridge.remote.client.adapters;
 
-import com.android.ide.common.rendering.api.AdapterBinding;
-import com.android.ide.common.rendering.api.IImageFactory;
-import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.SessionParams;
-import com.android.ide.common.rendering.api.SessionParams.Key;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
-import com.android.layout.remote.api.RemoteAssetRepository;
-import com.android.layout.remote.api.RemoteHardwareConfig;
 import com.android.layout.remote.api.RemoteILayoutPullParser;
-import com.android.layout.remote.api.RemoteLayoutLog;
-import com.android.layout.remote.api.RemoteLayoutlibCallback;
-import com.android.layout.remote.api.RemoteRenderResources;
 import com.android.layout.remote.api.RemoteSessionParams;
 import com.android.tools.layoutlib.annotations.NotNull;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Map;
 
 public class RemoteSessionParamsAdapter extends RemoteRenderParamsAdapter implements RemoteSessionParams {
     private final SessionParams mDelegate;
@@ -51,16 +41,6 @@ public class RemoteSessionParamsAdapter extends RemoteRenderParamsAdapter implem
     @Override
     public RenderingMode getRenderingMode() {
         return mDelegate.getRenderingMode();
-    }
-
-    @Override
-    public boolean isLayoutOnly() {
-        return mDelegate.isLayoutOnly();
-    }
-
-    @Override
-    public Map<ResourceReference, AdapterBinding> getAdapterBindings() {
-        return mDelegate.getAdapterBindings();
     }
 
     @Override
