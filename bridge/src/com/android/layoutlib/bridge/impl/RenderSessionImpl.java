@@ -47,12 +47,8 @@ import com.android.layoutlib.bridge.android.support.SupportPreferencesUtil;
 import com.android.layoutlib.bridge.impl.binding.FakeAdapter;
 import com.android.layoutlib.bridge.impl.binding.FakeExpandableAdapter;
 import com.android.tools.idea.validator.LayoutValidator;
-import com.android.tools.idea.validator.ValidatorData.Issue.IssueBuilder;
-import com.android.tools.idea.validator.ValidatorData.Level;
-import com.android.tools.idea.validator.ValidatorData.Type;
 import com.android.tools.idea.validator.ValidatorHierarchy;
 import com.android.tools.idea.validator.ValidatorResult;
-import com.android.tools.idea.validator.ValidatorResult.Builder;
 import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 
@@ -700,14 +696,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             ResourceReference listRef = context.resolveId(id);
 
             if (listRef != null) {
-                SessionParams params = getParams();
-                AdapterBinding binding = params.getAdapterBindings().get(listRef);
-
-                // if there was no adapter binding, trying to get it from the call back.
-                if (binding == null) {
-                    binding = layoutlibCallback.getAdapterBinding(
+                AdapterBinding binding = layoutlibCallback.getAdapterBinding(
                             listRef, context.getViewKey(view), view);
-                }
 
                 if (binding != null) {
 

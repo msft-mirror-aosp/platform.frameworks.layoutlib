@@ -21,11 +21,9 @@ import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.LayoutlibCallback.ViewAttribute;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
-import com.android.ide.common.rendering.api.SessionParams.Key;
 import com.android.layout.remote.api.RemoteActionBarCallback;
 import com.android.layout.remote.api.RemoteILayoutPullParser;
 import com.android.layout.remote.api.RemoteLayoutlibCallback;
-import com.android.layout.remote.api.RemoteParserFactory;
 import com.android.layout.remote.api.RemoteXmlPullParser;
 import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
@@ -98,8 +96,8 @@ public class RemoteLayoutlibCallbackAdapter implements RemoteLayoutlibCallback {
     }
 
     @Override
-    public <T> T getFlag(Key<T> key) {
-        return mDelegate.getFlag(key);
+    public String getApplicationId() {
+        return mDelegate.getApplicationId();
     }
 
     @Override

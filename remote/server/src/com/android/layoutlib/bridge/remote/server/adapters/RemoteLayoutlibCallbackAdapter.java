@@ -22,7 +22,6 @@ import com.android.ide.common.rendering.api.ILayoutPullParser;
 import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
-import com.android.ide.common.rendering.api.SessionParams.Key;
 import com.android.layout.remote.api.RemoteLayoutlibCallback;
 import com.android.layoutlib.bridge.MockView;
 import com.android.tools.layoutlib.annotations.NotNull;
@@ -213,8 +212,12 @@ public class RemoteLayoutlibCallbackAdapter extends LayoutlibCallback {
     }
 
     @Override
-    public <T> T getFlag(Key<T> key) {
-        return super.getFlag(key);
+    public String getApplicationId() {
+        try {
+            return mDelegate.getApplicationId();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
