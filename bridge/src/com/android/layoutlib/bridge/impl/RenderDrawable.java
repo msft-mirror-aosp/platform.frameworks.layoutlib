@@ -115,7 +115,7 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
         content.setBackground(d);
 
         // Set the AttachInfo on the root view.
-        AttachInfo_Accessor.setAttachInfo(content);
+        AttachInfo_Accessor.setAttachInfo(content, null);
 
         // Measure.
         int w = d.getIntrinsicWidth();
