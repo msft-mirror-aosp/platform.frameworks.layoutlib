@@ -120,18 +120,18 @@ public class WindowManagerImpl implements WindowManager {
                     int parentHeight = MeasureSpec.getSize(parentHeightMeasureSpec);
                     int childWidthMeasureSpec = 0;
                     int childHeightMeasureSpec = ViewRootImpl.getRootMeasureSpec(parentHeight,
-                            lp.height);
+                            lp.height, 0);
                     if (lp.width == WRAP_CONTENT) {
                         int baseSize =
                                 mContext.getResources().getDimensionPixelSize(R.dimen.config_prefDialogWidth);
                         if (baseSize != 0 && baseSize < parentWidth) {
                             childWidthMeasureSpec = ViewRootImpl.getRootMeasureSpec(baseSize,
-                                    lp.width);
+                                    lp.width, 0);
                         }
                     }
                     if (childWidthMeasureSpec == 0) {
                         childWidthMeasureSpec = ViewRootImpl.getRootMeasureSpec(parentWidth,
-                                lp.width);
+                                lp.width, 0);
                     }
                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
                 }
