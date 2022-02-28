@@ -16,15 +16,12 @@
 
 package com.android.layoutlib.bridge.intensive.setup;
 
-import com.android.SdkConstants;
 import com.android.ide.common.rendering.api.ActionBarCallback;
 import com.android.ide.common.rendering.api.AdapterBinding;
 import com.android.ide.common.rendering.api.ILayoutPullParser;
 import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
-import com.android.ide.common.rendering.api.SessionParams.Key;
-import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.resources.ResourceType;
 import com.android.utils.ILogger;
 
@@ -60,8 +57,6 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
     private final ActionBarCallback mActionBarCallback = new ActionBarCallback();
     private final ClassLoader mModuleClassLoader;
     private String mAdaptiveIconMaskPath;
-    private boolean mSetUseShadow = true;
-    private boolean mHighShadowQuality = true;
 
     public LayoutLibTestCallback(ILogger logger, ClassLoader classLoader) {
         mLog = logger;
@@ -176,23 +171,17 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
     }
 
     @Override
-    @SuppressWarnings("unchecked") // The Key<T> API is based on unchecked casts.
-    public <T> T getFlag(Key<T> key) {
-        if (key.equals(RenderParamsFlags.FLAG_KEY_APPLICATION_PACKAGE)) {
-            return (T) PACKAGE_NAME;
-        }
-        if (key.equals(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH)) {
-            return (T) mAdaptiveIconMaskPath;
-        }
-        return null;
+    public String getApplicationId() {
+        return PACKAGE_NAME;
+    }
+
+    @Override
+    public String getResourcePackage() {
+        return PACKAGE_NAME;
     }
 
     @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
         return mModuleClassLoader.loadClass(name);
-    }
-
-    public void setAdaptiveIconMaskPath(String adaptiveIconMaskPath) {
-        mAdaptiveIconMaskPath = adaptiveIconMaskPath;
     }
 }

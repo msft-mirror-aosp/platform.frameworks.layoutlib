@@ -70,7 +70,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="TEST" name="hamcrest" level="project" />
-    <orderEntry type="module" module-name="delegates" />
     <orderEntry type="module-library">
       <library name="ninepatch-prebuilt">
         <CLASSES>

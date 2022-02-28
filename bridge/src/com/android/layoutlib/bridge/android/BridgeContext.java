@@ -70,9 +70,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
-import android.graphics.Typeface_Delegate;
 import android.graphics.drawable.Drawable;
-import android.graphics.fonts.SystemFonts_Delegate;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -120,7 +118,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static android.os._Original_Build.VERSION_CODES.JELLY_BEAN_MR1;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_APPLICATION_PACKAGE;
 
 /**
  * Custom implementation of Context/Activity to handle non compiled resources.
@@ -161,8 +158,6 @@ public class BridgeContext extends Context {
      */
     private final HashMap<Object, Object> mViewKeyHelpMap = new HashMap<>();
     private final BridgeAssetManager mAssets;
-    private final boolean mShadowsEnabled;
-    private final boolean mHighQualityShadows;
     private Resources mSystemResources;
     private final Object mProjectKey;
     private final DisplayMetrics mMetrics;
@@ -239,9 +234,7 @@ public class BridgeContext extends Context {
             @NonNull LayoutlibCallback layoutlibCallback,
             @NonNull Configuration config,
             int targetSdkVersion,
-            boolean hasRtlSupport,
-            boolean shadowsEnabled,
-            boolean highQualityShadows) {
+            boolean hasRtlSupport) {
         mProjectKey = projectKey;
         mMetrics = metrics;
         mLayoutlibCallback = layoutlibCallback;
@@ -280,8 +273,6 @@ public class BridgeContext extends Context {
             mAppCompatNamespace = ResourceNamespace.RES_AUTO;
         }
 
-        mShadowsEnabled = shadowsEnabled;
-        mHighQualityShadows = highQualityShadows;
         mSessionInteractiveData = new SessionInteractiveData();
     }
 
@@ -1026,7 +1017,7 @@ public class BridgeContext extends Context {
     @Override
     public String getPackageName() {
         if (mApplicationInfo.packageName == null) {
-            mApplicationInfo.packageName = mLayoutlibCallback.getFlag(FLAG_KEY_APPLICATION_PACKAGE);
+            mApplicationInfo.packageName = mLayoutlibCallback.getApplicationId();
         }
         return mApplicationInfo.packageName;
     }
@@ -2109,20 +2100,6 @@ public class BridgeContext extends Context {
     @Override
     public boolean isUiContext() {
         return true;
-    }
-
-    /**
-     * Returns whether shadows should be rendered or not
-     */
-    public boolean isShadowsEnabled() {
-        return mShadowsEnabled;
-    }
-
-    /**
-     * Returns whether high quality shadows should be used
-     */
-    public boolean isHighQualityShadows() {
-        return mHighQualityShadows;
     }
 
     public <T> void putUserData(@NonNull Key<T> key, @Nullable T data) {

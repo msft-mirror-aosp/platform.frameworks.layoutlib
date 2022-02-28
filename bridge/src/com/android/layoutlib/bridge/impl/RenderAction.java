@@ -34,6 +34,7 @@ import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.animation.PropertyValuesHolder_Accessor;
 import android.content.res.Configuration;
+import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
 import android.util.DisplayMetrics;
 import android.view.IWindowManager;
@@ -138,12 +139,14 @@ public abstract class RenderAction<T extends RenderParams> {
 
         RenderResources resources = mParams.getResources();
 
+        // sets the custom adaptive icon path
+        AdaptiveIconDrawable_Delegate.sPath =
+                mParams.getFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH);
+
         // build the context
         mContext = new BridgeContext(mParams.getProjectKey(), metrics, resources,
                 mParams.getAssets(), mParams.getLayoutlibCallback(), getConfiguration(mParams),
-                mParams.getTargetSdkVersion(), mParams.isRtlSupported(),
-                Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_ENABLE_SHADOW)),
-                Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_RENDER_HIGH_QUALITY_SHADOW)));
+                mParams.getTargetSdkVersion(), mParams.isRtlSupported());
 
         synchronized (sContextLock) {
             sContexts.add(mContext);

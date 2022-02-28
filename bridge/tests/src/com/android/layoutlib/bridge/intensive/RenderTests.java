@@ -166,7 +166,6 @@ public class RenderTests extends RenderTestBase {
                 .setParser(parser)
                 .setConfigGenerator(ConfigGenerator.NEXUS_5)
                 .setCallback(layoutLibCallback)
-                .disableShadows()
                 .build();
 
         renderAndVerify(params, "allwidgets.png");
@@ -187,7 +186,6 @@ public class RenderTests extends RenderTestBase {
                 .setParser(parser)
                 .setConfigGenerator(ConfigGenerator.NEXUS_7_2012)
                 .setCallback(layoutLibCallback)
-                .disableShadows()
                 .build();
         renderAndVerify(params, "allwidgets_tab.png");
     }
@@ -828,7 +826,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
         // Test
@@ -870,7 +868,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
 
@@ -917,46 +915,46 @@ public class RenderTests extends RenderTestBase {
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
 
-        layoutLibCallback.setAdaptiveIconMaskPath("M50,0L100,0 100,100 0,100 0,0z");
         SessionParams params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
                 .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                 .setRenderingMode(RenderingMode.V_SCROLL)
                 .build();
-
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50,0L100,0 100,100 0,100 0,0z");
         renderAndVerify(params, "adaptive_icon.png");
 
-        layoutLibCallback.setAdaptiveIconMaskPath(
-                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
-                        "22.4 22.4 0 50 0Z");
         params = getSessionParamsBuilder()
                     .setParser(LayoutPullParser.createFromString(layout))
                     .setCallback(layoutLibCallback)
                     .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                     .setRenderingMode(RenderingMode.V_SCROLL)
                     .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                "22.4 22.4 0 50 0Z");
         renderAndVerify(params, "adaptive_icon_circle.png");
 
-        layoutLibCallback.setAdaptiveIconMaskPath(
-                "M50,0L92,0C96.42,0 100,4.58 100 8L100,92C100, 96.42 96.42 100 92 100L8 100C4.58," +
-                        " 100 0 96.42 0 92L0 8 C 0 4.42 4.42 0 8 0L50 0Z");
         params = getSessionParamsBuilder()
                     .setParser(LayoutPullParser.createFromString(layout))
                     .setCallback(layoutLibCallback)
                     .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                     .setRenderingMode(RenderingMode.V_SCROLL)
                     .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50,0L92,0C96.42,0 100,4.58 100 8L100,92C100, 96.42 96.42 100 92 100L8 100C4.58," +
+                " 100 0 96.42 0 92L0 8 C 0 4.42 4.42 0 8 0L50 0Z");
         renderAndVerify(params, "adaptive_icon_rounded_corners.png");
 
-        layoutLibCallback.setAdaptiveIconMaskPath(
-                "M50,0 C10,0 0,10 0,50 0,90 10,100 50,100 90,100 100,90 100,50 100,10 90,0 50,0 Z");
         params = getSessionParamsBuilder()
                     .setParser(LayoutPullParser.createFromString(layout))
                     .setCallback(layoutLibCallback)
                     .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                     .setRenderingMode(RenderingMode.V_SCROLL)
                     .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50,0 C10,0 0,10 0,50 0,90 10,100 50,100 90,100 100,90 100,50 100,10 90,0 50,0 Z");
         renderAndVerify(params, "adaptive_icon_squircle.png");
     }
 
@@ -981,7 +979,7 @@ public class RenderTests extends RenderTestBase {
         BridgeContext mContext =
                 new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                         params.getAssets(), params.getLayoutlibCallback(), configuration,
-                        params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                        params.getTargetSdkVersion(), params.isRtlSupported());
 
         TypedValue outValue = new TypedValue();
         mContext.resolveThemeAttribute(android.R.attr.colorPrimary, outValue, true);
@@ -1059,7 +1057,7 @@ public class RenderTests extends RenderTestBase {
         BridgeContext mContext =
                 new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                         params.getAssets(), params.getLayoutlibCallback(), configuration,
-                        params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                        params.getTargetSdkVersion(), params.isRtlSupported());
         mContext.initResources(params.getAssets());
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(mContext);
 
@@ -1111,40 +1109,6 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testShadowFlagsNoShadows() throws Exception {
-        LayoutPullParser parser = createParserFromPath("shadows_test.xml");
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setConfigGenerator(ConfigGenerator.NEXUS_5)
-                .setCallback(layoutLibCallback)
-                .disableDecoration()
-                .disableShadows()
-                .build();
-
-        renderAndVerify(params, "shadows_test_no_shadow.png");
-    }
-
-    @Test
-    public void testRectangleShadow() throws Exception {
-        LayoutPullParser parser = createParserFromPath("shadows_test.xml");
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setConfigGenerator(ConfigGenerator.NEXUS_5)
-                .setCallback(layoutLibCallback)
-                .disableDecoration()
-                .disableHighQualityShadows()
-                .build();
-
-        renderAndVerify(params, "shadows_test.png");
-    }
-
-    @Test
     public void testResourcesGetIdentifier() throws Exception {
         // Setup
         // Create the layout pull parser for our resources (empty.xml can not be part of the test
@@ -1164,7 +1128,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+                params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
         Integer id =
@@ -1593,7 +1557,6 @@ public class RenderTests extends RenderTestBase {
                         new BufferedImage(width / 10, height / 10,
                         BufferedImage.TYPE_INT_ARGB))
                 .setFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE, true)
-                .disableShadows()
                 .build();
 
         renderAndVerify(params, "auto-scale-image.png");
@@ -1730,20 +1693,6 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "many_line_breaks.png",
                 TimeUnit.SECONDS.toNanos(2));
-    }
-
-    @Test
-    public void testHighQualityShadowWidgetWithScroll() throws Exception {
-        LayoutPullParser parser = createParserFromPath("shadows_scrollview.xml");
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .build();
-
-        renderAndVerify(params, "shadow_scrollview_test_high_quality.png");
     }
 
     @Test
