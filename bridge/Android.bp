@@ -44,32 +44,3 @@ java_library_host {
         targets: ["layoutlib"],
     },
 }
-
-java_library_host {
-    name: "layoutlib-no-framework",
-
-    srcs: ["src/**/*.java"],
-    java_resource_dirs: ["resources"],
-
-    libs: [
-        "kxml2-2.3.0",
-        "temp_layoutlib",
-        "guava",
-        "ninepatch-prebuilt",
-        "sdk-common",
-    ],
-
-    static_libs: [
-        "layoutlib_create",
-        "layoutlib_api-prebuilt",
-        "layoutlib-common",
-        "layoutlib-native-delegates",
-        "layoutlib-validator",
-    ],
-
-    jarjar_rules: "jarjar-rules.txt",
-
-    dist: {
-        targets: ["layoutlib"],
-    },
-}
