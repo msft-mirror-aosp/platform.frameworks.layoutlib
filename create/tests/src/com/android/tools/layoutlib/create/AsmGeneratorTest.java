@@ -18,10 +18,6 @@
 package com.android.tools.layoutlib.create;
 
 
-import com.android.tools.layoutlib.create.CreateInfo.SystemLoadLibraryReplacer;
-import com.android.tools.layoutlib.create.ICreateInfo.MethodInformation;
-import com.android.tools.layoutlib.create.ICreateInfo.MethodReplacer;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -111,8 +106,7 @@ public class AsmGeneratorTest {
                     "**"
                 },
                 new String[]{}  /* excluded classes */,
-                new String[]{}, /* include files */
-                new MethodReplacer[] {});
+                new String[]{} /* include files */);
         agen.setAnalysisResult(aa.analyze());
         agen.generate();
 
@@ -156,8 +150,7 @@ public class AsmGeneratorTest {
                 new String[]{},
                 new String[] {        /* include files */
                     "mock_android/data/data*"
-                },
-                new MethodReplacer[] {} /* method replacers */);
+                });
         agen.setAnalysisResult(aa.analyze());
         Map<String, byte[]> output = agen.generate();
         RecordingClassVisitor cv = new RecordingClassVisitor();
@@ -202,8 +195,7 @@ public class AsmGeneratorTest {
                         "**"
                 },
                 new String[]{},
-                new String[] {},
-                new MethodReplacer[] {});
+                new String[] {});
         agen.setAnalysisResult(aa.analyze());
         Map<String, byte[]> output = agen.generate();
         RecordingClassVisitor cv = new RecordingClassVisitor();
@@ -240,8 +232,7 @@ public class AsmGeneratorTest {
                 ci.getExcludedClasses(),
                 new String[] {        /* include files */
                         "mock_android/data/data*"
-                },
-                new MethodReplacer[] {});
+                });
         agen.setAnalysisResult(aa.analyze());
         Map<String, byte[]> output = agen.generate();
         // Everything in .fake.** should be filtered
@@ -249,7 +240,6 @@ public class AsmGeneratorTest {
         assertArrayEquals(new String[] {
                 "mock_android.fake2.keep.DoNotRemove",
                 "mock_android.util.EmptyArray",
-                "mock_android.view.LibLoader",
                 "mock_android.view.View",
                 "mock_android.view.ViewGroup",
                 "mock_android.view.ViewGroup$LayoutParams",
@@ -285,8 +275,7 @@ public class AsmGeneratorTest {
                 ci.getExcludedClasses(),
                 new String[] {        /* include files */
                         "mock_android/data/data*"
-                },
-                new MethodReplacer[] {});
+                });
         agen.setAnalysisResult(aa.analyze());
         JarUtil.createJar(new FileOutputStream(mOsDestJar), agen.generate());
 
@@ -313,58 +302,6 @@ public class AsmGeneratorTest {
         Method method = emptyArrayClass.getMethod("getFrameworkClassLoader");
         Object cl = method.invoke(emptyArrayInstance);
         assertEquals(classLoader, cl);
-    }
-
-    @Test
-    public void testMethodVisitor_loadLibraryReplacer() throws IOException {
-        final List<String> isNeeded = new ArrayList<>();
-        final List<String> replaced = new ArrayList<>();
-        MethodReplacer recordingReplacer = new MethodReplacer() {
-            private final MethodReplacer loadLibraryReplacer = new SystemLoadLibraryReplacer();
-            private final List<String> isNeededList = isNeeded;
-            private final List<String> replacedList = replaced;
-
-            @Override
-            public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-                boolean res = loadLibraryReplacer.isNeeded(owner, name, desc, sourceClass);
-                if (res) {
-                    isNeededList.add(sourceClass + "->" + owner + "." + name);
-                }
-                return res;
-            }
-
-            @Override
-            public void replace(MethodInformation mi) {
-                replacedList.add(mi.owner + "." + mi.name);
-            }
-        };
-        MethodReplacer[] replacers = new MethodReplacer[] { recordingReplacer };
-
-        ICreateInfo ci = new CreateInfoAdapter() {
-            @Override
-            public MethodReplacer[] getMethodReplacers() {
-                return replacers;
-            }
-        };
-
-        AsmGenerator agen = new AsmGenerator(mLog, ci);
-        AsmAnalyzer aa = new AsmAnalyzer(mLog, mOsJarPath,
-                null,                 // derived from
-                new String[] {        // include classes
-                        "**"
-                },
-                new String[] {},
-                new String[] {},
-                replacers);
-        agen.setAnalysisResult(aa.analyze());
-
-        assertTrue(isNeeded.contains("mock_android/view/LibLoader->java/lang/System.loadLibrary"));
-        assertTrue(replaced.isEmpty());
-
-        agen.generate();
-
-        assertTrue(isNeeded.contains("mock_android/view/LibLoader->java/lang/System.loadLibrary"));
-        assertTrue(replaced.contains("java/lang/System.loadLibrary"));
     }
 
     private static byte[] getByteArray(InputStream stream) throws IOException {

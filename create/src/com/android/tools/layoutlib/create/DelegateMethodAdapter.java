@@ -89,8 +89,6 @@ class DelegateMethodAdapter extends MethodVisitor {
     private final boolean mIsStaticInnerClass;
     /** The internal class name (e.g. <code>com/android/SomeClass$InnerClass</code>.) */
     private final String mClassName;
-    /** The corresponding delegate class name */
-    private final String mDelegateClassName;
     /** The method name. */
     private final String mMethodName;
     /** Logger object. */
@@ -113,7 +111,6 @@ class DelegateMethodAdapter extends MethodVisitor {
      *          Must never be null.
      * @param className The internal class name of the class to visit,
      *          e.g. <code>com/android/SomeClass$InnerClass</code>.
-     * @param delegateClassName The internal class name of the delegate class
      * @param methodName The simple name of the method.
      * @param desc A method descriptor (c.f. {@link Type#getReturnType(String)} +
      *          {@link Type#getArgumentTypes(String)})
@@ -123,7 +120,6 @@ class DelegateMethodAdapter extends MethodVisitor {
             MethodVisitor mvOriginal,
             MethodVisitor mvDelegate,
             String className,
-            String delegateClassName,
             String methodName,
             String desc,
             boolean isStatic,
@@ -133,23 +129,10 @@ class DelegateMethodAdapter extends MethodVisitor {
         mOrgWriter = mvOriginal;
         mDelWriter = mvDelegate;
         mClassName = className;
-        mDelegateClassName = delegateClassName;
         mMethodName = methodName;
         mDesc = desc;
         mIsStatic = isStatic;
         mIsStaticInnerClass = isStaticClass;
-    }
-
-    public DelegateMethodAdapter(Log log,
-            MethodVisitor mvOriginal,
-            MethodVisitor mvDelegate,
-            String className,
-            String methodName,
-            String desc,
-            boolean isStatic,
-            boolean isStaticClass) {
-        this(log, mvOriginal, mvDelegate, className, className + DELEGATE_SUFFIX, methodName,
-                desc, isStatic, isStaticClass);
     }
 
     /**
@@ -206,7 +189,7 @@ class DelegateMethodAdapter extends MethodVisitor {
         }
 
         ArrayList<Type> paramTypes = new ArrayList<>();
-        String delegateClassName = mDelegateClassName;
+        String delegateClassName = mClassName + DELEGATE_SUFFIX;
         boolean pushedArg0 = false;
         int maxStack = 0;
 
