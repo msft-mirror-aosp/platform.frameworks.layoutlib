@@ -40,6 +40,7 @@ import android.content.res.Resources.Theme;
 import android.graphics.Typeface;
 import android.graphics.Typeface_Accessor;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater_Delegate;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.util.TypedValue.TYPE_ATTRIBUTE;
 import static android.util.TypedValue.TYPE_DIMENSION;
 import static android.util.TypedValue.TYPE_FLOAT;
@@ -62,8 +64,8 @@ import static android.util.TypedValue.TYPE_INT_HEX;
 import static android.util.TypedValue.TYPE_NULL;
 import static android.util.TypedValue.TYPE_REFERENCE;
 import static android.util.TypedValue.TYPE_STRING;
-import static com.android.ide.common.rendering.api.AndroidConstants.PREFIX_RESOURCE_REF;
-import static com.android.ide.common.rendering.api.AndroidConstants.PREFIX_THEME_REF;
+import static com.android.SdkConstants.PREFIX_RESOURCE_REF;
+import static com.android.SdkConstants.PREFIX_THEME_REF;
 import static com.android.ide.common.rendering.api.RenderResources.REFERENCE_EMPTY;
 import static com.android.ide.common.rendering.api.RenderResources.REFERENCE_NULL;
 import static com.android.ide.common.rendering.api.RenderResources.REFERENCE_UNDEFINED;
@@ -213,7 +215,7 @@ public final class BridgeTypedArray extends TypedArray {
                     ValueXmlHelper.unescapeResourceString(resourceValue.getRawXmlValue(),
                             true, false);
             if (rawValue != null && !rawValue.equals(value)) {
-                return ResourceHelper.parseHtml(rawValue);
+                return Html.fromHtml(rawValue, FROM_HTML_MODE_COMPACT);
             }
         }
         return value;
@@ -268,15 +270,10 @@ public final class BridgeTypedArray extends TypedArray {
         try {
             return convertValueToInt(s, defValue);
         } catch (NumberFormatException e) {
-            // If s starts with ?, it means that it is a theme attribute that wasn't defined.
-            // That is an allowed behaviour, and the expected result is to return the default
-            // value.
-            // If we are in this case, we do not want to log a warning.
-            if (s == null || !s.startsWith(PREFIX_THEME_REF)) {
-                Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
-                        String.format("\"%1$s\" in attribute \"%2$s\" is not a valid integer", s,
-                                mNames[index]), null, null);
-            }
+            Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
+                    String.format("\"%1$s\" in attribute \"%2$s\" is not a valid integer",
+                            s, mNames[index]),
+                    null, null);
         }
         return defValue;
     }
@@ -987,9 +984,6 @@ public final class BridgeTypedArray extends TypedArray {
     protected static int getType(@Nullable String value) {
         if (value == null) {
             return TYPE_NULL;
-        }
-        if (value.isEmpty()) {
-            return TYPE_STRING;
         }
         if (value.startsWith(PREFIX_RESOURCE_REF)) {
             return TYPE_REFERENCE;

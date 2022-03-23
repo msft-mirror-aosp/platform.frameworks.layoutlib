@@ -25,6 +25,7 @@ java_library_host {
     java_resource_dirs: ["resources"],
 
     libs: [
+        "tools-common-prebuilt",
         "temp_layoutlib",
         "layoutlib_api-prebuilt",
         "layoutlib-common",

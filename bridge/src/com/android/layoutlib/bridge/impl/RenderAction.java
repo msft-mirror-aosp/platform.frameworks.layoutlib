@@ -28,11 +28,10 @@ import com.android.resources.Density;
 import com.android.resources.ScreenOrientation;
 import com.android.resources.ScreenRound;
 import com.android.resources.ScreenSize;
-import com.android.tools.layoutlib.annotations.NotNull;
-import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.animation.PropertyValuesHolder_Accessor;
+import android.animation.PropertyValuesHolder_Delegate;
 import android.content.res.Configuration;
 import android.os.HandlerThread_Delegate;
 import android.util.DisplayMetrics;
@@ -43,10 +42,7 @@ import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
 import android.view.inputmethod.InputMethodManager_Accessor;
 
-import java.util.Collections;
 import java.util.Locale;
-import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -68,10 +64,6 @@ import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
  */
 public abstract class RenderAction<T extends RenderParams> {
 
-    private static final Set<String> COMPOSE_CLASS_FQNS =
-            Set.of("androidx.compose.ui.tooling.ComposeViewAdapter",
-                    "androidx.compose.ui.tooling.preview.ComposeViewAdapter");
-
     /**
      * The current context being rendered. This is set through {@link #acquire(long)} and
      * {@link #init(long)}, and unset in {@link #release()}.
@@ -82,10 +74,6 @@ public abstract class RenderAction<T extends RenderParams> {
     private final T mParams;
 
     private BridgeContext mContext;
-
-    private static final Object sContextLock = new Object();
-    private static final Set<BridgeContext> sContexts =
-            Collections.newSetFromMap(new WeakHashMap<>());
 
     /**
      * Creates a renderAction.
@@ -141,11 +129,10 @@ public abstract class RenderAction<T extends RenderParams> {
         // build the context
         mContext = new BridgeContext(mParams.getProjectKey(), metrics, resources,
                 mParams.getAssets(), mParams.getLayoutlibCallback(), getConfiguration(mParams),
-                mParams.getTargetSdkVersion(), mParams.isRtlSupported());
+                mParams.getTargetSdkVersion(), mParams.isRtlSupported(),
+                Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_ENABLE_SHADOW)),
+                Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_RENDER_HIGH_QUALITY_SHADOW)));
 
-        synchronized (sContextLock) {
-            sContexts.add(mContext);
-        }
         setUp();
 
         return SUCCESS.createResult();
@@ -254,7 +241,7 @@ public abstract class RenderAction<T extends RenderParams> {
 
         // make sure the Resources object references the context (and other objects) for this
         // scene
-        mContext.initResources(mParams.getAssets());
+        mContext.initResources();
         sCurrentContext = mContext;
 
         // Set-up WindowManager
@@ -282,11 +269,18 @@ public abstract class RenderAction<T extends RenderParams> {
             mContext.disposeResources();
         }
 
+        if (sCurrentContext != null) {
+            // quit HandlerThread created during this session.
+            HandlerThread_Delegate.cleanUp(sCurrentContext);
+        }
+
         // clear the stored ViewConfiguration since the map is per density and not per context.
         ViewConfiguration_Accessor.clearConfigurations();
 
         // remove the InputMethodManager
         InputMethodManager_Accessor.tearDownEditMode();
+
+        sCurrentContext = null;
 
         Bridge.setLog(null);
         if (mContext != null) {
@@ -415,52 +409,9 @@ public abstract class RenderAction<T extends RenderParams> {
         if (locale != null && !locale.isEmpty()) config.locale = new Locale(locale);
 
         config.fontScale = params.getFontScale();
-        config.uiMode = params.getUiMode();
 
         // TODO: fill in more config info.
 
         return config;
-    }
-
-    @Nullable
-    private static ClassLoader findComposeClassLoader(@NotNull BridgeContext context) {
-        for (String composeClassName: COMPOSE_CLASS_FQNS) {
-            try {
-                return context.getLayoutlibCallback().findClass(composeClassName).getClassLoader();
-            } catch (Throwable ignore) {}
-        }
-
-        return null;
-    }
-
-    @Nullable
-    public static BridgeContext findContextFor(@NotNull ClassLoader classLoader) {
-        synchronized (sContextLock) {
-            for (BridgeContext c : RenderAction.sContexts) {
-                if (c == null) {
-                    continue;
-                }
-                try {
-                    if (findComposeClassLoader(c) == classLoader) {
-                        return c;
-                    }
-                } catch (Throwable ignore) {
-                }
-            }
-            return null;
-        }
-    }
-
-    protected void dispose() {
-        synchronized (sContextLock) {
-            sContexts.remove(mContext);
-        }
-
-        if (sCurrentContext != null) {
-            // quit HandlerThread created during this session.
-            HandlerThread_Delegate.cleanUp(sCurrentContext);
-        }
-
-        sCurrentContext = null;
     }
 }
