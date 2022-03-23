@@ -23,8 +23,7 @@
         android:layout_height="wrap_content"
         android:text="MONOSPACE"
         android:textSize="50sp"
-        android:fontFamily="monospace"
-        android:rotationX="45"/>
+        android:fontFamily="monospace"/>
 
     <Space
         android:layout_width="wrap_content"
