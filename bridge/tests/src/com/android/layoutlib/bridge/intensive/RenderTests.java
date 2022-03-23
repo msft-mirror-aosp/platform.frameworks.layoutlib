@@ -20,13 +20,11 @@ import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValueImpl;
-import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.XmlParserFactory;
 import com.android.internal.R;
-import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.impl.ParserFactory;
@@ -41,7 +39,6 @@ import com.android.resources.Navigation;
 import com.android.resources.ResourceType;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
@@ -58,8 +55,6 @@ import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.StateSet;
 import android.util.TypedValue;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
@@ -166,14 +161,22 @@ public class RenderTests extends RenderTestBase {
                 .setParser(parser)
                 .setConfigGenerator(ConfigGenerator.NEXUS_5)
                 .setCallback(layoutLibCallback)
+                .disableShadows()
                 .build();
 
         renderAndVerify(params, "allwidgets.png");
+
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
     }
 
     @Test
     public void testArrayCheck() throws ClassNotFoundException, FileNotFoundException {
         renderAndVerify("array_check.xml", "array_check.png", false);
+
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(
+                message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 
     @Test
@@ -186,8 +189,13 @@ public class RenderTests extends RenderTestBase {
                 .setParser(parser)
                 .setConfigGenerator(ConfigGenerator.NEXUS_7_2012)
                 .setCallback(layoutLibCallback)
+                .disableShadows()
                 .build();
         renderAndVerify(params, "allwidgets_tab.png");
+
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
+        sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 
     @Test
@@ -537,39 +545,9 @@ public class RenderTests extends RenderTestBase {
     }
 
     /**
-     * Test a vector drawable which is transparent.
-     */
-    @Test
-    public void testTransparentDrawable() throws ClassNotFoundException {
-        // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<ImageView xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_height=\"fill_parent\"\n" +
-                        "    android:layout_width=\"fill_parent\"\n" +
-                        "    android:src=\"@drawable/transparent_drawable\" />");
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .disableDecoration()
-                .setTransparentBackground()
-                .build();
-
-        renderAndVerify(params, "transparent_drawable.png",
-                TimeUnit.SECONDS.toNanos(2));
-    }
-
-    /**
      * Test a vector drawable that uses trimStart and trimEnd. It also tests all the primitives
      * for vector drawables (lines, moves and cubic and quadratic curves).
      */
-    @Ignore("This test does not make sense in layoutlib anymore, test in Studio")
     @Test
     public void testVectorDrawableHasMultipleLineInPathData() throws ClassNotFoundException {
         // Create the layout pull parser.
@@ -786,7 +764,6 @@ public class RenderTests extends RenderTestBase {
         assertEquals(90, rootLayout.getChildren().get(5).getChildren().get(0).getLeft());
         assertEquals(-270, rootLayout.getChildren().get(5).getChildren().get(0).getBottom());
         assertEquals(690, rootLayout.getChildren().get(5).getChildren().get(0).getRight());
-        session.dispose();
 
         // Do a full render pass
         parser = createParserFromPath("scrolled.xml");
@@ -826,7 +803,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported());
+                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
         // Test
@@ -868,7 +845,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported());
+                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
 
@@ -893,6 +870,8 @@ public class RenderTests extends RenderTestBase {
     public void testFonts() throws ClassNotFoundException, FileNotFoundException {
         // TODO: styles seem to be broken in TextView
         renderAndVerify("fonts_test.xml", "font_test.png", false);
+        sRenderMessages.removeIf(
+                message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 
     @Test
@@ -979,7 +958,7 @@ public class RenderTests extends RenderTestBase {
         BridgeContext mContext =
                 new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                         params.getAssets(), params.getLayoutlibCallback(), configuration,
-                        params.getTargetSdkVersion(), params.isRtlSupported());
+                        params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
 
         TypedValue outValue = new TypedValue();
         mContext.resolveThemeAttribute(android.R.attr.colorPrimary, outValue, true);
@@ -1057,8 +1036,8 @@ public class RenderTests extends RenderTestBase {
         BridgeContext mContext =
                 new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                         params.getAssets(), params.getLayoutlibCallback(), configuration,
-                        params.getTargetSdkVersion(), params.isRtlSupported());
-        mContext.initResources(params.getAssets());
+                        params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
+        mContext.initResources();
         BridgeContext oldContext = RenderActionTestUtil.setBridgeContext(mContext);
 
         try {
@@ -1109,6 +1088,44 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
+    public void testShadowFlagsNoShadows() throws Exception {
+        LayoutPullParser parser = createParserFromPath("shadows_test.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(ConfigGenerator.NEXUS_5)
+                .setCallback(layoutLibCallback)
+                .disableDecoration()
+                .disableShadows()
+                .build();
+
+        renderAndVerify(params, "shadows_test_no_shadow.png");
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
+    }
+
+    @Test
+    public void testRectangleShadow() throws Exception {
+        LayoutPullParser parser = createParserFromPath("shadows_test.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(ConfigGenerator.NEXUS_5)
+                .setCallback(layoutLibCallback)
+                .disableDecoration()
+                .disableHighQualityShadows()
+                .build();
+
+        renderAndVerify(params, "shadows_test.png");
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
+    }
+
+    @Test
     public void testResourcesGetIdentifier() throws Exception {
         // Setup
         // Create the layout pull parser for our resources (empty.xml can not be part of the test
@@ -1128,7 +1145,7 @@ public class RenderTests extends RenderTestBase {
         Configuration configuration = RenderAction.getConfiguration(params);
         BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
-                params.getTargetSdkVersion(), params.isRtlSupported());
+                params.getTargetSdkVersion(), params.isRtlSupported(), true, true);
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
         Integer id =
@@ -1169,12 +1186,7 @@ public class RenderTests extends RenderTestBase {
      */
     @Test
     public void test9PatchNoDPIBackground() throws Exception {
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        String layoutCompiled =
+        String layout =
                 "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
                         "    android:layout_width=\"match_parent\"\n" +
                         "    android:layout_height=\"match_parent\"\n" +
@@ -1191,35 +1203,13 @@ public class RenderTests extends RenderTestBase {
                         "        android:text=\"Button\" />\n"
                         + "</LinearLayout>";
 
-        LayoutPullParser parser = LayoutPullParser.createFromString(layoutCompiled);
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
         SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .build();
-
-        renderAndVerify(params, "ninepatch_background.png");
-
-        String layoutNonCompiled =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_width=\"match_parent\"\n" +
-                        "    android:layout_height=\"match_parent\"\n" +
-                        "    android:background=\"@drawable/uncompiled_ninepatch\"\n" +
-                        "    android:layout_margin=\"20dp\"\n" +
-                        "    android:orientation=\"vertical\">\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n"
-                        + "</LinearLayout>";
-
-        parser = LayoutPullParser.createFromString(layoutNonCompiled);
-        params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
                 .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
@@ -1557,6 +1547,7 @@ public class RenderTests extends RenderTestBase {
                         new BufferedImage(width / 10, height / 10,
                         BufferedImage.TYPE_INT_ARGB))
                 .setFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE, true)
+                .disableShadows()
                 .build();
 
         renderAndVerify(params, "auto-scale-image.png");
@@ -1647,12 +1638,6 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testJustified() throws ClassNotFoundException, FileNotFoundException {
-        renderAndVerify("justified_inter_word.xml", "justified_inter_word.png", false);
-        renderAndVerify("justified_none.xml", "justified_none.png", false);
-    }
-
-    @Test
     public void testManyLineBreaks() throws Exception {
         String layout =
                 "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
@@ -1696,30 +1681,20 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testNinePatchDrawable() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"fill_parent\"\n" +
-                        "             android:layout_width=\"fill_parent\"\n" +
-                        "             android:src=\"@drawable/ninepatch_drawable\" />\n" +
-                        "</LinearLayout>\n";
-        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
-        // Create LayoutLibCallback.
+    public void testHighQualityShadowWidgetWithScroll() throws Exception {
+        LayoutPullParser parser = createParserFromPath("shadows_scrollview.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
         SessionParams params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
-                .disableDecoration()
                 .build();
 
-        renderAndVerify(params, "ninepatch_drawable.png");
+        renderAndVerify(params, "shadow_scrollview_test_high_quality.png");
+        // We expect fidelity warnings for Path.isConvex. Fail for anything else.
+        sRenderMessages.removeIf(message -> message.equals("Path.isConvex is not supported."));
+        sRenderMessages.removeIf(message -> message.equals("Font$Builder.nAddAxis is not supported."));
     }
 
     @Test
@@ -1800,205 +1775,5 @@ public class RenderTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "textclock.png");
-    }
-
-    @Test
-    public void testChangeSize() throws ClassNotFoundException {
-        final String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:orientation=\"vertical\"\n" +
-                        "              android:layout_width=\"wrap_content\"\n" +
-                        "              android:layout_height=\"wrap_content\">\n" +
-                        "    <Button\n" +
-                        "             android:layout_height=\"50dp\"\n" +
-                        "             android:layout_width=\"100dp\"\n" +
-                        "             android:text=\"Hello\" />\n" +
-                        "</LinearLayout>\n";
-
-        // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .setRenderingMode(RenderingMode.SHRINK)
-                .disableDecoration()
-                .build();
-
-        System_Delegate.setBootTimeNanos(TimeUnit.MILLISECONDS.toNanos(871732800000L));
-        System_Delegate.setNanosTime(TimeUnit.MILLISECONDS.toNanos(871732800000L));
-        RenderSession session = sBridge.createSession(params);
-
-        try {
-            session.setElapsedFrameTimeNanos(TimeUnit.SECONDS.toNanos(2));
-
-            if (!session.getResult().isSuccess()) {
-                getLogger().error(session.getResult().getException(),
-                        session.getResult().getErrorMessage());
-            }
-            else {
-                // Render the session with a timeout of 50s.
-                Result renderResult = session.render(50000);
-                if (!renderResult.isSuccess()) {
-                    getLogger().error(session.getResult().getException(),
-                            session.getResult().getErrorMessage());
-                }
-            }
-
-            BufferedImage resultImage = session.getImage();
-
-            assertNotNull(resultImage);
-            verify("button_resize.png", resultImage);
-
-            Object viewObject = session.getRootViews().get(0)
-                    .getChildren().get(0).getViewObject();
-
-            Button btn = (Button) viewObject;
-            btn.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
-
-            Result renderResult = session.render(50000);
-            if (!renderResult.isSuccess()) {
-                getLogger().error(session.getResult().getException(),
-                        session.getResult().getErrorMessage());
-            }
-
-            resultImage = session.getImage();
-
-            assertNotNull(resultImage);
-            verify("button_resize2.png", resultImage);
-        } finally {
-            session.dispose();
-        }
-    }
-
-    /**
-     * Tests that theme attributes are not resolved when using Resources_Delegate.obtainAttributes
-     * <p/>
-     * http://b/175943371
-     */
-    @Test
-    public void testNonStyledResources() throws ClassNotFoundException {
-        // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:background=\"#999\"" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <com.android.layoutlib.bridge.test.widgets.CustomImageView\n" +
-                        "        android:layout_width=\"100dp\"\n" +
-                        "        android:layout_height=\"100dp\"/>\n" +
-                        "</LinearLayout>");
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .disableDecoration()
-                .build();
-
-        renderAndVerify(params, "non-styled_resources.png",
-                TimeUnit.SECONDS.toNanos(2));
-    }
-
-    @Test
-    public void testRenderEffect() throws ClassNotFoundException {
-        // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:background=\"#999\"" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <com.android.layoutlib.bridge.test.widgets.BlurryImageView\n" +
-                        "        android:layout_width=\"100dp\"\n" +
-                        "        android:layout_height=\"100dp\"/>\n" +
-                        "</LinearLayout>");
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .disableDecoration()
-                .build();
-
-        renderAndVerify(params, "render_effect.png",
-                TimeUnit.SECONDS.toNanos(2));
-    }
-
-    @Test
-    public void testDialog() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.DialogView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\" />\n" +
-                        "</LinearLayout>\n";
-        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .disableDecoration()
-                .build();
-
-        renderAndVerify(params, "dialog.png",
-                TimeUnit.SECONDS.toNanos(2));
-    }
-
-    @Test
-    public void testWindowBackgroundWithThemeAttribute() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <TextView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\"\n" +
-                        "             android:text=\"Hello World!\" />\n" +
-                        "</LinearLayout>\n";
-        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .setTheme("WindowBackgroundTheme", true)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .disableDecoration()
-                .build();
-
-        renderAndVerify(params, "window_background.png",
-                TimeUnit.SECONDS.toNanos(2));
     }
 }

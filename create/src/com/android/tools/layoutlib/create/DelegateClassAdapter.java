@@ -99,20 +99,11 @@ public class DelegateClassAdapter extends ClassVisitor {
         }
 
         if (CLASS_INIT.equals(name)) {
-            access = access & ~Opcodes.ACC_PRIVATE;  // make the replacement method package protected.
-
-            // writer for moving the original code to a 'SomeClass.staticInit_Original' method
-            MethodVisitor renamedMethodWriter = super.visitMethod(access,
-                    "staticInit" + ORIGINAL_SUFFIX,
-                    desc, signature, exceptions);
-            // writer for writing the SomeClass.clinit method with a single call to
-            // SomeClass_Delegate.staticInit
-            MethodVisitor originalMethodWriter = super.visitMethod(access, name,
-                    desc, signature, exceptions);
-
-            return new StaticInitMethodAdapter(mLog, renamedMethodWriter,
-                    originalMethodWriter, mClassName);
-
+            // We don't currently support generating delegates for constructors.
+            throw new UnsupportedOperationException(
+                String.format(
+                    "Delegate doesn't support overriding static constructor %1$s:%2$s(%3$s)",
+                    mClassName, name, desc));
         }
 
         if (isNative) {
