@@ -16,6 +16,7 @@
 
 package com.android.layoutlib.bridge.intensive.setup;
 
+import com.android.SdkConstants;
 import com.android.ide.common.rendering.api.ActionBarCallback;
 import com.android.ide.common.rendering.api.AdapterBinding;
 import com.android.ide.common.rendering.api.ILayoutPullParser;
@@ -59,6 +60,8 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
     private final ActionBarCallback mActionBarCallback = new ActionBarCallback();
     private final ClassLoader mModuleClassLoader;
     private String mAdaptiveIconMaskPath;
+    private boolean mSetUseShadow = true;
+    private boolean mHighShadowQuality = true;
 
     public LayoutLibTestCallback(ILogger logger, ClassLoader classLoader) {
         mLog = logger;
@@ -182,11 +185,6 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
             return (T) mAdaptiveIconMaskPath;
         }
         return null;
-    }
-
-    @Override
-    public String getResourcePackage() {
-        return PACKAGE_NAME;
     }
 
     @Override

@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * Class adapter that can stub some or all of the methods of the class.
  */
-public class StubClassAdapter extends ClassVisitor {
+class StubClassAdapter extends ClassVisitor {
     public interface MethodVisitorFactory {
         @NotNull
         MethodVisitor create(@NotNull MethodVisitor mv,

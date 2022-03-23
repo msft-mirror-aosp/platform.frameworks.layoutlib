@@ -16,6 +16,9 @@
 
 package com.android.tools.layoutlib.create;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 
 import java.io.File;
@@ -59,10 +62,9 @@ public class Main {
         private boolean listAllDeps = false;
         private boolean listOnlyMissingDeps = false;
         private boolean createStubLib = false;
-        private boolean createNativeOnlyDelegates = false;
     }
 
-    public static final int ASM_VERSION = Opcodes.ASM7;
+    public static final int ASM_VERSION = Opcodes.ASM6;
 
     private static final Options sOptions = new Options();
 
@@ -74,7 +76,7 @@ public class Main {
         String[] osDestJar = { null };
 
         if (!processArgs(log, args, osJarPath, osDestJar)) {
-            log.error("Usage: layoutlib_create [-v] [--create-stub] [--create-native-only-delegates] output.jar input.jar ...");
+            log.error("Usage: layoutlib_create [-v] [--create-stub] output.jar input.jar ...");
             log.error("Usage: layoutlib_create [-v] [--list-deps|--missing-deps] input.jar ...");
             System.exit(1);
         }
@@ -97,7 +99,7 @@ public class Main {
         }
 
         try {
-            ICreateInfo info = new CreateInfo();
+            CreateInfo info = new CreateInfo();
             AsmGenerator agen = new AsmGenerator(log, info);
 
             AsmAnalyzer aa = new AsmAnalyzer(log, osJarPath,
@@ -136,13 +138,12 @@ public class Main {
                         "com.android.internal.graphics.drawable.AnimationScaleListDrawable",
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
-                        "android.service.wallpaper.*",      // needed for Wear OS watch faces
                     },
                     info.getExcludedClasses(),
                     new String[] {
                         "com/android/i18n/phonenumbers/data/*",
                         "android/icu/impl/data/**"
-                    }, info.getMethodReplacers());
+                    });
             agen.setAnalysisResult(aa.analyze());
 
             Map<String, byte[]> outputClasses = agen.generate();
@@ -165,13 +166,6 @@ public class Main {
                 log.info("Created stub JAR file %s", stubDestJarFile);
             }
 
-            if (sOptions.createNativeOnlyDelegates) {
-                File osDestJarFile = new File(osDestJar);
-                Map<String, byte[]> nativeDelegateClasses =
-                        outputClasses.entrySet().stream().filter(entry -> entry.getKey().endsWith("_NativeDelegate.class")).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-                JarUtil.createJar(new FileOutputStream(osDestJarFile), nativeDelegateClasses);
-                log.info("Created native delegate JAR file %s", osDestJarFile);
-            }
 
             // Throw an error if any class failed to get renamed by the generator
             //
@@ -240,8 +234,6 @@ public class Main {
                 needs_dest = false;
             } else if (s.equals("--create-stub")) {
                 sOptions.createStubLib = true;
-            } else if (s.equals("--create-native-only-delegates")) {
-                sOptions.createNativeOnlyDelegates = true;
             } else if (!s.startsWith("-")) {
                 if (needs_dest && osDestJar[0] == null) {
                     osDestJar[0] = s;

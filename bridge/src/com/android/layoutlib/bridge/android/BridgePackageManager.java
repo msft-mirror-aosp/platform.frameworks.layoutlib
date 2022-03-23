@@ -75,7 +75,7 @@ public class BridgePackageManager extends PackageManager {
 
     @Override
     public PackageInfo getPackageInfo(VersionedPackage versionedPackage,
-            int packageInfoFlags) throws NameNotFoundException {
+            @PackageInfoFlags int flags) throws NameNotFoundException {
         return null;
     }
 
