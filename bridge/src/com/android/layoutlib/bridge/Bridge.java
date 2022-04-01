@@ -44,7 +44,6 @@ import org.xmlpull.v1.XmlPullParser;
 import android.content.res.BridgeAssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.Typeface_Builder_Delegate;
 import android.graphics.fonts.SystemFonts_Delegate;
 import android.icu.util.ULocale;
 import android.os.Looper;
@@ -741,7 +740,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     public void clearFontCache(String path) {
         if (SystemFonts_Delegate.sIsTypefaceInitialized) {
             final String key =
-                    Typeface_Builder_Delegate.createAssetUid(BridgeAssetManager.initSystem(), path,
+                    Typeface.Builder.createAssetUid(BridgeAssetManager.initSystem(), path,
                             0, null, RESOLVE_BY_FONT_TABLE, RESOLVE_BY_FONT_TABLE, DEFAULT_FAMILY);
             Typeface.sDynamicTypefaceCache.remove(key);
         }
