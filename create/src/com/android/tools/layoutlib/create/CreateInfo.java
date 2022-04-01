@@ -350,6 +350,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.content.res.StringBlock#getColor",
         "android.graphics.Bitmap#setNinePatchChunk",
         "android.graphics.Path#nInit",
+        "android.graphics.Typeface$Builder#createAssetUid",
         "android.media.ImageReader#nativeClassInit",
         "android.view.Choreographer#doFrame",
         "android.view.Choreographer#postCallbackDelayedInternal",
