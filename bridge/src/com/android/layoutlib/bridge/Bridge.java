@@ -43,6 +43,7 @@ import org.xmlpull.v1.XmlPullParser;
 
 import android.content.res.BridgeAssetManager;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.fonts.SystemFonts_Delegate;
 import android.icu.util.ULocale;
@@ -119,7 +120,13 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     private final static Map<Object, Map<String, SoftReference<Bitmap>>> sProjectBitmapCache =
             new WeakHashMap<>();
 
+    private final static Map<Object, Map<String, SoftReference<Rect>>> sProjectBitmapPaddingCache =
+            new WeakHashMap<>();
+
     private final static Map<String, SoftReference<Bitmap>> sFrameworkBitmapCache = new HashMap<>();
+
+    private final static Map<String, SoftReference<Rect>> sFrameworkBitmapPaddingCache =
+            new HashMap<>();
 
     private static Map<String, Map<String, Integer>> sEnumValueMap;
     private static Map<String, String> sPlatformProperties;
@@ -408,6 +415,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             Typeface.sDynamicTypefaceCache.evictAll();
         }
         sProjectBitmapCache.clear();
+        sProjectBitmapPaddingCache.clear();
 
         return true;
     }
@@ -488,6 +496,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     public void clearResourceCaches(Object projectKey) {
         if (projectKey != null) {
             sProjectBitmapCache.remove(projectKey);
+            sProjectBitmapPaddingCache.remove(projectKey);
         }
     }
 
@@ -660,6 +669,32 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     }
 
     /**
+     * Returns the padding for the bitmap with a specific path, from a specific project cache, or
+     * from the framework cache.
+     * @param value the path of the bitmap
+     * @param projectKey the key of the project, or null to query the framework cache.
+     * @return the cached padding or null if not found.
+     */
+    public static Rect getCachedBitmapPadding(String value, Object projectKey) {
+        if (projectKey != null) {
+            Map<String, SoftReference<Rect>> map = sProjectBitmapPaddingCache.get(projectKey);
+            if (map != null) {
+                SoftReference<Rect> ref = map.get(value);
+                if (ref != null) {
+                    return ref.get();
+                }
+            }
+        } else {
+            SoftReference<Rect> ref = sFrameworkBitmapPaddingCache.get(value);
+            if (ref != null) {
+                return ref.get();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Sets a bitmap in a project cache or in the framework cache.
      * @param value the path of the bitmap
      * @param bmp the Bitmap object
@@ -673,6 +708,23 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             map.put(value, new SoftReference<>(bmp));
         } else {
             sFrameworkBitmapCache.put(value, new SoftReference<>(bmp));
+        }
+    }
+
+    /**
+     * Sets the padding for a bitmap in a project cache or in the framework cache.
+     * @param value the path of the bitmap
+     * @param padding the padding of that bitmap
+     * @param projectKey the key of the project, or null to put the bitmap in the framework cache.
+     */
+    public static void setCachedBitmapPadding(String value, Rect padding, Object projectKey) {
+        if (projectKey != null) {
+            Map<String, SoftReference<Rect>> map =
+                    sProjectBitmapPaddingCache.computeIfAbsent(projectKey, k -> new HashMap<>());
+
+            map.put(value, new SoftReference<>(padding));
+        } else {
+            sFrameworkBitmapPaddingCache.put(value, new SoftReference<>(padding));
         }
     }
 
