@@ -365,6 +365,7 @@ public final class CreateInfo implements ICreateInfo {
     private final static String[] PROMOTED_CLASSES = new String[] {
         "android.content.res.StringBlock$Height",
         "android.graphics.ImageDecoder$InputStreamSource",
+        "android.graphics.ImageDecoder$ResourceSource",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorUI",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimator",
         "android.view.Choreographer$CallbackQueue", // required for tests only
