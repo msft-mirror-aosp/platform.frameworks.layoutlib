@@ -22,6 +22,7 @@ java_test_host {
     // Only compile source java files in this lib.
     srcs: [
         "src/**/*.java",
+        "src/**/*.kt",
         "res/testApp/MyApplication/src/main/myapplication.widgets/**/*.java",
     ],
     java_resource_dirs: ["res"],
@@ -39,6 +40,7 @@ java_test_host {
         "objenesis",
         "hamcrest",
         "trove-prebuilt",
+        "kotlin-test",
     ],
 
     required: ["layoutlib"],
