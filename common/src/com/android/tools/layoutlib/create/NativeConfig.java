@@ -123,6 +123,7 @@ public class NativeConfig {
             "android.view.PointerIcon#registerDisplayListener",
             "android.view.SurfaceControl#nativeCreateTransaction",
             "android.view.SurfaceControl#nativeGetNativeTransactionFinalizer",
+            "android.view.VelocityTracker#obtain",
             "android.view.View#draw",
             "android.view.View#dispatchDetachedFromWindow",
             "android.view.View#getWindowToken",
