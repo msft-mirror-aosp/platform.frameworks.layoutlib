@@ -124,6 +124,7 @@ public class NativeConfig {
             "android.view.SurfaceControl#nativeCreateTransaction",
             "android.view.SurfaceControl#nativeGetNativeTransactionFinalizer",
             "android.view.TextureView#getTextureLayer",
+            "android.view.VelocityTracker#obtain",
             "android.view.View#draw",
             "android.view.View#dispatchDetachedFromWindow",
             "android.view.View#getWindowToken",
