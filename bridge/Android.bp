@@ -21,7 +21,10 @@ package {
 java_library_host {
     name: "layoutlib",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
     java_resource_dirs: ["resources"],
 
     libs: [
