@@ -133,7 +133,6 @@ public class SparseWeakArray<E> {
                 if (i != o) {
                     keys[o] = keys[i];
                     values[o] = val;
-                    values[i] = null;
                 }
 
                 o++;

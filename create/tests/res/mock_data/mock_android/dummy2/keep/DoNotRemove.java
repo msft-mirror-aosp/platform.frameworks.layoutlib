@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package mock_android.fake.subpackage;
+package mock_android.dummy2.keep;
 
-public class SubpackageClassB {
+public class DoNotRemove {
 
 }

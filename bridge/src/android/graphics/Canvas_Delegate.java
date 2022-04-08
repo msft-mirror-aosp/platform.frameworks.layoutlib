@@ -16,12 +16,13 @@
 
 package android.graphics;
 
-import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.layoutlib.bridge.impl.GcSnapshot;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
+import android.annotation.Nullable;
 import android.graphics.Bitmap.Config;
 
 import java.awt.Graphics2D;
@@ -353,7 +354,7 @@ public final class Canvas_Delegate extends BaseCanvas_Delegate {
 
         if (matrixDelegate.hasPerspective()) {
             assert false;
-            Bridge.getLog().fidelityWarning(ILayoutLog.TAG_MATRIX_AFFINE,
+            Bridge.getLog().fidelityWarning(LayoutLog.TAG_MATRIX_AFFINE,
                     "android.graphics.Canvas#setMatrix(android.graphics.Matrix) only " +
                     "supports affine transformations.", null, null, null /*data*/);
         }
@@ -400,7 +401,7 @@ public final class Canvas_Delegate extends BaseCanvas_Delegate {
         canvasDelegate.mDrawFilter = DrawFilter_Delegate.getDelegate(nativeFilter);
 
         if (canvasDelegate.mDrawFilter != null && !canvasDelegate.mDrawFilter.isSupported()) {
-            Bridge.getLog().fidelityWarning(ILayoutLog.TAG_DRAWFILTER,
+            Bridge.getLog().fidelityWarning(LayoutLog.TAG_DRAWFILTER,
                     canvasDelegate.mDrawFilter.getSupportMessage(), null, null, null /*data*/);
         }
     }

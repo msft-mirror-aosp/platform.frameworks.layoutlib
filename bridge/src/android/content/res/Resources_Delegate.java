@@ -20,7 +20,7 @@ import com.android.SdkConstants;
 import com.android.ide.common.rendering.api.ArrayResourceValue;
 import com.android.ide.common.rendering.api.AssetRepository;
 import com.android.ide.common.rendering.api.DensityBasedResourceValue;
-import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.PluralsResourceValue;
 import com.android.ide.common.rendering.api.RenderResources;
@@ -42,7 +42,7 @@ import com.android.resources.ResourceType;
 import com.android.resources.ResourceUrl;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
-import com.android.utils.Pair;
+import com.android.util.Pair;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -71,6 +71,7 @@ import static android.content.res.AssetManager.ACCESS_STREAMING;
 import static com.android.SdkConstants.ANDROID_PKG;
 import static com.android.SdkConstants.PREFIX_RESOURCE_REF;
 
+@SuppressWarnings("deprecation")
 public class Resources_Delegate {
     private static WeakHashMap<Resources, LayoutlibCallback> sLayoutlibCallbacks =
             new WeakHashMap<>();
@@ -225,7 +226,7 @@ public class Resources_Delegate {
                 } else {
                     message = e.getMessage();
                 }
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT, message, e, null, null);
+                Bridge.getLog().error(LayoutLog.TAG_RESOURCES_FORMAT, message, e, null, null);
                 return 0;
             }
         }
@@ -371,16 +372,16 @@ public class Resources_Delegate {
                             values[i] = getInt(element);
                         }
                     } catch (NumberFormatException e) {
-                        Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT,
+                        Bridge.getLog().error(LayoutLog.TAG_RESOURCES_FORMAT,
                                 "Integer resource array contains non-integer value: \"" + element +
                                         "\"", null, null);
                     } catch (IllegalArgumentException e) {
-                        Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT,
+                        Bridge.getLog().error(LayoutLog.TAG_RESOURCES_FORMAT,
                                 "Integer resource array contains wrong color format: \"" + element +
                                         "\"", null, null);
                     }
                 } else {
-                    Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT,
+                    Bridge.getLog().error(LayoutLog.TAG_RESOURCES_FORMAT,
                             "Integer resource array contains non-integer value: \"" +
                                     resValue.getElement(i) + "\"", null, null);
                 }
@@ -394,13 +395,13 @@ public class Resources_Delegate {
             try {
                 return new int[]{getInt(firstValue)};
             } catch (NumberFormatException e) {
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT,
+                Bridge.getLog().error(LayoutLog.TAG_RESOURCES_FORMAT,
                         "Integer resource array contains non-integer value: \"" + firstValue + "\"",
                         null, null);
                 return new int[1];
             }
         } else {
-            Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT,
+            Bridge.getLog().error(LayoutLog.TAG_RESOURCES_FORMAT,
                     "Integer resource array contains non-integer value: \"" +
                             rv.getValue() + "\"", null, null);
             return new int[1];
@@ -431,7 +432,7 @@ public class Resources_Delegate {
             if (resValue != null) {
                 final ResourceType type = resValue.getResourceType();
                 if (type != ResourceType.ARRAY) {
-                    Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_RESOLVE,
+                    Bridge.getLog().error(LayoutLog.TAG_RESOURCES_RESOLVE,
                             String.format(
                                     "Resource with id 0x%1$X is not an array resource, but %2$s",
                                     id, type == null ? "null" : type.getDisplayName()),
@@ -439,7 +440,7 @@ public class Resources_Delegate {
                     return null;
                 }
                 if (!(resValue instanceof ArrayResourceValue)) {
-                    Bridge.getLog().warning(ILayoutLog.TAG_UNSUPPORTED,
+                    Bridge.getLog().warning(LayoutLog.TAG_UNSUPPORTED,
                             "Obtaining resource arrays via getTextArray, getStringArray or getIntArray is not fully supported in this version of the IDE.",
                             null, null);
                 }
@@ -487,7 +488,7 @@ public class Resources_Delegate {
                     return parser;
                 }
             } catch (XmlPullParserException e) {
-                Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
+                Bridge.getLog().error(LayoutLog.TAG_BROKEN,
                         "Failed to parse " + value.getValue(), e, null, null /*data*/);
                 // we'll return null below.
             }
@@ -510,7 +511,7 @@ public class Resources_Delegate {
             try {
                 return ResourceHelper.getXmlBlockParser(getContext(resources), value);
             } catch (XmlPullParserException e) {
-                Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
+                Bridge.getLog().error(LayoutLog.TAG_BROKEN,
                         "Failed to parse " + value.getValue(), e, null, null /*data*/);
                 // we'll return null below.
             }
@@ -945,7 +946,7 @@ public class Resources_Delegate {
             try {
                 return ResourceHelper.getXmlBlockParser(getContext(resources), value);
             } catch (XmlPullParserException e) {
-                Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
+                Bridge.getLog().error(LayoutLog.TAG_BROKEN,
                         "Failed to parse " + value.getValue(), e, null, null /*data*/);
                 // we'll return null below.
             }
@@ -1077,12 +1078,12 @@ public class Resources_Delegate {
             }
             // We have package but no type
             String pkg = name.substring(0, colonIdx);
-            ResourceType type = ResourceType.fromClassName(defType);
+            ResourceType type = ResourceType.getEnum(defType);
             return type != null ? ResourceUrl.create(pkg, type, name.substring(colonIdx + 1)) :
                     null;
         }
 
-        ResourceType type = ResourceType.fromClassName(name.substring(0, slashIdx));
+        ResourceType type = ResourceType.getEnum(name.substring(0, slashIdx));
         if (type == null) {
             return null;
         }

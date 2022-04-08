@@ -17,7 +17,7 @@
 package android.graphics;
 
 import com.android.ide.common.rendering.api.AssetRepository;
-import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.layoutlib.bridge.Bridge;
@@ -143,7 +143,7 @@ public final class Bitmap_Delegate {
         Bitmap_Delegate delegate = new Bitmap_Delegate(image, Config.ARGB_8888);
         delegate.mIsMutable = createFlags.contains(BitmapCreateFlags.MUTABLE);
 
-        return createBitmap(delegate, createFlags, density.getDpiValue(), null);
+        return createBitmap(delegate, createFlags, density.getDpiValue());
     }
 
     /**
@@ -172,27 +172,11 @@ public final class Bitmap_Delegate {
      */
     public static Bitmap createBitmap(BufferedImage image, Set<BitmapCreateFlags> createFlags,
             Density density) {
-        return createBitmap(image, null, createFlags, density);
-    }
-
-    /**
-     * Creates and returns a {@link Bitmap} initialized with the given {@link BufferedImage}
-     *
-     * @param image the bitmap content
-     * @param ninePatchChunk serialized ninepatch data
-     * @param density the density associated with the bitmap
-     *
-     * @see Bitmap#isPremultiplied()
-     * @see Bitmap#isMutable()
-     * @see Bitmap#getDensity()
-     */
-    public static Bitmap createBitmap(BufferedImage image, byte[] ninePatchChunk,
-            Set<BitmapCreateFlags> createFlags, Density density) {
         // create a delegate with the given image.
         Bitmap_Delegate delegate = new Bitmap_Delegate(image, Config.ARGB_8888);
         delegate.mIsMutable = createFlags.contains(BitmapCreateFlags.MUTABLE);
 
-        return createBitmap(delegate, createFlags, density.getDpiValue(), ninePatchChunk);
+        return createBitmap(delegate, createFlags, density.getDpiValue());
     }
 
     private static int getBufferedImageType() {
@@ -250,7 +234,7 @@ public final class Bitmap_Delegate {
         delegate.mIsMutable = isMutable;
 
         return createBitmap(delegate, getPremultipliedBitmapCreateFlags(isMutable),
-                            Bitmap.getDefaultDensity(), null);
+                            Bitmap.getDefaultDensity());
     }
 
     @LayoutlibDelegate
@@ -280,7 +264,7 @@ public final class Bitmap_Delegate {
         delegate.mIsMutable = isMutable;
 
         return createBitmap(delegate, getPremultipliedBitmapCreateFlags(isMutable),
-                Bitmap.getDefaultDensity(), null);
+                Bitmap.getDefaultDensity());
     }
 
     @LayoutlibDelegate
@@ -315,14 +299,14 @@ public final class Bitmap_Delegate {
     @LayoutlibDelegate
     /*package*/ static void nativeReconfigure(long nativeBitmap, int width, int height,
             int config, boolean isPremultiplied) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Bitmap.reconfigure() is not supported", null, null /*data*/);
     }
 
     @LayoutlibDelegate
     /*package*/ static boolean nativeCompress(long nativeBitmap, int format, int quality,
             OutputStream stream, byte[] tempStorage) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Bitmap.compress() is not supported", null, null /*data*/);
         return true;
     }
@@ -442,14 +426,14 @@ public final class Bitmap_Delegate {
     @LayoutlibDelegate
     /*package*/ static void nativeCopyPixelsToBuffer(long nativeBitmap, Buffer dst) {
         // FIXME implement native delegate
-        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().fidelityWarning(LayoutLog.TAG_UNSUPPORTED,
                 "Bitmap.copyPixelsToBuffer is not supported.", null, null, null /*data*/);
     }
 
     @LayoutlibDelegate
     /*package*/ static void nativeCopyPixelsFromBuffer(long nb, Buffer src) {
         // FIXME implement native delegate
-        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().fidelityWarning(LayoutLog.TAG_UNSUPPORTED,
                 "Bitmap.copyPixelsFromBuffer is not supported.", null, null, null /*data*/);
     }
 
@@ -467,7 +451,7 @@ public final class Bitmap_Delegate {
     /*package*/ static Bitmap nativeCreateFromParcel(Parcel p) {
         // This is only called by Bitmap.CREATOR (Parcelable.Creator<Bitmap>), which is only
         // used during aidl call so really this should not be called.
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "AIDL is not suppored, and therefore Bitmaps cannot be created from parcels.",
                 null, null /*data*/);
         return null;
@@ -477,7 +461,7 @@ public final class Bitmap_Delegate {
     /*package*/ static boolean nativeWriteToParcel(long nativeBitmap, int density, Parcel p) {
         // This is only called when sending a bitmap through aidl, so really this should not
         // be called.
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "AIDL is not suppored, and therefore Bitmaps cannot be written to parcels.",
                 null, null /*data*/);
         return false;
@@ -495,7 +479,7 @@ public final class Bitmap_Delegate {
         Paint_Delegate paint = Paint_Delegate.getDelegate(nativePaint);
 
         if (paint != null && paint.getMaskFilter() != null) {
-            Bridge.getLog().fidelityWarning(ILayoutLog.TAG_MASKFILTER,
+            Bridge.getLog().fidelityWarning(LayoutLog.TAG_MASKFILTER,
                     "MaskFilter not supported in Bitmap.extractAlpha",
                     null, null, null /*data*/);
         }
@@ -509,7 +493,7 @@ public final class Bitmap_Delegate {
 
         // the density doesn't matter, it's set by the Java method.
         return createBitmap(delegate, EnumSet.of(BitmapCreateFlags.MUTABLE),
-                Density.DEFAULT_DENSITY /*density*/, null);
+                Density.DEFAULT_DENSITY /*density*/);
     }
 
     @LayoutlibDelegate
@@ -633,40 +617,47 @@ public final class Bitmap_Delegate {
         delegate.mIsMutable = srcBmpDelegate.mIsMutable;
 
         return createBitmap(delegate, EnumSet.of(BitmapCreateFlags.NONE),
-                Bitmap.getDefaultDensity(), null);
+                Bitmap.getDefaultDensity());
     }
 
     @LayoutlibDelegate
     /*package*/ static Bitmap nativeWrapHardwareBufferBitmap(HardwareBuffer buffer,
             long nativeColorSpace) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Bitmap.nativeWrapHardwareBufferBitmap() is not supported", null, null, null);
         return null;
     }
 
     @LayoutlibDelegate
+    /*package*/ static GraphicBuffer nativeCreateGraphicBufferHandle(long nativeBitmap) {
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
+                "Bitmap.nativeCreateGraphicBufferHandle() is not supported", null /*data*/);
+        return null;
+    }
+
+    @LayoutlibDelegate
     /*package*/ static boolean nativeIsSRGB(long nativeBitmap) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Color spaces are not supported", null, null /*data*/);
         return false;
     }
 
     @LayoutlibDelegate
     /*package*/ static ColorSpace nativeComputeColorSpace(long nativePtr) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Color spaces are not supported", null, null /*data*/);
         return null;
     }
 
     @LayoutlibDelegate
     /*package*/ static void nativeSetColorSpace(long nativePtr, long nativeColorSpace) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Color spaces are not supported", null, null /*data*/);
     }
 
     @LayoutlibDelegate
     /*package*/ static boolean nativeIsSRGBLinear(long nativePtr) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "Color spaces are not supported", null, null /*data*/);
         return false;
     }
@@ -691,7 +682,7 @@ public final class Bitmap_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static HardwareBuffer nativeGetHardwareBuffer(long nativeBitmap) {
-        Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().error(LayoutLog.TAG_UNSUPPORTED,
                 "HardwareBuffer is not supported", null, null /*data*/);
         return null;
     }
@@ -704,7 +695,7 @@ public final class Bitmap_Delegate {
     }
 
     private static Bitmap createBitmap(Bitmap_Delegate delegate,
-            Set<BitmapCreateFlags> createFlags, int density, byte[] ninePatchChunk) {
+            Set<BitmapCreateFlags> createFlags, int density) {
         // get its native_int
         long nativeInt = sManager.addNewDelegate(delegate);
 
@@ -714,7 +705,7 @@ public final class Bitmap_Delegate {
 
         // and create/return a new Bitmap with it
         return new Bitmap(nativeInt, width, height, density, isPremultiplied,
-                ninePatchChunk, null /* layoutBounds */, true /* fromMalloc */);
+                null /*ninePatchChunk*/, null /* layoutBounds */, true /* fromMalloc */);
     }
 
     private static Set<BitmapCreateFlags> getPremultipliedBitmapCreateFlags(boolean isMutable) {

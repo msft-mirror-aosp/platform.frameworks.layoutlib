@@ -16,8 +16,12 @@
 
 package android.view.shadow;
 
-import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.layoutlib.bridge.Bridge;
+import com.android.tools.layoutlib.annotations.VisibleForTesting;
+
+import android.graphics.Bitmap;
+import android.view.math.Math3DHelper;
 
 /**
  * Generate spot shadow bitmap.
@@ -54,11 +58,11 @@ class SpotShadowTriangulator {
                     mShadowConfig.getShadowStrength(),
                     mStrips);
         } catch (IndexOutOfBoundsException|ArithmeticException mathError) {
-            Bridge.getLog().warning(ILayoutLog.TAG_INFO,  "Arithmetic error while drawing " +
+            Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Arithmetic error while drawing " +
                             "spot shadow",
                     null, mathError);
         } catch (Exception ex) {
-            Bridge.getLog().warning(ILayoutLog.TAG_INFO,  "Error while drawing shadow",
+            Bridge.getLog().warning(LayoutLog.TAG_INFO,  "Error while drawing shadow",
                     null, ex);
         }
     }

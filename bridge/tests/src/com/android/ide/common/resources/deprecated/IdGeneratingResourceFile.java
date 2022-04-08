@@ -53,7 +53,7 @@ public final class IdGeneratingResourceFile extends ResourceFile
 
     private final ResourceValue mFileValue;
 
-    public IdGeneratingResourceFile(TestFileWrapper file, ResourceFolder folder, ResourceType type) {
+    public IdGeneratingResourceFile(IAbstractFile file, ResourceFolder folder, ResourceType type) {
         super(file, folder);
 
         mFileType = type;

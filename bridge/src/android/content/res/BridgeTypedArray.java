@@ -18,7 +18,7 @@ package android.content.res;
 
 import com.android.ide.common.rendering.api.ArrayResourceValue;
 import com.android.ide.common.rendering.api.AttrResourceValue;
-import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceNamespace.Resolver;
@@ -26,7 +26,6 @@ import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.ide.common.rendering.api.TextResourceValue;
-import com.android.ide.common.resources.ValueXmlHelper;
 import com.android.internal.util.XmlUtils;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -74,8 +73,6 @@ import static com.android.ide.common.rendering.api.RenderResources.REFERENCE_UND
  * Custom implementation of TypedArray to handle non compiled resources.
  */
 public final class BridgeTypedArray extends TypedArray {
-    private static final String MATCH_PARENT_INT_STRING = String.valueOf(LayoutParams.MATCH_PARENT);
-    private static final String WRAP_CONTENT_INT_STRING = String.valueOf(LayoutParams.WRAP_CONTENT);
 
     private final Resources mBridgeResources;
     private final BridgeContext mContext;
@@ -211,9 +208,7 @@ public final class BridgeTypedArray extends TypedArray {
         ResourceValue resourceValue = mResourceData[index];
         String value = resourceValue.getValue();
         if (resourceValue instanceof TextResourceValue) {
-            String rawValue =
-                    ValueXmlHelper.unescapeResourceString(resourceValue.getRawXmlValue(),
-                            true, false);
+            String rawValue = resourceValue.getRawXmlValue();
             if (rawValue != null && !rawValue.equals(value)) {
                 return Html.fromHtml(rawValue, FROM_HTML_MODE_COMPACT);
             }
@@ -270,7 +265,7 @@ public final class BridgeTypedArray extends TypedArray {
         try {
             return convertValueToInt(s, defValue);
         } catch (NumberFormatException e) {
-            Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
+            Bridge.getLog().warning(LayoutLog.TAG_RESOURCES_FORMAT,
                     String.format("\"%1$s\" in attribute \"%2$s\" is not a valid integer",
                             s, mNames[index]),
                     null, null);
@@ -293,7 +288,7 @@ public final class BridgeTypedArray extends TypedArray {
                     return Float.parseFloat(s);
             }
         } catch (NumberFormatException e) {
-            Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
+            Bridge.getLog().warning(LayoutLog.TAG_RESOURCES_FORMAT,
                     String.format("\"%1$s\" in attribute \"%2$s\" cannot be converted to float.",
                             s, mNames[index]),
                     null, null);
@@ -387,11 +382,13 @@ public final class BridgeTypedArray extends TypedArray {
             return defValue;
         }
         // Check if the value is a magic constant that doesn't require a unit.
-        if (MATCH_PARENT_INT_STRING.equals(s)) {
-            return LayoutParams.MATCH_PARENT;
-        }
-        if (WRAP_CONTENT_INT_STRING.equals(s)) {
-            return LayoutParams.WRAP_CONTENT;
+        try {
+            int i = Integer.parseInt(s);
+            if (i == LayoutParams.MATCH_PARENT || i == LayoutParams.WRAP_CONTENT) {
+                return i;
+            }
+        } catch (NumberFormatException ignored) {
+            // pass
         }
 
         if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
@@ -443,33 +440,21 @@ public final class BridgeTypedArray extends TypedArray {
      */
     @Override
     public int getDimensionPixelSize(int index, int defValue) {
-        String s = getString(index);
-        if (s == null) {
+        try {
+            return getDimension(index, null);
+        } catch (RuntimeException e) {
+            String s = getString(index);
+
+            if (s != null) {
+                // looks like we were unable to resolve the dimension value
+                Bridge.getLog().warning(LayoutLog.TAG_RESOURCES_FORMAT,
+                        String.format("\"%1$s\" in attribute \"%2$s\" is not a valid format.",
+                                s, mNames[index]),
+                        null, null);
+            }
+
             return defValue;
         }
-
-        if (MATCH_PARENT_INT_STRING.equals(s)) {
-            return LayoutParams.MATCH_PARENT;
-        }
-        if (WRAP_CONTENT_INT_STRING.equals(s)) {
-            return LayoutParams.WRAP_CONTENT;
-        }
-
-        if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
-            float f = mValue.getDimension(mBridgeResources.getDisplayMetrics());
-
-            final int res = (int) (f + 0.5f);
-            if (res != 0) return res;
-            if (f == 0) return 0;
-            if (f > 0) return 1;
-        }
-
-        // looks like we were unable to resolve the dimension value
-        Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
-                String.format("\"%1$s\" in attribute \"%2$s\" is not a valid format.", s, mNames[index]),
-                null, null);
-
-        return defValue;
     }
 
     /**
@@ -486,39 +471,56 @@ public final class BridgeTypedArray extends TypedArray {
      */
     @Override
     public int getLayoutDimension(int index, String name) {
-        String s = getString(index);
-        if (s != null) {
-            // Check if the value is a magic constant that doesn't require a unit.
-            if (MATCH_PARENT_INT_STRING.equals(s)) {
-                return LayoutParams.MATCH_PARENT;
-            }
-            if (WRAP_CONTENT_INT_STRING.equals(s)) {
-                return LayoutParams.WRAP_CONTENT;
+        try {
+            // this will throw an exception if not found.
+            return getDimension(index, name);
+        } catch (RuntimeException e) {
+
+            if (LayoutInflater_Delegate.sIsInInclude) {
+                throw new RuntimeException("Layout Dimension '" + name + "' not found.");
             }
 
-            if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
-                float f = mValue.getDimension(mBridgeResources.getDisplayMetrics());
+            Bridge.getLog().warning(LayoutLog.TAG_RESOURCES_FORMAT,
+                    "You must supply a " + name + " attribute.",
+                    null, null);
 
-                final int res = (int) (f + 0.5f);
-                if (res != 0) return res;
-                if (f == 0) return 0;
-                if (f > 0) return 1;
-            }
+            return 0;
         }
-
-        if (LayoutInflater_Delegate.sIsInInclude) {
-            throw new RuntimeException("Layout Dimension '" + name + "' not found.");
-        }
-
-        Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
-                "You must supply a " + name + " attribute.", null, null);
-
-        return 0;
     }
 
     @Override
     public int getLayoutDimension(int index, int defValue) {
         return getDimensionPixelSize(index, defValue);
+    }
+
+    /** @param name attribute name, used for error reporting. */
+    private int getDimension(int index, @Nullable String name) {
+        String s = getString(index);
+        if (s == null) {
+            if (name != null) {
+                throw new RuntimeException("Attribute '" + name + "' not found");
+            }
+            throw new RuntimeException();
+        }
+        // Check if the value is a magic constant that doesn't require a unit.
+        try {
+            int i = Integer.parseInt(s);
+            if (i == LayoutParams.MATCH_PARENT || i == LayoutParams.WRAP_CONTENT) {
+                return i;
+            }
+        } catch (NumberFormatException ignored) {
+            // pass
+        }
+        if (ResourceHelper.parseFloatAttribute(mNames[index], s, mValue, true)) {
+            float f = mValue.getDimension(mBridgeResources.getDisplayMetrics());
+
+            final int res = (int)(f+0.5f);
+            if (res != 0) return res;
+            if (f == 0) return 0;
+            if (f > 0) return 1;
+        }
+
+        throw new RuntimeException();
     }
 
     /**
@@ -548,7 +550,7 @@ public final class BridgeTypedArray extends TypedArray {
         }
 
         // looks like we were unable to resolve the fraction value
-        Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
+        Bridge.getLog().warning(LayoutLog.TAG_RESOURCES_FORMAT,
                 String.format(
                         "\"%1$s\" in attribute \"%2$s\" cannot be converted to a fraction.",
                         value, mNames[index]),
@@ -807,9 +809,57 @@ public final class BridgeTypedArray extends TypedArray {
     }
 
     @Override
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public int getType(int index) {
         String value = getString(index);
-        return getType(value);
+        if (value == null) {
+            return TYPE_NULL;
+        }
+        if (value.startsWith(PREFIX_RESOURCE_REF)) {
+            return TYPE_REFERENCE;
+        }
+        if (value.startsWith(PREFIX_THEME_REF)) {
+            return TYPE_ATTRIBUTE;
+        }
+        try {
+            // Don't care about the value. Only called to check if an exception is thrown.
+            convertValueToInt(value, 0);
+            if (value.startsWith("0x") || value.startsWith("0X")) {
+                return TYPE_INT_HEX;
+            }
+            // is it a color?
+            if (value.startsWith("#")) {
+                int length = value.length() - 1;
+                if (length == 3) {  // rgb
+                    return TYPE_INT_COLOR_RGB4;
+                }
+                if (length == 4) {  // argb
+                    return TYPE_INT_COLOR_ARGB4;
+                }
+                if (length == 6) {  // rrggbb
+                    return TYPE_INT_COLOR_RGB8;
+                }
+                if (length == 8) {  // aarrggbb
+                    return TYPE_INT_COLOR_ARGB8;
+                }
+            }
+            if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
+                return TYPE_INT_BOOLEAN;
+            }
+            return TYPE_INT_DEC;
+        } catch (NumberFormatException ignored) {
+            try {
+                Float.parseFloat(value);
+                return TYPE_FLOAT;
+            } catch (NumberFormatException ignore) {
+            }
+            // Might be a dimension.
+            if (ResourceHelper.parseFloatAttribute(null, value, new TypedValue(), false)) {
+                return TYPE_DIMENSION;
+            }
+        }
+        // TODO: handle fractions.
+        return TYPE_STRING;
     }
 
     /**
@@ -979,73 +1029,6 @@ public final class BridgeTypedArray extends TypedArray {
 
         // Use Long, since we want to handle hex ints > 80000000.
         return ((int)Long.parseLong(charSeq.substring(index), base)) * sign;
-    }
-
-    protected static int getType(@Nullable String value) {
-        if (value == null) {
-            return TYPE_NULL;
-        }
-        if (value.startsWith(PREFIX_RESOURCE_REF)) {
-            return TYPE_REFERENCE;
-        }
-        if (value.startsWith(PREFIX_THEME_REF)) {
-            return TYPE_ATTRIBUTE;
-        }
-        if (value.equals("true") || value.equals("false")) {
-            return TYPE_INT_BOOLEAN;
-        }
-        if (value.startsWith("0x") || value.startsWith("0X")) {
-            try {
-                // Check if it is a hex value.
-                Long.parseLong(value.substring(2), 16);
-                return TYPE_INT_HEX;
-            } catch (NumberFormatException e) {
-                return TYPE_STRING;
-            }
-        }
-        if (value.startsWith("#")) {
-            try {
-                // Check if it is a color.
-                ResourceHelper.getColor(value);
-                int length = value.length() - 1;
-                if (length == 3) {  // rgb
-                    return TYPE_INT_COLOR_RGB4;
-                }
-                if (length == 4) {  // argb
-                    return TYPE_INT_COLOR_ARGB4;
-                }
-                if (length == 6) {  // rrggbb
-                    return TYPE_INT_COLOR_RGB8;
-                }
-                if (length == 8) {  // aarrggbb
-                    return TYPE_INT_COLOR_ARGB8;
-                }
-            } catch (NumberFormatException e) {
-                return TYPE_STRING;
-            }
-        }
-        if (!Character.isDigit(value.charAt(value.length() - 1))) {
-            // Check if it is a dimension.
-            if (ResourceHelper.parseFloatAttribute(null, value, new TypedValue(), false)) {
-                return TYPE_DIMENSION;
-            } else {
-                return TYPE_STRING;
-            }
-        }
-        try {
-            // Check if it is an int.
-            convertValueToInt(value, 0);
-            return TYPE_INT_DEC;
-        } catch (NumberFormatException ignored) {
-            try {
-                // Check if it is a float.
-                Float.parseFloat(value);
-                return TYPE_FLOAT;
-            } catch (NumberFormatException ignore) {
-            }
-        }
-        // TODO: handle fractions.
-        return TYPE_STRING;
     }
 
     static TypedArray obtain(Resources res, int len) {

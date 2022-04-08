@@ -29,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import android.content.res.BridgeTypedArrayTest;
 import android.content.res.Resources_DelegateTest;
 import android.graphics.Color_DelegateTest;
 import android.graphics.Matrix_DelegateTest;
@@ -48,7 +47,7 @@ import android.util.imagepool.ImagePoolImplTest;
         BridgeRenderSessionTest.class, ResourceHelperTest.class, BridgeContextTest.class,
         Resources_DelegateTest.class, Color_DelegateTest.class, ImagePoolHelperTest.class,
         ImagePoolImplTest.class, HighQualityShadowsRenderTests.class,
-        LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class
+        LayoutValidatorTests.class, AccessibilityValidatorTests.class
 })
 public class Main {
 }

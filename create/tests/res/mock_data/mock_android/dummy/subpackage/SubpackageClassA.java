@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package mock_android.fake2;
+package mock_android.dummy.subpackage;
 
-public class FakeClass {
+public class SubpackageClassA {
 
 }

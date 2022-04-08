@@ -41,6 +41,5 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="layoutlib_api-prebuilt" level="project" />
   </component>
 </module>

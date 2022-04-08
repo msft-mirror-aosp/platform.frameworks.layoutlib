@@ -17,7 +17,7 @@
 package android.graphics;
 
 
-import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
@@ -25,6 +25,7 @@ import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import android.graphics.Matrix.ScaleToFit;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 
 import libcore.util.NativeAllocationRegistry_Delegate;
 
@@ -63,7 +64,7 @@ public final class Matrix_Delegate {
      * Returns an {@link AffineTransform} matching the given Matrix.
      */
     public static AffineTransform getAffineTransform(Matrix m) {
-        Matrix_Delegate delegate = sManager.getDelegate(m.ni());
+        Matrix_Delegate delegate = sManager.getDelegate(m.native_instance);
         if (delegate == null) {
             return null;
         }
@@ -72,7 +73,7 @@ public final class Matrix_Delegate {
     }
 
     public static boolean hasPerspective(Matrix m) {
-        Matrix_Delegate delegate = sManager.getDelegate(m.ni());
+        Matrix_Delegate delegate = sManager.getDelegate(m.native_instance);
         if (delegate == null) {
             return false;
         }
@@ -597,7 +598,7 @@ public final class Matrix_Delegate {
     /*package*/ static boolean nSetPolyToPoly(long native_object, float[] src, int srcIndex,
             float[] dst, int dstIndex, int pointCount) {
         // FIXME
-        Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED,
+        Bridge.getLog().fidelityWarning(LayoutLog.TAG_UNSUPPORTED,
                 "Matrix.setPolyToPoly is not supported.",
                 null, null, null /*data*/);
         return false;

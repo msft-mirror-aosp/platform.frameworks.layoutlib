@@ -95,8 +95,6 @@ public class AccessibilityValidator {
                 policy.mChecks);
 
         for (AccessibilityHierarchyCheckResult result : results) {
-            String category = getCheckClassCategory(result.getSourceCheckClass());
-
             ValidatorData.Level level = convertLevel(result.getType());
             if (!filter.contains(level)) {
                 continue;
@@ -104,7 +102,6 @@ public class AccessibilityValidator {
 
             try {
                 IssueBuilder issueBuilder = new IssueBuilder()
-                        .setCategory(category)
                         .setMsg(result.getMessage(Locale.ENGLISH).toString())
                         .setLevel(level)
                         .setFix(generateFix(result))
@@ -122,7 +119,6 @@ public class AccessibilityValidator {
                 builder.mIssues.add(issueBuilder.build());
             } catch (Exception e) {
                 builder.mIssues.add(new IssueBuilder()
-                        .setCategory(category)
                         .setType(Type.INTERNAL_ERROR)
                         .setMsg(e.getMessage())
                         .setLevel(Level.ERROR)
@@ -131,19 +127,6 @@ public class AccessibilityValidator {
         }
         builder.mMetric.endTimer();
         return builder.build();
-    }
-
-    @NotNull
-    private static String getCheckClassCategory(@NotNull Class<?> checkClass) {
-        try {
-            Class<? extends AccessibilityHierarchyCheck> subClass =
-                    checkClass.asSubclass(AccessibilityHierarchyCheck.class);
-            AccessibilityHierarchyCheck check =
-                    AccessibilityCheckPreset.getHierarchyCheckForClass(subClass);
-            return (check == null) ? "Accessibility" : check.getCategory().name();
-        } catch (ClassCastException e) {
-            return "Accessibility";
-        }
     }
 
     @NotNull

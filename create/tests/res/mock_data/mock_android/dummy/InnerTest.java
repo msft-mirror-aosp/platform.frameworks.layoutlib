@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mock_android.fake;
+package mock_android.dummy;
 
 import java.util.ArrayList;
 import java.util.Collection;

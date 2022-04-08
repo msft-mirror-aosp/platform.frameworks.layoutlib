@@ -17,7 +17,7 @@
 package com.android.layoutlib.bridge;
 
 import com.android.ide.common.rendering.api.DrawableParams;
-import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
@@ -33,7 +33,7 @@ import com.android.resources.ResourceType;
 import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.create.MethodAdapter;
 import com.android.tools.layoutlib.create.OverrideMethod;
-import com.android.utils.Pair;
+import com.android.util.Pair;
 
 import android.animation.PropertyValuesHolder;
 import android.animation.PropertyValuesHolder_Delegate;
@@ -56,6 +56,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -93,6 +94,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     /**
      * Maps from id to resource type/name. This is for com.android.internal.R
      */
+    @SuppressWarnings("deprecation")
     private final static Map<Integer, Pair<ResourceType, String>> sRMap = new HashMap<>();
 
     /**
@@ -122,7 +124,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     /**
      * A default log than prints to stdout/stderr.
      */
-    private final static ILayoutLog sDefaultLog = new ILayoutLog() {
+    private final static LayoutLog sDefaultLog = new LayoutLog() {
         @Override
         public void error(String tag, String message, Object viewCookie, Object data) {
             System.err.println(message);
@@ -143,7 +145,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     /**
      * Current log.
      */
-    private static ILayoutLog sCurrentLog = sDefaultLog;
+    private static LayoutLog sCurrentLog = sDefaultLog;
 
     public static boolean sIsTypefaceInitialized;
 
@@ -153,7 +155,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             String nativeLibPath,
             String icuDataPath,
             Map<String, Map<String, Integer>> enumValueMap,
-            ILayoutLog log) {
+            LayoutLog log) {
         sPlatformProperties = platformProperties;
         sEnumValueMap = enumValueMap;
 
@@ -206,7 +208,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                     continue;
                 }
                 String resTypeName = inner.getSimpleName();
-                ResourceType resType = ResourceType.fromClassName(resTypeName);
+                ResourceType resType = ResourceType.getEnum(resTypeName);
                 if (resType != null) {
                     Map<String, Integer> fullMap = null;
                     switch (resType) {
@@ -234,6 +236,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                         Class<?> type = f.getType();
                         if (!type.isArray()) {
                             Integer value = (Integer) f.get(null);
+                            //noinspection deprecation
                             sRMap.put(value, Pair.of(resType, f.getName()));
                             fullMap.put(f.getName(), value);
                         }
@@ -242,7 +245,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             }
         } catch (Exception throwable) {
             if (log != null) {
-                log.error(ILayoutLog.TAG_BROKEN,
+                log.error(LayoutLog.TAG_BROKEN,
                         "Failed to load com.android.internal.R from the layout library jar",
                         throwable, null, null);
             }
@@ -324,9 +327,11 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             if (arrayValue != null) {
                 String attrName = name.substring(arrayName.length() + 1);
                 int attrValue = arrayValue[index];
+                //noinspection deprecation
                 sRMap.put(attrValue, Pair.of(ResourceType.ATTR, attrName));
                 revRAttrMap.put(attrName, attrValue);
             }
+            //noinspection deprecation
             sRMap.put(index, Pair.of(ResourceType.STYLEABLE, name));
             revRStyleableMap.put(name, index);
         }
@@ -507,11 +512,11 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         Looper_Accessor.cleanupThread();
     }
 
-    public static ILayoutLog getLog() {
+    public static LayoutLog getLog() {
         return sCurrentLog;
     }
 
-    public static void setLog(ILayoutLog log) {
+    public static void setLog(LayoutLog log) {
         // check only the thread currently owning the lock can do this.
         if (!sLock.isHeldByCurrentThread()) {
             throw new IllegalStateException("scene must be acquired first. see #acquire(long)");

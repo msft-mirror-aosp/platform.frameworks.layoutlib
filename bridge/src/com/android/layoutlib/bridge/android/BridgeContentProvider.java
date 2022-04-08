@@ -16,7 +16,6 @@
 
 package com.android.layoutlib.bridge.android;
 
-import android.content.AttributionSource;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -45,7 +44,7 @@ import java.util.ArrayList;
  */
 public final class BridgeContentProvider implements IContentProvider {
     @Override
-    public ContentProviderResult[] applyBatch(AttributionSource attributionSource,
+    public ContentProviderResult[] applyBatch(String callingPackage, String callingFeatureId,
             String authority, ArrayList<ContentProviderOperation> arg0)
             throws RemoteException, OperationApplicationException {
         // TODO Auto-generated method stub
@@ -53,21 +52,21 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public int bulkInsert(AttributionSource attributionSource, Uri arg0,
+    public int bulkInsert(String callingPackage, String callingFeatureId, Uri arg0,
             ContentValues[] arg1) throws RemoteException {
         // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
-    public Bundle call(AttributionSource attributionSource, String authority,
+    public Bundle call(String callingPackage, String callingFeatureId, String authority,
             String arg0, String arg1, Bundle arg2) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public int delete(AttributionSource attributionSource, Uri arg0, Bundle arg1)
+    public int delete(String callingPackage, String callingFeatureId, Uri arg0, Bundle arg1)
             throws RemoteException {
         // TODO Auto-generated method stub
         return 0;
@@ -94,14 +93,14 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public Uri insert(AttributionSource attributionSource, Uri arg0, ContentValues arg1,
+    public Uri insert(String callingPackage, String callingFeatureId, Uri arg0, ContentValues arg1,
             Bundle arg2) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public AssetFileDescriptor openAssetFile(AttributionSource attributionSource,
+    public AssetFileDescriptor openAssetFile(String callingPackage, String callingFeatureId,
             Uri arg0, String arg1, ICancellationSignal signal)
             throws RemoteException, FileNotFoundException {
         // TODO Auto-generated method stub
@@ -109,22 +108,22 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public ParcelFileDescriptor openFile(AttributionSource attributionSource, Uri arg0,
-            String arg1, ICancellationSignal signal)
+    public ParcelFileDescriptor openFile(String callingPackage, String callingFeatureId, Uri arg0,
+            String arg1, ICancellationSignal signal, IBinder token)
             throws RemoteException, FileNotFoundException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Cursor query(AttributionSource attributionSource, Uri arg0, String[] arg1,
+    public Cursor query(String callingPackage, String callingFeatureId, Uri arg0, String[] arg1,
             Bundle arg3, ICancellationSignal arg4) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public int update(AttributionSource attributionSource, Uri arg0, ContentValues arg1,
+    public int update(String callingPackage, String callingFeatureId, Uri arg0, ContentValues arg1,
             Bundle arg2) throws RemoteException {
         // TODO Auto-generated method stub
         return 0;
@@ -143,7 +142,7 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public AssetFileDescriptor openTypedAssetFile(AttributionSource attributionSource,
+    public AssetFileDescriptor openTypedAssetFile(String callingPackage, String callingFeatureId,
             Uri arg0, String arg1, Bundle arg2, ICancellationSignal signal)
             throws RemoteException, FileNotFoundException {
         // TODO Auto-generated method stub
@@ -158,20 +157,20 @@ public final class BridgeContentProvider implements IContentProvider {
 
 
     @Override
-    public Uri canonicalize(AttributionSource attributionSource, Uri uri)
+    public Uri canonicalize(String callingPkg, String callingFeatureId, Uri uri)
             throws RemoteException {
         return null;
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public void canonicalizeAsync(AttributionSource attributionSource, Uri uri,
+    public void canonicalizeAsync(String callingPkg, String callingFeatureId, Uri uri,
             RemoteCallback remoteCallback) {
         AsyncTask.SERIAL_EXECUTOR.execute(() -> {
             try {
                 final Bundle bundle = new Bundle();
                 bundle.putParcelable(ContentResolver.REMOTE_CALLBACK_RESULT,
-                        canonicalize(attributionSource, uri));
+                        canonicalize(callingPkg, callingFeatureId, uri));
                 remoteCallback.sendResult(bundle);
             } catch (RemoteException e) {
               // Ignore
@@ -180,35 +179,19 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public Uri uncanonicalize(AttributionSource attributionSource, Uri uri)
+    public Uri uncanonicalize(String callingPkg, String callingFeatureId, Uri uri)
             throws RemoteException {
         return null;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public void uncanonicalizeAsync(AttributionSource attributionSource, Uri uri,
-            RemoteCallback remoteCallback) {
-        AsyncTask.SERIAL_EXECUTOR.execute(() -> {
-            try {
-                final Bundle bundle = new Bundle();
-                bundle.putParcelable(ContentResolver.REMOTE_CALLBACK_RESULT,
-                        uncanonicalize(attributionSource, uri));
-                remoteCallback.sendResult(bundle);
-            } catch (RemoteException e) {
-              // Ignore
-            }
-        });
-    }
-
-    @Override
-    public boolean refresh(AttributionSource attributionSource, Uri url, Bundle args,
+    public boolean refresh(String callingPkg, String callingFeatureId, Uri url, Bundle args,
             ICancellationSignal cancellationSignal) throws RemoteException {
         return false;
     }
 
     @Override
-    public int checkUriPermission(AttributionSource attributionSource, Uri uri, int uid,
+    public int checkUriPermission(String callingPkg, String callingFeatureId, Uri uri, int uid,
             int modeFlags) throws RemoteException {
         return PackageManager.PERMISSION_DENIED;
     }

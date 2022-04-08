@@ -16,7 +16,12 @@
 
 package com.android.layoutlib.bridge.impl;
 
-import com.android.ide.common.rendering.api.ILayoutLog;
+import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
+import static java.lang.Math.min;
+import static java.lang.Math.max;
+
+import com.android.ide.common.rendering.api.LayoutLog;
 import com.android.layoutlib.bridge.Bridge;
 
 import android.graphics.Bitmap_Delegate;
@@ -45,11 +50,6 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-
-import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
-import static java.awt.image.BufferedImage.TYPE_INT_RGB;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 /**
  * Class representing a graphics context snapshot, as well as a context stack as a linked list.
@@ -846,7 +846,7 @@ public class GcSnapshot {
                 g.setPaint(shaderPaint);
                 return;
             } else {
-                Bridge.getLog().fidelityWarning(ILayoutLog.TAG_SHADER,
+                Bridge.getLog().fidelityWarning(LayoutLog.TAG_SHADER,
                         shaderDelegate.getSupportMessage(), null, null, null);
             }
         }

@@ -76,7 +76,7 @@ public class ClassHasNativeVisitorTest {
     }
 
     /**
-     * Fake test class with a native method.
+     * Dummy test class with a native method.
      */
     public static class ClassWithNative {
         public ClassWithNative() {
@@ -90,7 +90,7 @@ public class ClassHasNativeVisitorTest {
     }
 
     /**
-     * Fake test class with no native method.
+     * Dummy test class with no native method.
      */
     public static class ClassWithoutNative {
         public ClassWithoutNative() {

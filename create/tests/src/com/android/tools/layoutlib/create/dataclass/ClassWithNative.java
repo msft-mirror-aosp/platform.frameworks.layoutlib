@@ -19,7 +19,7 @@ package com.android.tools.layoutlib.create.dataclass;
 import com.android.tools.layoutlib.create.DelegateClassAdapterTest;
 
 /**
- * Fake test class with a native method.
+ * Dummy test class with a native method.
  * The native method is not defined and any attempt to invoke it will
  * throw an {@link UnsatisfiedLinkError}.
  *

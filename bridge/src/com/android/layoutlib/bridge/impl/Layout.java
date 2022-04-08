@@ -543,6 +543,7 @@ class Layout extends FrameLayout {
             }
         }
 
+        @SuppressWarnings("SameParameterValue")
         private int getDimension(@NonNull ResourceReference attrRef, int defaultValue) {
             ResourceValue value = mResources.findItemInTheme(attrRef);
             value = mResources.resolveResValue(value);
@@ -556,6 +557,7 @@ class Layout extends FrameLayout {
             return defaultValue;
         }
 
+        @SuppressWarnings("SameParameterValue")
         private int getFrameworkAttrDimension(@NonNull String attr, int defaultValue) {
             return getDimension(BridgeContext.createFrameworkAttrReference(attr), defaultValue);
         }

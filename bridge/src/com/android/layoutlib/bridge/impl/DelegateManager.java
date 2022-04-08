@@ -111,6 +111,7 @@ public final class DelegateManager<T> {
     @GuardedBy("sNativeAllocations")
     private static long sNativeAllocationsCount = 0;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final Class<T> mClass;
 
     public DelegateManager(Class<T> theClass) {
