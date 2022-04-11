@@ -31,4 +31,10 @@ public class ViewRootImpl_Delegate {
     /*package*/ static boolean isInTouchMode() {
         return false; // this allows displaying selection.
     }
+
+    @LayoutlibDelegate
+    /*package*/ static boolean performHapticFeedback(ViewRootImpl thisViewRoot, int effectId,
+            boolean always) {
+        return false;
+    }
 }

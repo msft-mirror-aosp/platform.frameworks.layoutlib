@@ -47,7 +47,7 @@ public class AttachInfo_Accessor {
             }
         };
         AttachInfo info = new AttachInfo(ReflectionUtils.createProxy(IWindowSession.class),
-                ReflectionUtils.createProxy(IWindow.class), display, root, new Handler(), null,
+                ReflectionUtils.createProxy(IWindow.class), display, root, new Handler(), root,
                 context);
         info.mHasWindowFocus = true;
         info.mWindowVisibility = View.VISIBLE;
