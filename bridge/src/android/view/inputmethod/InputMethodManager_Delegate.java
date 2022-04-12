@@ -18,6 +18,9 @@ package android.view.inputmethod;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
+import android.os.ResultReceiver;
+import android.view.View;
+
 
 /**
  * Delegate used to provide new implementation of a select few methods of {@link InputMethodManager}
@@ -33,5 +36,23 @@ public class InputMethodManager_Delegate {
     @LayoutlibDelegate
     /*package*/ static boolean isInEditMode() {
         return true;
+    }
+
+
+    @LayoutlibDelegate
+    /*package*/ static boolean showSoftInput(InputMethodManager thisManager, View view, int flags) {
+        return false;
+    }
+
+    @LayoutlibDelegate
+    /*package*/ static boolean showSoftInput(InputMethodManager thisManager, View view, int flags,
+            ResultReceiver resultReceiver) {
+        return false;
+    }
+
+    @LayoutlibDelegate
+    /*package*/static  boolean showSoftInput(InputMethodManager thisManager, View view, int flags,
+            ResultReceiver resultReceiver, int reason) {
+        return false;
     }
 }
