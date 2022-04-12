@@ -27,7 +27,6 @@ import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.Policy;
 import com.android.tools.idea.validator.ValidatorData.Type;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.EnumSet;
@@ -189,7 +188,6 @@ public class AccessibilityValidatorTests extends RenderTestBase {
 
     /* TODO: {@link LayoutValidator::obtainCharacterLocations is false by default for now }*/
     @Test
-    @Ignore
     public void testSwitchTextContrastCheck() throws Exception {
         render("a11y_test_switch_text_contrast.xml", session -> {
             ValidatorResult result = getRenderResult(session);
@@ -366,7 +364,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         LayoutValidator.updatePolicy(new Policy(
                 EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
                 EnumSet.of(Level.ERROR, Level.WARNING, Level.INFO, Level.VERBOSE)));
-        LayoutValidator.setObtainCharacterLocations(false);
+        LayoutValidator.setObtainCharacterLocations(true);
 
         LayoutPullParser parser = createParserFromPath(fileName);
         layoutLibCallback.initResources();
