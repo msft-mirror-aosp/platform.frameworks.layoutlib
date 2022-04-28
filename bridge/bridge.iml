@@ -70,6 +70,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="TEST" name="hamcrest" level="project" />
+    <orderEntry type="module" module-name="delegates" />
     <orderEntry type="module-library">
       <library name="ninepatch-prebuilt">
         <CLASSES>
@@ -93,14 +94,5 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="validator" />
-    <orderEntry type="module-library" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../prebuilts/misc/common/atf/atf_classes.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
   </component>
 </module>

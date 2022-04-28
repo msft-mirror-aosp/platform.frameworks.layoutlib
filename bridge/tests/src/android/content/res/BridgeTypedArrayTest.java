@@ -51,6 +51,7 @@ public class BridgeTypedArrayTest {
         assertEquals(TYPE_INT_COLOR_ARGB8, BridgeTypedArray.getType("#1f34dc28"));
         assertEquals(TYPE_STRING, BridgeTypedArray.getType("#notacolor"));
         assertEquals(TYPE_DIMENSION, BridgeTypedArray.getType("16dp"));
+        assertEquals(TYPE_DIMENSION, BridgeTypedArray.getType(".16dp"));
         assertEquals(TYPE_STRING, BridgeTypedArray.getType("16notaunit"));
         assertEquals(TYPE_INT_DEC, BridgeTypedArray.getType("98543"));
         assertEquals(TYPE_FLOAT, BridgeTypedArray.getType("43.364"));
