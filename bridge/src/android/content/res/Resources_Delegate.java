@@ -24,7 +24,6 @@ import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.PluralsResourceValue;
 import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.ResourceNamespace;
-import com.android.ide.common.rendering.api.ResourceNamespace.Resolver;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.ResourceValueImpl;
@@ -36,7 +35,6 @@ import com.android.layoutlib.bridge.android.UnresolvedResourceValue;
 import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.util.NinePatchInputStream;
-import com.android.ninepatch.NinePatch;
 import com.android.resources.ResourceType;
 import com.android.resources.ResourceUrl;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
@@ -789,7 +787,7 @@ public class Resources_Delegate {
     private static String getPackageName(ResourceReference resourceInfo, Resources resources) {
         String packageName = resourceInfo.getNamespace().getPackageName();
         if (packageName == null) {
-            packageName = getContext(resources).getPackageName();
+            packageName = getLayoutlibCallback(resources).getResourcePackage();
             if (packageName == null) {
                 packageName = APP_PREFIX;
             }
@@ -1041,11 +1039,8 @@ public class Resources_Delegate {
             if (stream == null) {
                 throw new NotFoundException(path);
             }
-            // If it's a nine-patch return a custom input stream so that
-            // other methods (mainly bitmap factory) can detect it's a 9-patch
-            // and actually load it as a 9-patch instead of a normal bitmap.
-            if (path.toLowerCase().endsWith(NinePatch.EXTENSION_9PATCH)) {
-                return new NinePatchInputStream(stream);
+            if (path.endsWith(".9.png")) {
+                stream = new NinePatchInputStream(stream, path);
             }
             return stream;
         } catch (IOException e) {
@@ -1119,7 +1114,7 @@ public class Resources_Delegate {
                 return Bridge.getResourceId(url.type, url.name);
             }
 
-            if (getContext(resources).getPackageName().equals(url.namespace)) {
+            if (getLayoutlibCallback(resources).getResourcePackage().equals(url.namespace)) {
                 return getLayoutlibCallback(resources).getOrGenerateResourceId(
                         new ResourceReference(ResourceNamespace.RES_AUTO, url.type, url.name));
             }
