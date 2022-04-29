@@ -20,7 +20,6 @@ package android.hardware.input;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.hardware.lights.LightsManager;
-import android.os.BlockUntrustedTouchesMode;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.InputEventInjectionSync;
@@ -36,12 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class InputManager {
-    public static final int[] BLOCK_UNTRUSTED_TOUCHES_MODES = {
-            BlockUntrustedTouchesMode.DISABLED,
-            BlockUntrustedTouchesMode.PERMISSIVE,
-            BlockUntrustedTouchesMode.BLOCK
-    };
-
     public static final String ACTION_QUERY_KEYBOARD_LAYOUTS =
             "android.hardware.input.action.QUERY_KEYBOARD_LAYOUTS";
 
@@ -55,9 +48,6 @@ public final class InputManager {
     public static final int DEFAULT_POINTER_SPEED = 0;
 
     public static final float DEFAULT_MAXIMUM_OBSCURING_OPACITY_FOR_TOUCH = .8f;
-
-    public static final int DEFAULT_BLOCK_UNTRUSTED_TOUCHES_MODE =
-            BlockUntrustedTouchesMode.BLOCK;
 
     public static final long BLOCK_UNTRUSTED_TOUCHES = 158002302L;
 
@@ -198,12 +188,6 @@ public final class InputManager {
     }
 
     public void setMaximumObscuringOpacityForTouch(float opacity) { }
-
-    public int getBlockUntrustedTouchesMode(Context context) {
-        return 0;
-    }
-
-    public void setBlockUntrustedTouchesMode(Context context, int mode) { }
 
     public boolean[] deviceHasKeys(int[] keyCodes) {
         return null;
