@@ -71,6 +71,7 @@ import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
+import android.view.Choreographer_Delegate;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -539,8 +540,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     if (enableImageResizing) {
                         scaleX = mImage.getWidth() * 1.0f / mMeasuredScreenWidth;
                         scaleY = mImage.getHeight() * 1.0f / mMeasuredScreenHeight;
+                        mRenderer.setScale(scaleX, scaleY);
+                    } else {
+                        mRenderer.setScale(1.0f, 1.0f);
                     }
-                    mRenderer.setScale(scaleX, scaleY);
 
                     if (mImageReader == null) {
                         mImageReader = ImageReader.newInstance(mImage.getWidth(), mImage.getHeight(), PixelFormat.RGBA_8888, 1);

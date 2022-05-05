@@ -19,10 +19,13 @@ package com.android.tools.layoutlib.create;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.java.LinkedHashMap_Delegate;
 import com.android.tools.layoutlib.java.NioUtils_Delegate;
+import com.android.tools.layoutlib.java.Reference_Delegate;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -142,9 +145,10 @@ public final class CreateInfo implements ICreateInfo {
         new ImageReaderNativeInitReplacer(),
         new NioUtilsFreeBufferReplacer(),
         new ProcessInitializerInitSchedReplacer(),
-        new ValidateNinePatchChunkReplacer(),
         new NativeInitPathReplacer(),
         new AdaptiveIconMaskReplacer(),
+        new ActivityThreadInAnimationReplacer(),
+        new ReferenceRefersToReplacer(),
     };
 
     /**
@@ -162,6 +166,7 @@ public final class CreateInfo implements ICreateInfo {
             /* Java package classes */
             LinkedHashMap_Delegate.class,
             NioUtils_Delegate.class,
+            Reference_Delegate.class,
         };
 
     /**
@@ -252,6 +257,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.text.TextRunShaper",
         "android.media.ImageReader",
         "android.media.ImageReader$SurfaceImage",
+        "android.media.PublicFormatUtils",
         "android.os.SystemProperties",
         "android.os.Trace",
         "android.text.AndroidCharacter",
@@ -343,8 +349,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.content.res.StringBlock#addParagraphSpan",
         "android.content.res.StringBlock#getColor",
         "android.graphics.Bitmap#setNinePatchChunk",
-        "android.graphics.NinePatch#validateNinePatchChunk",
         "android.graphics.Path#nInit",
+        "android.graphics.Typeface$Builder#createAssetUid",
         "android.media.ImageReader#nativeClassInit",
         "android.view.Choreographer#doFrame",
         "android.view.Choreographer#postCallbackDelayedInternal",
@@ -359,6 +365,7 @@ public final class CreateInfo implements ICreateInfo {
     private final static String[] PROMOTED_CLASSES = new String[] {
         "android.content.res.StringBlock$Height",
         "android.graphics.ImageDecoder$InputStreamSource",
+        "android.graphics.ImageDecoder$ResourceSource",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorUI",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimator",
         "android.view.Choreographer$CallbackQueue", // required for tests only
@@ -568,20 +575,6 @@ public final class CreateInfo implements ICreateInfo {
         }
     }
 
-    public static class ValidateNinePatchChunkReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "android/graphics/NinePatch".equals(owner) &&
-                    name.equals("validateNinePatchChunk");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "android/graphics/NinePatch_Delegate";
-            mi.opcode = Opcodes.INVOKESTATIC;
-        }
-    }
-
     public static class NativeInitPathReplacer implements MethodReplacer {
         @Override
         public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
@@ -610,6 +603,38 @@ public final class CreateInfo implements ICreateInfo {
             mi.name = "getResourceString";
             mi.opcode = Opcodes.INVOKESTATIC;
             mi.desc = Type.getMethodDescriptor(Type.getType(String.class), Type.INT_TYPE);
+        }
+    }
+
+    public static class ActivityThreadInAnimationReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return ("android/app/ActivityThread").equals(owner) &&
+                    name.equals("getSystemUiContext") &&
+                    sourceClass.equals("android/view/animation/Animation");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "android/app/ActivityThread_Delegate";
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.desc = "()Landroid/content/Context;";
+        }
+    }
+
+    public static class ReferenceRefersToReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return Type.getInternalName(WeakReference.class).equals(owner) &&
+                    "refersTo".equals(name);
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.owner = Type.getInternalName(Reference_Delegate.class);
+            mi.desc = Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(Reference.class),
+                    Type.getType(Object.class));
         }
     }
 }
