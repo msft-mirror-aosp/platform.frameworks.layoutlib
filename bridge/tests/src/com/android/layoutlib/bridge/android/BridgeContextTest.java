@@ -16,6 +16,7 @@
 
 package com.android.layoutlib.bridge.android;
 
+import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.RenderAction;
@@ -32,9 +33,14 @@ import android.R.style;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
 
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -147,5 +153,48 @@ public class BridgeContextTest extends RenderTestBase {
 
         assertNull(context.getSystemService("my_custom_service"));
         sRenderMessages.removeIf(message -> message.equals("Service my_custom_service was not found or is unsupported"));
+    }
+
+    @Test
+    public void dynamicTheming() throws ClassNotFoundException {
+        LayoutPullParser parser = LayoutPullParser.createFromPath("/empty.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material", false)
+                .build();
+        DisplayMetrics metrics = new DisplayMetrics();
+        Configuration configuration = RenderAction.getConfiguration(params);
+        BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
+                params.getAssets(), params.getLayoutlibCallback(), configuration,
+                params.getTargetSdkVersion(), params.isRtlSupported());
+        context.initResources(params.getAssets());
+        try {
+            assertEquals(-13749965, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+
+            Bitmap wallpaper = BitmapFactory.decodeStream(
+                    getClass().getResourceAsStream(
+                            "/com/android/layoutlib/testdata/wallpaper1.webp"
+                    ));
+            Map<String, Integer> dynamicColorMap =
+                    DynamicRenderResources.createDynamicColorMap(wallpaper,
+                            configuration.isNightModeActive());
+            ((DynamicRenderResources)context.getRenderResources()).setDynamicColorMap(dynamicColorMap);
+            assertEquals(-13226195, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+
+            wallpaper = BitmapFactory.decodeStream(
+                    getClass().getResourceAsStream(
+                            "/com/android/layoutlib/testdata/wallpaper2.webp"
+                    ));
+            dynamicColorMap = DynamicRenderResources.createDynamicColorMap(wallpaper,
+                    configuration.isNightModeActive());
+            ((DynamicRenderResources)context.getRenderResources()).setDynamicColorMap(dynamicColorMap);
+            assertEquals(-13749969, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+        } finally {
+            context.disposeResources();
+        }
     }
 }

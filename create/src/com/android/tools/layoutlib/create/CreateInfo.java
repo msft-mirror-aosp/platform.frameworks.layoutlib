@@ -309,6 +309,7 @@ public final class CreateInfo implements ICreateInfo {
         new String[] {
             "android.preference.PreferenceActivity",
             "java.**",
+            "kotlin.**",
             "org.kxml2.io.KXmlParser",
             "org.xmlpull.**",
             "sun.**",

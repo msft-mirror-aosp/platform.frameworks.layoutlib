@@ -70,6 +70,13 @@ public final class RenderParamsFlags {
     public static final Key<Boolean> FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK =
             new Key<>("enableLayoutValidatorImageCheck", Boolean.class);
 
+    /**
+     * To tell Layoutlib the path of the image file of the wallpaper to use for dynamic theming.
+     * If null, use default system colors.
+     */
+    public static final Key<String> FLAG_KEY_WALLPAPER_PATH =
+            new Key<>("wallpaperPath", String.class);
+
     // Disallow instances.
     private RenderParamsFlags() {}
 }
