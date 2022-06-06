@@ -70,6 +70,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
@@ -164,7 +165,7 @@ public class BridgeContext extends Context {
     private Resources mSystemResources;
     private final Object mProjectKey;
     private final DisplayMetrics mMetrics;
-    private final RenderResources mRenderResources;
+    private final DynamicRenderResources mRenderResources;
     private final Configuration mConfig;
     private final ApplicationInfo mApplicationInfo;
     private final LayoutlibCallback mLayoutlibCallback;
@@ -242,7 +243,7 @@ public class BridgeContext extends Context {
         mMetrics = metrics;
         mLayoutlibCallback = layoutlibCallback;
 
-        mRenderResources = renderResources;
+        mRenderResources = new DynamicRenderResources(renderResources);
         mConfig = config;
         AssetManager systemAssetManager = AssetManager.getSystem();
         if (systemAssetManager instanceof BridgeAssetManager) {
@@ -2270,5 +2271,13 @@ public class BridgeContext extends Context {
     @NotNull
     public SessionInteractiveData getSessionInteractiveData() {
         return mSessionInteractiveData;
+    }
+
+    public boolean hasDynamicColors() {
+        return mRenderResources.hasDynamicColors();
+    }
+
+    public void applyWallpaper(String wallpaperPath) {
+        mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
     }
 }

@@ -132,6 +132,7 @@ public class Main {
                         "com.android.internal.util.*",
                         "com.android.internal.view.menu.ActionMenu",
                         "com.android.internal.widget.*",
+                        "com.android.systemui.monet.*",     // needed for dynamic theming
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
                         "libcore.icu.ICU",                  // needed by ICU_Delegate in LayoutLib

@@ -93,5 +93,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="validator" />
+    <orderEntry type="library" scope="TEST" name="kotlin-stdlib" level="project" />
   </component>
 </module>
