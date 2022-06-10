@@ -16,7 +16,7 @@ NATIVE_LIBRARIES=${SCRIPT_DIR}"/../../../../out/host/linux-x86/lib64/"
 SDK=${SCRIPT_DIR}"/../../../../out/host/linux-x86/sdk/sdk*/android-sdk*"
 SDK_REPO=${SCRIPT_DIR}"/../../../../out/host/linux-x86/sdk-repo"
 FONT_DIR=${SCRIPT_DIR}"/../../../../out/host/common/obj/PACKAGING/fonts_intermediates"
-ICU_DATA_PATH=${SCRIPT_DIR}"/../../../../out/host/linux-x86/com.android.i18n/etc/icu/icudt70l.dat"
+ICU_DATA_PATH=${SCRIPT_DIR}"/../../../../out/host/linux-x86/com.android.i18n/etc/icu/icudt71l.dat"
 TMP_DIR=$(mktemp -d)
 PLATFORM=${TMP_DIR}/"android"
 
