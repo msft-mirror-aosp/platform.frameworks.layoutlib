@@ -18,6 +18,7 @@ package com.android.layoutlib.bridge.impl;
 
 import com.android.ide.common.rendering.api.HardwareConfig;
 import com.android.ide.common.rendering.api.RenderResources;
+import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.SessionParams;
@@ -37,6 +38,7 @@ import com.android.resources.ScreenOrientation;
 
 import android.R.id;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
@@ -146,8 +148,7 @@ class Layout extends FrameLayout {
         NavigationBar navBar = null;
 
         if (builder.mWindowBackground != null) {
-            Drawable d = ResourceHelper.getDrawable(builder.mWindowBackground, builder.mContext,
-                    builder.mContext.getTheme());
+            Drawable d = ResourceHelper.getDrawable(builder.mWindowBackground, builder.mContext);
             setBackground(d);
         }
 
