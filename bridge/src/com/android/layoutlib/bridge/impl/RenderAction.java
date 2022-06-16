@@ -261,6 +261,7 @@ public abstract class RenderAction<T extends RenderParams> {
         // scene
         mContext.initResources(mParams.getAssets());
         sCurrentContext = mContext;
+        mContext.applyWallpaper(mParams.getFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH));
 
         // Set-up WindowManager
         // FIXME: find those out, and possibly add them to the render params

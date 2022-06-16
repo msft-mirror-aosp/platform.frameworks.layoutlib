@@ -37,6 +37,7 @@ java_genrule_host {
         ":ext{.jar}",
         ":icu4j-icudata-jarjar{.jar}", // HOST
         ":icu4j-icutzdata-jarjar{.jar}", // HOST
+        ":monet{.jar}",
     ],
     cmd: "rm -f $(out) && $(location layoutlib_create) --create-stub $(out) $(in)",
 }
@@ -51,5 +52,6 @@ java_device_for_host {
         "framework-all",
         "icu4j-icudata-jarjar",
         "icu4j-icutzdata-jarjar",
+        "monet",
     ],
 }

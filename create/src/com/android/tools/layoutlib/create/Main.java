@@ -136,6 +136,7 @@ public class Main {
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
                         "android.service.wallpaper.*",      // needed for Wear OS watch faces
+                        "com.android.systemui.monet.*",     // needed for dynamic theming
                     },
                     info.getExcludedClasses(),
                     new String[] {

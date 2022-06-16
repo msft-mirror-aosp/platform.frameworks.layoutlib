@@ -28,6 +28,7 @@ import com.android.ide.common.rendering.api.XmlParserFactory;
 import com.android.internal.R;
 import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.android.BridgeContext;
+import com.android.layoutlib.bridge.android.DynamicRenderResources;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.RenderAction;
@@ -54,6 +55,8 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.Resources_Delegate;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.StateSet;
@@ -67,9 +70,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.io.Files;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -2000,5 +2008,70 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "window_background.png",
                 TimeUnit.SECONDS.toNanos(2));
+    }
+
+    @Test
+    public void testThemedAdaptiveIcon() throws ClassNotFoundException, IOException {
+        // Create the layout pull parser.
+        String layout =
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"fill_parent\"\n" +
+                        "              android:layout_height=\"fill_parent\">\n" +
+                        "    <ImageView\n" +
+                        "             android:layout_height=\"wrap_content\"\n" +
+                        "             android:layout_width=\"wrap_content\"\n" +
+                        "             android:src=\"@drawable/adaptive\" />\n" +
+                        "</LinearLayout>\n";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        renderAndVerify(params, "adaptive_icon_circle.png");
+
+        File w1 = File.createTempFile("wallpaper1", ".webp");
+        try (InputStream inputStream = getClass().getResourceAsStream(
+                "/com/android/layoutlib/testdata/wallpaper1.webp")) {
+            java.nio.file.Files.copy(inputStream, w1.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w1.getPath());
+        renderAndVerify(params, "adaptive_icon_dynamic_orange.png");
+
+        File w2 = File.createTempFile("wallpaper2", ".webp");
+        try (InputStream inputStream = getClass().getResourceAsStream(
+                "/com/android/layoutlib/testdata/wallpaper2.webp")) {
+            java.nio.file.Files.copy(inputStream, w2.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w2.getPath());
+        renderAndVerify(params, "adaptive_icon_dynamic_green.png");
     }
 }
