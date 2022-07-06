@@ -44,8 +44,9 @@ public class AdaptiveIconDrawable_Delegate {
     public static void draw(AdaptiveIconDrawable thisDrawable, Canvas canvas) {
         Resources res = Resources.getSystem();
         BridgeContext context = Resources_Delegate.getContext(res);
-        if (context.hasDynamicColors()) {
-            AdaptiveIconDrawable themedIcon = createThemedVersion(thisDrawable, res);
+        if (context.useThemedIcon() && thisDrawable.getMonochrome() != null) {
+            AdaptiveIconDrawable themedIcon =
+                    createThemedVersionFromMonochrome(thisDrawable.getMonochrome(), res);
             themedIcon.onBoundsChange(thisDrawable.getBounds());
             themedIcon.draw_Original(canvas);
         } else {
@@ -57,9 +58,8 @@ public class AdaptiveIconDrawable_Delegate {
      * This builds the themed version of {@link AdaptiveIconDrawable}, copying what the
      * framework does in {@link com.android.launcher3.Utilities#getFullDrawable}
      */
-    private static AdaptiveIconDrawable createThemedVersion(AdaptiveIconDrawable base,
+    private static AdaptiveIconDrawable createThemedVersionFromMonochrome(Drawable mono,
             Resources resources) {
-        Drawable mono = base.getMonochrome();
         mono = mono.mutate();
         int[] colors = getColors(resources);
         mono.setTint(colors[1]);
