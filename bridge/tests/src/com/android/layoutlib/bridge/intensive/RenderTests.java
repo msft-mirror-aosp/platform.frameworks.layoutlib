@@ -28,7 +28,6 @@ import com.android.ide.common.rendering.api.XmlParserFactory;
 import com.android.internal.R;
 import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.android.BridgeContext;
-import com.android.layoutlib.bridge.android.DynamicRenderResources;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.RenderAction;
@@ -55,8 +54,6 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.Resources_Delegate;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.StateSet;
@@ -76,8 +73,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.io.Files;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -2034,7 +2029,6 @@ public class RenderTests extends RenderTestBase {
                         "             android:layout_width=\"wrap_content\"\n" +
                         "             android:src=\"@drawable/adaptive\" />\n" +
                         "</LinearLayout>\n";
-        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -2065,6 +2059,7 @@ public class RenderTests extends RenderTestBase {
                 "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
                         "22.4 22.4 0 50 0Z");
         params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w1.getPath());
+        params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, true);
         renderAndVerify(params, "adaptive_icon_dynamic_orange.png");
 
         File w2 = File.createTempFile("wallpaper2", ".webp");
@@ -2082,6 +2077,20 @@ public class RenderTests extends RenderTestBase {
                 "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
                         "22.4 22.4 0 50 0Z");
         params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w2.getPath());
+        params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, true);
         renderAndVerify(params, "adaptive_icon_dynamic_green.png");
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w2.getPath());
+        params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, false);
+        renderAndVerify(params, "adaptive_icon_circle.png");
     }
 }
