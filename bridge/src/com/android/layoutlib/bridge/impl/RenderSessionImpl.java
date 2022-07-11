@@ -67,11 +67,11 @@ import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.preference.Preference_Delegate;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
-import android.view.Choreographer_Delegate;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -498,7 +498,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             measureLayout(params);
 
-            HardwareConfig hardwareConfig = params.getHardwareConfig();
             Result renderResult = SUCCESS.createResult();
             float scaleX = 1.0f;
             float scaleY = 1.0f;
@@ -572,6 +571,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 final TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.Lighting, 0, 0);
                 float lightY = a.getDimension(R.styleable.Lighting_lightY, 0);
                 float lightZ = a.getDimension(R.styleable.Lighting_lightZ, 0);
+                // Correct light altitude according to ThreadedRenderer.setLightCenter
+                DisplayMetrics displayMetrics = getContext().getMetrics();
+                float zRatio = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                        / (450f * displayMetrics.density);
+                float zWeightedAdjustment = (zRatio + 2) / 3f;
+                lightZ *= zWeightedAdjustment;
                 float lightRadius = a.getDimension(R.styleable.Lighting_lightRadius, 0);
                 float ambientShadowAlpha = a.getFloat(R.styleable.Lighting_ambientShadowAlpha, 0);
                 float spotShadowAlpha = a.getFloat(R.styleable.Lighting_spotShadowAlpha, 0);

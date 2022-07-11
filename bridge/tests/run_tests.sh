@@ -21,7 +21,8 @@ TMP_DIR=$(mktemp -d)
 PLATFORM=${TMP_DIR}/"android"
 
 # Copy resources to a temp directory
-cp -r ${SDK}/platforms/android* ${PLATFORM}
+mkdir ${PLATFORM}
+cp -r ${SDK}/platforms/android*/** ${PLATFORM}
 
 # Unzip build-tools to access aapt2
 mkdir ${TMP_DIR}/build-tools
