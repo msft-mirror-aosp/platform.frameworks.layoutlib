@@ -71,7 +71,7 @@ public final class RenderParamsFlags {
             new Key<>("enableLayoutValidatorImageCheck", Boolean.class);
 
     /**
-     * To tell Layoutlib the path of the image file of the wallpaper to use for dynamic theming.
+     * To tell Layoutlib the path of the image resource of the wallpaper to use for dynamic theming.
      * If null, use default system colors.
      */
     public static final Key<String> FLAG_KEY_WALLPAPER_PATH =

@@ -33,6 +33,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,36 +143,36 @@ public class DynamicRenderResources extends RenderResources {
             mDynamicColorMap = null;
             return;
         }
-        try {
-            Bitmap wallpaper = BitmapFactory.decodeFile(wallpaperPath);
-            mDynamicColorMap = createDynamicColorMap(wallpaper, isNightMode);
-        } catch (IllegalArgumentException ignore) {
-            mDynamicColorMap = null;
-        }
+        mDynamicColorMap = createDynamicColorMap(wallpaperPath, isNightMode);
     }
 
     /**
      * Extracts colors from the wallpaper and creates the corresponding dynamic theme.
      * It uses the main wallpaper color and the {@link Style#TONAL_SPOT} style.
      *
-     * @param wallpaper bitmap containing the wallpaper to use
+     * @param wallpaperPath path of the wallpaper resource to use
      * @param isNightMode whether to use night mode or not
      *
      * @return map of system color names to their dynamic values
      */
     @VisibleForTesting
-    static Map<String, Integer> createDynamicColorMap(Bitmap wallpaper, boolean isNightMode) {
-        if (wallpaper == null) {
+    static Map<String, Integer> createDynamicColorMap(String wallpaperPath, boolean isNightMode) {
+        try (InputStream stream = DynamicRenderResources.class.getResourceAsStream(wallpaperPath)) {
+            Bitmap wallpaper = BitmapFactory.decodeStream(stream);
+            if (wallpaper == null) {
+                return null;
+            }
+            WallpaperColors wallpaperColors = WallpaperColors.fromBitmap(wallpaper);
+            int seed = ColorScheme.getSeedColor(wallpaperColors);
+            ColorScheme scheme = new ColorScheme(seed, isNightMode);
+            Map<String, Integer> dynamicColorMap = new HashMap<>();
+            int paletteSize = scheme.getAccent1().size();
+            extractPalette(scheme.getAllAccentColors(), "accent", paletteSize, dynamicColorMap);
+            extractPalette(scheme.getAllNeutralColors(), "neutral", paletteSize, dynamicColorMap);
+            return dynamicColorMap;
+        } catch (IllegalArgumentException | IOException ignore) {
             return null;
         }
-        WallpaperColors wallpaperColors = WallpaperColors.fromBitmap(wallpaper);
-        int seed = ColorScheme.getSeedColor(wallpaperColors);
-        ColorScheme scheme = new ColorScheme(seed, isNightMode);
-        Map<String, Integer> dynamicColorMap = new HashMap<>();
-        int paletteSize = scheme.getAccent1().size();
-        extractPalette(scheme.getAllAccentColors(), "accent", paletteSize, dynamicColorMap);
-        extractPalette(scheme.getAllNeutralColors(), "neutral", paletteSize, dynamicColorMap);
-        return dynamicColorMap;
     }
 
     /**
@@ -210,10 +212,5 @@ public class DynamicRenderResources extends RenderResources {
 
     public boolean hasDynamicColors() {
         return mDynamicColorMap != null;
-    }
-
-    @VisibleForTesting
-    void setDynamicColorMap(Map<String, Integer> dynamicColorMap) {
-        mDynamicColorMap = dynamicColorMap;
     }
 }
