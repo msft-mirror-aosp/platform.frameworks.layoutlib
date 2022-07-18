@@ -22,9 +22,6 @@ import com.android.layoutlib.bridge.intensive.RenderTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -38,12 +35,8 @@ public class DynamicRenderResourcesTest extends RenderTestBase {
 
     @Test
     public void createDynamicTheme() {
-        Bitmap wallpaper = BitmapFactory.decodeStream(
-                getClass().getResourceAsStream(
-                        "/com/android/layoutlib/testdata/wallpaper1.webp"
-                ));
-        Map<String, Integer> dynamicColorMap =
-                DynamicRenderResources.createDynamicColorMap(wallpaper, false);
+        Map<String, Integer> dynamicColorMap = DynamicRenderResources.createDynamicColorMap(
+                "/com/android/layoutlib/testdata/wallpaper1.webp", false);
         assertNotNull(dynamicColorMap);
         assertEquals(-16777216, (int)dynamicColorMap.get("system_accent1_0"));
         assertEquals(-4632, (int)dynamicColorMap.get("system_accent1_50"));

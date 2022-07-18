@@ -68,10 +68,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -2044,11 +2042,6 @@ public class RenderTests extends RenderTestBase {
                         "22.4 22.4 0 50 0Z");
         renderAndVerify(params, "adaptive_icon_circle.png");
 
-        File w1 = File.createTempFile("wallpaper1", ".webp");
-        try (InputStream inputStream = getClass().getResourceAsStream(
-                "/com/android/layoutlib/testdata/wallpaper1.webp")) {
-            java.nio.file.Files.copy(inputStream, w1.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        }
         params = getSessionParamsBuilder()
                 .setParser(LayoutPullParser.createFromString(layout))
                 .setCallback(layoutLibCallback)
@@ -2058,15 +2051,11 @@ public class RenderTests extends RenderTestBase {
         params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
                 "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
                         "22.4 22.4 0 50 0Z");
-        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w1.getPath());
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH,
+                "/com/android/layoutlib/testdata/wallpaper1.webp");
         params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, true);
         renderAndVerify(params, "adaptive_icon_dynamic_orange.png");
 
-        File w2 = File.createTempFile("wallpaper2", ".webp");
-        try (InputStream inputStream = getClass().getResourceAsStream(
-                "/com/android/layoutlib/testdata/wallpaper2.webp")) {
-            java.nio.file.Files.copy(inputStream, w2.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        }
         params = getSessionParamsBuilder()
                 .setParser(LayoutPullParser.createFromString(layout))
                 .setCallback(layoutLibCallback)
@@ -2076,7 +2065,8 @@ public class RenderTests extends RenderTestBase {
         params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
                 "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
                         "22.4 22.4 0 50 0Z");
-        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w2.getPath());
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH,
+                "/com/android/layoutlib/testdata/wallpaper2.webp");
         params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, true);
         renderAndVerify(params, "adaptive_icon_dynamic_green.png");
 
@@ -2089,7 +2079,8 @@ public class RenderTests extends RenderTestBase {
         params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
                 "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
                         "22.4 22.4 0 50 0Z");
-        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH, w2.getPath());
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH,
+                "/com/android/layoutlib/testdata/wallpaper2.webp");
         params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, false);
         renderAndVerify(params, "adaptive_icon_circle.png");
     }
