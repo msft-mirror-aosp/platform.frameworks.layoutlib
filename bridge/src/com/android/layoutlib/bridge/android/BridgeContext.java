@@ -70,7 +70,6 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
@@ -194,6 +193,7 @@ public class BridgeContext extends Context {
     private IBinder mBinder;
     private PackageManager mPackageManager;
     private Boolean mIsThemeAppCompat;
+    private boolean mUseThemedIcon;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
@@ -2255,8 +2255,12 @@ public class BridgeContext extends Context {
         return mSessionInteractiveData;
     }
 
-    public boolean hasDynamicColors() {
-        return mRenderResources.hasDynamicColors();
+    public boolean useThemedIcon() {
+        return mUseThemedIcon && mRenderResources.hasDynamicColors();
+    }
+
+    public void setUseThemedIcon(boolean useThemedIcon) {
+        mUseThemedIcon = useThemedIcon;
     }
 
     public void applyWallpaper(String wallpaperPath) {

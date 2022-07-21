@@ -77,6 +77,12 @@ public final class RenderParamsFlags {
     public static final Key<String> FLAG_KEY_WALLPAPER_PATH =
             new Key<>("wallpaperPath", String.class);
 
+    /**
+     * To tell Layoutlib to use the themed version of adaptive icons.
+     */
+    public static final Key<Boolean> FLAG_KEY_USE_THEMED_ICON =
+            new Key<>("useThemedIcon", Boolean.class);
+
     // Disallow instances.
     private RenderParamsFlags() {}
 }
