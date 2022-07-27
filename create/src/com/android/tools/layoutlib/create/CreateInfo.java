@@ -603,7 +603,7 @@ public final class CreateInfo implements ICreateInfo {
             mi.owner = "android/graphics/drawable/AdaptiveIconDrawable_Delegate";
             mi.name = "getResourceString";
             mi.opcode = Opcodes.INVOKESTATIC;
-            mi.desc = Type.getMethodDescriptor(Type.getType(String.class), Type.INT_TYPE);
+            mi.desc = "(Landroid/content/res/Resources;I)Ljava/lang/String;";
         }
     }
 
