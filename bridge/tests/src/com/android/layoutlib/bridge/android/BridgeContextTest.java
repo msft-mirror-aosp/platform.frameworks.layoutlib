@@ -16,7 +16,6 @@
 
 package com.android.layoutlib.bridge.android;
 
-import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.RenderAction;
@@ -33,12 +32,8 @@ import android.R.style;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -175,23 +170,14 @@ public class BridgeContextTest extends RenderTestBase {
         try {
             assertEquals(-13749965, context.getResources().getColor(android.R.color.system_neutral1_800, null));
 
-            Bitmap wallpaper = BitmapFactory.decodeStream(
-                    getClass().getResourceAsStream(
-                            "/com/android/layoutlib/testdata/wallpaper1.webp"
-                    ));
-            Map<String, Integer> dynamicColorMap =
-                    DynamicRenderResources.createDynamicColorMap(wallpaper,
-                            configuration.isNightModeActive());
-            ((DynamicRenderResources)context.getRenderResources()).setDynamicColorMap(dynamicColorMap);
+            ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
+                    "/com/android/layoutlib/testdata/wallpaper1.webp",
+                    configuration.isNightModeActive());
             assertEquals(-13226195, context.getResources().getColor(android.R.color.system_neutral1_800, null));
 
-            wallpaper = BitmapFactory.decodeStream(
-                    getClass().getResourceAsStream(
-                            "/com/android/layoutlib/testdata/wallpaper2.webp"
-                    ));
-            dynamicColorMap = DynamicRenderResources.createDynamicColorMap(wallpaper,
+            ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
+                    "/com/android/layoutlib/testdata/wallpaper2.webp",
                     configuration.isNightModeActive());
-            ((DynamicRenderResources)context.getRenderResources()).setDynamicColorMap(dynamicColorMap);
             assertEquals(-13749969, context.getResources().getColor(android.R.color.system_neutral1_800, null));
         } finally {
             context.disposeResources();

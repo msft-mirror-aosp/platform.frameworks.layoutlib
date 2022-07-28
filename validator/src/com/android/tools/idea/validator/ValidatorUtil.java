@@ -101,7 +101,7 @@ public class ValidatorUtil {
      * The maximum allowed length of the requested text location data is used to avoid the
      * performance issue caused by obtaining character location data for a view with a long text.
      */
-    private static final int CHARACTER_LOCATION_ARG_MAX_LENGTH = 100;
+    public static final int CHARACTER_LOCATION_ARG_MAX_LENGTH = 100;
 
     /**
      * @param policy policy to apply for the hierarchy
