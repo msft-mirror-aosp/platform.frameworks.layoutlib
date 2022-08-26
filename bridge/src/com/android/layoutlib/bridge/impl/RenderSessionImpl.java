@@ -666,6 +666,30 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         return null;
     }
 
+    private static boolean isGlanceAdapter(Class<?> clazz) {
+        return clazz
+                .getName()
+                .equals("androidx.glance.appwidget.preview.GlanceAppWidgetViewAdapter");
+    }
+
+    /**
+     * Return true if the View belongs to the Glance generated hierarchy (when one of the view's
+     * parents is GlanceAppWidgetViewAdapter).
+     */
+    private static boolean isGlanceView(View view) {
+        if (isGlanceAdapter(view.getClass())) {
+            return true;
+        }
+        ViewParent parent = view.getParent();
+        while (parent != null) {
+            if (isGlanceAdapter(parent.getClass())) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
+    }
+
     /**
      * Post process on a view hierarchy that was just inflated.
      * <p/>
@@ -687,6 +711,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             QuickContactBadge badge = (QuickContactBadge) view;
             badge.setImageToDefault();
         } else if (view instanceof AdapterView<?>) {
+            // We do not need data binding support for Glance ListView, the assigned adapter should
+            // handle everything itself.
+            if (isGlanceView(view)) {
+                return;
+            }
             // get the view ID.
             int id = view.getId();
 
