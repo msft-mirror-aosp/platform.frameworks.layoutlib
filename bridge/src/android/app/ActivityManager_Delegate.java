@@ -1075,11 +1075,6 @@ public class ActivityManager_Delegate {
         }
 
         @Override
-        public void enableBinderTracing() throws RemoteException {
-
-        }
-
-        @Override
         public void suppressResizeConfigChanges(boolean b) throws RemoteException {
 
         }
