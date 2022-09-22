@@ -27,6 +27,8 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
@@ -103,10 +105,14 @@ public class WindowManagerImpl implements WindowManager {
             FrameLayout layout = new FrameLayout(mContext) {
                 @Override
                 public boolean dispatchTouchEvent(MotionEvent ev) {
+                    float offsetX = - getX();
+                    float offsetY = - getY();
                     View baseRootParent = (View)mBaseRootView.getParent();
                     if (baseRootParent != null) {
-                        ev.offsetLocation(-baseRootParent.getX(), -baseRootParent.getY());
+                        offsetX -= baseRootParent.getX();
+                        offsetY -= baseRootParent.getY();
                     }
+                    ev.offsetLocation(offsetX, offsetY);
                     return super.dispatchTouchEvent(ev);
                 }
 
@@ -154,6 +160,16 @@ public class WindowManagerImpl implements WindowManager {
             frameLayoutParams.gravity = params.gravity;
             if ((params.flags & LayoutParams.FLAG_DIM_BEHIND) != 0) {
                 mCurrentRootView.setBackgroundColor(Color.argb(params.dimAmount, 0, 0, 0));
+            } else {
+                int backgroundColor = Color.WHITE;
+                Drawable background = mBaseRootView.getBackground();
+                if (background == null) {
+                    background = mBaseRootView.getRootView().getBackground();
+                }
+                if (background instanceof ColorDrawable) {
+                    backgroundColor = ((ColorDrawable) background).getColor();
+                }
+                mCurrentRootView.setBackgroundColor(backgroundColor);
             }
         }
         mCurrentRootView.addView(arg0, frameLayoutParams);
@@ -171,8 +187,25 @@ public class WindowManagerImpl implements WindowManager {
     }
 
     @Override
-    public void updateViewLayout(View arg0, android.view.ViewGroup.LayoutParams arg1) {
-        // pass
+    public void updateViewLayout(View view, android.view.ViewGroup.LayoutParams params) {
+        if (view == null) {
+            throw new IllegalArgumentException("view must not be null");
+        }
+        if (!(params instanceof WindowManager.LayoutParams)) {
+            throw new IllegalArgumentException("Params must be WindowManager.LayoutParams");
+        }
+
+        WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
+        FrameLayout.LayoutParams lparams = new FrameLayout.LayoutParams(params);
+        view.setLayoutParams(lparams);
+        if (mCurrentRootView != null) {
+            Rect bounds = new Rect();
+            mBaseRootView.getBoundsOnScreen(bounds);
+            mCurrentRootView.setX(wparams.x - bounds.left);
+            mCurrentRootView.setY(wparams.y - bounds.top);
+            mCurrentRootView.setLayoutParams(lparams);
+            mCurrentRootView.setElevation(view.getElevation());
+        }
     }
 
 
