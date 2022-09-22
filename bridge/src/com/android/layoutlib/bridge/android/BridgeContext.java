@@ -194,6 +194,7 @@ public class BridgeContext extends Context {
     private PackageManager mPackageManager;
     private Boolean mIsThemeAppCompat;
     private boolean mUseThemedIcon;
+    private Context mApplicationContext;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
@@ -1982,7 +1983,10 @@ public class BridgeContext extends Context {
 
     @Override
     public Context getApplicationContext() {
-        return this;
+        if (mApplicationContext == null) {
+            mApplicationContext = new ApplicationContext(this);
+        }
+        return mApplicationContext;
     }
 
     @Override
