@@ -136,6 +136,7 @@ public class NativeConfig {
             "android.view.inputmethod.InputMethodManager#hideSoftInputFromWindow",
             "android.view.inputmethod.InputMethodManager#isInEditMode",
             "android.view.inputmethod.InputMethodManager#showSoftInput",
+            "android.widget.Magnifier#show",
             "android.widget.RemoteViews#getApplicationInfo",
             "com.android.internal.util.XmlUtils#convertValueToInt",
             "com.android.internal.view.menu.MenuBuilder#createNewMenuItem",
