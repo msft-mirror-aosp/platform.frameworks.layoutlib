@@ -1307,6 +1307,11 @@ public class ActivityManager_Delegate {
         public boolean startUserInBackgroundOnSecondaryDisplay(int userid, int displayId) {
             return false;
         }
+
+        @Override
+        public int[] getSecondaryDisplayIdsForStartingBackgroundUsers() {
+          return null;
+        }
     };
 
     @LayoutlibDelegate
