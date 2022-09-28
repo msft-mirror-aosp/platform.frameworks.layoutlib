@@ -65,6 +65,7 @@ import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
+import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -1216,7 +1217,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             currentTimeNanos / TimeUtils.NANOS_PER_MS,
             motionEventType,
             1, mPointerProperties, mPointerCoords,
-            0, 0, 1.0f, 1.0f, 0, 0, 0, 0);
+            0, 0, 1.0f, 1.0f, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
 
         root.dispatchTouchEvent(event);
     }
