@@ -330,6 +330,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.DrawableInflater#mRes",
         "android.view.Choreographer#mCallbackQueues", // required for tests only
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
+        "android.view.ViewRootImpl#mTmpFrames",
         "com.android.internal.util.ArrayUtils#sCache",
     };
 
