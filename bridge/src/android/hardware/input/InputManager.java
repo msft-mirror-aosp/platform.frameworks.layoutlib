@@ -18,6 +18,7 @@ package android.hardware.input;
 
 
 import android.content.Context;
+import android.hardware.BatteryState;
 import android.hardware.SensorManager;
 import android.hardware.lights.LightsManager;
 import android.os.Handler;
@@ -244,14 +245,6 @@ public final class InputManager {
 
     public void unregisterSensorListener(IInputSensorEventListener listener) { }
 
-    public int getBatteryStatus(int deviceId) {
-        return 0;
-    }
-
-    public int getBatteryCapacity(int deviceId) {
-        return 0;
-    }
-
     public void addPortAssociation(String inputPort, int displayPort) { }
 
     public void removePortAssociation(String inputPort) { }
@@ -272,7 +265,7 @@ public final class InputManager {
         return null;
     }
 
-    public InputDeviceBatteryState getInputDeviceBatteryState(int deviceId, boolean hasBattery) {
+    public BatteryState getInputDeviceBatteryState(int deviceId, boolean hasBattery) {
         return null;
     }
 
