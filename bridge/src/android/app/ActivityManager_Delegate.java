@@ -1086,6 +1086,11 @@ public class ActivityManager_Delegate {
         }
 
         @Override
+        public boolean unlockUser2(int userId, IProgressListener listener) throws RemoteException {
+            return false;
+        }
+
+        @Override
         public void killPackageDependents(String s, int i) throws RemoteException {
 
         }
