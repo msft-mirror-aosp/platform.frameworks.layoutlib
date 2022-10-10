@@ -62,7 +62,7 @@ public class Main {
         private boolean createNativeOnlyDelegates = false;
     }
 
-    public static final int ASM_VERSION = Opcodes.ASM7;
+    public static final int ASM_VERSION = Opcodes.ASM9;
 
     private static final Options sOptions = new Options();
 
