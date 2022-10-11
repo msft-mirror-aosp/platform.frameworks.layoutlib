@@ -132,8 +132,7 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
     }
 
     @Override
-    public AdapterBinding getAdapterBinding(ResourceReference adapterViewRef, Object adapterCookie,
-            Object viewObject) {
+    public AdapterBinding getAdapterBinding(Object viewObject, Map<String, String> attributes) {
         return null;
     }
 
