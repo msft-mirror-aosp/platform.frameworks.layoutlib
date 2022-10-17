@@ -26,7 +26,6 @@ import org.objectweb.asm.Type;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -377,11 +376,8 @@ public final class CreateInfo implements ICreateInfo {
     private final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES =
             NativeConfig.DEFERRED_STATIC_INITIALIZER_CLASSES;
 
-    private final static Map<String, InjectMethodRunnable> INJECTED_METHODS =
-            new HashMap<String, InjectMethodRunnable>(1) {{
-                put("android.content.Context",
-                        InjectMethodRunnables.CONTEXT_GET_FRAMEWORK_CLASS_LOADER);
-            }};
+    private final static Map<String, InjectMethodRunnable> INJECTED_METHODS = Map.of(
+            "android.content.Context", InjectMethodRunnables.CONTEXT_GET_FRAMEWORK_CLASS_LOADER);
 
     public static class LinkedHashMapEldestReplacer implements MethodReplacer {
 
