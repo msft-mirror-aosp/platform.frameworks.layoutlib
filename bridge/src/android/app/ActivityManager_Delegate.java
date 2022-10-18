@@ -1128,9 +1128,9 @@ public class ActivityManager_Delegate {
         }
 
         @Override
-        public int sendIntentSender(IIntentSender iIntentSender, IBinder iBinder, int i,
-                Intent intent, String s, IIntentReceiver iIntentReceiver, String s1,
-                Bundle bundle) throws RemoteException {
+        public int sendIntentSender(IApplicationThread iApplicationThread,
+                IIntentSender iIntentSender, IBinder iBinder, int i, Intent intent, String s,
+                IIntentReceiver iIntentReceiver, String s1, Bundle bundle) throws RemoteException {
             return 0;
         }
 
