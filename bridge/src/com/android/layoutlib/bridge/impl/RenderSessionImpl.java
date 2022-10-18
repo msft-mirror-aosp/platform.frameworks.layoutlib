@@ -44,8 +44,6 @@ import com.android.layoutlib.bridge.android.graphics.NopCanvas;
 import com.android.layoutlib.bridge.android.support.DesignLibUtil;
 import com.android.layoutlib.bridge.android.support.FragmentTabHostUtil;
 import com.android.layoutlib.bridge.android.support.SupportPreferencesUtil;
-import com.android.layoutlib.bridge.impl.binding.FakeAdapter;
-import com.android.layoutlib.bridge.impl.binding.FakeExpandableAdapter;
 import com.android.tools.idea.validator.LayoutValidator;
 import com.android.tools.idea.validator.ValidatorHierarchy;
 import com.android.tools.idea.validator.ValidatorResult;
@@ -74,14 +72,9 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
 import android.view.WindowManagerImpl;
-import android.widget.AbsListView;
-import android.widget.AbsSpinner;
 import android.widget.ActionMenuView;
-import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.QuickContactBadge;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -663,66 +656,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         } else if (view instanceof QuickContactBadge) {
             QuickContactBadge badge = (QuickContactBadge) view;
             badge.setImageToDefault();
-        } else if (view instanceof AdapterView<?>) {
-            // get the view ID.
-            int id = view.getId();
-
-            BridgeContext context = getContext();
-
-            // get a ResourceReference from the integer ID.
-            ResourceReference listRef = context.resolveId(id);
-
-            if (listRef != null) {
-                AdapterBinding binding = layoutlibCallback.getAdapterBinding(
-                            listRef, context.getViewKey(view), view);
-
-                if (binding != null) {
-
-                    if (view instanceof AbsListView) {
-                        if ((binding.getFooterCount() > 0 || binding.getHeaderCount() > 0) &&
-                                view instanceof ListView) {
-                            ListView list = (ListView) view;
-
-                            boolean skipCallbackParser = false;
-
-                            int count = binding.getHeaderCount();
-                            for (int i = 0; i < count; i++) {
-                                Pair<View, Boolean> pair = context.inflateView(
-                                        binding.getHeaderAt(i),
-                                        list, false, skipCallbackParser);
-                                if (pair.first != null) {
-                                    list.addHeaderView(pair.first);
-                                }
-
-                                skipCallbackParser |= pair.second;
-                            }
-
-                            count = binding.getFooterCount();
-                            for (int i = 0; i < count; i++) {
-                                Pair<View, Boolean> pair = context.inflateView(
-                                        binding.getFooterAt(i),
-                                        list, false, skipCallbackParser);
-                                if (pair.first != null) {
-                                    list.addFooterView(pair.first);
-                                }
-
-                                skipCallbackParser |= pair.second;
-                            }
-                        }
-
-                        if (view instanceof ExpandableListView) {
-                            ((ExpandableListView) view).setAdapter(
-                                    new FakeExpandableAdapter(listRef, binding, layoutlibCallback));
-                        } else {
-                            ((AbsListView) view).setAdapter(
-                                    new FakeAdapter(listRef, binding, layoutlibCallback));
-                        }
-                    } else if (view instanceof AbsSpinner) {
-                        ((AbsSpinner) view).setAdapter(
-                                new FakeAdapter(listRef, binding, layoutlibCallback));
-                    }
-                }
-            }
         } else if (view instanceof ViewGroup) {
             mInflater.postInflateProcess(view);
             ViewGroup group = (ViewGroup) view;

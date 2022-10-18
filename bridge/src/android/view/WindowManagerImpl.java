@@ -16,6 +16,7 @@
 package android.view;
 
 import static android.view.View.SYSTEM_UI_FLAG_VISIBLE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
@@ -37,6 +38,7 @@ import android.widget.FrameLayout;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.internal.R;
+import com.android.internal.policy.DecorView;
 import com.android.layoutlib.bridge.Bridge;
 
 public class WindowManagerImpl implements WindowManager {
@@ -149,8 +151,12 @@ public class WindowManagerImpl implements WindowManager {
                 event.offsetLocation(-arg0.getX(), -arg0.getY());
                 return arg0.dispatchTouchEvent(event);
             });
-            mBaseRootView.addView(layout, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
+            int layoutMode = WRAP_CONTENT;
+            if (arg0 instanceof DecorView) {
+                // DecorView background should cover the entire screen
+                layoutMode = MATCH_PARENT;
+            }
+            mBaseRootView.addView(layout, new FrameLayout.LayoutParams(layoutMode, layoutMode));
             mCurrentRootView = layout;
         }
 
@@ -197,13 +203,13 @@ public class WindowManagerImpl implements WindowManager {
 
         WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
         FrameLayout.LayoutParams lparams = new FrameLayout.LayoutParams(params);
+        lparams.gravity = wparams.gravity;
         view.setLayoutParams(lparams);
         if (mCurrentRootView != null) {
             Rect bounds = new Rect();
             mBaseRootView.getBoundsOnScreen(bounds);
             mCurrentRootView.setX(wparams.x - bounds.left);
             mCurrentRootView.setY(wparams.y - bounds.top);
-            mCurrentRootView.setLayoutParams(lparams);
             mCurrentRootView.setElevation(view.getElevation());
         }
     }
