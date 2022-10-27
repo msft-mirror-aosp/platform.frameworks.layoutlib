@@ -243,11 +243,14 @@ public class KeyEventHandling {
         if (event.isShiftDown()) {
             metaState |= KeyEvent.META_SHIFT_ON;
         }
-        if (Toolkit.getDefaultToolkit().getLockingKeyState(VK_CAPS_LOCK)) {
-            metaState |= KeyEvent.META_CAPS_LOCK_ON;
-        }
-        if (Toolkit.getDefaultToolkit().getLockingKeyState(VK_NUM_LOCK)) {
-            metaState |= KeyEvent.META_NUM_LOCK_ON;
+        try {
+            if (Toolkit.getDefaultToolkit().getLockingKeyState(VK_CAPS_LOCK)) {
+                metaState |= KeyEvent.META_CAPS_LOCK_ON;
+            }
+            if (Toolkit.getDefaultToolkit().getLockingKeyState(VK_NUM_LOCK)) {
+                metaState |= KeyEvent.META_NUM_LOCK_ON;
+            }
+        } catch (UnsupportedOperationException ignore) {
         }
         int keyEventType;
         if (event.getID() == java.awt.event.KeyEvent.KEY_PRESSED) {
