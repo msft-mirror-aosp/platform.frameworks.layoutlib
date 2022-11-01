@@ -38,23 +38,23 @@ public class DynamicRenderResourcesTest extends RenderTestBase {
         Map<String, Integer> dynamicColorMap = DynamicRenderResources.createDynamicColorMap(
                 "/com/android/layoutlib/testdata/wallpaper1.webp", false);
         assertNotNull(dynamicColorMap);
-        assertEquals(-16777216, (int)dynamicColorMap.get("system_accent1_0"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_accent1_0"));
         assertEquals(-4632, (int)dynamicColorMap.get("system_accent1_50"));
         assertEquals(-1403268, (int)dynamicColorMap.get("system_accent1_300"));
         assertEquals(-11198451, (int)dynamicColorMap.get("system_accent1_800"));
-        assertEquals(-16777216, (int)dynamicColorMap.get("system_accent2_0"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_accent2_0"));
         assertEquals(-4632, (int)dynamicColorMap.get("system_accent2_50"));
         assertEquals(-3497321, (int)dynamicColorMap.get("system_accent2_300"));
         assertEquals(-12309982, (int)dynamicColorMap.get("system_accent2_800"));
-        assertEquals(-16777216, (int)dynamicColorMap.get("system_accent3_0"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_accent3_0"));
         assertEquals(-3900, (int)dynamicColorMap.get("system_accent3_50"));
         assertEquals(-4478092, (int)dynamicColorMap.get("system_accent3_300"));
         assertEquals(-12963835, (int)dynamicColorMap.get("system_accent3_800"));
-        assertEquals(-16777216, (int)dynamicColorMap.get("system_neutral1_0"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_neutral1_0"));
         assertEquals(-266518, (int)dynamicColorMap.get("system_neutral1_50"));
         assertEquals(-4937306, (int)dynamicColorMap.get("system_neutral1_300"));
         assertEquals(-13226195, (int)dynamicColorMap.get("system_neutral1_800"));
-        assertEquals(-16777216, (int)dynamicColorMap.get("system_neutral2_0"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_neutral2_0"));
         assertEquals(-4632, (int)dynamicColorMap.get("system_neutral2_50"));
         assertEquals(-4413535, (int)dynamicColorMap.get("system_neutral2_300"));
         assertEquals(-12899031, (int)dynamicColorMap.get("system_neutral2_800"));
