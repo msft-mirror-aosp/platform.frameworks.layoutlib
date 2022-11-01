@@ -189,7 +189,7 @@ public class DynamicRenderResources extends RenderResources {
             switch (luminosity) {
                 case 0:
                     resourceName = baseResourceName + "_0";
-                    colorMap.put(resourceName, Color.BLACK);
+                    colorMap.put(resourceName, Color.WHITE);
                     resourceName = baseResourceName + "_10";
                     break;
                 case 1:
