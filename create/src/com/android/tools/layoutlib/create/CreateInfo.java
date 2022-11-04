@@ -262,6 +262,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.text.AndroidCharacter",
         "android.util.Log",
         "android.util.PathParser",
+        "android.view.KeyCharacterMap",
+        "android.view.KeyEvent",
         "android.view.MotionEvent",
         "android.view.Surface",
         "com.android.internal.util.VirtualRefBasePtr",
@@ -336,6 +338,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorRT#mPendingAnimationActions",
         "android.graphics.drawable.AnimatedVectorDrawable#mAnimatorSet",
         "android.graphics.drawable.DrawableInflater#mRes",
+        "android.hardware.input.InputManager#sInstance",
         "android.view.Choreographer#mCallbackQueues", // required for tests only
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
         "android.view.ViewRootImpl#mTmpFrames",
@@ -352,6 +355,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Bitmap#setNinePatchChunk",
         "android.graphics.Path#nInit",
         "android.graphics.Typeface$Builder#createAssetUid",
+        "android.hardware.input.InputManager#<init>",
         "android.media.ImageReader#nativeClassInit",
         "android.view.Choreographer#doFrame",
         "android.view.Choreographer#postCallbackDelayedInternal",
