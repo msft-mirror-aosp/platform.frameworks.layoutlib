@@ -45,12 +45,16 @@ import android.content.res.BridgeAssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.fonts.SystemFonts_Delegate;
+import android.hardware.input.IInputManager;
+import android.hardware.input.InputManager;
 import android.icu.util.ULocale;
 import android.os.Looper;
 import android.os.Looper_Accessor;
 import android.os.SystemProperties;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.Gravity;
+import android.view.InputDevice;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -156,6 +160,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     private static ILayoutLog sCurrentLog = sDefaultLog;
 
     private static String sIcuDataPath;
+    private static String[] sKeyboardPaths;
 
     private static final String[] LINUX_NATIVE_LIBRARIES = {"libandroid_runtime.so"};
     private static final String[] MAC_NATIVE_LIBRARIES = {"libandroid_runtime.dylib"};
@@ -167,11 +172,13 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             File fontLocation,
             String nativeLibPath,
             String icuDataPath,
+            String[] keyboardPaths,
             Map<String, Map<String, Integer>> enumValueMap,
             ILayoutLog log) {
         sPlatformProperties = platformProperties;
         sEnumValueMap = enumValueMap;
         sIcuDataPath = icuDataPath;
+        sKeyboardPaths = keyboardPaths;
         sCurrentLog = log;
 
         if (!loadNativeLibrariesIfNeeded(log, nativeLibPath)) {
@@ -684,6 +691,29 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         return sIcuDataPath;
     }
 
+    /**
+     * This is called by the native layoutlib loader.
+     */
+    @SuppressWarnings("unused")
+    private static void setInputManager(InputDevice[] devices) {
+        int[] ids = Arrays.stream(devices).mapToInt(InputDevice::getId).toArray();
+        SparseArray<InputDevice> idToDevice = new SparseArray<>(devices.length);
+        for (InputDevice device : devices) {
+            idToDevice.append(device.getId(), device);
+        }
+        InputManager.sInstance = new InputManager(new IInputManager.Default() {
+            @Override
+            public int[] getInputDeviceIds() {
+                return ids;
+            }
+
+            @Override
+            public InputDevice getInputDevice(int deviceId) {
+                return idToDevice.get(deviceId);
+            }
+        });
+    }
+
     private static boolean sJniLibLoadAttempted;
     private static boolean sJniLibLoaded;
 
@@ -714,6 +744,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             System.setProperty("icu.data.path", Bridge.getIcuDataPath());
             System.setProperty("use_bridge_for_logging", "true");
             System.setProperty("register_properties_during_load", "true");
+            System.setProperty("keyboard_paths", String.join(",", sKeyboardPaths));
             for (String library : getNativeLibraries()) {
                 String path = new File(nativeLibDir, library).getAbsolutePath();
                 System.load(path);
