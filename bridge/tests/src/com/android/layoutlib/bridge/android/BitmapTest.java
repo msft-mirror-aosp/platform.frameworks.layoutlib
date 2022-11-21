@@ -109,7 +109,7 @@ public class BitmapTest extends RenderTestBase {
             int[] imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
             bitmap.getPixels(imageData, 0, image.getWidth(), 0, 0, image.getWidth(),
                     image.getHeight());
-            RenderTestBase.verify("bitmap_decoder.png", image);
+            verify("bitmap_decoder.png", image);
         } finally {
             RenderActionTestUtil.setBridgeContext(oldContext);
             context.disposeResources();

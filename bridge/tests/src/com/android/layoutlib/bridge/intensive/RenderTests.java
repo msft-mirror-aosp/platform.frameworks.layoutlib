@@ -1440,7 +1440,7 @@ public class RenderTests extends RenderTestBase {
                 .disableDecoration()
                 .build();
 
-        RenderResult result = RenderTestBase.render(sBridge, params, -1);
+        RenderResult result = render(sBridge, params, -1);
         BufferedImage image = result.getImage();
         assertNotNull(image);
         Graphics2D g = (Graphics2D) image.getGraphics();
@@ -1449,7 +1449,7 @@ public class RenderTests extends RenderTestBase {
             paintBorders(g, 0, 0, 0, vInfo);
         }
 
-        RenderTestBase.verify("view_boundaries.png", image);
+        verify("view_boundaries.png", image);
     }
 
     /**
