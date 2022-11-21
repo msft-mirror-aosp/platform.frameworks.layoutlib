@@ -456,8 +456,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                     }
                 }
             } finally {
-                scene.release();
-                cleanupThread();
+              scene.release();
+              cleanupThread();
             }
 
             return new BridgeRenderSession(scene, lastResult);

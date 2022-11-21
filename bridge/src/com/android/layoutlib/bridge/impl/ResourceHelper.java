@@ -481,7 +481,7 @@ public final class ResourceHelper {
      */
     public static Typeface getFont(String fontName, BridgeContext context, Theme theme, boolean
             isFramework) {
-        if (fontName == null) {
+        if (fontName == null || fontName.strip().isEmpty()) {
             return null;
         }
 

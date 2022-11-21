@@ -16,20 +16,32 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-java_test_host {
-    name: "layoutlib-tests",
+java_library_host {
+    name: "layoutlib-bridge-client",
 
     // Only compile source java files in this lib.
     srcs: [
-        "src/**/*.java",
-        "res/testApp/MyApplication/src/main/myapplication.widgets/**/*.java",
+        "**/*.java",
     ],
     java_resource_dirs: ["res"],
 
     static_libs: [
-        "kotlin-stdlib",
-	"layoutlib-bridge-client",
+        "tools-common-prebuilt",
+        "ninepatch-prebuilt",
+        "sdk-common",
+        "kxml2-2.3.0",
+        "layoutlib_api-prebuilt",
+        "trove-prebuilt",
+        "junit",
+        "guava-jre",
+        "hamcrest",
+        "mockito",
+        "objenesis",
+        "layoutlib",
+	"temp_layoutlib",
     ],
+
+    required: ["layoutlib"],
 
     // Copy the jar to DIST_DIR for sdk builds
     dist: {
@@ -38,4 +50,10 @@ java_test_host {
             "win_sdk",
         ],
     },
+}
+
+java_host_for_device {
+    name: "layoutlib-bridge-client-target",
+    libs: ["layoutlib-bridge-client"],
+    visibility: ["//visibility:public"],
 }
