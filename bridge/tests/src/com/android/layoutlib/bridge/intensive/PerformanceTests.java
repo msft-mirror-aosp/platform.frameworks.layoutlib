@@ -19,6 +19,7 @@ package com.android.layoutlib.bridge.intensive;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.util.perf.PerformanceRunner;
+import com.android.layoutlib.bridge.RenderTestBase;
 
 import org.junit.Before;
 import org.junit.Test;
