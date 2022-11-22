@@ -205,7 +205,7 @@ public class RenderTestBase {
     private static String getIcuDataPath() {
         String icuDataPath = System.getProperty(ICU_DATA_PATH_PROPERTY);
         if (icuDataPath == null) {
-            icuDataPath = PLATFORM_DIR + "/../../../../../com.android.i18n/etc/icu/icudt71l.dat";
+            icuDataPath = PLATFORM_DIR + "/../../../../../com.android.i18n/etc/icu/icudt72l.dat";
         }
         return icuDataPath;
     }
