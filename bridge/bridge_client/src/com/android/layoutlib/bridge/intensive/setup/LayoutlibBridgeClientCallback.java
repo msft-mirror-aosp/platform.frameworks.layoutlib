@@ -57,14 +57,14 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
     private String mAdaptiveIconMaskPath;
     private String mPackageName;
 
-  public LayoutlibBridgeClientCallback(ILogger logger, ClassLoader classLoader, String packageName) {
+    public LayoutlibBridgeClientCallback(ILogger logger, ClassLoader classLoader,
+            String packageName) {
         mLog = logger;
         mModuleClassLoader = classLoader;
         mPackageName = packageName;
     }
 
     public void initResources() throws ClassNotFoundException {
-      int newValue = 20000000;
         Class<?> rClass = mModuleClassLoader.loadClass(mPackageName + ".R");
         Class<?>[] nestedClasses = rClass.getDeclaredClasses();
         for (Class<?> resClass : nestedClasses) {
@@ -78,17 +78,10 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
                         try {
                             if (type == int.class) {
                                 final Integer val = (Integer) field.get(null);
-                                Integer value = val;
-                                if (value == 0){
-                                  value = newValue++;
-                                  setFinalStatic(field, newValue);
-                                }
                                 ResourceReference reference =
                                         new ResourceReference(RES_AUTO, resType, field.getName());
-                                mProjectResources.put(value, reference);
-
-
-                                mResources.put(reference, value);
+                                mProjectResources.put(val, reference);
+                                mResources.put(reference, val);
                             } else if (!(type.isArray() && type.getComponentType() == int.class)) {
                                 mLog.error(null, "Unknown field type in R class: %1$s", type);
                             }
@@ -101,24 +94,9 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
         }
     }
 
-  static void setFinalStatic(Field field, Object newValue) {
-    field.setAccessible(true);
-    try {
-      Field modifiersField = Field.class.getDeclaredField("modifiers");
-      modifiersField.setAccessible(true);
-      modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-      field.set(null, newValue);
-    }
-    catch (NoSuchFieldException e){
-      //mLog.error(null, "Unable to change field modifier for: %1$s", field.toString());
-    }
-    catch (IllegalAccessException e){
-      //mLog.error(null, "Unable to change field modifier for: %1$s", field.toString());
-    }
-  }
-
     @Override
-    public Object loadView(@NonNull String name, @NonNull Class[] constructorSignature, Object[] constructorArgs)
+    public Object loadView(@NonNull String name, @NonNull Class[] constructorSignature,
+            Object[] constructorArgs)
             throws Exception {
         Class<?> viewClass = mModuleClassLoader.loadClass(name);
         Constructor<?> viewConstructor = viewClass.getConstructor(constructorSignature);
@@ -128,9 +106,7 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
 
     @Override
     public ResourceReference resolveResourceId(int id) {
-        ResourceReference res = mProjectResources.get(id);
-        System.out.println("resolveResoyrceId:" + id + " -> " + res);
-        return res;
+        return mProjectResources.get(id);
     }
 
     @Override

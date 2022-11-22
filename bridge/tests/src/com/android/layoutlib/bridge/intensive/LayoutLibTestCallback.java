@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.layoutlib.bridge.intensive.setup;
+package com.android.layoutlib.bridge.intensive;
 
 import com.android.utils.ILogger;
+import com.android.layoutlib.bridge.intensive.setup.LayoutlibBridgeClientCallback;
 
 public class LayoutLibTestCallback extends LayoutlibBridgeClientCallback {
-  private static final String S_PACKAGE_NAME = "com.android.layoutlib.test.myapplication";
+    private static final String S_PACKAGE_NAME = "com.android.layoutlib.test.myapplication";
 
-  public LayoutLibTestCallback(ILogger logger, ClassLoader classLoader) { super(logger, classLoader, S_PACKAGE_NAME); }
+    public LayoutLibTestCallback(ILogger logger, ClassLoader classLoader) {
+        super(logger, classLoader, S_PACKAGE_NAME);
+    }
 }
