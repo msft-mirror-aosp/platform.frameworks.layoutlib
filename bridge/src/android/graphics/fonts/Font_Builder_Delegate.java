@@ -47,8 +47,6 @@ public class Font_Builder_Delegate {
     /*package*/ static ByteBuffer createBuffer(@NonNull AssetManager am, @NonNull String path,
             boolean isAsset, int cookie) throws IOException {
 
-        if(path == null || path.trim().isEmpty()) return null;
-
         try (InputStream assetStream = isAsset ? am.open(path, AssetManager.ACCESS_BUFFER)
                 : am.openNonAsset(cookie, path, AssetManager.ACCESS_BUFFER)) {
 

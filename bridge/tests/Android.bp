@@ -28,7 +28,7 @@ java_test_host {
 
     static_libs: [
         "kotlin-stdlib",
-	"layoutlib-bridge-client",
+        "layoutlib-bridge-client",
     ],
 
     // Copy the jar to DIST_DIR for sdk builds
