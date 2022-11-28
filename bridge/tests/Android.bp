@@ -29,6 +29,9 @@ java_test_host {
     static_libs: [
         "kotlin-stdlib",
         "layoutlib-bridge-client",
+        "mockito",
+        "ninepatch-prebuilt",
+        "objenesis",
     ],
 
     // Copy the jar to DIST_DIR for sdk builds

@@ -23,25 +23,17 @@ java_library_host {
     srcs: [
         "**/*.java",
     ],
-    java_resource_dirs: ["res"],
 
     static_libs: [
         "tools-common-prebuilt",
-        "ninepatch-prebuilt",
         "sdk-common",
         "kxml2-2.3.0",
         "layoutlib_api-prebuilt",
         "trove-prebuilt",
         "junit",
         "guava",
-        "hamcrest",
-        "mockito",
-        "objenesis",
         "layoutlib",
-        "temp_layoutlib",
     ],
-
-    required: ["layoutlib"],
 
     // Copy the jar to DIST_DIR for sdk builds
     dist: {

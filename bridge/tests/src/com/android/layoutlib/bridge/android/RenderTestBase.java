@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.layoutlib.bridge;
+package com.android.layoutlib.bridge.android;
 
 import org.junit.Before;
+
+import java.io.File;
+import java.net.URL;
 import java.util.Locale;
-import android.view.View;
+
 import com.android.layoutlib.bridge.intensive.BridgeClient;
 
 public class RenderTestBase extends BridgeClient {
+    private static final String RESOURCE_DIR_PROPERTY = "test_res.dir";
     public static final String S_PACKAGE_NAME = "com.android.layoutlib.test.myapplication";
 
     public String getAppTestDir() {
@@ -29,15 +33,15 @@ public class RenderTestBase extends BridgeClient {
     }
 
     public String getAppTestRes() {
-        return getAppTestDir() + "/src/main/res";
+        return getBaseResourceDir() + "/" + getAppTestDir() + "/src/main/res";
     }
 
     public String getAppResources() {
-        return getAppTestRes();
+        return getAppTestDir() + "/src/main/res";
     }
 
     public String getAppTestAsset() {
-        return getAppTestDir() + "/src/main/assets/";
+        return getBaseResourceDir() + "/" + getAppTestDir() + "/src/main/assets/";
     }
 
     public String getAppClassesLocation() {
@@ -56,6 +60,20 @@ public class RenderTestBase extends BridgeClient {
         return goldenImagePath;
     }
 
+    private static String getBaseResourceDir() {
+        String resourceDir = System.getProperty(RESOURCE_DIR_PROPERTY);
+        if (resourceDir != null && !resourceDir.isEmpty() && new File(resourceDir).isDirectory()) {
+            return resourceDir;
+        }
+        // resource directory not explicitly set. Fallback to the class's source location.
+        try {
+            URL location = RenderTestBase.class.getProtectionDomain().getCodeSource().getLocation();
+            return new File(location.getPath()).exists() ? location.getPath() : null;
+        } catch (NullPointerException e) {
+            // Prevent a lot of null checks by just catching the exception.
+            return null;
+        }
+    }
 
     @Before
     public void initPackageName() {

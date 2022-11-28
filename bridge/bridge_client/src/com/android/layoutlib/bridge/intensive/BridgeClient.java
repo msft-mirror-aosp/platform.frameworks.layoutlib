@@ -29,8 +29,8 @@ import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
-import com.android.layoutlib.bridge.intensive.setup.LayoutlibBridgeClientCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
+import com.android.layoutlib.bridge.intensive.setup.LayoutlibBridgeClientCallback;
 import com.android.layoutlib.bridge.intensive.util.ImageUtils;
 import com.android.layoutlib.bridge.intensive.util.ModuleClassLoader;
 import com.android.layoutlib.bridge.intensive.util.SessionParamsBuilder;
@@ -52,7 +52,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -61,13 +60,6 @@ import com.google.android.collect.Lists;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-
-import android.view.View;
-import android.content.Context;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.android.layoutlib.bridge.impl.RenderAction;
 
 /**
  * Base class for render tests. The render tests load all the framework resources and a project
@@ -100,13 +92,11 @@ public abstract class BridgeClient {
     private static final String ICU_DATA_PATH_PROPERTY = "icu.data.path";
     private static final String KEYBOARD_DIR_PROPERTY = "keyboard.dir";
     private static final String PLATFORM_DIR_PROPERTY = "platform.dir";
-    private static final String RESOURCE_DIR_PROPERTY = "test_res.dir";
 
     private static final String NATIVE_LIB_DIR_PATH;
     private static final String FONT_DIR;
     private static final String ICU_DATA_PATH;
     private static final String KEYBOARD_DIR;
-    private static final String TEST_RES_DIR;
     private static final String EMPTY_FRAME =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?> <FrameLayout "
                     + "xmlns:android=\"http://schemas.android.com/apk/res/android\" "
@@ -132,12 +122,6 @@ public abstract class BridgeClient {
         FONT_DIR = getFontDir();
         ICU_DATA_PATH = getIcuDataPath();
         KEYBOARD_DIR = getKeyboardDir();
-        TEST_RES_DIR = getTestResDir();
-        if (TEST_RES_DIR == null) {
-            fail(String.format("System property %1$s.dir not properly set. The value is %2$s",
-                    RESOURCE_DIR_PROPERTY, System.getProperty(RESOURCE_DIR_PROPERTY)));
-        }
-
     }
 
     @Rule
@@ -355,21 +339,6 @@ public abstract class BridgeClient {
         return null;
     }
 
-    private static String getTestResDir() {
-        String resourceDir = System.getProperty(RESOURCE_DIR_PROPERTY);
-        if (resourceDir != null && !resourceDir.isEmpty() && new File(resourceDir).isDirectory()) {
-            return resourceDir;
-        }
-        // TEST_RES_DIR not explicitly set. Fallback to the class's source location.
-        try {
-            URL location = BridgeClient.class.getProtectionDomain().getCodeSource().getLocation();
-            return new File(location.getPath()).exists() ? location.getPath() : null;
-        } catch (NullPointerException e) {
-            // Prevent a lot of null checks by just catching the exception.
-            return null;
-        }
-    }
-
     /**
      * Initialize the bridge and the resource maps.
      */
@@ -534,7 +503,7 @@ public abstract class BridgeClient {
     }
 
     public void initProjectResources() {
-        String TEST_RESOURCE_FOLDER = TEST_RES_DIR + "/" + getAppTestRes();
+        String TEST_RESOURCE_FOLDER = getAppTestRes();
         sProjectResources =
                 new ResourceRepository(new TestFolderWrapper(TEST_RESOURCE_FOLDER), false) {
                     @NonNull
@@ -718,7 +687,7 @@ public abstract class BridgeClient {
                 .setTargetSdk(28)
                 .setFlag(RenderParamsFlags.FLAG_DO_NOT_RENDER_ON_CREATE, true)
                 .setAssetRepository(
-                        new TestAssetRepository(TEST_RES_DIR + "/" + getAppTestAsset()));
+                        new TestAssetRepository(getAppTestAsset()));
     }
 
     /**
