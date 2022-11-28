@@ -17,9 +17,9 @@
 package com.android.tools.idea.validator;
 
 import com.android.ide.common.rendering.api.RenderSession;
-import com.android.layoutlib.bridge.RenderTestBase;
-import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
+import com.android.layoutlib.bridge.android.RenderTestBase;
 import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
+import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.layoutlib.bridge.intensive.util.SessionParamsBuilder;
 import com.android.tools.idea.validator.ValidatorData.Issue;
@@ -38,7 +38,6 @@ import com.google.android.apps.common.testing.accessibility.framework.uielement.
 
 import static com.android.tools.idea.validator.ValidatorUtil.filter;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
