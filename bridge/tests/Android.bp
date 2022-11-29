@@ -34,6 +34,8 @@ java_test_host {
         "objenesis",
     ],
 
+    required: ["libandroid_runtime"],
+
     // Copy the jar to DIST_DIR for sdk builds
     dist: {
         targets: [
