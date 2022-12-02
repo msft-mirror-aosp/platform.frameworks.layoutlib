@@ -1001,6 +1001,16 @@ public class RenderTests extends RenderTestBase {
         mContext.resolveThemeAttribute(android.R.attr.isLightTheme, outValue, true);
         assertEquals(TypedValue.TYPE_INT_BOOLEAN, outValue.type);
         assertEquals(1, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.scrollbarFadeDuration, outValue, true);
+        assertEquals(TypedValue.TYPE_INT_DEC, outValue.type);
+        assertEquals(250, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.scrollbarThumbHorizontal, outValue, true);
+        assertEquals(TypedValue.TYPE_STRING, outValue.type);
+        assertNotNull(outValue.string);
         assertTrue(sRenderMessages.isEmpty());
     }
 
