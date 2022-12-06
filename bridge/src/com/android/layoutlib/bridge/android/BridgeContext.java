@@ -448,15 +448,6 @@ public class BridgeContext extends Context {
                 outValue.type = TypedValue.TYPE_INT_BOOLEAN;
                 outValue.data = "true".equals(stringValue) ? 1 : 0;
             }
-            else {
-                try {
-                    outValue.data = Integer.parseInt(stringValue);
-                    outValue.type = TypedValue.TYPE_INT_DEC;
-                } catch (NumberFormatException e) {
-                    outValue.type = TypedValue.TYPE_STRING;
-                    outValue.string = stringValue;
-                }
-            }
         }
 
         int a = getResourceId(value.asReference(), 0 /*defValue*/);
