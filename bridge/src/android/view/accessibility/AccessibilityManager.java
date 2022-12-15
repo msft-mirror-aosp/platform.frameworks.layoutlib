@@ -19,6 +19,7 @@ package android.view.accessibility;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.accessibilityservice.AccessibilityServiceInfo.FeedbackType;
 import android.accessibilityservice.AccessibilityShortcutInfo;
+import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.RemoteAction;
@@ -70,6 +71,21 @@ public final class AccessibilityManager {
     public static final int FLAG_CONTENT_TEXT = 2;
     public static final int FLAG_CONTENT_CONTROLS = 4;
 
+    /**
+     * The contrast is defined as a float in [-1, 1], with a default value of 0.
+     * @hide
+     */
+    public static final float CONTRAST_MIN_VALUE = -1f;
+
+    /** @hide */
+    public static final float CONTRAST_MAX_VALUE = 1f;
+
+    /** @hide */
+    public static final float CONTRAST_DEFAULT_VALUE = 0f;
+
+    /** @hide */
+    public static final float CONTRAST_NOT_SET = Float.MIN_VALUE;
+
     private static AccessibilityManager sInstance = new AccessibilityManager(null, null, 0);
 
 
@@ -116,6 +132,21 @@ public final class AccessibilityManager {
          * @param enabled Whether high text contrast is enabled.
          */
         public void onHighTextContrastStateChanged(boolean enabled);
+    }
+
+    /**
+     * Listener for the UI contrast. To listen for changes to
+     * the UI contrast on the device, implement this interface and
+     * register it with the system by calling {@link #addUiContrastChangeListener}.
+     */
+    public interface UiContrastChangeListener {
+
+        /**
+         * Called when the color contrast enabled state changes.
+         *
+         * @param uiContrast The color contrast as in {@link #getUiContrast}
+         */
+        void onUiContrastChanged(@FloatRange(from = -1.0f, to = 1.0f) float uiContrast);
     }
 
     /**
@@ -225,6 +256,10 @@ public final class AccessibilityManager {
 
                 public void setFocusAppearance(int strokeWidth, int color) {
                 }
+
+                public void setUiContrast(float contrast) {
+
+                }
             };
 
     /**
@@ -268,13 +303,29 @@ public final class AccessibilityManager {
     /**
      * Returns if the high text contrast in the system is enabled.
      * <p>
-     * <strong>Note:</strong> You need to query this only if you application is
+     * <strong>Note:</strong> You need to query this only if your application is
      * doing its own rendering and does not rely on the platform rendering pipeline.
      * </p>
      *
      */
     public boolean isHighTextContrastEnabled() {
         return false;
+    }
+
+    /**
+     * Returns the color contrast for the user.
+     * <p>
+     * <strong>Note:</strong> You need to query this only if your application is
+     * doing its own rendering and does not rely on the platform rendering pipeline.
+     * </p>
+     * @return The color contrast, float in [-1, 1] where
+     *          0 corresponds to the default contrast
+     *         -1 corresponds to the minimum contrast that the user can set
+     *          1 corresponds to the maximum contrast that the user can set
+     */
+    @FloatRange(from = -1.0f, to = 1.0f)
+    public float getUiContrast() {
+        return 0;
     }
 
     /**
@@ -417,6 +468,24 @@ public final class AccessibilityManager {
      */
     public void removeHighTextContrastStateChangeListener(
             @NonNull HighTextContrastChangeListener listener) {}
+
+    /**
+     * Registers a {@link UiContrastChangeListener} for the current user.
+     *
+     * @param executor The executor on which the listener should be called back.
+     * @param listener The listener.
+     */
+    public void addUiContrastChangeListener(
+            @NonNull Executor executor,
+            @NonNull UiContrastChangeListener listener) {}
+
+    /**
+     * Unregisters a {@link UiContrastChangeListener} for the current user.
+     * If the listener was not registered, does nothing and returns.
+     *
+     * @param listener The listener to unregister.
+     */
+    public void removeUiContrastChangeListener(@NonNull UiContrastChangeListener listener) {}
 
     /**
      * Sets the current state and notifies listeners, if necessary.
