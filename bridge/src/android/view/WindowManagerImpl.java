@@ -274,7 +274,7 @@ public class WindowManagerImpl implements WindowManager {
             final InsetsState insetsState = new InsetsState();
             final boolean alwaysConsumeSystemBars =
                     WindowManagerGlobal.getWindowManagerService().getWindowInsets(
-                            new WindowManager.LayoutParams(), mContext.getDisplayId(), insetsState);
+                            mContext.getDisplayId(), null /* token */, insetsState);
             final Configuration config = mContext.getResources().getConfiguration();
             final boolean isScreenRound = config.isScreenRound();
             final int windowingMode = config.windowConfiguration.getWindowingMode();
