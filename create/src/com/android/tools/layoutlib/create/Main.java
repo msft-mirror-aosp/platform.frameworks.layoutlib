@@ -121,6 +121,7 @@ public class Main {
                         "com.android.internal.R**",
                         "android.pim.*", // for datepicker
                         "android.os.*",  // for android.os.Handler
+                        "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
                         "android.database.ContentObserver", // for Digital clock
                         "com.android.i18n.phonenumbers.*",  // for TextView with autolink attribute
                         "android.app.DatePickerDialog",     // b.android.com/28318
