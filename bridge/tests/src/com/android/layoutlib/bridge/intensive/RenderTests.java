@@ -2084,4 +2084,32 @@ public class RenderTests extends RenderTestBase {
         params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, false);
         renderAndVerify(params, "adaptive_icon_circle.png");
     }
+
+    @Test
+    public void testHtmlText() throws ClassNotFoundException {
+        final String layout =
+                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:layout_width=\"match_parent\"\n" +
+                        "              android:layout_height=\"match_parent\">\n" + "\n" +
+                        "    <com.android.layoutlib.bridge.test.widgets.HtmlTextView\n" +
+                        "        android:layout_width=\"wrap_content\"\n" +
+                        "        android:layout_height=\"wrap_content\"\n" +
+                        "        android:textSize=\"30sp\"/>\n" +
+                        "</FrameLayout>";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "html.png", TimeUnit.SECONDS.toNanos(2));
+    }
 }
