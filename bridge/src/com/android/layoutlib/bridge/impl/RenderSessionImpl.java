@@ -47,7 +47,6 @@ import com.android.layoutlib.bridge.android.support.SupportPreferencesUtil;
 import com.android.layoutlib.bridge.util.KeyEventHandling;
 import com.android.tools.idea.validator.LayoutValidator;
 import com.android.tools.idea.validator.ValidatorHierarchy;
-import com.android.tools.idea.validator.ValidatorResult;
 import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 
@@ -80,6 +79,8 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
+import android.view.ViewRootImpl;
+import android.view.ViewRootImpl_Accessor;
 import android.view.WindowManagerImpl;
 import android.widget.ActionMenuView;
 import android.widget.FrameLayout;
@@ -146,7 +147,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             MotionEvent.PointerCoords.createArray(1);
 
     private long mLastActionDownTimeNanos = -1;
-    @Nullable private ValidatorResult mValidatorResult = null;
     @Nullable private ValidatorHierarchy mValidatorHierarchy = null;
 
     private static final class PostInflateException extends Exception {
@@ -372,6 +372,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mViewRoot.layout(0, 0, mMeasuredScreenWidth, mMeasuredScreenHeight);
             mViewRoot.getViewRootImpl().mTmpFrames.displayFrame.set(mViewRoot.getLeft(),
                     mViewRoot.getTop(), mViewRoot.getRight(), mViewRoot.getBottom());
+
+            ViewRootImpl rootImpl = AttachInfo_Accessor.getRootView(mViewRoot);
+            if (rootImpl != null) {
+                ViewRootImpl_Accessor.setChild(rootImpl, mViewRoot);
+            }
+
             mSystemViewInfoList =
                     visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
                     false);
@@ -1119,15 +1125,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     @Nullable
-    public ValidatorResult getValidatorResult() {
-        return mValidatorResult;
-    }
-
-    public void setValidatorResult(ValidatorResult result) {
-        mValidatorResult = result;
-    }
-
-    @Nullable
     public ValidatorHierarchy getValidatorHierarchy() {
         return mValidatorHierarchy;
     }
@@ -1237,7 +1234,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (mSystemViewInfoList != null) {
                 mSystemViewInfoList.clear();
             }
-            mValidatorResult = null;
             mValidatorHierarchy = null;
             mViewRoot = null;
             mContentRoot = null;
