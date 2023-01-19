@@ -1001,6 +1001,16 @@ public class RenderTests extends RenderTestBase {
         mContext.resolveThemeAttribute(android.R.attr.isLightTheme, outValue, true);
         assertEquals(TypedValue.TYPE_INT_BOOLEAN, outValue.type);
         assertEquals(1, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.scrollbarFadeDuration, outValue, true);
+        assertEquals(TypedValue.TYPE_INT_DEC, outValue.type);
+        assertEquals(250, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.scrollbarThumbHorizontal, outValue, true);
+        assertEquals(TypedValue.TYPE_STRING, outValue.type);
+        assertNotNull(outValue.string);
         assertTrue(sRenderMessages.isEmpty());
     }
 
@@ -2073,5 +2083,33 @@ public class RenderTests extends RenderTestBase {
                 "/com/android/layoutlib/testdata/wallpaper2.webp");
         params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, false);
         renderAndVerify(params, "adaptive_icon_circle.png");
+    }
+
+    @Test
+    public void testHtmlText() throws ClassNotFoundException {
+        final String layout =
+                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:layout_width=\"match_parent\"\n" +
+                        "              android:layout_height=\"match_parent\">\n" + "\n" +
+                        "    <com.android.layoutlib.bridge.test.widgets.HtmlTextView\n" +
+                        "        android:layout_width=\"wrap_content\"\n" +
+                        "        android:layout_height=\"wrap_content\"\n" +
+                        "        android:textSize=\"30sp\"/>\n" +
+                        "</FrameLayout>";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "html.png", TimeUnit.SECONDS.toNanos(2));
     }
 }
