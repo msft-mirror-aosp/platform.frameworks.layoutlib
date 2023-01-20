@@ -100,6 +100,7 @@ public class NativeConfig {
             "android.os.Handler#sendMessageAtFrontOfQueue",
             "android.os.Handler#sendMessageAtTime",
             "android.os.HandlerThread#run",
+            "android.os.SystemProperties#find",
             "android.preference.Preference#getView",
             "android.provider.DeviceConfig#getBoolean",
             "android.provider.DeviceConfig#getFloat",
