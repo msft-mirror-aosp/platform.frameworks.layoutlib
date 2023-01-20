@@ -32,10 +32,12 @@ import android.R.style;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.os.PowerManager;
 import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -182,5 +184,25 @@ public class BridgeContextTest extends RenderTestBase {
         } finally {
             context.disposeResources();
         }
+    }
+
+    @Test
+    public void noCrashInPowerManager() throws ClassNotFoundException {
+        LayoutPullParser parser = LayoutPullParser.createFromPath("/empty.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder().setParser(parser).setCallback(layoutLibCallback).setTheme(
+                "Theme.Material", false).build();
+        DisplayMetrics metrics = new DisplayMetrics();
+        Configuration configuration = RenderAction.getConfiguration(params);
+        BridgeContext context =
+                new BridgeContext(params.getProjectKey(), metrics, params.getResources(), params.getAssets(), params.getLayoutlibCallback(), configuration,
+                        params.getTargetSdkVersion(), params.isRtlSupported());
+
+        PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        // Check that the following calls do not trigger a native crash
+        assertFalse(powerManager.isPowerSaveMode());
+        assertTrue(powerManager.isInteractive());
     }
 }
