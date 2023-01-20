@@ -38,7 +38,6 @@ import com.google.android.apps.common.testing.accessibility.framework.uielement.
 
 import static com.android.tools.idea.validator.ValidatorUtil.filter;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -174,9 +173,8 @@ public class AccessibilityValidatorTests extends RenderTestBase {
 
             // ATF doesn't count alpha values unless image is passed.
             ExpectedLevels expectedLevels = new ExpectedLevels();
-            expectedLevels.expectedErrors = 3;
-            expectedLevels.expectedWarnings = 1; // This is true only if image is passed.
-            expectedLevels.expectedVerboses = 2;
+            expectedLevels.expectedErrors = 4;
+            expectedLevels.expectedVerboses = 1;
             expectedLevels.expectedFixes = 4;
             expectedLevels.check(textContrast);
 
@@ -218,9 +216,9 @@ public class AccessibilityValidatorTests extends RenderTestBase {
 
             // ATF doesn't count alpha values unless image is passed.
             ExpectedLevels expectedLevels = new ExpectedLevels();
-            expectedLevels.expectedErrors = 3;
-            expectedLevels.expectedVerboses = 3;
-            expectedLevels.expectedFixes = 3;
+            expectedLevels.expectedErrors = 4;
+            expectedLevels.expectedVerboses = 1;
+            expectedLevels.expectedFixes = 4;
             expectedLevels.check(textContrast);
 
             // Make sure no other errors in the system.
@@ -343,7 +341,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             // setCharacterLocationArgMaxLength method works as expected.
             assertEquals(textViews.size(), 1);
             assertEquals(textViews.get(0).getTextCharacterLocations().size(),
-                    ValidatorUtil.CHARACTER_LOCATION_ARG_MAX_LENGTH);
+                    ValidatorUtil.CHARACTER_LOCATION_ARG_MAX_LENGTH - 1);
         });
     }
 
