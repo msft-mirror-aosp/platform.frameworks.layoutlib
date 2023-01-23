@@ -26,6 +26,7 @@ import com.android.internal.graphics.ColorUtils;
 import com.android.resources.ResourceType;
 import com.android.systemui.monet.ColorScheme;
 import com.android.systemui.monet.Style;
+import com.android.systemui.monet.TonalPalette;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.app.WallpaperColors;
@@ -166,9 +167,11 @@ public class DynamicRenderResources extends RenderResources {
             int seed = ColorScheme.getSeedColor(wallpaperColors);
             ColorScheme scheme = new ColorScheme(seed, isNightMode);
             Map<String, Integer> dynamicColorMap = new HashMap<>();
-            int paletteSize = scheme.getAccent1().size();
-            extractPalette(scheme.getAllAccentColors(), "accent", paletteSize, dynamicColorMap);
-            extractPalette(scheme.getAllNeutralColors(), "neutral", paletteSize, dynamicColorMap);
+            extractPalette("accent1", dynamicColorMap, scheme.getAccent1());
+            extractPalette("accent2", dynamicColorMap, scheme.getAccent2());
+            extractPalette("accent3", dynamicColorMap, scheme.getAccent3());
+            extractPalette("neutral1", dynamicColorMap, scheme.getNeutral1());
+            extractPalette("neutral2", dynamicColorMap, scheme.getNeutral2());
             return dynamicColorMap;
         } catch (IllegalArgumentException | IOException ignore) {
             return null;
@@ -179,27 +182,15 @@ public class DynamicRenderResources extends RenderResources {
      * Builds the dynamic theme from the {@link ColorScheme} copying what is done
      * in {@link ThemeOverlayController#getOverlay}
      */
-    private static void extractPalette(List<Integer> shades, String name, int paletteSize,
-            Map<String, Integer> colorMap) {
-        for (int i = 0; i < shades.size(); i++) {
-            int luminosity = i % paletteSize;
-            int paletteIndex = i / paletteSize + 1;
-            String resourceName;
-            String baseResourceName = "system_" + name + paletteIndex;
-            switch (luminosity) {
-                case 0:
-                    resourceName = baseResourceName + "_0";
-                    colorMap.put(resourceName, Color.WHITE);
-                    resourceName = baseResourceName + "_10";
-                    break;
-                case 1:
-                    resourceName = baseResourceName + "_50";
-                    break;
-                default:
-                    resourceName = baseResourceName + "_" + (luminosity - 1) + "00";
-            }
-            colorMap.put(resourceName, ColorUtils.setAlphaComponent(shades.get(i), 0xFF));
-        }
+    private static void extractPalette(String name,
+            Map<String, Integer> colorMap, TonalPalette tonalPalette) {
+        String resourcePrefix = "system_" + name;
+        tonalPalette.getAllShadesMapped().forEach((key, value) -> {
+            String resourceName = resourcePrefix + "_" + key;
+            int colorValue = ColorUtils.setAlphaComponent(value, 0xFF);
+            colorMap.put(resourceName, colorValue);
+        });
+        colorMap.put(resourcePrefix + "_0", Color.WHITE);
     }
 
     private static boolean isDynamicColor(ResourceValue resourceValue) {
