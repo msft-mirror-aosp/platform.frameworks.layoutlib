@@ -127,6 +127,8 @@ public class BridgeContext extends Context {
 
     private static final Map<String, ResourceValue> FRAMEWORK_PATCHED_VALUES = new HashMap<>(2);
     private static final Map<String, ResourceValue> FRAMEWORK_REPLACE_VALUES = new HashMap<>(3);
+    private static final int MAX_PARSER_STACK_SIZE = Integer.getInteger(
+            "layoutlib.max.parser.stack.size", 1000);
 
     static {
         FRAMEWORK_PATCHED_VALUES.put("animateFirstView",
@@ -365,6 +367,9 @@ public class BridgeContext extends Context {
     public void pushParser(BridgeXmlBlockParser parser) {
         if (ParserFactory.LOG_PARSER) {
             System.out.println("PUSH " + parser.getParser().toString());
+        }
+        if (mParserStack.size() > MAX_PARSER_STACK_SIZE) {
+            throw new RuntimeException("Potential cycle encountered during inflation");
         }
         mParserStack.push(parser);
     }
