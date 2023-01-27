@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package android.text;
+package android.os;
 
-import org.junit.Test;
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-import static android.text.Html.FROM_HTML_MODE_COMPACT;
-import static org.junit.Assert.assertNotNull;
+import android.os.SystemProperties.Handle;
 
-public class HtmlTest {
-    @Test
-    public void fromHtmlWithBold() {
-        Spanned spanned = Html.fromHtml("<b>Test bold tag</b>", FROM_HTML_MODE_COMPACT);
-        assertNotNull(spanned);
+public class SystemProperties_Delegate {
+    @LayoutlibDelegate
+    public static Handle find(String name) {
+        // The native method called by the original version of SystemProperties.find
+        // throws a fatal exception for non-bionic devices.
+       return null;
     }
 }
