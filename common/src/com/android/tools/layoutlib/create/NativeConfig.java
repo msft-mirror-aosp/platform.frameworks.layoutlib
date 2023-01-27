@@ -194,6 +194,7 @@ public class NativeConfig {
             "android.graphics.CreateJavaOutputStreamAdaptor",
             "android.graphics.DrawFilter",
             "android.graphics.FontFamily",
+            "android.graphics.Gainmap",
             "android.graphics.Graphics",
             "android.graphics.HardwareRenderer",
             "android.graphics.ImageDecoder",

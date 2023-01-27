@@ -211,6 +211,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.DrawFilter",
         "android.graphics.EmbossMaskFilter",
         "android.graphics.FontFamily",
+        "android.graphics.Gainmap",
         "android.graphics.HardwareRenderer",
         "android.graphics.ImageDecoder",
         "android.graphics.Interpolator",
