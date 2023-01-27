@@ -127,6 +127,8 @@ public class BridgeContext extends Context {
 
     private static final Map<String, ResourceValue> FRAMEWORK_PATCHED_VALUES = new HashMap<>(2);
     private static final Map<String, ResourceValue> FRAMEWORK_REPLACE_VALUES = new HashMap<>(3);
+    private static final int MAX_PARSER_STACK_SIZE = Integer.getInteger(
+            "layoutlib.max.parser.stack.size", 1000);
 
     static {
         FRAMEWORK_PATCHED_VALUES.put("animateFirstView",
@@ -194,6 +196,7 @@ public class BridgeContext extends Context {
     private PackageManager mPackageManager;
     private Boolean mIsThemeAppCompat;
     private boolean mUseThemedIcon;
+    private Context mApplicationContext;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
@@ -365,6 +368,9 @@ public class BridgeContext extends Context {
         if (ParserFactory.LOG_PARSER) {
             System.out.println("PUSH " + parser.getParser().toString());
         }
+        if (mParserStack.size() > MAX_PARSER_STACK_SIZE) {
+            throw new RuntimeException("Potential cycle encountered during inflation");
+        }
         mParserStack.push(parser);
     }
 
@@ -448,6 +454,15 @@ public class BridgeContext extends Context {
             else if ("true".equals(stringValue) || "false".equals(stringValue)) {
                 outValue.type = TypedValue.TYPE_INT_BOOLEAN;
                 outValue.data = "true".equals(stringValue) ? 1 : 0;
+            }
+            else {
+                try {
+                    outValue.data = Integer.parseInt(stringValue);
+                    outValue.type = TypedValue.TYPE_INT_DEC;
+                } catch (NumberFormatException e) {
+                    outValue.type = TypedValue.TYPE_STRING;
+                    outValue.string = stringValue;
+                }
             }
         }
 
@@ -1982,7 +1997,10 @@ public class BridgeContext extends Context {
 
     @Override
     public Context getApplicationContext() {
-        return this;
+        if (mApplicationContext == null) {
+            mApplicationContext = new ApplicationContext(this);
+        }
+        return mApplicationContext;
     }
 
     @Override
