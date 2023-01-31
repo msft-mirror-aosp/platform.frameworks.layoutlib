@@ -83,6 +83,8 @@ public class ValidatorUtil {
          * uses be redirected.
          */
         StringManager.setResourceBundleProvider(locale -> ResourceBundle.getBundle("strings"));
+        // Enable using AccessibilityNodeInfo in addition to View for accessibility testing
+        AccessibilityHierarchyAndroid.viewOverlayEnabled = true;
     }
 
     // Visible for testing.
