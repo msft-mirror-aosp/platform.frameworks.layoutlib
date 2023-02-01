@@ -915,46 +915,46 @@ public class RenderTests extends RenderTestBase {
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
 
-        layoutLibCallback.setAdaptiveIconMaskPath("M50,0L100,0 100,100 0,100 0,0z");
         SessionParams params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
                 .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                 .setRenderingMode(RenderingMode.V_SCROLL)
                 .build();
-
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50,0L100,0 100,100 0,100 0,0z");
         renderAndVerify(params, "adaptive_icon.png");
 
-        layoutLibCallback.setAdaptiveIconMaskPath(
-                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
-                        "22.4 22.4 0 50 0Z");
         params = getSessionParamsBuilder()
                     .setParser(LayoutPullParser.createFromString(layout))
                     .setCallback(layoutLibCallback)
                     .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                     .setRenderingMode(RenderingMode.V_SCROLL)
                     .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                "22.4 22.4 0 50 0Z");
         renderAndVerify(params, "adaptive_icon_circle.png");
 
-        layoutLibCallback.setAdaptiveIconMaskPath(
-                "M50,0L92,0C96.42,0 100,4.58 100 8L100,92C100, 96.42 96.42 100 92 100L8 100C4.58," +
-                        " 100 0 96.42 0 92L0 8 C 0 4.42 4.42 0 8 0L50 0Z");
         params = getSessionParamsBuilder()
                     .setParser(LayoutPullParser.createFromString(layout))
                     .setCallback(layoutLibCallback)
                     .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                     .setRenderingMode(RenderingMode.V_SCROLL)
                     .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50,0L92,0C96.42,0 100,4.58 100 8L100,92C100, 96.42 96.42 100 92 100L8 100C4.58," +
+                " 100 0 96.42 0 92L0 8 C 0 4.42 4.42 0 8 0L50 0Z");
         renderAndVerify(params, "adaptive_icon_rounded_corners.png");
 
-        layoutLibCallback.setAdaptiveIconMaskPath(
-                "M50,0 C10,0 0,10 0,50 0,90 10,100 50,100 90,100 100,90 100,50 100,10 90,0 50,0 Z");
         params = getSessionParamsBuilder()
                     .setParser(LayoutPullParser.createFromString(layout))
                     .setCallback(layoutLibCallback)
                     .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
                     .setRenderingMode(RenderingMode.V_SCROLL)
                     .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50,0 C10,0 0,10 0,50 0,90 10,100 50,100 90,100 100,90 100,50 100,10 90,0 50,0 Z");
         renderAndVerify(params, "adaptive_icon_squircle.png");
     }
 
@@ -1000,6 +1000,16 @@ public class RenderTests extends RenderTestBase {
         mContext.resolveThemeAttribute(android.R.attr.isLightTheme, outValue, true);
         assertEquals(TypedValue.TYPE_INT_BOOLEAN, outValue.type);
         assertEquals(1, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.scrollbarFadeDuration, outValue, true);
+        assertEquals(TypedValue.TYPE_INT_DEC, outValue.type);
+        assertEquals(250, outValue.data);
+
+        outValue = new TypedValue();
+        mContext.resolveThemeAttribute(android.R.attr.scrollbarThumbHorizontal, outValue, true);
+        assertEquals(TypedValue.TYPE_STRING, outValue.type);
+        assertNotNull(outValue.string);
         assertTrue(sRenderMessages.isEmpty());
     }
 

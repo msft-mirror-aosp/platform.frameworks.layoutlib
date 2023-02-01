@@ -542,6 +542,9 @@ public final class ResourceHelper {
         String str = string.replaceAll("<li>", "<ul><li>")
                 .replaceAll("</li>","</li></ul>");
         int firstTagIndex = str.indexOf('<');
+        if (firstTagIndex == -1) {
+            return string;
+        }
         int lastTagIndex = str.lastIndexOf('>');
         StringBuilder stringBuilder = new StringBuilder(str.substring(0, firstTagIndex));
         List<Tag> tagList = new ArrayList<>();

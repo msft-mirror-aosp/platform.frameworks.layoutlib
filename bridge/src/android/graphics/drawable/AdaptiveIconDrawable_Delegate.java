@@ -16,22 +16,23 @@
 
 package android.graphics.drawable;
 
-import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
+import com.android.internal.R;
 
 import android.content.res.Resources;
-import android.content.res.Resources_Delegate;
-import android.util.PathParser;
-
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH;
 
 public class AdaptiveIconDrawable_Delegate {
+    public static String sPath;
 
-    @LayoutlibDelegate
-    /*package*/ static void constructor_after(AdaptiveIconDrawable icon) {
-        String pathString = Resources_Delegate.getLayoutlibCallback(Resources.getSystem()).getFlag(
-                FLAG_KEY_ADAPTIVE_ICON_MASK_PATH);
-        if (pathString != null) {
-            AdaptiveIconDrawable.sMask = PathParser.createPathFromPathData(pathString);
+    /**
+     * Delegate that replaces a call to Resources.getString in
+     * the constructor of AdaptiveIconDrawable.
+     * This allows to pass a non-default value for the mask for adaptive icons.
+     */
+    @SuppressWarnings("unused")
+    public static String getResourceString(Resources res, int resId) {
+        if (resId == R.string.config_icon_mask) {
+            return sPath;
         }
+        return res.getString(resId);
     }
 }

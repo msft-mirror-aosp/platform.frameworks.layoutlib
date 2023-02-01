@@ -102,12 +102,14 @@ public class RenderTestBase {
     private static final String NATIVE_LIB_PATH_PROPERTY = "native.lib.path";
     private static final String FONT_DIR_PROPERTY = "font.dir";
     private static final String ICU_DATA_PATH_PROPERTY = "icu.data.path";
+    private static final String KEYBOARD_DIR_PROPERTY = "keyboard.dir";
     private static final String PLATFORM_DIR_PROPERTY = "platform.dir";
     private static final String RESOURCE_DIR_PROPERTY = "test_res.dir";
 
     private static final String NATIVE_LIB_DIR_PATH;
     private static final String FONT_DIR;
     private static final String ICU_DATA_PATH;
+    private static final String KEYBOARD_DIR;
     protected static final String PLATFORM_DIR;
     private static final String TEST_RES_DIR;
     /** Location of the app to test inside {@link #TEST_RES_DIR} */
@@ -137,6 +139,7 @@ public class RenderTestBase {
         NATIVE_LIB_DIR_PATH = getNativeLibDirPath();
         FONT_DIR = getFontDir();
         ICU_DATA_PATH = getIcuDataPath();
+        KEYBOARD_DIR = getKeyboardDir();
 
         TEST_RES_DIR = getTestResDir();
         if (TEST_RES_DIR == null) {
@@ -191,7 +194,7 @@ public class RenderTestBase {
         String fontDir = System.getProperty(FONT_DIR_PROPERTY);
         if (fontDir == null) {
             // The fonts are built into out/host/common/obj/PACKAGING/fonts_intermediates
-            // as specified in build/make/core/layoutlib_fonts.mk, and PLATFORM_DIR is
+            // as specified in build/make/core/layoutlib_data.mk, and PLATFORM_DIR is
             // out/host/[arch]/sdk/sdk*/android-sdk*/platforms/android*
             fontDir = PLATFORM_DIR +
                     "/../../../../../../common/obj/PACKAGING/fonts_intermediates";
@@ -202,9 +205,22 @@ public class RenderTestBase {
     private static String getIcuDataPath() {
         String icuDataPath = System.getProperty(ICU_DATA_PATH_PROPERTY);
         if (icuDataPath == null) {
-            icuDataPath = PLATFORM_DIR + "/../../../../../com.android.i18n/etc/icu/icudt70l.dat";
+            icuDataPath = PLATFORM_DIR + "/../../../../../com.android.i18n/etc/icu/icudt72l.dat";
         }
         return icuDataPath;
+    }
+
+    private static String getKeyboardDir() {
+        String keyboardDir = System.getProperty(KEYBOARD_DIR_PROPERTY);
+        if (keyboardDir == null) {
+            // The keyboard files are built into
+            // out/host/common/obj/PACKAGING/keyboards_intermediates
+            // as specified in build/make/core/layoutlib_data.mk, and PLATFORM_DIR is
+            // out/host/[arch]/sdk/sdk*/android-sdk*/platforms/android*
+            keyboardDir = PLATFORM_DIR +
+                    "/../../../../../../common/obj/PACKAGING/keyboards_intermediates";
+        }
+        return keyboardDir;
     }
 
     private static String getPlatformDir() {
@@ -379,9 +395,10 @@ public class RenderTestBase {
         File fontLocation = new File(FONT_DIR);
         File buildProp = new File(PLATFORM_DIR, "build.prop");
         File attrs = new File(res, "values" + File.separator + "attrs.xml");
+        String[] keyboardPaths = new String[] { KEYBOARD_DIR + "/Generic.kcm" };
         sBridge = new Bridge();
         sBridge.init(ConfigGenerator.loadProperties(buildProp), fontLocation, NATIVE_LIB_DIR_PATH,
-                ICU_DATA_PATH, ConfigGenerator.getEnumMap(attrs), getLayoutLog());
+                ICU_DATA_PATH, keyboardPaths, ConfigGenerator.getEnumMap(attrs), getLayoutLog());
         Bridge.getLock().lock();
         try {
             Bridge.setLog(getLayoutLog());
