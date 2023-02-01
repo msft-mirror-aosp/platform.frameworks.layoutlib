@@ -25,7 +25,6 @@ java_library_host {
     java_resource_dirs: ["resources"],
 
     libs: [
-        "tools-common-prebuilt",
         "temp_layoutlib",
         "layoutlib_api-prebuilt",
         "layoutlib-common",
@@ -35,6 +34,5 @@ java_library_host {
     static_libs: [
         "hamcrest",
         "jsoup-1.6.3",
-        "protobuf-lite",
     ],
 }
