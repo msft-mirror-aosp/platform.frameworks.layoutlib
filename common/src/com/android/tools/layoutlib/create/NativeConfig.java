@@ -115,6 +115,8 @@ public class NativeConfig {
             "android.view.Choreographer#removeCallbacksInternal",
             "android.view.Display#getWindowManager",
             "android.view.Display#updateDisplayInfoLocked",
+            "android.view.DisplayEventReceiver#nativeGetDisplayEventReceiverFinalizer",
+            "android.view.DisplayEventReceiver#nativeInit",
             "android.view.HandlerActionQueue#postDelayed",
             "android.view.LayoutInflater#initPrecompiledViews",
             "android.view.LayoutInflater#parseInclude",
