@@ -87,6 +87,7 @@ public class NativeConfig {
             "android.graphics.Canvas#getClipBounds",
             "android.graphics.ImageDecoder#decodeBitmapImpl",
             "android.graphics.Typeface#create",
+            "android.graphics.drawable.AdaptiveIconDrawable#draw",
             "android.graphics.drawable.AnimatedVectorDrawable#draw",
             "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorUI#onDraw",
             "android.graphics.drawable.DrawableInflater#inflateFromClass",
