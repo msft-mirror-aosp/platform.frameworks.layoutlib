@@ -83,7 +83,7 @@ public class LayoutValidatorTests extends RenderTestBase {
                     null,
                     SCALE_X_FOR_NEXUS_5,
                     SCALE_Y_FOR_NEXUS_5);
-            assertEquals(27, result.getIssues().size());
+            assertEquals(31, result.getIssues().size());
             ArrayList<Issue> errorIssues = new ArrayList<>();
             for (Issue issue : result.getIssues()) {
                 assertEquals(Type.ACCESSIBILITY, issue.mType);
@@ -171,7 +171,7 @@ public class LayoutValidatorTests extends RenderTestBase {
                         null,
                         SCALE_X_FOR_NEXUS_5,
                         SCALE_Y_FOR_NEXUS_5);
-                assertEquals(24, result.getIssues().size());
+                assertEquals(26, result.getIssues().size());
                 result.getIssues().forEach(issue ->assertEquals(Level.VERBOSE, issue.mLevel));
             });
         } finally {

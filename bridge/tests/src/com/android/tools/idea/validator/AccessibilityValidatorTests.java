@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.android.apps.common.testing.accessibility.framework.uielement.DefaultCustomViewBuilderAndroid;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.ViewHierarchyElementAndroid;
@@ -322,6 +323,26 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             targetSizes = filter(targetSizes, EnumSet.of(Level.ERROR));
             List<Issue> filtered = filter(result.getIssues(), EnumSet.of(Level.ERROR));
             checkEquals(filtered, targetSizes);
+        });
+    }
+
+    @Test
+    public void testCharacterLocationArgMaxLength() throws Exception {
+        render("justified_none.xml", session -> {
+            ValidatorHierarchy hierarchy = (ValidatorHierarchy)session.getValidationData();
+
+            List<ViewHierarchyElementAndroid> textViews =
+                    hierarchy.mView.getActiveWindow().getAllViews().stream().filter(view->
+                            (view.getClassName() != null &&
+                                    view.getClassName().toString().contains("TextView"))).collect(
+                            Collectors.toList());
+
+            // The text of the only TextView is very long (more than 1000 characters), but
+            // only 100 text character locations are retrieved because
+            // setCharacterLocationArgMaxLength method works as expected.
+            assertEquals(textViews.size(), 1);
+            assertEquals(textViews.get(0).getTextCharacterLocations().size(),
+                    ValidatorUtil.CHARACTER_LOCATION_ARG_MAX_LENGTH);
         });
     }
 
