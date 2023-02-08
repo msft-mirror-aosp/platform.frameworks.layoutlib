@@ -52,8 +52,8 @@ public class InputMethodManager_Delegate {
     }
 
     @LayoutlibDelegate
-    /*package*/static  boolean showSoftInput(InputMethodManager thisManager, View view, int flags,
-            ResultReceiver resultReceiver, int reason) {
+    /*package*/static boolean showSoftInput(InputMethodManager thisManager, View view,
+            ImeTracker.Token statsToken, int flags, ResultReceiver resultReceiver, int reason) {
         return false;
     }
 

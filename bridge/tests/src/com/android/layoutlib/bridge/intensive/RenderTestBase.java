@@ -395,7 +395,7 @@ public class RenderTestBase {
         File fontLocation = new File(FONT_DIR);
         File buildProp = new File(PLATFORM_DIR, "build.prop");
         File attrs = new File(res, "values" + File.separator + "attrs.xml");
-        String[] keyboardPaths = new String[] { KEYBOARD_DIR + "/Generic.kcm" };
+        String[] keyboardPaths = new String[0];
         sBridge = new Bridge();
         sBridge.init(ConfigGenerator.loadProperties(buildProp), fontLocation, NATIVE_LIB_DIR_PATH,
                 ICU_DATA_PATH, keyboardPaths, ConfigGenerator.getEnumMap(attrs), getLayoutLog());
