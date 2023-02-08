@@ -118,6 +118,7 @@ public class Main {
                         "android.graphics.drawable.**",
                         "android.icu.**",                   // needed by LayoutLib
                         "android.os.*",  // for android.os.Handler
+                        "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
                         "android.pim.*", // for datepicker
                         "android.preference.*",
                         "android.service.wallpaper.*",      // needed for Wear OS watch faces
