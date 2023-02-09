@@ -87,6 +87,7 @@ import static org.junit.Assert.fail;
 public abstract class BridgeClient {
 
     protected static final String PLATFORM_DIR;
+    private static final String ANDROID_HOST_OUT_DIR_PROPERTY = "android_host_out.dir";
     private static final String NATIVE_LIB_PATH_PROPERTY = "native.lib.path";
     private static final String FONT_DIR_PROPERTY = "font.dir";
     private static final String ICU_DATA_PATH_PROPERTY = "icu.data.path";
@@ -207,13 +208,29 @@ public abstract class BridgeClient {
         return keyboardDir;
     }
 
+    private static String getAndroidHostOutDir() {
+        String androidHostOutDir = System.getProperty(ANDROID_HOST_OUT_DIR_PROPERTY);
+        if (androidHostOutDir != null && !androidHostOutDir.isEmpty()
+                && new File(androidHostOutDir).isDirectory()) {
+            return androidHostOutDir;
+        }
+
+        androidHostOutDir = System.getenv("ANDROID_HOST_OUT");
+        if (androidHostOutDir != null && !androidHostOutDir.isEmpty()
+                && new File(androidHostOutDir).isDirectory()) {
+            return androidHostOutDir;
+        }
+
+        return null;
+    }
+
     private static String getPlatformDir() {
         String platformDir = System.getProperty(PLATFORM_DIR_PROPERTY);
         if (platformDir != null && !platformDir.isEmpty() && new File(platformDir).isDirectory()) {
             return platformDir;
         }
         // System Property not set. Try to find the directory in the build directory.
-        String androidHostOut = System.getenv("ANDROID_HOST_OUT");
+        String androidHostOut = getAndroidHostOutDir();
         if (androidHostOut != null) {
             platformDir = getPlatformDirFromHostOut(new File(androidHostOut));
             if (platformDir != null) {
