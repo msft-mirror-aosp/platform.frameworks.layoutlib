@@ -61,6 +61,11 @@ public final class Typeface_Delegate {
         if (typeface != null) {
             return typeface;
         }
+
+        if (path.isBlank()) {
+            return null;
+        }
+
         String lowerCaseValue = path.toLowerCase();
         if (lowerCaseValue.endsWith(AndroidConstants.DOT_XML)) {
             // create a block parser for the file
