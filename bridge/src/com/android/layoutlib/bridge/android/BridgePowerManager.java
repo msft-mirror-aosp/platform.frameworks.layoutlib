@@ -270,6 +270,31 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public void setLowPowerStandbyPolicy(LowPowerStandbyPolicy policy) {
+        // pass for now.
+    }
+
+    @Override
+    public LowPowerStandbyPolicy getLowPowerStandbyPolicy() {
+        return null;
+    }
+
+    @Override
+    public boolean isExemptFromLowPowerStandby() {
+        return true;
+    }
+
+    @Override
+    public boolean isReasonAllowedInLowPowerStandby(int reason) {
+        return true;
+    }
+
+    @Override
+    public boolean isFeatureAllowedInLowPowerStandby(String feature) {
+        return true;
+    }
+
+    @Override
     public void setLowPowerStandbyEnabled(boolean enabled) {
         // pass for now
     }
