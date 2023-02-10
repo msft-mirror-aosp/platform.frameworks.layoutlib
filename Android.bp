@@ -30,7 +30,7 @@ java_genrule_host {
     tools: ["layoutlib_create"],
     out: ["temp_layoutlib.jar"],
     srcs: [
-        ":atf-prebuilt-371374941{.jar}",
+        ":atf-prebuilt-502584086{.jar}",
         ":core-icu4j-for-host{.jar}",
         ":core-libart-for-host{.jar}",
         ":framework-all{.jar}",

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package android.view;
+package com.android.layoutlib.bridge.intensive;
 
-/**
- * Accessor to allow layoutlib to call {@link ViewRootImpl} methods directly.
- */
-public class ViewRootImpl_Accessor {
-    public static void dispatchApplyInsets(ViewRootImpl viewRoot, View host) {
-        viewRoot.dispatchApplyInsets(host);
-    }
+import com.android.utils.ILogger;
+import com.android.layoutlib.bridge.intensive.setup.LayoutlibBridgeClientCallback;
 
-    public static void setChild(ViewRootImpl viewRoot, View child) {
-        viewRoot.mView = child;
-        child.assignParent(viewRoot);
-        viewRoot.mWidth = child.getWidth();
-        viewRoot.mHeight = child.getHeight();
+public class LayoutLibTestCallback extends LayoutlibBridgeClientCallback {
+    private static final String S_PACKAGE_NAME = "com.android.layoutlib.test.myapplication";
+
+    public LayoutLibTestCallback(ILogger logger, ClassLoader classLoader) {
+        super(logger, classLoader, S_PACKAGE_NAME);
     }
 }
