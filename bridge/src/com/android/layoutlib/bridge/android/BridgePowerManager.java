@@ -156,6 +156,12 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public void goToSleepWithDisplayId(int arg0, long arg1, int arg2, int arg3)
+            throws RemoteException {
+        // pass for now.
+    }
+
+    @Override
     public void nap(long arg0) throws RemoteException {
         // pass for now.
     }
