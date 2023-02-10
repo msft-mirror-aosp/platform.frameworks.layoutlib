@@ -20,8 +20,7 @@ import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.impl.RenderActionTestUtil;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
+import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 
 import org.junit.BeforeClass;

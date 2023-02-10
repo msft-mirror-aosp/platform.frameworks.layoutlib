@@ -1,5 +1,4 @@
-//
-// Copyright (C) 2008 The Android Open Source Project
+// Copyright (C) 2011 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +11,41 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-java_binary_host {
-    name: "layoutlib_create",
+java_library_host {
+    name: "layoutlib-bridge-client",
 
-    srcs: ["src/**/*.java"],
-
-    main_class: "com.android.tools.layoutlib.create.Main",
-    static_libs: [
-        "ow2-asm",
-        "ow2-asm-commons",
-        "guava",
-        "layoutlib-common",
-        "layoutlib_create-classpath",
-        "atf-prebuilt-502584086",
-        "libprotobuf-java-lite",
+    // Only compile source java files in this lib.
+    srcs: [
+        "**/*.java",
     ],
+
+    static_libs: [
+        "tools-common-prebuilt",
+        "sdk-common",
+        "kxml2-2.3.0",
+        "layoutlib_api-prebuilt",
+        "trove-prebuilt",
+        "junit",
+        "guava",
+        "layoutlib",
+    ],
+
+    // Copy the jar to DIST_DIR for sdk builds
+    dist: {
+        targets: [
+            "sdk",
+            "win_sdk",
+        ],
+    },
+}
+
+java_host_for_device {
+    name: "layoutlib-bridge-client-target",
+    libs: ["layoutlib-bridge-client"],
+    visibility: ["//visibility:public"],
 }
