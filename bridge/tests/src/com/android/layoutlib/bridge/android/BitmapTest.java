@@ -20,8 +20,7 @@ import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.impl.RenderActionTestUtil;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
+import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.ninepatch.NinePatch;
 
@@ -109,7 +108,7 @@ public class BitmapTest extends RenderTestBase {
             int[] imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
             bitmap.getPixels(imageData, 0, image.getWidth(), 0, 0, image.getWidth(),
                     image.getHeight());
-            RenderTestBase.verify("bitmap_decoder.png", image);
+            verify("bitmap_decoder.png", image);
         } finally {
             RenderActionTestUtil.setBridgeContext(oldContext);
             context.disposeResources();

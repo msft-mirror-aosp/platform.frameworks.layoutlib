@@ -17,7 +17,6 @@
 package com.android.layoutlib.bridge.android;
 
 import com.android.layoutlib.bridge.Bridge;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
