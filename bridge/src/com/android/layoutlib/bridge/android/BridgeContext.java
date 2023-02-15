@@ -709,7 +709,7 @@ public class BridgeContext extends Context {
      * Same as Context#obtainStyledAttributes. We do not override the base method to give the
      * original Context the chance to override the theme when needed.
      */
-    @Nullable
+    @NonNull
     public final BridgeTypedArray internalObtainStyledAttributes(int resId, int[] attrs)
             throws Resources.NotFoundException {
         StyleResourceValue style = null;
@@ -726,9 +726,8 @@ public class BridgeContext extends Context {
             }
 
             if (style == null) {
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_RESOLVE,
+                Bridge.getLog().warning(ILayoutLog.TAG_INFO,
                         "Failed to find style with " + resId, null, null);
-                return null;
             }
         }
 
