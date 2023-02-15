@@ -72,6 +72,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
+import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -163,7 +164,7 @@ public class BridgeContext extends Context {
     private Resources mSystemResources;
     private final Object mProjectKey;
     private final DisplayMetrics mMetrics;
-    private final RenderResources mRenderResources;
+    private final DynamicRenderResources mRenderResources;
     private final Configuration mConfig;
     private final ApplicationInfo mApplicationInfo;
     private final LayoutlibCallback mLayoutlibCallback;
@@ -195,6 +196,8 @@ public class BridgeContext extends Context {
     private IBinder mBinder;
     private PackageManager mPackageManager;
     private Boolean mIsThemeAppCompat;
+    private boolean mUseThemedIcon;
+    private Context mApplicationContext;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
@@ -241,7 +244,7 @@ public class BridgeContext extends Context {
         mMetrics = metrics;
         mLayoutlibCallback = layoutlibCallback;
 
-        mRenderResources = renderResources;
+        mRenderResources = new DynamicRenderResources(renderResources);
         mConfig = config;
         AssetManager systemAssetManager = AssetManager.getSystem();
         if (systemAssetManager instanceof BridgeAssetManager) {
@@ -681,6 +684,9 @@ public class BridgeContext extends Context {
 
             case AUDIO_SERVICE:
                 return mAudioManager;
+
+            case INPUT_SERVICE:
+                return InputManager.getInstance(this);
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
@@ -1995,7 +2001,10 @@ public class BridgeContext extends Context {
 
     @Override
     public Context getApplicationContext() {
-        return this;
+        if (mApplicationContext == null) {
+            mApplicationContext = new ApplicationContext(this);
+        }
+        return mApplicationContext;
     }
 
     @Override
@@ -2266,5 +2275,17 @@ public class BridgeContext extends Context {
     @NotNull
     public SessionInteractiveData getSessionInteractiveData() {
         return mSessionInteractiveData;
+    }
+
+    public boolean useThemedIcon() {
+        return mUseThemedIcon && mRenderResources.hasDynamicColors();
+    }
+
+    public void setUseThemedIcon(boolean useThemedIcon) {
+        mUseThemedIcon = useThemedIcon;
+    }
+
+    public void applyWallpaper(String wallpaperPath) {
+        mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
     }
 }

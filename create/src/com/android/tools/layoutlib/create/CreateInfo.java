@@ -145,6 +145,7 @@ public final class CreateInfo implements ICreateInfo {
         new AdaptiveIconMaskReplacer(),
         new ActivityThreadInAnimationReplacer(),
         new ReferenceRefersToReplacer(),
+        new HtmlApplicationResourceReplacer(),
     };
 
     /**
@@ -254,8 +255,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.text.AndroidCharacter",
         "android.util.Log",
         "android.util.PathParser",
-        "android.view.KeyCharacterMap",
-        "android.view.KeyEvent",
         "android.view.MotionEvent",
         "android.view.Surface",
         "com.android.internal.util.VirtualRefBasePtr",
@@ -271,8 +270,6 @@ public final class CreateInfo implements ICreateInfo {
             "android.view.textservice.TextServicesManager",    "android.view.textservice._Original_TextServicesManager",
             "android.view.SurfaceView",                        "android.view._Original_SurfaceView",
             "android.view.WindowManagerImpl",                  "android.view._Original_WindowManagerImpl",
-            "android.view.accessibility.AccessibilityManager", "android.view.accessibility._Original_AccessibilityManager",
-            "android.view.accessibility.AccessibilityNodeIdManager", "android.view.accessibility._Original_AccessibilityNodeIdManager",
             "android.webkit.WebView",                          "android.webkit._Original_WebView",
         };
 
@@ -302,6 +299,7 @@ public final class CreateInfo implements ICreateInfo {
         new String[] {
             "android.preference.PreferenceActivity",
             "java.**",
+            "kotlin.**",
             "org.kxml2.io.KXmlParser",
             "org.xmlpull.**",
             "sun.**",
@@ -602,6 +600,24 @@ public final class CreateInfo implements ICreateInfo {
             mi.owner = Type.getInternalName(Reference_Delegate.class);
             mi.desc = Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(Reference.class),
                     Type.getType(Object.class));
+        }
+    }
+
+    public static class HtmlApplicationResourceReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return ("android/text/Html".equals(sourceClass) ||
+                    "android/text/HtmlToSpannedConverter".equals(sourceClass)) &&
+                    "android/app/Application".equals(owner) &&
+                    name.equals("getResources");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "android/app/Application_Delegate";
+            mi.name = "getResources";
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.desc = "(Landroid/app/Application;)Landroid/content/res/Resources;";
         }
     }
 }

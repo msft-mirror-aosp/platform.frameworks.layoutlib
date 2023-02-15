@@ -118,6 +118,7 @@ public class Main {
                         "android.graphics.drawable.**",
                         "android.icu.**",                   // needed by LayoutLib
                         "android.os.*",  // for android.os.Handler
+                        "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
                         "android.pim.*", // for datepicker
                         "android.preference.*",
                         "android.service.wallpaper.*",      // needed for Wear OS watch faces
@@ -132,6 +133,7 @@ public class Main {
                         "com.android.internal.util.*",
                         "com.android.internal.view.menu.ActionMenu",
                         "com.android.internal.widget.*",
+                        "com.android.systemui.monet.*",     // needed for dynamic theming
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
                         "libcore.icu.ICU",                  // needed by ICU_Delegate in LayoutLib

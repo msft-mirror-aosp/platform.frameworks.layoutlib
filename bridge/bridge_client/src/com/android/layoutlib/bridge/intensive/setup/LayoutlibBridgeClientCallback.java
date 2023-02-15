@@ -48,23 +48,24 @@ import com.google.common.io.ByteStreams;
 
 import static com.android.ide.common.rendering.api.ResourceNamespace.RES_AUTO;
 
-public class LayoutLibTestCallback extends LayoutlibCallback {
-    private static final String PACKAGE_NAME = "com.android.layoutlib.test.myapplication";
-
+public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
     private final Map<Integer, ResourceReference> mProjectResources = new HashMap<>();
     private final Map<ResourceReference, Integer> mResources = new HashMap<>();
     private final ILogger mLog;
     private final ActionBarCallback mActionBarCallback = new ActionBarCallback();
     private final ClassLoader mModuleClassLoader;
     private String mAdaptiveIconMaskPath;
+    private String mPackageName;
 
-    public LayoutLibTestCallback(ILogger logger, ClassLoader classLoader) {
+    public LayoutlibBridgeClientCallback(ILogger logger, ClassLoader classLoader,
+            String packageName) {
         mLog = logger;
         mModuleClassLoader = classLoader;
+        mPackageName = packageName;
     }
 
     public void initResources() throws ClassNotFoundException {
-        Class<?> rClass = mModuleClassLoader.loadClass(PACKAGE_NAME + ".R");
+        Class<?> rClass = mModuleClassLoader.loadClass(mPackageName + ".R");
         Class<?>[] nestedClasses = rClass.getDeclaredClasses();
         for (Class<?> resClass : nestedClasses) {
             final ResourceType resType = ResourceType.fromClassName(resClass.getSimpleName());
@@ -76,16 +77,16 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
                         final Class<?> type = field.getType();
                         try {
                             if (type == int.class) {
-                                final Integer value = (Integer) field.get(null);
+                                final Integer val = (Integer) field.get(null);
                                 ResourceReference reference =
                                         new ResourceReference(RES_AUTO, resType, field.getName());
-                                mProjectResources.put(value, reference);
-                                mResources.put(reference, value);
+                                mProjectResources.put(val, reference);
+                                mResources.put(reference, val);
                             } else if (!(type.isArray() && type.getComponentType() == int.class)) {
                                 mLog.error(null, "Unknown field type in R class: %1$s", type);
                             }
                         } catch (IllegalAccessException e) {
-                            mLog.error(e, "Malformed R class: %1$s", PACKAGE_NAME + ".R");
+                            mLog.error(e, "Malformed R class: %1$s", mPackageName + ".R");
                         }
                     }
                 }
@@ -93,9 +94,9 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
         }
     }
 
-
     @Override
-    public Object loadView(@NonNull String name, @NonNull Class[] constructorSignature, Object[] constructorArgs)
+    public Object loadView(@NonNull String name, @NonNull Class[] constructorSignature,
+            Object[] constructorArgs)
             throws Exception {
         Class<?> viewClass = mModuleClassLoader.loadClass(name);
         Constructor<?> viewConstructor = viewClass.getConstructor(constructorSignature);
@@ -171,12 +172,12 @@ public class LayoutLibTestCallback extends LayoutlibCallback {
 
     @Override
     public String getApplicationId() {
-        return PACKAGE_NAME;
+        return mPackageName;
     }
 
     @Override
     public String getResourcePackage() {
-        return PACKAGE_NAME;
+        return mPackageName;
     }
 
     @Override
