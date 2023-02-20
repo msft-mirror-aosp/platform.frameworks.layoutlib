@@ -56,10 +56,17 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.HardwareRenderer;
+import android.graphics.LayoutlibRenderer;
+import android.graphics.PixelFormat;
+import android.graphics.RenderNode;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
+import android.media.Image;
+import android.media.Image.Plane;
+import android.media.ImageReader;
 import android.preference.Preference_Delegate;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
@@ -88,10 +95,14 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.android.internal.R;
+import android.content.res.TypedArray;
 
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_INFLATION;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_NOT_INFLATED;
@@ -129,8 +140,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private List<ViewInfo> mSystemViewInfoList;
     private Layout.Builder mLayoutBuilder;
     private boolean mNewRenderSize;
-    private Canvas mCanvas;
-    private Bitmap mBitmap;
+    private ImageReader mImageReader;
+    private Image mNativeImage;
+    private LayoutlibRenderer mRenderer = new LayoutlibRenderer();
 
     // Passed in MotionEvent initialization when dispatching a touch event.
     private final MotionEvent.PointerProperties[] mPointerProperties =
@@ -193,6 +205,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         mBlockParser = new BridgeXmlBlockParser(layoutParser, context, layoutParser.getLayoutNamespace());
 
         Bitmap.setDefaultDensity(params.getHardwareConfig().getDensity().getDpiValue());
+
+        // Needed in order to initialize static state of ImageReader
+        ImageReader.nativeClassInit();
 
         return SUCCESS.createResult();
     }
@@ -346,7 +361,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             context.popParser();
 
             // set the AttachInfo on the root view.
-            AttachInfo_Accessor.setAttachInfo(mViewRoot);
+            AttachInfo_Accessor.setAttachInfo(mViewRoot, mRenderer);
 
             // post-inflate process. For now this supports TabHost/TabWidget
             postInflateProcess(view, params.getLayoutlibCallback(), isPreference ? view : null);
@@ -416,12 +431,13 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * shadows).
      */
     private static Result renderAndBuildResult(@NonNull ViewGroup viewRoot,
-            @Nullable Canvas canvas) {
-        if (canvas == null) {
-            return SUCCESS.createResult();
-        }
+        @NonNull HardwareRenderer renderer) {
+
         AttachInfo_Accessor.dispatchOnPreDraw(viewRoot);
-        viewRoot.draw(canvas);
+
+        RenderNode node = viewRoot.updateDisplayListIfDirty();
+        renderer.setContentRoot(node);
+        renderer.createRenderRequest().syncAndDraw();
 
         return SUCCESS.createResult();
     }
@@ -487,7 +503,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             measureLayout(params);
 
-            HardwareConfig hardwareConfig = params.getHardwareConfig();
             Result renderResult = SUCCESS.createResult();
             float scaleX = 1.0f;
             float scaleY = 1.0f;
@@ -504,7 +519,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 boolean disableBitmapCaching = Boolean.TRUE.equals(params.getFlag(
                     RenderParamsFlags.FLAG_KEY_DISABLE_BITMAP_CACHING));
 
-                if (mNewRenderSize || mCanvas == null || disableBitmapCaching) {
+                if (mNewRenderSize || mImageReader == null || disableBitmapCaching) {
                     if (params.getImageFactory() != null) {
                         mImage = params.getImageFactory().getImage(
                                 mMeasuredScreenWidth,
@@ -516,33 +531,29 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                 BufferedImage.TYPE_INT_ARGB);
                     }
 
-                    // create an Android bitmap around the BufferedImage
-                    mBitmap = Bitmap.createBitmap(mImage.getWidth(), mImage.getHeight(),
-                            Config.ARGB_8888);
-                    int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
-                    mBitmap.setPixels(imageData, 0, mImage.getWidth(), 0, 0, mImage.getWidth(), mImage.getHeight());
-
-                    if (mCanvas == null) {
-                        // create a Canvas around the Android bitmap
-                        mCanvas = new Canvas(mBitmap);
-                    } else {
-                        mCanvas.setBitmap(mBitmap);
-                    }
-
                     boolean enableImageResizing =
                             mImage.getWidth() != mMeasuredScreenWidth &&
                                     mImage.getHeight() != mMeasuredScreenHeight &&
                                     Boolean.TRUE.equals(params.getFlag(
                                             RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE));
 
+                    if (enableImageResizing || mNewRenderSize) {
+                        disposeImageSurface();
+                    }
+
                     if (enableImageResizing) {
                         scaleX = mImage.getWidth() * 1.0f / mMeasuredScreenWidth;
                         scaleY = mImage.getHeight() * 1.0f / mMeasuredScreenHeight;
-                        mCanvas.scale(scaleX, scaleY);
+                        mRenderer.setScale(scaleX, scaleY);
                     } else {
-                        mCanvas.scale(1.0f, 1.0f);
+                        mRenderer.setScale(1.0f, 1.0f);
                     }
 
+                    if (mImageReader == null) {
+                        mImageReader = ImageReader.newInstance(mImage.getWidth(), mImage.getHeight(), PixelFormat.RGBA_8888, 1);
+                        mRenderer.setSurface(mImageReader.getSurface());
+                        mNativeImage = mImageReader.acquireNextImage();
+                    }
                     mNewRenderSize = false;
                 }
 
@@ -562,11 +573,31 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                             mElapsedFrameTimeNanos / 1000000;
                 }
 
-                renderResult = renderAndBuildResult(mViewRoot, mCanvas);
+                final TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.Lighting, 0, 0);
+                float lightY = a.getDimension(R.styleable.Lighting_lightY, 0);
+                float lightZ = a.getDimension(R.styleable.Lighting_lightZ, 0);
+                // Correct light altitude according to ThreadedRenderer.setLightCenter
+                DisplayMetrics displayMetrics = getContext().getMetrics();
+                float zRatio = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                        / (450f * displayMetrics.density);
+                float zWeightedAdjustment = (zRatio + 2) / 3f;
+                lightZ *= zWeightedAdjustment;
+                float lightRadius = a.getDimension(R.styleable.Lighting_lightRadius, 0);
+                float ambientShadowAlpha = a.getFloat(R.styleable.Lighting_ambientShadowAlpha, 0);
+                float spotShadowAlpha = a.getFloat(R.styleable.Lighting_spotShadowAlpha, 0);
+                a.recycle();
+
+                mRenderer.setLightSourceGeometry(mMeasuredScreenWidth / 2, lightY, lightZ, lightRadius);
+                mRenderer.setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha);
+
+                renderResult = renderAndBuildResult(mViewRoot, mRenderer);
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
-                mBitmap.getPixels(imageData, 0, mImage.getWidth(), 0, 0, mImage.getWidth(),
-                        mImage.getHeight());
+
+                Plane[] planes = mNativeImage.getPlanes();
+                IntBuffer buff = planes[0].getBuffer().asIntBuffer();
+                int len = buff.remaining();
+                buff.get(imageData, 0, len);
             }
 
             mSystemViewInfoList =
@@ -1185,15 +1216,16 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     private void disposeImageSurface() {
-        if (mCanvas != null) {
-            mCanvas.release();
-            mCanvas = null;
+        if (mImageReader != null) {
+            mImageReader.close();
+            mImageReader = null;
         }
     }
 
     @Override
     public void dispose() {
         try {
+            mRenderer.destroy();
             disposeImageSurface();
             mImage = null;
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
