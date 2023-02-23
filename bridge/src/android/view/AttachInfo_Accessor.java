@@ -46,7 +46,11 @@ public class AttachInfo_Accessor {
 
     public static void detachFromWindow(final View view) {
         if (view != null) {
+            final View.AttachInfo attachInfo = view.mAttachInfo;
             view.dispatchDetachedFromWindow();
+            if (attachInfo != null) {
+                ViewRootImpl_Accessor.detachFromWindow(attachInfo.mViewRootImpl);
+            }
         }
     }
 
