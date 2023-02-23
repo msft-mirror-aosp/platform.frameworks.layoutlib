@@ -30,4 +30,9 @@ public class ViewRootImpl_Accessor {
         viewRoot.mWidth = child.getWidth();
         viewRoot.mHeight = child.getHeight();
     }
+
+    public static void detachFromWindow(ViewRootImpl viewRoot) {
+        viewRoot.mAccessibilityInteractionConnectionManager.ensureNoConnection();
+        viewRoot.mAccessibilityInteractionConnectionManager.ensureNoDirectConnection();
+    }
 }
