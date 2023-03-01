@@ -39,6 +39,7 @@ public class ValidatorResultTests {
         assertNotNull(result);
         assertTrue(result.getIssues().isEmpty());
         assertTrue(result.getSrcMap().isEmpty());
+        assertTrue(result.getNodeInfoMap().isEmpty());
         assertNotNull(result.getMetric());
         assertEquals("Result containing 0 issues:\n", result.toString());
     }
