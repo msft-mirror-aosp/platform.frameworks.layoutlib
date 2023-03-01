@@ -89,6 +89,8 @@ public class LayoutValidatorTests extends RenderTestBase {
                     null,
                     SCALE_X_FOR_NEXUS_5,
                     SCALE_Y_FOR_NEXUS_5);
+            assertEquals(4, result.getSrcMap().size());
+            assertEquals(4, result.getNodeInfoMap().size());
             assertEquals(31, result.getIssues().size());
             ArrayList<Issue> errorIssues = new ArrayList<>();
             for (Issue issue : result.getIssues()) {
