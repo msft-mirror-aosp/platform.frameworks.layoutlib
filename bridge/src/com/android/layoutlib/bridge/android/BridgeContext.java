@@ -80,12 +80,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Looper;
+import android.os.NullVibrator;
+import android.os.NullVibratorManager;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.UserHandle;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -683,6 +686,12 @@ public class BridgeContext extends Context {
 
             case AUDIO_SERVICE:
                 return mAudioManager;
+
+            case VIBRATOR_SERVICE:
+                return NullVibrator.getInstance();
+
+            case VIBRATOR_MANAGER_SERVICE:
+                return NullVibratorManager.getInstance();
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
