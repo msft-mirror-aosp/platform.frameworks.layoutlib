@@ -92,6 +92,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_INFLATION;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_NOT_INFLATED;
@@ -368,8 +369,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             mSystemViewInfoList =
-                    visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
-                    false);
+                    visitAllChildren(mViewRoot, 0, 0, params, false);
 
             return SUCCESS.createResult();
         } catch (PostInflateException e) {
@@ -570,8 +570,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             mSystemViewInfoList =
-                    visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
-                    false);
+                    visitAllChildren(mViewRoot, 0, 0, params, false);
 
             boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
             boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
@@ -853,15 +852,16 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      *
      * @return {@code ViewInfo} containing the bounds of the view and it children otherwise.
      */
-    private ViewInfo visit(View view, int hOffset, int vOffset, boolean setExtendedInfo,
+    private ViewInfo visit(View view, int hOffset, int vOffset, SessionParams params,
             boolean isContentFrame) {
-        ViewInfo result = createViewInfo(view, hOffset, vOffset, setExtendedInfo, isContentFrame);
+        ViewInfo result = createViewInfo(view, hOffset, vOffset, params.getExtendedViewInfoMode(),
+                isContentFrame);
 
         if (view instanceof ViewGroup) {
             ViewGroup group = ((ViewGroup) view);
             result.setChildren(visitAllChildren(group, isContentFrame ? 0 : hOffset,
                     isContentFrame ? 0 : vOffset,
-                    setExtendedInfo, isContentFrame));
+                    params, isContentFrame));
         }
         return result;
     }
@@ -880,7 +880,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      *                       part of the system decor.
      */
     private List<ViewInfo> visitAllChildren(ViewGroup viewGroup, int hOffset, int vOffset,
-            boolean setExtendedInfo, boolean isContentFrame) {
+            SessionParams params, boolean isContentFrame) {
         if (viewGroup == null) {
             return null;
         }
@@ -896,8 +896,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             List<ViewInfo> childrenWithOffset = new ArrayList<>(childCount);
             for (int i = 0; i < childCount; i++) {
                 ViewInfo[] childViewInfo =
-                        visitContentRoot(viewGroup.getChildAt(i), hOffset, vOffset,
-                        setExtendedInfo);
+                        visitContentRoot(viewGroup.getChildAt(i), hOffset, vOffset, params);
                 childrenWithoutOffset.add(childViewInfo[0]);
                 childrenWithOffset.add(childViewInfo[1]);
             }
@@ -906,7 +905,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         } else {
             List<ViewInfo> children = new ArrayList<>(childCount);
             for (int i = 0; i < childCount; i++) {
-                children.add(visit(viewGroup.getChildAt(i), hOffset, vOffset, setExtendedInfo,
+                children.add(visit(viewGroup.getChildAt(i), hOffset, vOffset, params,
                         isContentFrame));
             }
             return children;
@@ -920,26 +919,32 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * get the right bounds if the {@code ViewInfo} hierarchy is accessed from
      * {@code mViewInfoList}. When the hierarchy is accessed via {@code mSystemViewInfoList}, the
      * offset is not needed.
+     * If a custom parser was passed inside the {@link SessionParams} argument, this will be used
+     * to generate the {@link ViewInfo}s. Otherwise, {@link RenderSessionImpl#visitAllChildren}
+     * will be used.
      *
      * @return an array of length two, with ViewInfo at index 0 is without offset and ViewInfo at
      *         index 1 is with the offset.
      */
     @NonNull
-    private ViewInfo[] visitContentRoot(View view, int hOffset, int vOffset,
-            boolean setExtendedInfo) {
+    private ViewInfo[] visitContentRoot(View view, int hOffset, int vOffset, SessionParams params) {
         ViewInfo[] result = new ViewInfo[2];
         if (view == null) {
             return result;
         }
 
+        boolean setExtendedInfo = params.getExtendedViewInfoMode();
         result[0] = createViewInfo(view, 0, 0, setExtendedInfo, true);
         result[1] = createViewInfo(view, hOffset, vOffset, setExtendedInfo, true);
-        if (view instanceof ViewGroup) {
-            List<ViewInfo> children =
-                    visitAllChildren((ViewGroup) view, 0, 0, setExtendedInfo, true);
-            result[0].setChildren(children);
-            result[1].setChildren(children);
+        Function<Object, List<ViewInfo>> customParser = params.getCustomContentHierarchyParser();
+        List<ViewInfo> children = null;
+        if (customParser != null) {
+            children = customParser.apply(view);
+        } else if (view instanceof ViewGroup) {
+            children = visitAllChildren((ViewGroup) view, 0, 0, params, true);
         }
+        result[0].setChildren(children);
+        result[1].setChildren(children);
         return result;
     }
 
@@ -975,13 +980,13 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     shiftY + view.getTop(),
                     shiftX + view.getRight(),
                     shiftY + view.getBottom(),
-                    view, view.getLayoutParams());
+                    view, null, view.getLayoutParams());
         } else {
             // We are part of the system decor.
             SystemViewInfo r = new SystemViewInfo(view.getClass().getName(),
                     getViewKey(view),
                     view.getLeft(), view.getTop(), view.getRight(),
-                    view.getBottom(), view, view.getLayoutParams());
+                    view.getBottom(), view, null, view.getLayoutParams());
             result = r;
             // We currently mark three kinds of views:
             // 1. Menus in the Action Bar
