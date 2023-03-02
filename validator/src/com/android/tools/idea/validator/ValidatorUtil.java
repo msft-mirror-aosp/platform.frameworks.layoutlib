@@ -131,6 +131,7 @@ public class ValidatorUtil {
             hierarchy.mView = AccessibilityHierarchyAndroid
                     .newBuilder(view)
                     .setViewOriginMap(builder.mSrcMap)
+                    .setNodeInfoOriginMap(builder.mNodeInfoMap)
                     .setObtainCharacterLocations(LayoutValidator.obtainCharacterLocations())
                     .setCharacterLocationArgMaxLength(CHARACTER_LOCATION_ARG_MAX_LENGTH)
                     .setCustomViewBuilder(new CustomViewBuilderAndroid() {
