@@ -48,6 +48,7 @@ import android.graphics.Typeface;
 import android.graphics.fonts.SystemFonts_Delegate;
 import android.hardware.input.IInputManager;
 import android.hardware.input.InputManager;
+import android.hardware.input.InputManagerGlobal;
 import android.icu.util.ULocale;
 import android.os.Looper;
 import android.os.Looper_Accessor;
@@ -760,8 +761,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         for (InputDevice device : devices) {
             idToDevice.append(device.getId(), device);
         }
-        InputManager.sInstance = new InputManager(new IInputManager.Default() {
-            @Override
+        InputManagerGlobal.sInstance = new InputManagerGlobal(new IInputManager.Default() {
+	     @Override
             public int[] getInputDeviceIds() {
                 return ids;
             }
