@@ -20,6 +20,7 @@ import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.os.MessageQueue;
+import android.view.DisplayEventReceiver.VsyncEventData;
 
 import java.lang.ref.WeakReference;
 
@@ -32,7 +33,8 @@ public class DisplayEventReceiver_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static long nativeInit(WeakReference<DisplayEventReceiver> receiver,
-            MessageQueue messageQueue, int vsyncSource, int eventRegistration, long layerHandle) {
+            WeakReference<VsyncEventData> vsyncEventData, MessageQueue messageQueue,
+            int vsyncSource, int eventRegistration, long layerHandle) {
         return sManager.addNewDelegate(new DisplayEventReceiver_Delegate());
     }
 
