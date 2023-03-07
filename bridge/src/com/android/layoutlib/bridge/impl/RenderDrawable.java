@@ -78,7 +78,7 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
             return Status.ERROR_NOT_A_DRAWABLE.createResult();
         }
 
-        Drawable d = ResourceHelper.getDrawable(drawableResource, context);
+        Drawable d = ResourceHelper.getDrawable(drawableResource, context, context.getTheme());
         if (d == null) {
             return Status.ERROR_NOT_A_DRAWABLE.createResult();
         }
