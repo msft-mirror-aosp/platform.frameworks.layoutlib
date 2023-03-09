@@ -21,6 +21,7 @@ import com.android.layoutlib.bridge.intensive.RenderTestBase;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
+import com.android.layoutlib.common.util.ReflectionUtils;
 import com.android.tools.idea.validator.ValidatorData.CompoundFix;
 import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Level;
@@ -30,7 +31,9 @@ import com.android.tools.idea.validator.ValidatorData.Type;
 
 import org.junit.Test;
 
+import android.util.SparseArray;
 import android.view.View;
+import android.view.accessibility.AccessibilityInteractionClient;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -74,6 +77,9 @@ public class LayoutValidatorTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "a11y_test1.png");
+        Object connectionCache = ReflectionUtils.getFieldValue(AccessibilityInteractionClient.class,
+                AccessibilityInteractionClient.getInstance(), "sConnectionCache");
+        assertEquals(0, ((SparseArray)connectionCache).size());
     }
 
     @Test

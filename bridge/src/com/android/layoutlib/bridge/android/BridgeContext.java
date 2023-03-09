@@ -80,12 +80,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Looper;
+import android.os.NullVibrator;
+import android.os.NullVibratorManager;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.UserHandle;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -684,6 +687,12 @@ public class BridgeContext extends Context {
             case AUDIO_SERVICE:
                 return mAudioManager;
 
+            case VIBRATOR_SERVICE:
+                return NullVibrator.getInstance();
+
+            case VIBRATOR_MANAGER_SERVICE:
+                return NullVibratorManager.getInstance();
+
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
             case ALARM_SERVICE:
@@ -709,7 +718,7 @@ public class BridgeContext extends Context {
      * Same as Context#obtainStyledAttributes. We do not override the base method to give the
      * original Context the chance to override the theme when needed.
      */
-    @Nullable
+    @NonNull
     public final BridgeTypedArray internalObtainStyledAttributes(int resId, int[] attrs)
             throws Resources.NotFoundException {
         StyleResourceValue style = null;
@@ -726,9 +735,8 @@ public class BridgeContext extends Context {
             }
 
             if (style == null) {
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_RESOLVE,
+                Bridge.getLog().warning(ILayoutLog.TAG_INFO,
                         "Failed to find style with " + resId, null, null);
-                return null;
             }
         }
 
