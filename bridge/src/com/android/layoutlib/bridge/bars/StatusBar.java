@@ -17,11 +17,13 @@
 package com.android.layoutlib.bridge.bars;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
+import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.BridgeXmlBlockParser;
 import com.android.layoutlib.bridge.impl.ParserFactory;
+import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.resources.IconLoader;
 import com.android.resources.Density;
 
@@ -42,9 +44,24 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.graphics.Color.WHITE;
+import static android.os._Original_Build.VERSION_CODES.M;
+import static com.android.layoutlib.bridge.bars.Config.getTimeColor;
+import static com.android.layoutlib.bridge.bars.Config.isGreaterOrEqual;
+
 public class StatusBar extends CustomBar {
 
     private final int mSimulatedPlatformVersion;
+    /**
+     * Color corresponding to light_mode_icon_color_single_tone
+     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
+     */
+    private static final int LIGHT_ICON_COLOR = 0xffffffff;
+    /**
+     * Color corresponding to dark_mode_icon_color_single_tone
+     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
+     */
+    private static final int DARK_ICON_COLOR = 0x99000000;
     /** Status bar background color attribute name. */
     private static final String ATTR_COLOR = "statusBarColor";
     /** Attribute for translucency property. */
@@ -95,20 +112,45 @@ public class StatusBar extends CustomBar {
             return;
         }
 
+        int foregroundColor = getForegroundColor(simulatedPlatformVersion);
         // Cannot access the inside items through id because no R.id values have been
         // created for them.
         // We do know the order though.
         loadIcon(icons.get(0), "stat_sys_wifi_signal_4_fully."
-                        + Config.getWifiIconType(simulatedPlatformVersion), density);
-        loadIcon(icons.get(1), "stat_sys_battery_100.png", density);
+                        + Config.getWifiIconType(simulatedPlatformVersion), density,foregroundColor);
+        loadIcon(icons.get(1), "stat_sys_battery_100.png", density, foregroundColor);
         clockView.setText(Config.getTime(simulatedPlatformVersion));
-        clockView.setTextColor(Config.getTimeColor(simulatedPlatformVersion));
+        clockView.setTextColor(foregroundColor);
+    }
+
+    private int getForegroundColor(int platformVersion) {
+        if (isGreaterOrEqual(platformVersion, M)) {
+            RenderResources renderResources = getContext().getRenderResources();
+            boolean translucentBackground =
+                    ResourceHelper.getBooleanThemeFrameworkAttrValue(renderResources,
+                            ATTR_TRANSLUCENT, false);
+            if (translucentBackground) {
+                return WHITE;
+            }
+            boolean drawnByWindow =
+                    ResourceHelper.getBooleanThemeFrameworkAttrValue(renderResources,
+                            "windowDrawsSystemBarBackgrounds", false);
+            if (drawnByWindow) {
+                boolean lightStatusBar =
+                        ResourceHelper.getBooleanThemeFrameworkAttrValue(renderResources,
+                                "windowLightStatusBar", false);
+                return lightStatusBar ? DARK_ICON_COLOR : LIGHT_ICON_COLOR;
+            }
+            return WHITE;
+        } else {
+            return getTimeColor(platformVersion);
+        }
     }
 
     @Override
-    protected ImageView loadIcon(ImageView imageView, String iconName, Density density) {
+    protected ImageView loadIcon(ImageView imageView, String iconName, Density density, int color) {
         if (!iconName.endsWith(".xml")) {
-            return super.loadIcon(imageView, iconName, density);
+            return super.loadIcon(imageView, iconName, density, color);
         }
 
         // The xml is stored only in xhdpi.
@@ -123,8 +165,9 @@ public class StatusBar extends CustomBar {
                                 ParserFactory.create(stream, iconName),
                                 (BridgeContext) mContext,
                                 ResourceNamespace.ANDROID);
-                imageView.setImageDrawable(
-                        Drawable.createFromXml(mContext.getResources(), parser));
+                Drawable drawable = Drawable.createFromXml(mContext.getResources(), parser);
+                drawable.setTint(color);
+                imageView.setImageDrawable(drawable);
             } catch (XmlPullParserException e) {
                 Bridge.getLog().error(ILayoutLog.TAG_BROKEN, "Unable to draw wifi icon", e,
                         null, null);
