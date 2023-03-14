@@ -2130,4 +2130,40 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "html.png", TimeUnit.SECONDS.toNanos(2));
     }
+
+    @Test
+    public void testStatusBar() throws ClassNotFoundException {
+        final String layout =
+                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:layout_width=\"match_parent\"\n" +
+                        "              android:layout_height=\"match_parent\">\n" + "\n" +
+                        "    <TextView\n" +
+                        "        android:layout_width=\"wrap_content\"\n" +
+                        "        android:layout_height=\"wrap_content\"\n" +
+                        "        android:text=\"Test status bar colour\"\n" +
+                        "        android:textSize=\"30sp\"/>\n" +
+                        "</FrameLayout>";
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("DarkStatusBarTheme", true)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+
+        renderAndVerify(params, "dark_status_bar.png", TimeUnit.SECONDS.toNanos(2));
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("LightStatusBarTheme", true)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+
+        renderAndVerify(params, "light_status_bar.png", TimeUnit.SECONDS.toNanos(2));
+    }
 }
