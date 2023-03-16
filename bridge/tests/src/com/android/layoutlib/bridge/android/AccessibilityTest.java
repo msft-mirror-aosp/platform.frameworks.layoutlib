@@ -19,6 +19,7 @@ package com.android.layoutlib.bridge.android;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.SessionParams;
+import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.intensive.RenderTestBase;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
@@ -29,9 +30,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -68,6 +72,48 @@ public class AccessibilityTest extends RenderTestBase {
             assertNotNull(child);
             assertEquals(136, child.getBoundsInScreen().right);
             assertEquals(75, child.getBoundsInScreen().bottom);
+        } finally {
+            session.dispose();
+        }
+    }
+
+    @Test
+    public void customHierarchyParserTest() throws FileNotFoundException,
+            ClassNotFoundException {
+        LayoutPullParser parser = createParserFromPath("allwidgets.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(ConfigGenerator.NEXUS_5)
+                .setCallback(layoutLibCallback)
+                .build();
+        params.setCustomContentHierarchyParser(viewObject -> {
+            List<ViewInfo> result = new ArrayList<>();
+            if (viewObject instanceof ViewGroup) {
+                ViewGroup view = (ViewGroup)viewObject;
+                for (int i = 0; i < view.getChildCount(); i++) {
+                    View child = view.getChildAt(i);
+                    ViewInfo childInfo =
+                            new ViewInfo(child.toString(), null, child.getLeft(), child.getTop(),
+                                    child.getRight(), child.getBottom(), child,
+                                    child.createAccessibilityNodeInfo(), null);
+                    childInfo.setChildren(null);
+                    result.add(childInfo);
+                }
+            }
+            return result;
+        });
+        RenderSession session = sBridge.createSession(params);
+        try {
+            Result renderResult = session.render(50000);
+            assertTrue(renderResult.isSuccess());
+            ViewInfo contentRootViewInfo = session.getRootViews().get(0);
+            contentRootViewInfo.getChildren().forEach(child -> {
+                assertNotNull(child.getAccessibilityObject());
+                assertEquals(0, child.getChildren().size());
+            });
         } finally {
             session.dispose();
         }
