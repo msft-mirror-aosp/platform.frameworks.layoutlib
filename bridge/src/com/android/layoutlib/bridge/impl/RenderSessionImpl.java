@@ -102,9 +102,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.android.internal.R;
-import android.content.res.TypedArray;
-
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_INFLATION;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_NOT_INFLATED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_UNKNOWN;
