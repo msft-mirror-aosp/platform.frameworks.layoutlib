@@ -72,6 +72,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
+import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -127,6 +128,8 @@ public class BridgeContext extends Context {
 
     private static final Map<String, ResourceValue> FRAMEWORK_PATCHED_VALUES = new HashMap<>(2);
     private static final Map<String, ResourceValue> FRAMEWORK_REPLACE_VALUES = new HashMap<>(3);
+    private static final int MAX_PARSER_STACK_SIZE = Integer.getInteger(
+            "layoutlib.max.parser.stack.size", 1000);
 
     static {
         FRAMEWORK_PATCHED_VALUES.put("animateFirstView",
@@ -161,7 +164,7 @@ public class BridgeContext extends Context {
     private Resources mSystemResources;
     private final Object mProjectKey;
     private final DisplayMetrics mMetrics;
-    private final RenderResources mRenderResources;
+    private final DynamicRenderResources mRenderResources;
     private final Configuration mConfig;
     private final ApplicationInfo mApplicationInfo;
     private final LayoutlibCallback mLayoutlibCallback;
@@ -193,6 +196,8 @@ public class BridgeContext extends Context {
     private IBinder mBinder;
     private PackageManager mPackageManager;
     private Boolean mIsThemeAppCompat;
+    private boolean mUseThemedIcon;
+    private Context mApplicationContext;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
@@ -239,7 +244,7 @@ public class BridgeContext extends Context {
         mMetrics = metrics;
         mLayoutlibCallback = layoutlibCallback;
 
-        mRenderResources = renderResources;
+        mRenderResources = new DynamicRenderResources(renderResources);
         mConfig = config;
         AssetManager systemAssetManager = AssetManager.getSystem();
         if (systemAssetManager instanceof BridgeAssetManager) {
@@ -363,6 +368,9 @@ public class BridgeContext extends Context {
     public void pushParser(BridgeXmlBlockParser parser) {
         if (ParserFactory.LOG_PARSER) {
             System.out.println("PUSH " + parser.getParser().toString());
+        }
+        if (mParserStack.size() > MAX_PARSER_STACK_SIZE) {
+            throw new RuntimeException("Potential cycle encountered during inflation");
         }
         mParserStack.push(parser);
     }
@@ -677,6 +685,9 @@ public class BridgeContext extends Context {
             case AUDIO_SERVICE:
                 return mAudioManager;
 
+            case INPUT_SERVICE:
+                return InputManager.getInstance(this);
+
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
             case ALARM_SERVICE:
@@ -702,7 +713,7 @@ public class BridgeContext extends Context {
      * Same as Context#obtainStyledAttributes. We do not override the base method to give the
      * original Context the chance to override the theme when needed.
      */
-    @Nullable
+    @NonNull
     public final BridgeTypedArray internalObtainStyledAttributes(int resId, int[] attrs)
             throws Resources.NotFoundException {
         StyleResourceValue style = null;
@@ -719,9 +730,8 @@ public class BridgeContext extends Context {
             }
 
             if (style == null) {
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_RESOLVE,
+                Bridge.getLog().warning(ILayoutLog.TAG_INFO,
                         "Failed to find style with " + resId, null, null);
-                return null;
             }
         }
 
@@ -1990,7 +2000,10 @@ public class BridgeContext extends Context {
 
     @Override
     public Context getApplicationContext() {
-        return this;
+        if (mApplicationContext == null) {
+            mApplicationContext = new ApplicationContext(this);
+        }
+        return mApplicationContext;
     }
 
     @Override
@@ -2261,5 +2274,17 @@ public class BridgeContext extends Context {
     @NotNull
     public SessionInteractiveData getSessionInteractiveData() {
         return mSessionInteractiveData;
+    }
+
+    public boolean useThemedIcon() {
+        return mUseThemedIcon && mRenderResources.hasDynamicColors();
+    }
+
+    public void setUseThemedIcon(boolean useThemedIcon) {
+        mUseThemedIcon = useThemedIcon;
+    }
+
+    public void applyWallpaper(String wallpaperPath) {
+        mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
     }
 }

@@ -421,7 +421,8 @@ public final class ResourceHelper {
                         }
                         Options options = new Options();
                         options.inDensity = density.getDpiValue();
-                        bitmap = BitmapFactory.decodeStream(stream, null, options);
+                        Rect padding = new Rect();
+                        bitmap = BitmapFactory.decodeStream(stream, padding, options);
                         if (bitmap != null && bitmap.getNinePatchChunk() == null &&
                                 lowerCaseValue.endsWith(NinePatch.EXTENSION_9PATCH)) {
                             //We are dealing with a non-compiled nine patch.
@@ -441,14 +442,20 @@ public final class ResourceHelper {
 
                             bitmap.setDensity(options.inDensity);
                             bitmap.setNinePatchChunk(ninePatch.getChunk().getSerializedChunk());
+                            int[] padArray = ninePatch.getChunk().getPadding();
+                            padding.set(padArray[0], padArray[1], padArray[2], padArray[3]);
                         }
+                        Bridge.setCachedBitmapPadding(stringValue, padding,
+                                value.isFramework() ? null : context.getProjectKey());
                         Bridge.setCachedBitmap(stringValue, bitmap,
                                 value.isFramework() ? null : context.getProjectKey());
                     }
 
                     if (bitmap != null && bitmap.getNinePatchChunk() != null) {
+                        Rect padding = Bridge.getCachedBitmapPadding(stringValue,
+                                value.isFramework() ? null : context.getProjectKey());
                         return new NinePatchDrawable(context.getResources(), bitmap, bitmap
-                                .getNinePatchChunk(), new Rect(), lowerCaseValue);
+                                .getNinePatchChunk(), padding, lowerCaseValue);
                     } else {
                         return new BitmapDrawable(context.getResources(), bitmap);
                     }
@@ -474,7 +481,7 @@ public final class ResourceHelper {
      */
     public static Typeface getFont(String fontName, BridgeContext context, Theme theme, boolean
             isFramework) {
-        if (fontName == null) {
+        if (fontName == null || fontName.isBlank()) {
             return null;
         }
 
