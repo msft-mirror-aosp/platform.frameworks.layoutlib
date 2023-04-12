@@ -101,6 +101,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static android.os._Original_Build.VERSION.SDK_INT;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_INFLATION;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_NOT_INFLATED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_UNKNOWN;
@@ -322,6 +323,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             SessionParams params = getParams();
             BridgeContext context = getContext();
 
+            int simulatedVersion = params.getSimulatedPlatformVersion();
+            sSimulatedSdk = simulatedVersion > 0 ? simulatedVersion : SDK_INT;
+
             if (Bridge.isLocaleRtl(params.getLocale())) {
                 if (!params.isRtlSupported()) {
                     Bridge.getLog().warning(ILayoutLog.TAG_RTL_NOT_ENABLED,
@@ -491,6 +495,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         checkLock();
 
         SessionParams params = getParams();
+
+        int simulatedVersion = params.getSimulatedPlatformVersion();
+        sSimulatedSdk = simulatedVersion > 0 ? simulatedVersion : SDK_INT;
 
         try {
             if (mViewRoot == null) {
