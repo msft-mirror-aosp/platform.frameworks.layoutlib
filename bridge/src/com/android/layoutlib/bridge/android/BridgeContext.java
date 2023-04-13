@@ -178,6 +178,7 @@ public class BridgeContext extends Context {
     private final ActivityManager mActivityManager;
     private final ConnectivityManager mConnectivityManager;
     private final AudioManager mAudioManager;
+    private final InputManager mInputManager;
     private final HashMap<View, Integer> mScrollYPos = new HashMap<>();
     private final HashMap<View, Integer> mScrollXPos = new HashMap<>();
 
@@ -270,6 +271,7 @@ public class BridgeContext extends Context {
         mActivityManager = ActivityManager_Accessor.getActivityManagerInstance(this);
         mConnectivityManager = new ConnectivityManager(this, null);
         mAudioManager = new AudioManager(this);
+        mInputManager = new InputManager(this);
 
         if (mLayoutlibCallback.isResourceNamespacingRequired()) {
             if (mLayoutlibCallback.hasAndroidXAppCompat()) {
@@ -689,7 +691,7 @@ public class BridgeContext extends Context {
                 return mAudioManager;
 
             case INPUT_SERVICE:
-                return InputManager.getInstance(this);
+                return mInputManager;
 
             case VIBRATOR_SERVICE:
                 return NullVibrator.getInstance();
