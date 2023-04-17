@@ -51,6 +51,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static android.os._Original_Build.VERSION.SDK_INT;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_LOCK_INTERRUPTED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_TIMEOUT;
 import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
@@ -68,6 +69,12 @@ import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
  *
  */
 public abstract class RenderAction<T extends RenderParams> {
+    /**
+     * Static field to store an SDK version coming from the render configuration.
+     * This is to be accessed when wanting to know the simulated SDK version instead
+     * of Build.VERSION.SDK_INT.
+     */
+    public static int sSimulatedSdk;
 
     private static final Set<String> COMPOSE_CLASS_FQNS =
             Set.of("androidx.compose.ui.tooling.ComposeViewAdapter",
@@ -99,6 +106,7 @@ public abstract class RenderAction<T extends RenderParams> {
      */
     protected RenderAction(T params) {
         mParams = params;
+        sSimulatedSdk = SDK_INT;
     }
 
     /**
