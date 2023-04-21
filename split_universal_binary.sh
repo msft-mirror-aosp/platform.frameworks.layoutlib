@@ -26,6 +26,7 @@ done
 
 # Put the single architecture binaries inside the DIST folder to be accessible on ab/
 if [[ -d "${DIST_DIR}" ]]; then
+    mkdir -p ${DIST_DIR}/layoutlib_native/darwin
     cp -r ${OUT_DIR}/${ARM} ${DIST_DIR}/layoutlib_native/darwin
     cp -r ${OUT_DIR}/${X86} ${DIST_DIR}/layoutlib_native/darwin
 fi
