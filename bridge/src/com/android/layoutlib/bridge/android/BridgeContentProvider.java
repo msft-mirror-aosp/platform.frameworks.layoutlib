@@ -159,7 +159,8 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     @Override
-    public String[] getStreamTypes(Uri arg0, String arg1) throws RemoteException {
+    public String[] getStreamTypes(AttributionSource attributionSource, Uri arg0, String arg1) 
+            throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
