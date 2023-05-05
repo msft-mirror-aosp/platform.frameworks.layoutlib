@@ -71,6 +71,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.hardware.EmptySensorManager;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -692,6 +693,9 @@ public class BridgeContext extends Context {
 
             case VIBRATOR_MANAGER_SERVICE:
                 return NullVibratorManager.getInstance();
+
+            case SENSOR_SERVICE:
+                return EmptySensorManager.getInstance();
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
