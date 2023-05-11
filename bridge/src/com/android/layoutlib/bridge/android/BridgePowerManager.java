@@ -41,6 +41,11 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public boolean isDisplayInteractive(int displayId) {
+        return true;
+    }
+
+    @Override
     public boolean areAutoPowerSaveModesEnabled() throws RemoteException {
         return false;
     }
