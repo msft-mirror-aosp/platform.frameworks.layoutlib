@@ -89,6 +89,8 @@ public class Resources_Delegate {
                 "Resources_Delegate.initSystem called twice before disposeSystem was called";
         Resources resources = new Resources(Resources_Delegate.class.getClassLoader());
         resources.setImpl(new ResourcesImpl(assets, metrics, config, new DisplayAdjustments()));
+        resources.getConfiguration().windowConfiguration.setMaxBounds(0, 0, metrics.widthPixels,
+                metrics.heightPixels);
         sContexts.put(resources, Objects.requireNonNull(context));
         sLayoutlibCallbacks.put(resources, Objects.requireNonNull(layoutlibCallback));
         return Resources.mSystem = resources;
