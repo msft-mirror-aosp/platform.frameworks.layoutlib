@@ -2166,4 +2166,34 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "light_status_bar.png", TimeUnit.SECONDS.toNanos(2));
     }
+
+    @Test
+    public void testSoftwareLayer() throws Exception {
+        String layout =
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"fill_parent\"\n" +
+                        "              android:layout_height=\"fill_parent\">\n" +
+                        "    <com.android.layoutlib.test.myapplication.widgets.SoftwareTextView\n" +
+                        "             android:layout_height=\"200dp\"\n" +
+                        "             android:layout_width=\"wrap_content\" />\n" +
+                        "</LinearLayout>\n";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "software_layer.png",
+                TimeUnit.SECONDS.toNanos(2));
+    }
 }
