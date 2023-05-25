@@ -151,6 +151,9 @@ public class BridgeXmlPullAttributes extends XmlPullAttributes implements Resolv
     @Override
     public int getAttributeResourceValue(String namespace, String attribute, int defaultValue) {
         String value = getAttributeValue(namespace, attribute);
+        if (value == null) {
+            return defaultValue;
+        }
 
         return resolveResourceValue(value, defaultValue);
     }

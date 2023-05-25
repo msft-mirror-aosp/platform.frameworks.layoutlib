@@ -168,8 +168,6 @@ public final class BridgeInflater extends LayoutInflater {
             }
         }
 
-        setupViewInContext(view, attrs);
-
         return view;
     }
 
