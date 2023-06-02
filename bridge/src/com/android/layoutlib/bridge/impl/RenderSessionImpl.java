@@ -50,7 +50,6 @@ import com.android.tools.idea.validator.ValidatorHierarchy;
 import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 
-import android.animation.AnimationHandler;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
@@ -1210,12 +1209,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mImage = null;
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
-            AnimationHandler animationHandler = AnimationHandler.sAnimatorHandler.get();
-            if (animationHandler != null) {
-                animationHandler.mDelayedCallbackStartTime.clear();
-                animationHandler.mAnimationCallbacks.clear();
-                animationHandler.mCommitCallbacks.clear();
-            }
             getContext().getSessionInteractiveData().dispose();
             if (mViewInfoList != null) {
                 mViewInfoList.clear();
