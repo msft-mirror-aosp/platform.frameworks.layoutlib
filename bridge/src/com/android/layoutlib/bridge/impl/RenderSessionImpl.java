@@ -200,7 +200,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     /**
-     * Measures the the current layout if needed (see {@link #invalidateRenderingSize}).
+     * Measures the current layout if needed (see {@link #invalidateRenderingSize}).
      */
     private void measureLayout(@NonNull SessionParams params) {
         // only do the screen measure when needed.
