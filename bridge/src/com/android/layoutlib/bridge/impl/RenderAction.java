@@ -32,6 +32,7 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
+import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
 import android.content.res.Configuration;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
@@ -284,6 +285,7 @@ public abstract class RenderAction<T extends RenderParams> {
         ILayoutLog currentLog = mParams.getLog();
         Bridge.setLog(currentLog);
         mContext.getRenderResources().setLogger(currentLog);
+        AnimationHandler.sAnimatorHandler = mContext.getAnimationHandlerThreadLocal();
     }
 
     /**
@@ -475,6 +477,14 @@ public abstract class RenderAction<T extends RenderParams> {
         if (sCurrentContext != null) {
             // quit HandlerThread created during this session.
             HandlerThread_Delegate.cleanUp(sCurrentContext);
+
+            AnimationHandler animationHandler =
+                    sCurrentContext.getAnimationHandlerThreadLocal().get();
+            if (animationHandler != null) {
+                animationHandler.mDelayedCallbackStartTime.clear();
+                animationHandler.mAnimationCallbacks.clear();
+                animationHandler.mCommitCallbacks.clear();
+            }
         }
 
         sCurrentContext = null;
