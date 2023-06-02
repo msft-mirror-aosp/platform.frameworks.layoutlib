@@ -334,7 +334,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     }
 
     /**
-     * Tests if the field is pubic, static and one of int or int[].
+     * Tests if the field is public, static and one of int or int[].
      */
     private static boolean isValidRField(Field field) {
         int modifiers = field.getModifiers();
