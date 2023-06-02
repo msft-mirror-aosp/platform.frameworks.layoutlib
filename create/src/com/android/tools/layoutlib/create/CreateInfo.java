@@ -404,7 +404,7 @@ public final class CreateInfo implements ICreateInfo {
      * List of fields for which we will remove the final modifier.
      */
     private final static String[] REMOVED_FINAL_MODIFIER_FIELDS =
-            new String[]{};
+            new String[]{"android.animation.AnimationHandler#sAnimatorHandler"};
 
     public static class LinkedHashMapEldestReplacer implements MethodReplacer {
 
