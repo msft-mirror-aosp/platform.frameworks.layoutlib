@@ -94,6 +94,8 @@ public class AsmGenerator {
     private final Set<MethodReplacer> mMethodReplacers;
     private boolean mKeepAllNativeClasses;
 
+    /** A map { FQCN => set { field names } } which should have their final modifier removed */
+    private final Map<String, Set<String>> mRemoveFinalModifierFields;
 
     /**
      * Creates a new generator that can generate the output JAR with the stubbed classes.
@@ -218,6 +220,9 @@ public class AsmGenerator {
 
         mRenameStaticInitializerClasses =
                 Arrays.stream(createInfo.getDeferredStaticInitializerClasses()).collect(Collectors.toSet());
+
+        mRemoveFinalModifierFields = new HashMap<>();
+        addToMap(createInfo.getRemovedFinalModifierFields(), mRemoveFinalModifierFields);
     }
 
     /**
@@ -425,6 +430,11 @@ public class AsmGenerator {
 
         if (mRenameStaticInitializerClasses.contains(binaryNewName)) {
             cv = new DeferStaticInitializerClassAdapter(cv);
+        }
+
+        Set<String> removeFinalModifierFields = mRemoveFinalModifierFields.get(className);
+        if (removeFinalModifierFields != null && !removeFinalModifierFields.isEmpty()) {
+            cv = new RemoveFinalModifierFieldClassAdapter(cv, removeFinalModifierFields);
         }
 
         // Make sure no class file has a version above 55 (corresponding to Java 11),
