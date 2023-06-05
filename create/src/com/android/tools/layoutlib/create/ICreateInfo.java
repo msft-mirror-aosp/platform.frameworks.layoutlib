@@ -129,6 +129,13 @@ public interface ICreateInfo {
 
     String[] getDeferredStaticInitializerClasses();
 
+    /**
+     * Returns a list of fields which should have their final modifier removed.
+     * The array values are in the form of the binary FQCN of the class containing the field and
+     * the field name separated by a '#'.
+     */
+    String[] getRemovedFinalModifierFields();
+
     interface MethodReplacer {
         boolean isNeeded(String owner, String name, String desc, String sourceClass);
 
