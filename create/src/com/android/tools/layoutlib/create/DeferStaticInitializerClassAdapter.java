@@ -47,7 +47,7 @@ public class DeferStaticInitializerClassAdapter extends ClassVisitor {
         // Java 9 does not allow static final field to be modified outside of <clinit>.
         // So if a field is static, it has to be non-final.
         if ((access & Opcodes.ACC_STATIC) != 0 ) {
-            access = access & ~Opcodes.ACC_FINAL;;
+            access = access & ~Opcodes.ACC_FINAL;
         }
         return super.visitField(access, name, desc, signature, value);
     }

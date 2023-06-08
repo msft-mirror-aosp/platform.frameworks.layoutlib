@@ -40,6 +40,7 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.animation.AnimationHandler;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -205,6 +206,7 @@ public class BridgeContext extends Context {
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
     private final SessionInteractiveData mSessionInteractiveData;
+    private final ThreadLocal<AnimationHandler> mAnimationHandlerThreadLocal = new ThreadLocal<>();
 
     /**
      * Some applications that target both pre API 17 and post API 17, set the newer attrs to
@@ -2295,5 +2297,10 @@ public class BridgeContext extends Context {
 
     public void applyWallpaper(String wallpaperPath) {
         mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
+    }
+
+    @NotNull
+    public ThreadLocal<AnimationHandler> getAnimationHandlerThreadLocal() {
+        return mAnimationHandlerThreadLocal;
     }
 }

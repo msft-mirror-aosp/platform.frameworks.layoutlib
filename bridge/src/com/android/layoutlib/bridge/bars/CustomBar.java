@@ -43,7 +43,7 @@ import android.widget.TextView;
 import static android.os._Original_Build.VERSION_CODES.LOLLIPOP;
 
 /**
- * Base "bar" class for the window decor around the the edited layout.
+ * Base "bar" class for the window decor around the edited layout.
  * This is basically an horizontal layout that loads a given layout on creation (it is read
  * through {@link Class#getResourceAsStream(String)}).
  * <p>
