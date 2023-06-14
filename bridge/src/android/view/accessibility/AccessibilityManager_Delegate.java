@@ -16,8 +16,10 @@
 
 package android.view.accessibility;
 
+import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
+import android.content.Context;
 import android.graphics.Matrix;
 import android.view.MagnificationSpec;
 import android.view.accessibility.IAccessibilityManager.WindowTransformationSpec;
@@ -37,5 +39,11 @@ public class AccessibilityManager_Delegate {
             sInstance = spec;
         }
         return sInstance;
+    }
+
+    @LayoutlibDelegate
+    public static AccessibilityManager getInstance(Context context) {
+        Context baseContext = BridgeContext.getBaseContext(context);
+        return ((BridgeContext)baseContext).getAccessibilityManager();
     }
 }

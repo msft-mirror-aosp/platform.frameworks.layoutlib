@@ -137,6 +137,7 @@ public class NativeConfig {
             "android.view.View#measure",
             "android.view.ViewRootImpl#performHapticFeedback",
             "android.view.WindowManagerGlobal#getWindowManagerService",
+            "android.view.accessibility.AccessibilityManager#getInstance",
             "android.view.accessibility.AccessibilityManager#getWindowTransformationSpec",
             "android.view.inputmethod.InputMethodManager#hideSoftInputFromWindow",
             "android.view.inputmethod.InputMethodManager#isInEditMode",
