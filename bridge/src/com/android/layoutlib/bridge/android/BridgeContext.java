@@ -204,6 +204,7 @@ public class BridgeContext extends Context {
     private Boolean mIsThemeAppCompat;
     private boolean mUseThemedIcon;
     private Context mApplicationContext;
+    private AccessibilityManager mAccessibilityManager;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
@@ -605,6 +606,13 @@ public class BridgeContext extends Context {
         }
         mIsThemeAppCompat = isThemeAppCompat;
         return isThemeAppCompat;
+    }
+
+    public AccessibilityManager getAccessibilityManager() {
+        if (mAccessibilityManager == null) {
+            mAccessibilityManager = new AccessibilityManager(this, null, UserHandle.USER_CURRENT);
+        }
+        return mAccessibilityManager;
     }
 
     // ------------ Context methods
