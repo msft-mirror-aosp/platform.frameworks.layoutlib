@@ -91,7 +91,6 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.UserHandle;
-import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -469,9 +468,12 @@ public class BridgeContext extends Context {
                 try {
                     outValue.data = Integer.parseInt(stringValue);
                     outValue.type = TypedValue.TYPE_INT_DEC;
-                } catch (NumberFormatException e) {
-                    outValue.type = TypedValue.TYPE_STRING;
-                    outValue.string = stringValue;
+                }
+                catch (NumberFormatException e) {
+                    if (!ResourceHelper.parseFloatAttribute(null, stringValue, outValue, false)) {
+                        outValue.type = TypedValue.TYPE_STRING;
+                        outValue.string = stringValue;
+                    }
                 }
             }
         }
