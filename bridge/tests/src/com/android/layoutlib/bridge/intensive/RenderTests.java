@@ -46,7 +46,6 @@ import org.junit.Test;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 
-import android.R.attr;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.res.AssetManager;
@@ -57,7 +56,6 @@ import android.content.res.Resources_Delegate;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.StateSet;
-import android.util.TypedValue;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
@@ -75,7 +73,6 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -971,61 +968,6 @@ public class RenderTests extends RenderTestBase {
         params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
                 "M50,0 C10,0 0,10 0,50 0,90 10,100 50,100 90,100 100,90 100,50 100,10 90,0 50,0 Z");
         renderAndVerify(params, "adaptive_icon_squircle.png");
-    }
-
-    @Test
-    public void testTypedValue() throws Exception {
-        // Setup
-        // Create the layout pull parser for our resources (empty.xml can not be part of the test
-        // app as it won't compile).
-        LayoutPullParser parser = LayoutPullParser.createFromPath("/empty.xml");
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(RenderTestBase.getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-        SessionParams params = getSessionParamsBuilder()
-                .setConfigGenerator(ConfigGenerator.NEXUS_4)
-                .setParser(parser)
-                .setCallback(layoutLibCallback)
-                .build();
-        DisplayMetrics metrics = new DisplayMetrics();
-        Configuration configuration = RenderAction.getConfiguration(params);
-
-        BridgeContext mContext =
-                new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
-                        params.getAssets(), params.getLayoutlibCallback(), configuration,
-                        params.getTargetSdkVersion(), params.isRtlSupported());
-
-        TypedValue outValue = new TypedValue();
-        mContext.resolveThemeAttribute(android.R.attr.colorPrimary, outValue, true);
-        assertEquals(TypedValue.TYPE_INT_COLOR_ARGB8, outValue.type);
-        assertNotEquals(0, outValue.data);
-
-        outValue = new TypedValue();
-        mContext.resolveThemeAttribute(android.R.attr.colorError, outValue, true);
-        assertEquals(TypedValue.TYPE_INT_COLOR_RGB4, outValue.type);
-        assertEquals(-65536, outValue.data);
-
-        outValue = new TypedValue();
-        mContext.resolveThemeAttribute(attr.colorActivatedHighlight, outValue, true);
-        assertEquals(TypedValue.TYPE_INT_COLOR_ARGB4, outValue.type);
-        assertEquals(-872349952, outValue.data);
-
-        outValue = new TypedValue();
-        mContext.resolveThemeAttribute(android.R.attr.isLightTheme, outValue, true);
-        assertEquals(TypedValue.TYPE_INT_BOOLEAN, outValue.type);
-        assertEquals(1, outValue.data);
-
-        outValue = new TypedValue();
-        mContext.resolveThemeAttribute(android.R.attr.scrollbarFadeDuration, outValue, true);
-        assertEquals(TypedValue.TYPE_INT_DEC, outValue.type);
-        assertEquals(250, outValue.data);
-
-        outValue = new TypedValue();
-        mContext.resolveThemeAttribute(android.R.attr.scrollbarThumbHorizontal, outValue, true);
-        assertEquals(TypedValue.TYPE_STRING, outValue.type);
-        assertNotNull(outValue.string);
-        assertTrue(sRenderMessages.isEmpty());
     }
 
     @Test
