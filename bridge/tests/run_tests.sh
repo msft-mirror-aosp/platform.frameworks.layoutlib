@@ -9,7 +9,7 @@ echo "BASE_DIR: $BASE_DIR"
 readonly FAILURE_DIR=layoutlib-test-failures
 readonly FAILURE_ZIP=layoutlib-test-failures.zip
 
-readonly CLEAN_TMP_FILES=1
+readonly CLEAN_TMP_FILES=0
 readonly USE_SOONG=1
 
 readonly APP_NAME="regression"
@@ -76,7 +76,6 @@ set +x
 
 
 # Create zip of all failure screenshots
-rm -f ${OUT_DIR}/${FAILURE_ZIP}
 if [[ -d "${OUT_DIR}/${FAILURE_DIR}" ]]; then
     zip -q -j -r ${OUT_DIR}/${FAILURE_ZIP} ${OUT_DIR}/${FAILURE_DIR}
 fi
