@@ -56,10 +56,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.HardwareRenderer;
-import android.graphics.LayoutlibRenderer;
 import android.graphics.PixelFormat;
-import android.graphics.RenderNode;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
 import android.media.Image;
 import android.media.Image.Plane;
@@ -72,6 +69,7 @@ import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+import android.view.LayoutlibRenderer;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -140,7 +138,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private boolean mNewRenderSize;
     private ImageReader mImageReader;
     private Image mNativeImage;
-    private LayoutlibRenderer mRenderer = new LayoutlibRenderer();
+    private LayoutlibRenderer mRenderer;
 
     // Passed in MotionEvent initialization when dispatching a touch event.
     private final MotionEvent.PointerProperties[] mPointerProperties =
@@ -362,7 +360,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             context.popParser();
 
             // set the AttachInfo on the root view.
-            AttachInfo_Accessor.setAttachInfo(mViewRoot, mRenderer);
+            mRenderer = AttachInfo_Accessor.setAttachInfo(mViewRoot);
 
             // post-inflate process. For now this supports TabHost/TabWidget
             postInflateProcess(view, params.getLayoutlibCallback(), isPreference ? view : null);
@@ -422,24 +420,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         // now do the layout.
         viewRoot.layout(0, 0, width, height);
         handleScrolling(context, viewRoot);
-    }
-
-    /**
-     * Creates a display list for the root view and draws that display list with a "hardware"
-     * renderer. In layoutlib the renderer is not actually hardware (in contrast to the actual
-     * android) but pretends to be so in order to draw all the advanced android features (e.g.
-     * shadows).
-     */
-    private static Result renderAndBuildResult(@NonNull ViewGroup viewRoot,
-        @NonNull HardwareRenderer renderer) {
-
-        AttachInfo_Accessor.dispatchOnPreDraw(viewRoot);
-
-        RenderNode node = viewRoot.updateDisplayListIfDirty();
-        renderer.setContentRoot(node);
-        renderer.createRenderRequest().syncAndDraw();
-
-        return SUCCESS.createResult();
     }
 
     /**
@@ -506,7 +486,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             measureLayout(params);
 
-            Result renderResult = SUCCESS.createResult();
             float scaleX = 1.0f;
             float scaleY = 1.0f;
             if (onlyMeasure) {
@@ -592,8 +571,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
                 mRenderer.setLightSourceGeometry(mMeasuredScreenWidth / 2, lightY, lightZ, lightRadius);
                 mRenderer.setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha);
-
-                renderResult = renderAndBuildResult(mViewRoot, mRenderer);
+                mRenderer.draw(mViewRoot);
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
 
@@ -638,7 +616,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             // success!
-            return renderResult;
+            return SUCCESS.createResult();
         } catch (Throwable e) {
             // get the real cause of the exception.
             Throwable t = e;

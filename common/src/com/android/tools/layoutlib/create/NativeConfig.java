@@ -111,7 +111,7 @@ public class NativeConfig {
             "android.provider.DeviceConfig#getString",
             "android.text.format.DateFormat#is24HourFormat",
             "android.util.Xml#newPullParser",
-            "android.view.Choreographer#getFrameTimeNanos",
+            "android.view.Choreographer#doCallbacks",
             "android.view.Choreographer#getRefreshRate",
             "android.view.Choreographer#postCallbackDelayedInternal",
             "android.view.Choreographer#removeCallbacksInternal",
