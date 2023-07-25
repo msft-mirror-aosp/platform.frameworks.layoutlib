@@ -345,6 +345,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.DrawableInflater#mRes",
         "android.hardware.input.InputManagerGlobal#sInstance",
         "android.view.Choreographer#mCallbackQueues", // required for tests only
+        "android.view.Choreographer#mCallbacksRunning",
+        "android.view.Choreographer#mFrameScheduled",
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
         "android.view.ViewRootImpl#mTmpFrames",
         "com.android.internal.util.ArrayUtils#sCache",
@@ -362,9 +364,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Typeface$Builder#createAssetUid",
         "android.hardware.input.InputManagerGlobal#<init>",
         "android.media.ImageReader#nativeClassInit",
-        "android.view.Choreographer#doFrame",
-        "android.view.Choreographer#postCallbackDelayedInternal",
-        "android.view.Choreographer#removeCallbacksInternal",
         "android.view.ViewRootImpl#getRootMeasureSpec",
     };
 
