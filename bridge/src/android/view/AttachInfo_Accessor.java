@@ -24,22 +24,25 @@ import android.view.View.AttachInfo;
  */
 public class AttachInfo_Accessor {
 
-    public static void setAttachInfo(ViewGroup view) {
+    public static LayoutlibRenderer setAttachInfo(ViewGroup view) {
         Context context = view.getContext();
         WindowManagerImpl wm = (WindowManagerImpl)context.getSystemService(Context.WINDOW_SERVICE);
         wm.setBaseRootView(view);
         Display display = wm.getDefaultDisplay();
         ViewRootImpl root = new ViewRootImpl(context, display, new IWindowSession.Default(),
                 new WindowLayout());
+        LayoutlibRenderer renderer = new LayoutlibRenderer(context, false, "layoutlib-renderer");
         AttachInfo info = root.mAttachInfo;
+        info.mThreadedRenderer = renderer;
         info.mHasWindowFocus = true;
         info.mWindowVisibility = View.VISIBLE;
         info.mInTouchMode = false; // this is so that we can display selections.
-        info.mHardwareAccelerated = false;
+        info.mHardwareAccelerated = true;
         info.mApplicationScale = 1.0f;
         ViewRootImpl_Accessor.setChild(root, view);
         view.assignParent(root);
         view.dispatchAttachedToWindow(info, 0);
+        return renderer;
     }
 
     public static void dispatchOnPreDraw(View view) {

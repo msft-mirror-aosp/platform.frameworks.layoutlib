@@ -59,12 +59,14 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
 import android.preference.Preference_Delegate;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+import android.view.LayoutlibRenderer;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -137,6 +139,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private boolean mNewRenderSize;
     private Canvas mCanvas;
     private Bitmap mBitmap;
+    private LayoutlibRenderer mRenderer;
 
     // Passed in MotionEvent initialization when dispatching a touch event.
     private final MotionEvent.PointerProperties[] mPointerProperties =
@@ -359,7 +362,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             context.popParser();
 
             // set the AttachInfo on the root view.
-            AttachInfo_Accessor.setAttachInfo(mViewRoot);
+            mRenderer = AttachInfo_Accessor.setAttachInfo(mViewRoot);
 
             // post-inflate process. For now this supports TabHost/TabWidget
             postInflateProcess(view, params.getLayoutlibCallback(), isPreference ? view : null);
@@ -415,23 +418,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         viewRoot.layout(0, 0, width, height);
         AttachInfo_Accessor.dispatchOnGlobalLayout(viewRoot);
         handleScrolling(context, viewRoot);
-    }
-
-    /**
-     * Creates a display list for the root view and draws that display list with a "hardware"
-     * renderer. In layoutlib the renderer is not actually hardware (in contrast to the actual
-     * android) but pretends to be so in order to draw all the advanced android features (e.g.
-     * shadows).
-     */
-    private static Result renderAndBuildResult(@NonNull ViewGroup viewRoot,
-            @Nullable Canvas canvas) {
-        if (canvas == null) {
-            return SUCCESS.createResult();
-        }
-        AttachInfo_Accessor.dispatchOnPreDraw(viewRoot);
-        viewRoot.draw(canvas);
-
-        return SUCCESS.createResult();
     }
 
     /**
@@ -576,7 +562,23 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                             mElapsedFrameTimeNanos / 1000000;
                 }
 
-                renderResult = renderAndBuildResult(mViewRoot, mCanvas);
+                final TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.Lighting, 0, 0);
+                float lightY = a.getDimension(R.styleable.Lighting_lightY, 0);
+                float lightZ = a.getDimension(R.styleable.Lighting_lightZ, 0);
+                // Correct light altitude according to ThreadedRenderer.setLightCenter
+                DisplayMetrics displayMetrics = getContext().getMetrics();
+                float zRatio = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                        / (450f * displayMetrics.density);
+                float zWeightedAdjustment = (zRatio + 2) / 3f;
+                lightZ *= zWeightedAdjustment;
+                float lightRadius = a.getDimension(R.styleable.Lighting_lightRadius, 0);
+                float ambientShadowAlpha = a.getFloat(R.styleable.Lighting_ambientShadowAlpha, 0);
+                float spotShadowAlpha = a.getFloat(R.styleable.Lighting_spotShadowAlpha, 0);
+                a.recycle();
+
+                mRenderer.setLightSourceGeometry(mMeasuredScreenWidth / 2, lightY, lightZ, lightRadius);
+                mRenderer.setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha);
+                mRenderer.draw(mViewRoot);
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
                 mBitmap.getPixels(imageData, 0, mImage.getWidth(), 0, 0, mImage.getWidth(),
@@ -623,7 +625,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             // success!
-            return renderResult;
+            return SUCCESS.createResult();
         } catch (Throwable e) {
             // get the real cause of the exception.
             Throwable t = e;

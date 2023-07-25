@@ -61,6 +61,7 @@ public class AccessibilityTest extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .build();
         RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(1);
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
@@ -110,6 +111,7 @@ public class AccessibilityTest extends RenderTestBase {
             return result;
         });
         RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(1);
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
