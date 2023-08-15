@@ -61,6 +61,11 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public boolean isBatterySaverSupported() throws RemoteException {
+        return true;
+    }
+
+    @Override
     public BatterySaverPolicyConfig getFullPowerSavePolicy() {
         return new BatterySaverPolicyConfig.Builder().build();
     }
