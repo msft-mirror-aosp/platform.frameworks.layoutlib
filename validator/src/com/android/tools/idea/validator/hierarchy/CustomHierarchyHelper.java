@@ -48,10 +48,26 @@ public class CustomHierarchyHelper {
             // This is required as layoutlib does not know the support library such as
             // MaterialButton. LayoutlibCallback calls for studio which understands all the maven
             // pulled library.
-            Class button = callback.findClass(
+            Class<?> button = callback.findClass(
                     "com.google.android.material.button.MaterialButton");
             if (button.isInstance(fromView)) {
                 Method isCheckable = button.getMethod("isCheckable");
+                Object toReturn = isCheckable.invoke(fromView);
+                return (toReturn instanceof Boolean) && ((Boolean) toReturn);
+            }
+
+            Class<?> card = callback.findClass(
+                    "com.google.android.material.card.MaterialCardView");
+            if (card.isInstance(fromView)) {
+                Method isCheckable = card.getMethod("isCheckable");
+                Object toReturn = isCheckable.invoke(fromView);
+                return (toReturn instanceof Boolean) && ((Boolean) toReturn);
+            }
+
+            Class<?> chip = callback.findClass(
+                    "com.google.android.material.chip.Chip");
+            if (chip.isInstance(fromView)) {
+                Method isCheckable = chip.getMethod("isCheckable");
                 Object toReturn = isCheckable.invoke(fromView);
                 return (toReturn instanceof Boolean) && ((Boolean) toReturn);
             }
