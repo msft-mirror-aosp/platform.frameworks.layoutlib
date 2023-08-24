@@ -27,7 +27,6 @@ import org.objectweb.asm.Type;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -217,6 +216,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.DrawFilter",
         "android.graphics.EmbossMaskFilter",
         "android.graphics.FontFamily",
+        "android.graphics.Gainmap",
         "android.graphics.HardwareRenderer",
         "android.graphics.ImageDecoder",
         "android.graphics.Interpolator",
@@ -343,8 +343,10 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorRT#mPendingAnimationActions",
         "android.graphics.drawable.AnimatedVectorDrawable#mAnimatorSet",
         "android.graphics.drawable.DrawableInflater#mRes",
-        "android.hardware.input.InputManager#sInstance",
+        "android.hardware.input.InputManagerGlobal#sInstance",
         "android.view.Choreographer#mCallbackQueues", // required for tests only
+        "android.view.Choreographer#mCallbacksRunning",
+        "android.view.Choreographer#mFrameScheduled",
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
         "android.view.ViewRootImpl#mTmpFrames",
         "com.android.internal.util.ArrayUtils#sCache",
@@ -360,11 +362,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Bitmap#setNinePatchChunk",
         "android.graphics.Path#nInit",
         "android.graphics.Typeface$Builder#createAssetUid",
-        "android.hardware.input.InputManager#<init>",
+        "android.hardware.input.InputManagerGlobal#<init>",
         "android.media.ImageReader#nativeClassInit",
-        "android.view.Choreographer#doFrame",
-        "android.view.Choreographer#postCallbackDelayedInternal",
-        "android.view.Choreographer#removeCallbacksInternal",
         "android.view.ViewRootImpl#getRootMeasureSpec",
     };
 
@@ -394,11 +393,8 @@ public final class CreateInfo implements ICreateInfo {
     private final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES =
             NativeConfig.DEFERRED_STATIC_INITIALIZER_CLASSES;
 
-    private final static Map<String, InjectMethodRunnable> INJECTED_METHODS =
-            new HashMap<String, InjectMethodRunnable>(1) {{
-                put("android.content.Context",
-                        InjectMethodRunnables.CONTEXT_GET_FRAMEWORK_CLASS_LOADER);
-            }};
+    private final static Map<String, InjectMethodRunnable> INJECTED_METHODS = Map.of(
+            "android.content.Context", InjectMethodRunnables.CONTEXT_GET_FRAMEWORK_CLASS_LOADER);
 
     /**
      * List of fields for which we will remove the final modifier.
@@ -618,7 +614,7 @@ public final class CreateInfo implements ICreateInfo {
             mi.owner = "android/graphics/drawable/AdaptiveIconDrawable_Delegate";
             mi.name = "getResourceString";
             mi.opcode = Opcodes.INVOKESTATIC;
-            mi.desc = Type.getMethodDescriptor(Type.getType(String.class), Type.INT_TYPE);
+            mi.desc = "(Landroid/content/res/Resources;I)Ljava/lang/String;";
         }
     }
 

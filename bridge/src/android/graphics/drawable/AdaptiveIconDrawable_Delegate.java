@@ -33,11 +33,11 @@ public class AdaptiveIconDrawable_Delegate {
      * This allows to pass a non-default value for the mask for adaptive icons.
      */
     @SuppressWarnings("unused")
-    public static String getResourceString(int resId) {
+    public static String getResourceString(Resources res, int resId) {
         if (resId == R.string.config_icon_mask) {
             return sPath;
         }
-        return Resources.getSystem().getString(resId);
+        return res.getString(resId);
     }
 
     @LayoutlibDelegate

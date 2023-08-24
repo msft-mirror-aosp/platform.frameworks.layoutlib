@@ -27,8 +27,6 @@ import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.ResourceValueImpl;
-import com.android.ide.common.rendering.api.TextResourceValue;
-import com.android.ide.common.resources.ValueXmlHelper;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.BridgeConstants;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -224,26 +222,19 @@ public class Resources_Delegate {
             try {
                 return ResourceHelper.getColor(resourceValue.getValue());
             } catch (NumberFormatException e) {
-                // Check if the value passed is a file. If it is, mostly likely, user is referencing
-                // a color state list from a place where they should reference only a pure color.
-                AssetRepository repository = getAssetRepository(resources);
-                String message;
-                if (repository.isFileResource(resourceValue.getValue())) {
-                    String resource = (resourceValue.isFramework() ? "@android:" : "@") + "color/"
-                            + resourceValue.getName();
-                    message = "Hexadecimal color expected, found Color State List for " + resource;
-                } else {
-                    message = e.getMessage();
+                ColorStateList stateList = ResourceHelper.getColorStateList(resourceValue,
+                        getContext(resources), theme);
+                if (stateList != null) {
+                    return stateList.getDefaultColor();
                 }
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT, message, e, null, null);
+                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT, resourceValue.getName() +
+                        " is neither a color value nor a color state list", null, null);
                 return 0;
             }
         }
 
-        // Suppress possible NPE. getColorStateList will never return null, it will instead
-        // throw an exception, but intelliJ can't figure that out
-        //noinspection ConstantConditions
-        return getColorStateList(resources, id, theme).getDefaultColor();
+        throwException(resources, id);
+        return 0;
     }
 
     @LayoutlibDelegate
@@ -273,9 +264,18 @@ public class Resources_Delegate {
 
     @LayoutlibDelegate
     static CharSequence getText(Resources resources, int id, CharSequence def) {
-        CharSequence text = getTextInternal(resources, id);
-        if (text != null) {
-            return text;
+        Pair<String, ResourceValue> value = getResourceValue(resources, id);
+
+        if (value != null) {
+            ResourceValue resValue = value.second;
+
+            assert resValue != null;
+            if (resValue != null) {
+                String v = resValue.getValue();
+                if (v != null) {
+                    return v;
+                }
+            }
         }
 
         return def;
@@ -283,27 +283,24 @@ public class Resources_Delegate {
 
     @LayoutlibDelegate
     static CharSequence getText(Resources resources, int id) throws NotFoundException {
-        CharSequence text = getTextInternal(resources, id);
-        if (text != null) {
-            return text;
+        Pair<String, ResourceValue> value = getResourceValue(resources, id);
+
+        if (value != null) {
+            ResourceValue resValue = value.second;
+
+            assert resValue != null;
+            if (resValue != null) {
+                String v = resValue.getValue();
+                if (v != null) {
+                    return v;
+                }
+            }
         }
 
         // id was not found or not resolved. Throw a NotFoundException.
         throwException(resources, id);
 
         // this is not used since the method above always throws
-        return null;
-    }
-
-    @Nullable
-    private static CharSequence getTextInternal(Resources resources, int id) {
-        Pair<String, ResourceValue> value = getResourceValue(resources, id);
-
-        if (value != null) {
-            ResourceValue resValue = value.second;
-            assert resValue != null;
-            return ResourceHelper.getText(resValue);
-        }
         return null;
     }
 

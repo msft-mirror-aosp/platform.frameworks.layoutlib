@@ -17,8 +17,6 @@
 package android.view;
 
 import android.content.Context;
-import android.graphics.HardwareRenderer;
-import android.graphics.RenderNode;
 import android.view.View.AttachInfo;
 
 /**
@@ -26,32 +24,23 @@ import android.view.View.AttachInfo;
  */
 public class AttachInfo_Accessor {
 
-    public static void setAttachInfo(ViewGroup view, HardwareRenderer renderer) {
+    public static LayoutlibRenderer setAttachInfo(ViewGroup view) {
         Context context = view.getContext();
         WindowManagerImpl wm = (WindowManagerImpl)context.getSystemService(Context.WINDOW_SERVICE);
         wm.setBaseRootView(view);
         Display display = wm.getDefaultDisplay();
-        ViewRootImpl root = new ViewRootImpl(context, display, new IWindowSession.Default());
-        root.mAttachInfo.mThreadedRenderer = new ThreadedRenderer(context, false,
-                "delegate-renderer") {
-            @Override
-            public void registerAnimatingRenderNode(RenderNode animator) {
-                if (renderer != null) {
-                    renderer.registerAnimatingRenderNode(animator);
-                } else {
-                    super.registerAnimatingRenderNode(animator);
-                }
-            }
-        };
+        ViewRootImpl root = new ViewRootImpl(context, display, new IWindowSession.Default(),
+                new WindowLayout());
+        LayoutlibRenderer renderer = new LayoutlibRenderer(context, false, "layoutlib-renderer");
         AttachInfo info = root.mAttachInfo;
+        info.mThreadedRenderer = renderer;
         info.mHasWindowFocus = true;
         info.mWindowVisibility = View.VISIBLE;
         info.mInTouchMode = false; // this is so that we can display selections.
         info.mHardwareAccelerated = true;
-        // We do not use this one at all, it is only needed to satisfy null checks in View
-        info.mThreadedRenderer = new ThreadedRenderer(context, false, "layoutlib-renderer");
         info.mApplicationScale = 1.0f;
         view.dispatchAttachedToWindow(info, 0);
+        return renderer;
     }
 
     public static void dispatchOnPreDraw(View view) {

@@ -17,9 +17,9 @@
 package com.android.tools.idea.validator;
 
 import com.android.ide.common.rendering.api.RenderSession;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
+import com.android.layoutlib.bridge.android.RenderTestBase;
+import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.layoutlib.bridge.intensive.util.SessionParamsBuilder;
 import com.android.tools.idea.validator.ValidatorData.Issue;
@@ -341,7 +341,7 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             // setCharacterLocationArgMaxLength method works as expected.
             assertEquals(textViews.size(), 1);
             assertEquals(textViews.get(0).getTextCharacterLocations().size(),
-                    ValidatorUtil.CHARACTER_LOCATION_ARG_MAX_LENGTH);
+                    ValidatorUtil.CHARACTER_LOCATION_ARG_MAX_LENGTH - 1);
         });
     }
 

@@ -48,6 +48,7 @@ import android.graphics.Typeface;
 import android.graphics.fonts.SystemFonts_Delegate;
 import android.hardware.input.IInputManager;
 import android.hardware.input.InputManager;
+import android.hardware.input.InputManagerGlobal;
 import android.icu.util.ULocale;
 import android.os.Looper;
 import android.os.Looper_Accessor;
@@ -79,6 +80,7 @@ import libcore.io.MemoryMappedFile_Delegate;
 
 import static android.graphics.Typeface.DEFAULT_FAMILY;
 import static android.graphics.Typeface.RESOLVE_BY_FONT_TABLE;
+
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_UNKNOWN;
 
 /**
@@ -113,7 +115,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
      * Reverse map compared to sRMap, resource type -> (resource name -> id).
      * This is for com.android.internal.R.
      */
-    private final static Map<ResourceType, Map<String, Integer>> sRevRMap = new EnumMap<>(ResourceType.class);
+    private final static Map<ResourceType, Map<String, Integer>> sRevRMap = new EnumMap<>(
+            ResourceType.class);
 
     // framework resources are defined as 0x01XX#### where XX is the resource type (layout,
     // drawable, etc...). Using FF as the type allows for 255 resource types before we get a
@@ -175,7 +178,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             {"libicuuc_stubdata.dll", "libicuuc-host.dll", "libandroid_runtime.dll"};
 
     @Override
-    public boolean init(Map<String,String> platformProperties,
+    public boolean init(Map<String, String> platformProperties,
             File fontLocation,
             String nativeLibPath,
             String icuDataPath,
@@ -433,8 +436,9 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
      * <p/>
      * If {@link SessionParams} includes the {@link RenderParamsFlags#FLAG_DO_NOT_RENDER_ON_CREATE},
      * this method will only inflate the layout but will NOT render it.
+     *
      * @param params the {@link SessionParams} object with all the information necessary to create
-     *           the scene.
+     *               the scene.
      * @return a new {@link RenderSession} object that contains the result of the layout.
      * @since 5
      */
@@ -515,7 +519,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     @Override
     public Result getViewParent(Object viewObject) {
         if (viewObject instanceof View) {
-            return Status.SUCCESS.createResult(((View)viewObject).getParent());
+            return Status.SUCCESS.createResult(((View) viewObject).getParent());
         }
 
         throw new IllegalArgumentException("viewObject is not a View");
@@ -652,7 +656,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     /**
      * Returns the bitmap for a specific path, from a specific project cache, or from the
      * framework cache.
-     * @param value the path of the bitmap
+     *
+     * @param value      the path of the bitmap
      * @param projectKey the key of the project, or null to query the framework cache.
      * @return the cached Bitmap or null if not found.
      */
@@ -678,7 +683,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     /**
      * Returns the padding for the bitmap with a specific path, from a specific project cache, or
      * from the framework cache.
-     * @param value the path of the bitmap
+     *
+     * @param value      the path of the bitmap
      * @param projectKey the key of the project, or null to query the framework cache.
      * @return the cached padding or null if not found.
      */
@@ -703,8 +709,9 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
 
     /**
      * Sets a bitmap in a project cache or in the framework cache.
-     * @param value the path of the bitmap
-     * @param bmp the Bitmap object
+     *
+     * @param value      the path of the bitmap
+     * @param bmp        the Bitmap object
      * @param projectKey the key of the project, or null to put the bitmap in the framework cache.
      */
     public static void setCachedBitmap(String value, Bitmap bmp, Object projectKey) {
@@ -720,8 +727,9 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
 
     /**
      * Sets the padding for a bitmap in a project cache or in the framework cache.
-     * @param value the path of the bitmap
-     * @param padding the padding of that bitmap
+     *
+     * @param value      the path of the bitmap
+     * @param padding    the padding of that bitmap
      * @param projectKey the key of the project, or null to put the bitmap in the framework cache.
      */
     public static void setCachedBitmapPadding(String value, Rect padding, Object projectKey) {
@@ -753,8 +761,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         for (InputDevice device : devices) {
             idToDevice.append(device.getId(), device);
         }
-        InputManager.sInstance = new InputManager(new IInputManager.Default() {
-            @Override
+        InputManagerGlobal.sInstance = new InputManagerGlobal(new IInputManager.Default() {
+	     @Override
             public int[] getInputDeviceIds() {
                 return ids;
             }
@@ -774,8 +782,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         if (!sJniLibLoadAttempted) {
             try {
                 loadNativeLibraries(nativeLibDir);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error(ILayoutLog.TAG_BROKEN, "Native layoutlib failed to load", t, null, null);
             }
         }
@@ -801,8 +808,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                 String path = new File(nativeLibDir, library).getAbsolutePath();
                 System.load(path);
             }
-        }
-        finally {
+        } finally {
             sJniLibLoadAttempted = true;
         }
         sJniLibLoaded = true;

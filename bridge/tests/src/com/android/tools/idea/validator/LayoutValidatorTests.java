@@ -17,16 +17,15 @@
 package com.android.tools.idea.validator;
 
 import com.android.ide.common.rendering.api.SessionParams;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
+import com.android.layoutlib.bridge.android.RenderTestBase;
+import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.layoutlib.common.util.ReflectionUtils;
 import com.android.tools.idea.validator.ValidatorData.CompoundFix;
 import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.SetViewAttributeFix;
-
 import com.android.tools.idea.validator.ValidatorData.Type;
 
 import org.junit.Test;

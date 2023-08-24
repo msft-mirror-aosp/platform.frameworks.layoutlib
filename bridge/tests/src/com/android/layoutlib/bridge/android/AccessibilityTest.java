@@ -21,9 +21,8 @@ import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.layoutlib.bridge.Bridge;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
+import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 
 import org.junit.BeforeClass;
@@ -60,6 +59,7 @@ public class AccessibilityTest extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .build();
         RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(1);
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
@@ -106,6 +106,7 @@ public class AccessibilityTest extends RenderTestBase {
             return result;
         });
         RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(1);
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());

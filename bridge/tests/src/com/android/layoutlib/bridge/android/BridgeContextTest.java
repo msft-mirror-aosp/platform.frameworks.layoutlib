@@ -20,9 +20,8 @@ import com.android.ide.common.rendering.api.SessionParams;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.impl.RenderActionTestUtil;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
+import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 
 import org.junit.BeforeClass;
@@ -179,12 +178,12 @@ public class BridgeContextTest extends RenderTestBase {
             ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
                     "/com/android/layoutlib/testdata/wallpaper1.webp",
                     configuration.isNightModeActive());
-            assertEquals(-13226195, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+            assertEquals(-13029845, context.getResources().getColor(android.R.color.system_neutral1_800, null));
 
             ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
                     "/com/android/layoutlib/testdata/wallpaper2.webp",
                     configuration.isNightModeActive());
-            assertEquals(-13749969, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+            assertEquals(-13946321, context.getResources().getColor(android.R.color.system_neutral1_800, null));
         } finally {
             context.disposeResources();
         }

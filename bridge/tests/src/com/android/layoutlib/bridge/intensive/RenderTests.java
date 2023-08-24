@@ -29,12 +29,12 @@ import com.android.internal.R;
 import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
+import com.android.layoutlib.bridge.android.RenderTestBase;
 import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.impl.RenderActionTestUtil;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.resources.Density;
 import com.android.resources.Navigation;
@@ -99,20 +99,26 @@ public class RenderTests extends RenderTestBase {
 
         LayoutPullParser parser = LayoutPullParser.createFromString(
                 "<RelativeLayout xmlns:android=\"http://schemas" +
-                ".android.com/apk/res/android\"\n" +
-                "                android:layout_width=\"match_parent\"\n" +
-                "                android:layout_height=\"match_parent\"\n" +
-                "                android:paddingLeft=\"@dimen/activity_horizontal_margin\"\n" +
-                "                android:paddingRight=\"@dimen/activity_horizontal_margin\"\n" +
-                "                android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
-                "                android:paddingBottom=\"@dimen/activity_vertical_margin\">\n" +
-                "    <TextView\n" +
-                "        android:text=\"@string/hello_world\"\n" +
-                "        android:layout_width=\"wrap_content\"\n" +
-                "        android:layout_height=\"200dp\"\n" +
-                "        android:background=\"#FF0000\"\n" +
-                "        android:id=\"@+id/text1\"/>\n" +
-                "</RelativeLayout>");
+                        ".android.com/apk/res/android\"\n" +
+                        "                android:layout_width=\"match_parent\"\n" +
+                        "                android:layout_height=\"match_parent\"\n" +
+                        "                android:paddingLeft=\"@dimen/activity_horizontal_margin"
+                        + "\"\n"
+                        +
+                        "                android:paddingRight=\"@dimen/activity_horizontal_margin"
+                        + "\"\n"
+                        +
+                        "                android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
+                        "                android:paddingBottom=\"@dimen/activity_vertical_margin"
+                        + "\">\n"
+                        +
+                        "    <TextView\n" +
+                        "        android:text=\"@string/hello_world\"\n" +
+                        "        android:layout_width=\"wrap_content\"\n" +
+                        "        android:layout_height=\"200dp\"\n" +
+                        "        android:background=\"#FF0000\"\n" +
+                        "        android:id=\"@+id/text1\"/>\n" +
+                        "</RelativeLayout>");
         SessionParams params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
@@ -147,10 +153,10 @@ public class RenderTests extends RenderTestBase {
 
         parser = createParserFromPath("four_corners.xml");
         params = getSessionParamsBuilder()
-                    .setParser(parser)
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.Light.NoActionBar", false)
-                    .build();
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar", false)
+                .build();
         renderAndVerify(params, "four_corners.png");
     }
 
@@ -192,19 +198,25 @@ public class RenderTests extends RenderTestBase {
     public void testActivityActionBar() throws ClassNotFoundException {
         String simpleActivity =
                 "<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "                android:layout_width=\"match_parent\"\n" +
-                "                android:layout_height=\"match_parent\"\n" +
-                "                android:paddingLeft=\"@dimen/activity_horizontal_margin\"\n" +
-                "                android:paddingRight=\"@dimen/activity_horizontal_margin\"\n" +
-                "                android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
-                "                android:paddingBottom=\"@dimen/activity_vertical_margin\">\n" +
-                "    <TextView\n" +
-                "        android:text=\"@string/hello_world\"\n" +
-                "        android:layout_width=\"wrap_content\"\n" +
-                "        android:layout_height=\"200dp\"\n" +
-                "        android:background=\"#FF0000\"\n" +
-                "        android:id=\"@+id/text1\"/>\n" +
-                "</RelativeLayout>";
+                        "                android:layout_width=\"match_parent\"\n" +
+                        "                android:layout_height=\"match_parent\"\n" +
+                        "                android:paddingLeft=\"@dimen/activity_horizontal_margin"
+                        + "\"\n"
+                        +
+                        "                android:paddingRight=\"@dimen/activity_horizontal_margin"
+                        + "\"\n"
+                        +
+                        "                android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
+                        "                android:paddingBottom=\"@dimen/activity_vertical_margin"
+                        + "\">\n"
+                        +
+                        "    <TextView\n" +
+                        "        android:text=\"@string/hello_world\"\n" +
+                        "        android:layout_width=\"wrap_content\"\n" +
+                        "        android:layout_height=\"200dp\"\n" +
+                        "        android:background=\"#FF0000\"\n" +
+                        "        android:id=\"@+id/text1\"/>\n" +
+                        "</RelativeLayout>";
 
         LayoutPullParser parser = LayoutPullParser.createFromString(simpleActivity);
         LayoutLibTestCallback layoutLibCallback =
@@ -222,11 +234,11 @@ public class RenderTests extends RenderTestBase {
 
         parser = LayoutPullParser.createFromString(simpleActivity);
         params = getSessionParamsBuilder()
-                    .setParser(parser)
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.Light", false)
-                    .setRenderingMode(RenderingMode.V_SCROLL)
-                    .build();
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
 
         renderAndVerify(params, "simple_activity.png");
 
@@ -234,11 +246,11 @@ public class RenderTests extends RenderTestBase {
         // displaying menus.
         parser = LayoutPullParser.createFromString(simpleActivity);
         params = getSessionParamsBuilder()
-                    .setParser(parser)
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.Light.NoActionBar", false)
-                    .setRenderingMode(RenderingMode.V_SCROLL)
-                    .build();
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
         params.setFlag(RenderParamsFlags.FLAG_KEY_ROOT_TAG, "menu");
         renderAndVerify(params, "simple_activity.png");
     }
@@ -251,19 +263,19 @@ public class RenderTests extends RenderTestBase {
         Class insetsWidgetClass = Class.forName("com.android.layoutlib.test.myapplication.widgets" +
                 ".InsetsWidget");
         Field field = insetsWidgetClass.getDeclaredField("sApplyInsetsCalled");
-        assertFalse((Boolean)field.get(null));
+        assertFalse((Boolean) field.get(null));
 
         LayoutPullParser parser = LayoutPullParser.createFromString(
                 "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "              android:padding=\"16dp\"\n" +
-                "              android:orientation=\"horizontal\"\n" +
-                "              android:layout_width=\"wrap_content\"\n" +
-                "              android:layout_height=\"wrap_content\">\n" + "\n" +
-                "    <com.android.layoutlib.test.myapplication.widgets.InsetsWidget\n" +
-                "        android:text=\"Hello world\"\n" +
-                "        android:layout_width=\"wrap_content\"\n" +
-                "        android:layout_height=\"wrap_content\"\n" +
-                "        android:id=\"@+id/text1\"/>\n" + "</LinearLayout>\n");
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"wrap_content\"\n" +
+                        "              android:layout_height=\"wrap_content\">\n" + "\n" +
+                        "    <com.android.layoutlib.test.myapplication.widgets.InsetsWidget\n" +
+                        "        android:text=\"Hello world\"\n" +
+                        "        android:layout_width=\"wrap_content\"\n" +
+                        "        android:layout_height=\"wrap_content\"\n" +
+                        "        android:id=\"@+id/text1\"/>\n" + "</LinearLayout>\n");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
@@ -275,7 +287,7 @@ public class RenderTests extends RenderTestBase {
 
         render(sBridge, params, -1);
 
-        assertTrue((Boolean)field.get(null));
+        assertTrue((Boolean) field.get(null));
         field.set(null, false);
     }
 
@@ -312,12 +324,12 @@ public class RenderTests extends RenderTestBase {
                 .setNavigation(Navigation.NONAV);
         parser = createParserFromPath("expand_horz_layout.xml");
         params = getSessionParamsBuilder()
-                    .setParser(parser)
-                    .setConfigGenerator(customConfigGenerator)
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
-                    .setRenderingMode(RenderingMode.H_SCROLL)
-                    .build();
+                .setParser(parser)
+                .setConfigGenerator(customConfigGenerator)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.H_SCROLL)
+                .build();
 
         renderAndVerify(params, "expand_horz_layout.png");
     }
@@ -397,11 +409,11 @@ public class RenderTests extends RenderTestBase {
 
         parser = LayoutPullParser.createFromString(layout);
         params = getSessionParamsBuilder()
-                    .setParser(parser)
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
-                    .setRenderingMode(RenderingMode.V_SCROLL)
-                    .build();
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
         renderAndVerify(params, "animated_vector_1.png", TimeUnit.SECONDS.toNanos(3));
     }
 
@@ -413,16 +425,16 @@ public class RenderTests extends RenderTestBase {
     public void testVectorDrawable() throws ClassNotFoundException {
         // Create the layout pull parser.
         LayoutPullParser parser = LayoutPullParser.createFromString(
-               "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                       "              android:padding=\"16dp\"\n" +
-                       "              android:orientation=\"horizontal\"\n" +
-                       "              android:layout_width=\"fill_parent\"\n" +
-                       "              android:layout_height=\"fill_parent\">\n" +
-                       "    <ImageView\n" +
-                       "             android:layout_height=\"fill_parent\"\n" +
-                       "             android:layout_width=\"fill_parent\"\n" +
-                       "             android:src=\"@drawable/multi_path\" />\n" + "\n" +
-                       "</LinearLayout>");
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"fill_parent\"\n" +
+                        "              android:layout_height=\"fill_parent\">\n" +
+                        "    <ImageView\n" +
+                        "             android:layout_height=\"fill_parent\"\n" +
+                        "             android:layout_width=\"fill_parent\"\n" +
+                        "             android:src=\"@drawable/multi_path\" />\n" + "\n" +
+                        "</LinearLayout>");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -790,12 +802,12 @@ public class RenderTests extends RenderTestBase {
         parser = createParserFromPath("scrolled.xml");
 
         params = getSessionParamsBuilder()
-                    .setParser(parser)
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
-                    .setRenderingMode(RenderingMode.V_SCROLL)
-                    .disableDecoration()
-                    .build();
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
         params.setExtendedViewInfoMode(true);
 
         result = renderAndVerify(params, "scrolled.png");
@@ -822,7 +834,8 @@ public class RenderTests extends RenderTestBase {
         AssetManager assetManager = AssetManager.getSystem();
         DisplayMetrics metrics = new DisplayMetrics();
         Configuration configuration = RenderAction.getConfiguration(params);
-        BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
+        BridgeContext context = new BridgeContext(params.getProjectKey(), metrics,
+                params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
                 params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
@@ -864,7 +877,8 @@ public class RenderTests extends RenderTestBase {
         AssetManager assetManager = AssetManager.getSystem();
         DisplayMetrics metrics = new DisplayMetrics();
         Configuration configuration = RenderAction.getConfiguration(params);
-        BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
+        BridgeContext context = new BridgeContext(params.getProjectKey(), metrics,
+                params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
                 params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
@@ -924,33 +938,33 @@ public class RenderTests extends RenderTestBase {
         renderAndVerify(params, "adaptive_icon.png");
 
         params = getSessionParamsBuilder()
-                    .setParser(LayoutPullParser.createFromString(layout))
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
-                    .setRenderingMode(RenderingMode.V_SCROLL)
-                    .build();
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
         params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
                 "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
-                "22.4 22.4 0 50 0Z");
+                        "22.4 22.4 0 50 0Z");
         renderAndVerify(params, "adaptive_icon_circle.png");
 
         params = getSessionParamsBuilder()
-                    .setParser(LayoutPullParser.createFromString(layout))
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
-                    .setRenderingMode(RenderingMode.V_SCROLL)
-                    .build();
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
         params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
                 "M50,0L92,0C96.42,0 100,4.58 100 8L100,92C100, 96.42 96.42 100 92 100L8 100C4.58," +
-                " 100 0 96.42 0 92L0 8 C 0 4.42 4.42 0 8 0L50 0Z");
+                        " 100 0 96.42 0 92L0 8 C 0 4.42 4.42 0 8 0L50 0Z");
         renderAndVerify(params, "adaptive_icon_rounded_corners.png");
 
         params = getSessionParamsBuilder()
-                    .setParser(LayoutPullParser.createFromString(layout))
-                    .setCallback(layoutLibCallback)
-                    .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
-                    .setRenderingMode(RenderingMode.V_SCROLL)
-                    .build();
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
         params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
                 "M50,0 C10,0 0,10 0,50 0,90 10,100 50,100 90,100 100,90 100,50 100,10 90,0 50,0 Z");
         renderAndVerify(params, "adaptive_icon_squircle.png");
@@ -958,15 +972,16 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testColorStateList() throws Exception {
-        final String STATE_LIST = "<selector xmlns:android=\"http://schemas.android.com/apk/res/android\">\n" +
-                "    <item android:state_pressed=\"true\"\n" +
-                "          android:color=\"?android:attr/colorForeground\"/> \n" +
-                "    <item android:state_focused=\"true\"\n" +
-                "          android:color=\"?android:attr/colorBackground\"/> \n" +
-                "    <item android:color=\"#a000\"/> <!-- default -->\n" + "</selector>";
+        final String STATE_LIST =
+                "<selector xmlns:android=\"http://schemas.android.com/apk/res/android\">\n" +
+                        "    <item android:state_pressed=\"true\"\n" +
+                        "          android:color=\"?android:attr/colorForeground\"/> \n" +
+                        "    <item android:state_focused=\"true\"\n" +
+                        "          android:color=\"?android:attr/colorBackground\"/> \n" +
+                        "    <item android:color=\"#a000\"/> <!-- default -->\n" + "</selector>";
 
         File tmpColorList = File.createTempFile("statelist", "xml");
-        try(PrintWriter output = new PrintWriter(new FileOutputStream(tmpColorList))) {
+        try (PrintWriter output = new PrintWriter(new FileOutputStream(tmpColorList))) {
             output.println(STATE_LIST);
         }
 
@@ -1079,7 +1094,8 @@ public class RenderTests extends RenderTestBase {
         AssetManager assetManager = AssetManager.getSystem();
         DisplayMetrics metrics = new DisplayMetrics();
         Configuration configuration = RenderAction.getConfiguration(params);
-        BridgeContext context = new BridgeContext(params.getProjectKey(), metrics, params.getResources(),
+        BridgeContext context = new BridgeContext(params.getProjectKey(), metrics,
+                params.getResources(),
                 params.getAssets(), params.getLayoutlibCallback(), configuration,
                 params.getTargetSdkVersion(), params.isRtlSupported());
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
@@ -1247,17 +1263,17 @@ public class RenderTests extends RenderTestBase {
     public void testCrashes() throws ClassNotFoundException {
         final String layout =
                 "<LinearLayout " +
-                    "xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                    "              android:layout_width=\"match_parent\"\n" +
-                    "              android:layout_height=\"match_parent\">\n" +
-                    "<com.android.layoutlib.bridge.test.widgets.HookWidget " +
-                    "              android:layout_width=\"100dp\"\n" +
-                    "              android:layout_height=\"200dp\" />\n" +
-                    "<LinearLayout " +
-                    "              android:background=\"#CBBAF0\"\n" +
-                    "              android:layout_width=\"100dp\"\n" +
-                    "              android:layout_height=\"200dp\" />\n" +
-                "</LinearLayout>";
+                        "xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:layout_width=\"match_parent\"\n" +
+                        "              android:layout_height=\"match_parent\">\n" +
+                        "<com.android.layoutlib.bridge.test.widgets.HookWidget " +
+                        "              android:layout_width=\"100dp\"\n" +
+                        "              android:layout_height=\"200dp\" />\n" +
+                        "<LinearLayout " +
+                        "              android:background=\"#CBBAF0\"\n" +
+                        "              android:layout_width=\"100dp\"\n" +
+                        "              android:layout_height=\"200dp\" />\n" +
+                        "</LinearLayout>";
         {
             com.android.layoutlib.bridge.test.widgets.HookWidget.setOnPreDrawHook(() -> {
                 throw new NullPointerException();
@@ -1382,7 +1398,7 @@ public class RenderTests extends RenderTestBase {
                 .disableDecoration()
                 .build();
 
-        RenderResult result = RenderTestBase.render(sBridge, params, -1);
+        RenderResult result = render(sBridge, params, -1);
         BufferedImage image = result.getImage();
         assertNotNull(image);
         Graphics2D g = (Graphics2D) image.getGraphics();
@@ -1391,7 +1407,7 @@ public class RenderTests extends RenderTestBase {
             paintBorders(g, 0, 0, 0, vInfo);
         }
 
-        RenderTestBase.verify("view_boundaries.png", image);
+        verify("view_boundaries.png", image);
     }
 
     /**
@@ -1508,7 +1524,7 @@ public class RenderTests extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .setImageFactory((width, height) ->
                         new BufferedImage(width / 10, height / 10,
-                        BufferedImage.TYPE_INT_ARGB))
+                                BufferedImage.TYPE_INT_ARGB))
                 .setFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE, true)
                 .build();
 
@@ -1690,7 +1706,8 @@ public class RenderTests extends RenderTestBase {
             // Create the layout pull parser.
             LayoutPullParser parser = LayoutPullParser.createFromString(layout);
             // Create LayoutLibCallback.
-            LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+            LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(),
+                    mDefaultClassLoader);
             layoutLibCallback.initResources();
 
             SessionParams params = getSessionParamsBuilder()
@@ -1707,7 +1724,8 @@ public class RenderTests extends RenderTestBase {
             // Create the layout pull parser.
             LayoutPullParser parser = LayoutPullParser.createFromString(layout);
             // Create LayoutLibCallback.
-            LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+            LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(),
+                    mDefaultClassLoader);
             layoutLibCallback.initResources();
 
             SessionParams params = getSessionParamsBuilder()
@@ -1771,7 +1789,8 @@ public class RenderTests extends RenderTestBase {
         // Create the layout pull parser.
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        LayoutLibTestCallback layoutLibCallback = new LayoutLibTestCallback(getLogger(),
+                mDefaultClassLoader);
         layoutLibCallback.initResources();
 
         SessionParams params = getSessionParamsBuilder()
@@ -1791,8 +1810,7 @@ public class RenderTests extends RenderTestBase {
             if (!session.getResult().isSuccess()) {
                 getLogger().error(session.getResult().getException(),
                         session.getResult().getErrorMessage());
-            }
-            else {
+            } else {
                 // Render the session with a timeout of 50s.
                 Result renderResult = session.render(50000);
                 if (!renderResult.isSuccess()) {

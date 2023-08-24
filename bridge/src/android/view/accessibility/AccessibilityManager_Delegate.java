@@ -20,8 +20,27 @@ import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.content.Context;
+import android.graphics.Matrix;
+import android.view.MagnificationSpec;
+import android.view.accessibility.IAccessibilityManager.WindowTransformationSpec;
 
 public class AccessibilityManager_Delegate {
+    private static WindowTransformationSpec sInstance;
+
+    @LayoutlibDelegate
+    public static IAccessibilityManager.WindowTransformationSpec getWindowTransformationSpec(
+            AccessibilityManager thisManager, int windowId) {
+        if (sInstance == null) {
+            WindowTransformationSpec spec = new WindowTransformationSpec();
+            spec.magnificationSpec = new MagnificationSpec();
+            float[] matrix = new float[9];
+            Matrix.IDENTITY_MATRIX.getValues(matrix);
+            spec.transformationMatrix = matrix;
+            sInstance = spec;
+        }
+        return sInstance;
+    }
+
     @LayoutlibDelegate
     public static AccessibilityManager getInstance(Context context) {
         Context baseContext = BridgeContext.getBaseContext(context);
