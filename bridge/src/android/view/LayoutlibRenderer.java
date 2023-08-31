@@ -16,6 +16,8 @@
 
 package android.view;
 
+import com.android.internal.lang.System_Delegate;
+
 import android.content.Context;
 import android.graphics.BlendMode;
 import android.graphics.RecordingCanvas;
@@ -34,6 +36,8 @@ public class LayoutlibRenderer extends ThreadedRenderer {
         if (rootView == null) {
             return;
         }
+        // Animations require mDrawingTime to be set to animate
+        rootView.mAttachInfo.mDrawingTime = System_Delegate.currentTimeMillis();
         this.draw(viewGroup, rootView.mAttachInfo,
                 new DrawCallbacks() {
                     @Override
@@ -54,5 +58,6 @@ public class LayoutlibRenderer extends ThreadedRenderer {
     public void setScale(float scaleX, float scaleY) {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
+        invalidateRoot();
     }
 }
