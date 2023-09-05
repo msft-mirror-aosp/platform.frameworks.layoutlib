@@ -513,8 +513,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                         mImage = new BufferedImage(
                                 mMeasuredScreenWidth,
                                 mMeasuredScreenHeight,
-                                BufferedImage.TYPE_INT_ARGB);
+                                BufferedImage.TYPE_INT_ARGB_PRE);
                     }
+
+                    assert mImage.getType() == BufferedImage.TYPE_INT_ARGB_PRE;
 
                     // create an Android bitmap around the BufferedImage
                     mBitmap = Bitmap.createBitmap(mImage.getWidth(), mImage.getHeight(),

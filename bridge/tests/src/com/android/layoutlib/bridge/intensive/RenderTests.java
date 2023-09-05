@@ -1526,7 +1526,7 @@ public class RenderTests extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .setImageFactory((width, height) ->
                         new BufferedImage(width / 10, height / 10,
-                                BufferedImage.TYPE_INT_ARGB))
+                                BufferedImage.TYPE_INT_ARGB_PRE))
                 .setFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE, true)
                 .build();
 
