@@ -1550,7 +1550,7 @@ public class BridgeContext extends Context {
     @Override
     public ContentResolver getContentResolver() {
         if (mContentResolver == null) {
-            mContentResolver = new BridgeContentResolver(this);
+            mContentResolver = new BridgeContentResolver(getApplicationContext());
         }
         return mContentResolver;
     }
