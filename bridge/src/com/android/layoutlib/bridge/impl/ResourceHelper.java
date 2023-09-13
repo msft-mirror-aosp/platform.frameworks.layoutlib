@@ -368,7 +368,7 @@ public final class ResourceHelper {
         if (value instanceof DensityBasedResourceValue) {
             density = ((DensityBasedResourceValue) value).getResourceDensity();
             if (density == Density.NODPI || density == Density.ANYDPI) {
-                density = Density.getEnum(context.getConfiguration().densityDpi);
+                density = Density.create(context.getConfiguration().densityDpi);
             }
         }
 
