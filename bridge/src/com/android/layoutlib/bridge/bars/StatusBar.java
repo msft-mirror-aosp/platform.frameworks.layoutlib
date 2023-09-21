@@ -74,7 +74,7 @@ public class StatusBar extends CustomBar {
     @SuppressWarnings("UnusedParameters")
     public StatusBar(Context context, AttributeSet attrs) {
         this((BridgeContext) context,
-                Density.getEnum(((BridgeContext) context).getMetrics().densityDpi),
+                Density.create(((BridgeContext) context).getMetrics().densityDpi),
                 ((BridgeContext) context).getConfiguration().getLayoutDirection() ==
                         View.LAYOUT_DIRECTION_RTL,
                 (context.getApplicationInfo().flags & ApplicationInfo.FLAG_SUPPORTS_RTL) != 0,
