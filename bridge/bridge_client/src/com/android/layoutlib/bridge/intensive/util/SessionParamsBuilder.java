@@ -56,6 +56,7 @@ public class SessionParamsBuilder {
     private LayoutlibCallback mLayoutlibCallback;
     private int mTargetSdk;
     private int mMinSdk = 0;
+    private int mSimulatedSdk = 0;
     private ILayoutLog mLayoutLog;
     private Map<SessionParams.Key, Object> mFlags = new HashMap<>();
     private AssetRepository mAssetRepository = null;
@@ -135,6 +136,12 @@ public class SessionParamsBuilder {
     }
 
     @NonNull
+    public SessionParamsBuilder setSimulatedSdk(int simulatedSdk) {
+        mSimulatedSdk = simulatedSdk;
+        return this;
+    }
+
+    @NonNull
     public SessionParamsBuilder setLayoutLog(@NonNull ILayoutLog layoutLog) {
         mLayoutLog = layoutLog;
         return this;
@@ -202,7 +209,7 @@ public class SessionParamsBuilder {
 
         SessionParams params = new SessionParams(mLayoutParser, mRenderingMode, mProjectKey /* for
         caching */, mConfigGenerator.getHardwareConfig(), resourceResolver, mLayoutlibCallback,
-                mMinSdk, mTargetSdk, mLayoutLog);
+                mMinSdk, mTargetSdk, mLayoutLog, mSimulatedSdk);
         params.setFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR, enableLayoutValidator);
         params.setFlag(
                 RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK,
