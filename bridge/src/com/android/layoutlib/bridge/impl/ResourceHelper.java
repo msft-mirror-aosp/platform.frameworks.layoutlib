@@ -111,7 +111,7 @@ import static android.content.res.AssetManager.ACCESS_STREAMING;
 public final class ResourceHelper {
     private static final Key<Set<ResourceValue>> KEY_GET_DRAWABLE =
             Key.create("ResourceHelper.getDrawable");
-    private static final Pattern sFloatPattern = Pattern.compile("(-?[0-9]*(?:\\.[0-9]+)?)(.*)");
+    private static final Pattern sFloatPattern = Pattern.compile("(-?[0-9]*(?:\\.[0-9]*)?)(.*)");
     private static final float[] sFloatOut = new float[1];
 
     private static final TypedValue mValue = new TypedValue();
