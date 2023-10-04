@@ -97,6 +97,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static android.os._Original_Build.VERSION.SDK_INT;
@@ -597,6 +598,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             mSystemViewInfoList =
                     visitAllChildren(mViewRoot, 0, 0, params, false);
+
+            Consumer<BufferedImage> imageTransformation = getParams().getImageTransformation();
+            if (imageTransformation != null) {
+                imageTransformation.accept(mImage);
+            }
 
             boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
             boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
