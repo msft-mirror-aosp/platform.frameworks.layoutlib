@@ -116,6 +116,10 @@ import static com.android.layoutlib.common.util.ReflectionUtils.isInstanceOf;
 public class RenderSessionImpl extends RenderAction<SessionParams> {
 
     private static final Canvas NOP_CANVAS = new NopCanvas();
+    private static final String SIMULATED_SDK_TOO_HIGH =
+            String.format("The current rendering only supports APIs up to %d. You may encounter " +
+                    "crashes if using with higher APIs. To avoid, you can set a lower API for " +
+                    "your previews.", SDK_INT);
 
     // scene state
     private RenderSession mScene;
@@ -323,6 +327,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             int simulatedVersion = params.getSimulatedPlatformVersion();
             sSimulatedSdk = simulatedVersion > 0 ? simulatedVersion : SDK_INT;
+            if (sSimulatedSdk > SDK_INT) {
+                Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED, SIMULATED_SDK_TOO_HIGH,
+                        null, null, null);
+            }
 
             if (Bridge.isLocaleRtl(params.getLocale())) {
                 if (!params.isRtlSupported()) {
@@ -478,6 +486,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
         int simulatedVersion = params.getSimulatedPlatformVersion();
         sSimulatedSdk = simulatedVersion > 0 ? simulatedVersion : SDK_INT;
+        if (sSimulatedSdk > SDK_INT) {
+            Bridge.getLog().fidelityWarning(ILayoutLog.TAG_UNSUPPORTED, SIMULATED_SDK_TOO_HIGH,
+                    null, null, null);
+        }
 
         try {
             if (mViewRoot == null) {
