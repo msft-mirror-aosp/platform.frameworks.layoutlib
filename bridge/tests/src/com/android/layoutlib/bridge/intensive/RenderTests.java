@@ -70,6 +70,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
+import static android.os._Original_Build.VERSION.SDK_INT;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -2119,5 +2120,41 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "software_layer.png",
                 TimeUnit.SECONDS.toNanos(2));
+    }
+
+    @Test
+    public void testHighSimulatedSdk() throws Exception {
+        String layout =
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"fill_parent\"\n" +
+                        "              android:layout_height=\"fill_parent\">\n" +
+                        "    <TextView\n" +
+                        "             android:layout_height=\"wrap_content\"\n" +
+                        "             android:layout_width=\"wrap_content\"\n" +
+                        "             android:text=\"This is a TextView\" />\n" +
+                        "</LinearLayout>\n";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .setSimulatedSdk(SDK_INT + 1)
+                .disableDecoration()
+                .build();
+
+        render(sBridge, params, -1);
+        boolean hasApiError = sRenderMessages.removeIf(message -> message.equals(String.format(
+                "The current rendering only supports APIs up to %d. You may encounter crashes if " +
+                        "using with higher APIs. To avoid, you can set a lower API for your " +
+                        "previews.", SDK_INT)));
+        assertTrue(hasApiError);
     }
 }
