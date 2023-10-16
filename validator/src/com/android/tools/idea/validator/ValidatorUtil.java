@@ -83,6 +83,8 @@ public class ValidatorUtil {
          * uses be redirected.
          */
         StringManager.setResourceBundleProvider(locale -> ResourceBundle.getBundle("strings"));
+        // Enable using AccessibilityNodeInfo in addition to View for accessibility testing
+        AccessibilityHierarchyAndroid.viewOverlayEnabled = true;
     }
 
     // Visible for testing.
@@ -129,6 +131,7 @@ public class ValidatorUtil {
             hierarchy.mView = AccessibilityHierarchyAndroid
                     .newBuilder(view)
                     .setViewOriginMap(builder.mSrcMap)
+                    .setNodeInfoOriginMap(builder.mNodeInfoMap)
                     .setObtainCharacterLocations(LayoutValidator.obtainCharacterLocations())
                     .setCharacterLocationArgMaxLength(CHARACTER_LOCATION_ARG_MAX_LENGTH)
                     .setCustomViewBuilder(new CustomViewBuilderAndroid() {

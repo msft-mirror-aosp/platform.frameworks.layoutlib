@@ -32,6 +32,7 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
+import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
 import android.content.res.Configuration;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
@@ -51,6 +52,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static android.os._Original_Build.VERSION.SDK_INT;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_LOCK_INTERRUPTED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_TIMEOUT;
 import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
@@ -68,6 +70,12 @@ import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
  *
  */
 public abstract class RenderAction<T extends RenderParams> {
+    /**
+     * Static field to store an SDK version coming from the render configuration.
+     * This is to be accessed when wanting to know the simulated SDK version instead
+     * of Build.VERSION.SDK_INT.
+     */
+    public static int sSimulatedSdk;
 
     private static final Set<String> COMPOSE_CLASS_FQNS =
             Set.of("androidx.compose.ui.tooling.ComposeViewAdapter",
@@ -99,6 +107,7 @@ public abstract class RenderAction<T extends RenderParams> {
      */
     protected RenderAction(T params) {
         mParams = params;
+        sSimulatedSdk = SDK_INT;
     }
 
     /**
@@ -276,6 +285,7 @@ public abstract class RenderAction<T extends RenderParams> {
         ILayoutLog currentLog = mParams.getLog();
         Bridge.setLog(currentLog);
         mContext.getRenderResources().setLogger(currentLog);
+        AnimationHandler.sAnimatorHandler = mContext.getAnimationHandlerThreadLocal();
     }
 
     /**
@@ -467,6 +477,14 @@ public abstract class RenderAction<T extends RenderParams> {
         if (sCurrentContext != null) {
             // quit HandlerThread created during this session.
             HandlerThread_Delegate.cleanUp(sCurrentContext);
+
+            AnimationHandler animationHandler =
+                    sCurrentContext.getAnimationHandlerThreadLocal().get();
+            if (animationHandler != null) {
+                animationHandler.mDelayedCallbackStartTime.clear();
+                animationHandler.mAnimationCallbacks.clear();
+                animationHandler.mCommitCallbacks.clear();
+            }
         }
 
         sCurrentContext = null;

@@ -16,7 +16,6 @@
 
 package com.android.layoutlib.bridge.impl;
 
-import com.android.ide.common.rendering.api.AdapterBinding;
 import com.android.ide.common.rendering.api.HardwareConfig;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.ILayoutPullParser;
@@ -30,6 +29,7 @@ import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode.SizeAction;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.ViewType;
+import com.android.internal.R;
 import com.android.internal.view.menu.ActionMenuItemView;
 import com.android.internal.view.menu.BridgeMenuItemImpl;
 import com.android.internal.view.menu.IconMenuItemView;
@@ -44,18 +44,16 @@ import com.android.layoutlib.bridge.android.graphics.NopCanvas;
 import com.android.layoutlib.bridge.android.support.DesignLibUtil;
 import com.android.layoutlib.bridge.android.support.FragmentTabHostUtil;
 import com.android.layoutlib.bridge.android.support.SupportPreferencesUtil;
-import com.android.layoutlib.bridge.impl.binding.FakeAdapter;
-import com.android.layoutlib.bridge.impl.binding.FakeExpandableAdapter;
+import com.android.layoutlib.bridge.util.KeyEventHandling;
 import com.android.tools.idea.validator.LayoutValidator;
 import com.android.tools.idea.validator.ValidatorHierarchy;
-import com.android.tools.idea.validator.ValidatorResult;
 import com.android.tools.idea.validator.hierarchy.CustomHierarchyHelper;
 import com.android.tools.layoutlib.annotations.NotNull;
 
-import android.animation.AnimationHandler;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.HardwareRenderer;
@@ -71,7 +69,8 @@ import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
-import android.view.Choreographer_Delegate;
+import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -79,15 +78,12 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
+import android.view.ViewRootImpl;
+import android.view.ViewRootImpl_Accessor;
 import android.view.WindowManagerImpl;
-import android.widget.AbsListView;
-import android.widget.AbsSpinner;
 import android.widget.ActionMenuView;
-import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.QuickContactBadge;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -102,10 +98,9 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
-import com.android.internal.R;
-import android.content.res.TypedArray;
-
+import static android.os._Original_Build.VERSION.SDK_INT;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_INFLATION;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_NOT_INFLATED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_UNKNOWN;
@@ -153,7 +148,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             MotionEvent.PointerCoords.createArray(1);
 
     private long mLastActionDownTimeNanos = -1;
-    @Nullable private ValidatorResult mValidatorResult = null;
     @Nullable private ValidatorHierarchy mValidatorHierarchy = null;
 
     private static final class PostInflateException extends Exception {
@@ -216,7 +210,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     /**
-     * Measures the the current layout if needed (see {@link #invalidateRenderingSize}).
+     * Measures the current layout if needed (see {@link #invalidateRenderingSize}).
      */
     private void measureLayout(@NonNull SessionParams params) {
         // only do the screen measure when needed.
@@ -328,6 +322,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             SessionParams params = getParams();
             BridgeContext context = getContext();
 
+            int simulatedVersion = params.getSimulatedPlatformVersion();
+            sSimulatedSdk = simulatedVersion > 0 ? simulatedVersion : SDK_INT;
+
             if (Bridge.isLocaleRtl(params.getLocale())) {
                 if (!params.isRtlSupported()) {
                     Bridge.getLog().warning(ILayoutLog.TAG_RTL_NOT_ENABLED,
@@ -377,9 +374,16 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     mMeasuredScreenWidth, MeasureSpec.EXACTLY,
                     mMeasuredScreenHeight, MeasureSpec.EXACTLY);
             mViewRoot.layout(0, 0, mMeasuredScreenWidth, mMeasuredScreenHeight);
+            mViewRoot.getViewRootImpl().mTmpFrames.displayFrame.set(mViewRoot.getLeft(),
+                    mViewRoot.getTop(), mViewRoot.getRight(), mViewRoot.getBottom());
+
+            ViewRootImpl rootImpl = AttachInfo_Accessor.getRootView(mViewRoot);
+            if (rootImpl != null) {
+                ViewRootImpl_Accessor.setChild(rootImpl, mViewRoot);
+            }
+
             mSystemViewInfoList =
-                    visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
-                    false);
+                    visitAllChildren(mViewRoot, 0, 0, params, false);
 
             return SUCCESS.createResult();
         } catch (PostInflateException e) {
@@ -491,6 +495,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
         SessionParams params = getParams();
 
+        int simulatedVersion = params.getSimulatedPlatformVersion();
+        sSimulatedSdk = simulatedVersion > 0 ? simulatedVersion : SDK_INT;
+
         try {
             if (mViewRoot == null) {
                 return ERROR_NOT_INFLATED.createResult();
@@ -591,8 +598,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             mSystemViewInfoList =
-                    visitAllChildren(mViewRoot, 0, 0, params.getExtendedViewInfoMode(),
-                    false);
+                    visitAllChildren(mViewRoot, 0, 0, params, false);
 
             boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
             boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
@@ -686,66 +692,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         } else if (view instanceof QuickContactBadge) {
             QuickContactBadge badge = (QuickContactBadge) view;
             badge.setImageToDefault();
-        } else if (view instanceof AdapterView<?>) {
-            // get the view ID.
-            int id = view.getId();
-
-            BridgeContext context = getContext();
-
-            // get a ResourceReference from the integer ID.
-            ResourceReference listRef = context.resolveId(id);
-
-            if (listRef != null) {
-                AdapterBinding binding = layoutlibCallback.getAdapterBinding(
-                            listRef, context.getViewKey(view), view);
-
-                if (binding != null) {
-
-                    if (view instanceof AbsListView) {
-                        if ((binding.getFooterCount() > 0 || binding.getHeaderCount() > 0) &&
-                                view instanceof ListView) {
-                            ListView list = (ListView) view;
-
-                            boolean skipCallbackParser = false;
-
-                            int count = binding.getHeaderCount();
-                            for (int i = 0; i < count; i++) {
-                                Pair<View, Boolean> pair = context.inflateView(
-                                        binding.getHeaderAt(i),
-                                        list, false, skipCallbackParser);
-                                if (pair.first != null) {
-                                    list.addHeaderView(pair.first);
-                                }
-
-                                skipCallbackParser |= pair.second;
-                            }
-
-                            count = binding.getFooterCount();
-                            for (int i = 0; i < count; i++) {
-                                Pair<View, Boolean> pair = context.inflateView(
-                                        binding.getFooterAt(i),
-                                        list, false, skipCallbackParser);
-                                if (pair.first != null) {
-                                    list.addFooterView(pair.first);
-                                }
-
-                                skipCallbackParser |= pair.second;
-                            }
-                        }
-
-                        if (view instanceof ExpandableListView) {
-                            ((ExpandableListView) view).setAdapter(
-                                    new FakeExpandableAdapter(listRef, binding, layoutlibCallback));
-                        } else {
-                            ((AbsListView) view).setAdapter(
-                                    new FakeAdapter(listRef, binding, layoutlibCallback));
-                        }
-                    } else if (view instanceof AbsSpinner) {
-                        ((AbsSpinner) view).setAdapter(
-                                new FakeAdapter(listRef, binding, layoutlibCallback));
-                    }
-                }
-            }
         } else if (view instanceof ViewGroup) {
             mInflater.postInflateProcess(view);
             ViewGroup group = (ViewGroup) view;
@@ -934,15 +880,16 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      *
      * @return {@code ViewInfo} containing the bounds of the view and it children otherwise.
      */
-    private ViewInfo visit(View view, int hOffset, int vOffset, boolean setExtendedInfo,
+    private ViewInfo visit(View view, int hOffset, int vOffset, SessionParams params,
             boolean isContentFrame) {
-        ViewInfo result = createViewInfo(view, hOffset, vOffset, setExtendedInfo, isContentFrame);
+        ViewInfo result = createViewInfo(view, hOffset, vOffset, params.getExtendedViewInfoMode(),
+                isContentFrame);
 
         if (view instanceof ViewGroup) {
             ViewGroup group = ((ViewGroup) view);
             result.setChildren(visitAllChildren(group, isContentFrame ? 0 : hOffset,
                     isContentFrame ? 0 : vOffset,
-                    setExtendedInfo, isContentFrame));
+                    params, isContentFrame));
         }
         return result;
     }
@@ -961,7 +908,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      *                       part of the system decor.
      */
     private List<ViewInfo> visitAllChildren(ViewGroup viewGroup, int hOffset, int vOffset,
-            boolean setExtendedInfo, boolean isContentFrame) {
+            SessionParams params, boolean isContentFrame) {
         if (viewGroup == null) {
             return null;
         }
@@ -977,8 +924,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             List<ViewInfo> childrenWithOffset = new ArrayList<>(childCount);
             for (int i = 0; i < childCount; i++) {
                 ViewInfo[] childViewInfo =
-                        visitContentRoot(viewGroup.getChildAt(i), hOffset, vOffset,
-                        setExtendedInfo);
+                        visitContentRoot(viewGroup.getChildAt(i), hOffset, vOffset, params);
                 childrenWithoutOffset.add(childViewInfo[0]);
                 childrenWithOffset.add(childViewInfo[1]);
             }
@@ -987,7 +933,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         } else {
             List<ViewInfo> children = new ArrayList<>(childCount);
             for (int i = 0; i < childCount; i++) {
-                children.add(visit(viewGroup.getChildAt(i), hOffset, vOffset, setExtendedInfo,
+                children.add(visit(viewGroup.getChildAt(i), hOffset, vOffset, params,
                         isContentFrame));
             }
             return children;
@@ -1001,26 +947,32 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * get the right bounds if the {@code ViewInfo} hierarchy is accessed from
      * {@code mViewInfoList}. When the hierarchy is accessed via {@code mSystemViewInfoList}, the
      * offset is not needed.
+     * If a custom parser was passed inside the {@link SessionParams} argument, this will be used
+     * to generate the {@link ViewInfo}s. Otherwise, {@link RenderSessionImpl#visitAllChildren}
+     * will be used.
      *
      * @return an array of length two, with ViewInfo at index 0 is without offset and ViewInfo at
      *         index 1 is with the offset.
      */
     @NonNull
-    private ViewInfo[] visitContentRoot(View view, int hOffset, int vOffset,
-            boolean setExtendedInfo) {
+    private ViewInfo[] visitContentRoot(View view, int hOffset, int vOffset, SessionParams params) {
         ViewInfo[] result = new ViewInfo[2];
         if (view == null) {
             return result;
         }
 
+        boolean setExtendedInfo = params.getExtendedViewInfoMode();
         result[0] = createViewInfo(view, 0, 0, setExtendedInfo, true);
         result[1] = createViewInfo(view, hOffset, vOffset, setExtendedInfo, true);
-        if (view instanceof ViewGroup) {
-            List<ViewInfo> children =
-                    visitAllChildren((ViewGroup) view, 0, 0, setExtendedInfo, true);
-            result[0].setChildren(children);
-            result[1].setChildren(children);
+        Function<Object, List<ViewInfo>> customParser = params.getCustomContentHierarchyParser();
+        List<ViewInfo> children = null;
+        if (customParser != null) {
+            children = customParser.apply(view);
+        } else if (view instanceof ViewGroup) {
+            children = visitAllChildren((ViewGroup) view, 0, 0, params, true);
         }
+        result[0].setChildren(children);
+        result[1].setChildren(children);
         return result;
     }
 
@@ -1056,13 +1008,13 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     shiftY + view.getTop(),
                     shiftX + view.getRight(),
                     shiftY + view.getBottom(),
-                    view, view.getLayoutParams());
+                    view, null, view.getLayoutParams());
         } else {
             // We are part of the system decor.
             SystemViewInfo r = new SystemViewInfo(view.getClass().getName(),
                     getViewKey(view),
                     view.getLeft(), view.getTop(), view.getRight(),
-                    view.getBottom(), view, view.getLayoutParams());
+                    view.getBottom(), view, null, view.getLayoutParams());
             result = r;
             // We currently mark three kinds of views:
             // 1. Menus in the Action Bar
@@ -1184,15 +1136,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     @Nullable
-    public ValidatorResult getValidatorResult() {
-        return mValidatorResult;
-    }
-
-    public void setValidatorResult(ValidatorResult result) {
-        mValidatorResult = result;
-    }
-
-    @Nullable
     public ValidatorHierarchy getValidatorHierarchy() {
         return mValidatorHierarchy;
     }
@@ -1242,9 +1185,36 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             currentTimeNanos / TimeUtils.NANOS_PER_MS,
             motionEventType,
             1, mPointerProperties, mPointerCoords,
-            0, 0, 1.0f, 1.0f, 0, 0, 0, 0);
+            0, 0, 1.0f, 1.0f, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
 
         root.dispatchTouchEvent(event);
+    }
+
+    public void dispatchKeyEvent(java.awt.event.KeyEvent event, long currentTimeNanos) {
+        WindowManagerImpl wm =
+                (WindowManagerImpl)getContext().getSystemService(Context.WINDOW_SERVICE);
+        ViewGroup root = wm.getCurrentRootView();
+        if (root == null) {
+            root = mViewRoot;
+        }
+        if (root == null) {
+            return;
+        }
+        if (event.getID() == java.awt.event.KeyEvent.KEY_PRESSED) {
+            mLastActionDownTimeNanos = currentTimeNanos;
+        }
+        // Ignore events not started with KeyEvent.ACTION_DOWN
+        if (mLastActionDownTimeNanos == -1) {
+            return;
+        }
+
+        KeyEvent androidEvent = KeyEventHandling.javaToAndroidKeyEvent(event,
+                mLastActionDownTimeNanos, currentTimeNanos);
+        boolean success = root.dispatchKeyEvent(androidEvent);
+        if (!success && root != mViewRoot) {
+            // If the event was not consumed by a Window, pass it down to the root layout
+            mViewRoot.dispatchKeyEvent(androidEvent);
+        }
     }
 
     private void disposeImageSurface() {
@@ -1262,12 +1232,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mImage = null;
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
-            AnimationHandler animationHandler = AnimationHandler.sAnimatorHandler.get();
-            if (animationHandler != null) {
-                animationHandler.mDelayedCallbackStartTime.clear();
-                animationHandler.mAnimationCallbacks.clear();
-                animationHandler.mCommitCallbacks.clear();
-            }
             getContext().getSessionInteractiveData().dispose();
             if (mViewInfoList != null) {
                 mViewInfoList.clear();
@@ -1275,7 +1239,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (mSystemViewInfoList != null) {
                 mSystemViewInfoList.clear();
             }
-            mValidatorResult = null;
             mValidatorHierarchy = null;
             mViewRoot = null;
             mContentRoot = null;

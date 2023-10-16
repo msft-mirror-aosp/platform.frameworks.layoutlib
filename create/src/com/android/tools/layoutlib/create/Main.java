@@ -101,43 +101,44 @@ public class Main {
 
             AsmAnalyzer aa = new AsmAnalyzer(log, osJarPath,
                     new String[] {                          // derived from
+                        "android.app.Fragment",
                         "android.view.View",
-                        "android.app.Fragment"
                     },
                     new String[] {                          // include classes
                         "android.*", // for android.R
-                        "android.util.*",
-                        "com.android.internal.util.*",
-                        "android.view.*",
-                        "android.widget.*",
-                        "com.android.internal.widget.*",
-                        "android.text.**",
-                        "android.graphics.*",
-                        "android.graphics.drawable.**",
-                        "android.content.*",
-                        "android.content.res.*",
-                        "android.preference.*",
-                        "org.apache.harmony.xml.*",
-                        "com.android.internal.R**",
-                        "android.pim.*", // for datepicker
-                        "android.os.*",  // for android.os.Handler
-                        "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
-                        "android.database.ContentObserver", // for Digital clock
-                        "com.android.i18n.phonenumbers.*",  // for TextView with autolink attribute
-                        "android.app.DatePickerDialog",     // b.android.com/28318
-                        "android.app.TimePickerDialog",     // b.android.com/61515
-                        "com.android.internal.view.menu.ActionMenu",
-                        "libcore.icu.ICU",                  // needed by ICU_Delegate in LayoutLib
-                        "android.icu.**",                   // needed by LayoutLib
-                        "libcore.io.*",                     // needed to load /usr/share/zoneinfo
                         "android.annotation.NonNull",       // annotations
                         "android.annotation.Nullable",      // annotations
-                        "com.android.internal.transition.EpicenterTranslateClipReveal",
+                        "android.app.ApplicationErrorReport", // needed for Glance LazyList
+                        "android.app.DatePickerDialog",     // b.android.com/28318
+                        "android.app.TimePickerDialog",     // b.android.com/61515
+                        "android.content.*",
+                        "android.content.res.*",
+                        "android.database.ContentObserver", // for Digital clock
+                        "android.graphics.*",
+                        "android.graphics.drawable.**",
+                        "android.icu.**",                   // needed by LayoutLib
+                        "android.os.*",  // for android.os.Handler
+                        "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
+                        "android.pim.*", // for datepicker
+                        "android.preference.*",
+                        "android.service.wallpaper.*",      // needed for Wear OS watch faces
+                        "android.text.**",
+                        "android.util.*",
+                        "android.view.*",
+                        "android.widget.*",
+                        "com.android.i18n.phonenumbers.*",  // for TextView with autolink attribute
+                        "com.android.internal.R**",
                         "com.android.internal.graphics.drawable.AnimationScaleListDrawable",
+                        "com.android.internal.transition.EpicenterTranslateClipReveal",
+                        "com.android.internal.util.*",
+                        "com.android.internal.view.menu.ActionMenu",
+                        "com.android.internal.widget.*",
+                        "com.android.systemui.monet.*",     // needed for dynamic theming
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
-                        "android.service.wallpaper.*",      // needed for Wear OS watch faces
-                        "com.android.systemui.monet.*",     // needed for dynamic theming
+                        "libcore.icu.ICU",                  // needed by ICU_Delegate in LayoutLib
+                        "libcore.io.*",                     // needed to load /usr/share/zoneinfo
+                        "org.apache.harmony.xml.*",
                     },
                     info.getExcludedClasses(),
                     new String[] {

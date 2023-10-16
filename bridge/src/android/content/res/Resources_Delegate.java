@@ -27,6 +27,8 @@ import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.ResourceValueImpl;
+import com.android.ide.common.rendering.api.TextResourceValue;
+import com.android.ide.common.resources.ValueXmlHelper;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.BridgeConstants;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -87,6 +89,8 @@ public class Resources_Delegate {
                 "Resources_Delegate.initSystem called twice before disposeSystem was called";
         Resources resources = new Resources(Resources_Delegate.class.getClassLoader());
         resources.setImpl(new ResourcesImpl(assets, metrics, config, new DisplayAdjustments()));
+        resources.getConfiguration().windowConfiguration.setMaxBounds(0, 0, metrics.widthPixels,
+                metrics.heightPixels);
         sContexts.put(resources, Objects.requireNonNull(context));
         sLayoutlibCallbacks.put(resources, Objects.requireNonNull(layoutlibCallback));
         return Resources.mSystem = resources;
@@ -269,18 +273,9 @@ public class Resources_Delegate {
 
     @LayoutlibDelegate
     static CharSequence getText(Resources resources, int id, CharSequence def) {
-        Pair<String, ResourceValue> value = getResourceValue(resources, id);
-
-        if (value != null) {
-            ResourceValue resValue = value.second;
-
-            assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    return v;
-                }
-            }
+        CharSequence text = getTextInternal(resources, id);
+        if (text != null) {
+            return text;
         }
 
         return def;
@@ -288,24 +283,27 @@ public class Resources_Delegate {
 
     @LayoutlibDelegate
     static CharSequence getText(Resources resources, int id) throws NotFoundException {
-        Pair<String, ResourceValue> value = getResourceValue(resources, id);
-
-        if (value != null) {
-            ResourceValue resValue = value.second;
-
-            assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    return v;
-                }
-            }
+        CharSequence text = getTextInternal(resources, id);
+        if (text != null) {
+            return text;
         }
 
         // id was not found or not resolved. Throw a NotFoundException.
         throwException(resources, id);
 
         // this is not used since the method above always throws
+        return null;
+    }
+
+    @Nullable
+    private static CharSequence getTextInternal(Resources resources, int id) {
+        Pair<String, ResourceValue> value = getResourceValue(resources, id);
+
+        if (value != null) {
+            ResourceValue resValue = value.second;
+            assert resValue != null;
+            return ResourceHelper.getText(resValue);
+        }
         return null;
     }
 

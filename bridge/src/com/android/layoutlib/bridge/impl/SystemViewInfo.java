@@ -32,8 +32,9 @@ public class SystemViewInfo extends ViewInfo {
     }
 
     public SystemViewInfo(String name, Object cookie, int left, int top,
-            int right, int bottom, Object viewObject, Object layoutParamsObject) {
-        super(name, cookie, left, top, right, bottom, viewObject,
+            int right, int bottom, Object viewObject, Object accessibilityObject,
+            Object layoutParamsObject) {
+        super(name, cookie, left, top, right, bottom, viewObject, accessibilityObject,
                 layoutParamsObject);
     }
 

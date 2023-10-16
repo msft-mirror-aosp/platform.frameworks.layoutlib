@@ -25,6 +25,8 @@ import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
+import com.android.ide.common.rendering.api.TextResourceValue;
+import com.android.ide.common.resources.ValueXmlHelper;
 import com.android.internal.util.XmlUtils;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -540,6 +542,23 @@ public final class ResourceHelper {
     }
 
     /**
+     * Extracts text from a {@link ResourceValue} in the correct format, including handling
+     * HTML tags.
+     */
+    public static CharSequence getText(@NonNull ResourceValue resourceValue) {
+        String value = resourceValue.getValue();
+        if (resourceValue instanceof TextResourceValue) {
+            String rawValue =
+                    ValueXmlHelper.unescapeResourceString(resourceValue.getRawXmlValue(),
+                            true, true);
+            if (rawValue != null && !rawValue.equals(value)) {
+                return ResourceHelper.parseHtml(rawValue);
+            }
+        }
+        return value;
+    }
+
+    /**
      * This takes a resource string containing HTML tags for styling,
      * and returns it correctly formatted to be displayed.
      */
@@ -552,12 +571,13 @@ public final class ResourceHelper {
         if (firstTagIndex == -1) {
             return string;
         }
-        int lastTagIndex = str.lastIndexOf('>');
-        StringBuilder stringBuilder = new StringBuilder(str.substring(0, firstTagIndex));
+        StringBuilder stringBuilder = new StringBuilder();
         List<Tag> tagList = new ArrayList<>();
         Map<String, Deque<Tag>> startStacks = new HashMap<>();
         Parser parser = new Parser();
         parser.setContentHandler(new DefaultHandler() {
+            private int numberStartTags = 0;
+
             @Override
             public void startElement(String uri, String localName, String qName,
                     Attributes attributes) {
@@ -566,6 +586,7 @@ public final class ResourceHelper {
                     tag.mStart = stringBuilder.length();
                     tag.mAttributes = attributes;
                     startStacks.computeIfAbsent(localName, key -> new ArrayDeque<>()).addFirst(tag);
+                    numberStartTags++;
                 }
             }
 
@@ -580,19 +601,44 @@ public final class ResourceHelper {
 
             @Override
             public void characters(char[] ch, int start, int length) {
-                stringBuilder.append(ch, start, length);
+                // The Android framework keeps whitespaces before the first tag, but collapses them
+                // after.
+                if (numberStartTags <= 2) {
+                    // We have only seen the outer <html><body> tags but we are still before the
+                    // first tag from the user string. In this case, we keep all the whitespaces.
+                    stringBuilder.append(ch, start, length);
+                } else {
+                    boolean prevSpace = false;
+                    for (int i = 0; i < length; i++) {
+                        char current = ch[start + i];
+                        if (Character.isWhitespace(current)) {
+                            if (!prevSpace) {
+                                stringBuilder.append(' ');
+                                prevSpace = true;
+                            }
+                        } else {
+                            stringBuilder.append(current);
+                            prevSpace = false;
+                        }
+                    }
+                }
             }
         });
         try {
             parser.setProperty(Parser.schemaProperty, new HTMLSchema());
-            parser.parse(new InputSource(
-                    new StringReader(str.substring(firstTagIndex, lastTagIndex + 1))));
+            // String resources in Android do not need to specify the <html> tag. But if it is
+            // not the first tag encountered by the parser, the parser will automatically add it.
+            // To avoid the issue of not knowing if the first html tag encountered by the parser
+            // was present in the string or not, we wrap the string in <html><body> tags, and we
+            // can then be sure that exactly the first two tags encountered were not in the
+            // original string.
+            String htmlString = "<html><body>" + str + "</html></body>";
+            parser.parse(new InputSource(new StringReader(htmlString)));
         } catch (SAXException | IOException e) {
             Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_FORMAT,
                     "The string " + str + " is not valid HTML", null, null);
             return str;
         }
-        stringBuilder.append(str.substring(lastTagIndex + 1));
         return applyStyles(stringBuilder, tagList);
     }
 

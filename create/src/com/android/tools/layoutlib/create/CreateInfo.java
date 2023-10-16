@@ -131,6 +131,11 @@ public final class CreateInfo implements ICreateInfo {
         return DEFERRED_STATIC_INITIALIZER_CLASSES;
     }
 
+    @Override
+    public String[] getRemovedFinalModifierFields() {
+        return REMOVED_FINAL_MODIFIER_FIELDS;
+    }
+
     //-----
 
     private static final MethodReplacer[] METHOD_REPLACERS = new MethodReplacer[] {
@@ -264,6 +269,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.text.AndroidCharacter",
         "android.util.Log",
         "android.util.PathParser",
+        "android.view.KeyCharacterMap",
+        "android.view.KeyEvent",
         "android.view.MotionEvent",
         "android.view.Surface",
         "com.android.internal.util.VirtualRefBasePtr",
@@ -279,8 +286,6 @@ public final class CreateInfo implements ICreateInfo {
             "android.view.textservice.TextServicesManager",    "android.view.textservice._Original_TextServicesManager",
             "android.view.SurfaceView",                        "android.view._Original_SurfaceView",
             "android.view.WindowManagerImpl",                  "android.view._Original_WindowManagerImpl",
-            "android.view.accessibility.AccessibilityManager", "android.view.accessibility._Original_AccessibilityManager",
-            "android.view.accessibility.AccessibilityNodeIdManager", "android.view.accessibility._Original_AccessibilityNodeIdManager",
             "android.webkit.WebView",                          "android.webkit._Original_WebView",
         };
 
@@ -338,8 +343,10 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorRT#mPendingAnimationActions",
         "android.graphics.drawable.AnimatedVectorDrawable#mAnimatorSet",
         "android.graphics.drawable.DrawableInflater#mRes",
+        "android.hardware.input.InputManager#sInstance",
         "android.view.Choreographer#mCallbackQueues", // required for tests only
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
+        "android.view.ViewRootImpl#mTmpFrames",
         "com.android.internal.util.ArrayUtils#sCache",
     };
 
@@ -353,6 +360,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Bitmap#setNinePatchChunk",
         "android.graphics.Path#nInit",
         "android.graphics.Typeface$Builder#createAssetUid",
+        "android.hardware.input.InputManager#<init>",
         "android.media.ImageReader#nativeClassInit",
         "android.view.Choreographer#doFrame",
         "android.view.Choreographer#postCallbackDelayedInternal",
@@ -391,6 +399,12 @@ public final class CreateInfo implements ICreateInfo {
                 put("android.content.Context",
                         InjectMethodRunnables.CONTEXT_GET_FRAMEWORK_CLASS_LOADER);
             }};
+
+    /**
+     * List of fields for which we will remove the final modifier.
+     */
+    private final static String[] REMOVED_FINAL_MODIFIER_FIELDS =
+            new String[]{"android.animation.AnimationHandler#sAnimatorHandler"};
 
     public static class LinkedHashMapEldestReplacer implements MethodReplacer {
 

@@ -40,6 +40,7 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.animation.AnimationHandler;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -71,6 +72,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.hardware.EmptySensorManager;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -80,6 +82,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Looper;
+import android.os.NullVibrator;
+import android.os.NullVibratorManager;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -197,10 +201,12 @@ public class BridgeContext extends Context {
     private Boolean mIsThemeAppCompat;
     private boolean mUseThemedIcon;
     private Context mApplicationContext;
+    private AccessibilityManager mAccessibilityManager;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
     private final SessionInteractiveData mSessionInteractiveData;
+    private final ThreadLocal<AnimationHandler> mAnimationHandlerThreadLocal = new ThreadLocal<>();
 
     /**
      * Some applications that target both pre API 17 and post API 17, set the newer attrs to
@@ -459,9 +465,12 @@ public class BridgeContext extends Context {
                 try {
                     outValue.data = Integer.parseInt(stringValue);
                     outValue.type = TypedValue.TYPE_INT_DEC;
-                } catch (NumberFormatException e) {
-                    outValue.type = TypedValue.TYPE_STRING;
-                    outValue.string = stringValue;
+                }
+                catch (NumberFormatException e) {
+                    if (!ResourceHelper.parseFloatAttribute(null, stringValue, outValue, false)) {
+                        outValue.type = TypedValue.TYPE_STRING;
+                        outValue.string = stringValue;
+                    }
                 }
             }
         }
@@ -598,6 +607,13 @@ public class BridgeContext extends Context {
         return isThemeAppCompat;
     }
 
+    public AccessibilityManager getAccessibilityManager() {
+        if (mAccessibilityManager == null) {
+            mAccessibilityManager = new AccessibilityManager(this, null, UserHandle.USER_CURRENT);
+        }
+        return mAccessibilityManager;
+    }
+
     // ------------ Context methods
 
     @Override
@@ -684,6 +700,15 @@ public class BridgeContext extends Context {
             case AUDIO_SERVICE:
                 return mAudioManager;
 
+            case VIBRATOR_SERVICE:
+                return NullVibrator.getInstance();
+
+            case VIBRATOR_MANAGER_SERVICE:
+                return NullVibratorManager.getInstance();
+
+            case SENSOR_SERVICE:
+                return EmptySensorManager.getInstance();
+
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
             case ALARM_SERVICE:
@@ -709,7 +734,7 @@ public class BridgeContext extends Context {
      * Same as Context#obtainStyledAttributes. We do not override the base method to give the
      * original Context the chance to override the theme when needed.
      */
-    @Nullable
+    @NonNull
     public final BridgeTypedArray internalObtainStyledAttributes(int resId, int[] attrs)
             throws Resources.NotFoundException {
         StyleResourceValue style = null;
@@ -726,9 +751,8 @@ public class BridgeContext extends Context {
             }
 
             if (style == null) {
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_RESOLVE,
+                Bridge.getLog().warning(ILayoutLog.TAG_INFO,
                         "Failed to find style with " + resId, null, null);
-                return null;
             }
         }
 
@@ -2283,5 +2307,10 @@ public class BridgeContext extends Context {
 
     public void applyWallpaper(String wallpaperPath) {
         mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
+    }
+
+    @NotNull
+    public ThreadLocal<AnimationHandler> getAnimationHandlerThreadLocal() {
+        return mAnimationHandlerThreadLocal;
     }
 }
