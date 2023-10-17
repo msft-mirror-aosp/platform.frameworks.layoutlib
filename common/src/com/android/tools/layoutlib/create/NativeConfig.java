@@ -149,6 +149,7 @@ public class NativeConfig {
             "com.android.internal.util.XmlUtils#convertValueToInt",
             "com.android.internal.view.menu.MenuBuilder#createNewMenuItem",
             "dalvik.system.VMRuntime#getNotifyNativeInterval",
+            "dalvik.system.VMRuntime#is64Bit",
             "dalvik.system.VMRuntime#newUnpaddedArray",
             "libcore.io.MemoryMappedFile#bigEndianIterator",
             "libcore.io.MemoryMappedFile#close",
