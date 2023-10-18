@@ -91,7 +91,7 @@ public class EmptySensorManager extends SensorManager {
     }
 
     @Override
-    protected boolean initDataInjectionImpl(boolean enable) {
+    protected boolean initDataInjectionImpl(boolean enable, int mode) {
         return false;
     }
 
