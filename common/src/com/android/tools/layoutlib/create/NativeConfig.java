@@ -120,7 +120,6 @@ public class NativeConfig {
             "android.view.DisplayEventReceiver#nativeGetDisplayEventReceiverFinalizer",
             "android.view.DisplayEventReceiver#nativeInit",
             "android.view.HandlerActionQueue#postDelayed",
-            "android.view.LayoutInflater#initPrecompiledViews",
             "android.view.LayoutInflater#parseInclude",
             "android.view.LayoutInflater#rInflate",
             "android.view.MenuInflater#registerMenu",
