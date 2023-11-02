@@ -109,6 +109,7 @@ public class NativeConfig {
             "android.provider.DeviceConfig#getLong",
             "android.provider.DeviceConfig#getProperty",
             "android.provider.DeviceConfig#getString",
+            "android.provider.Settings$Config#getContentResolver",
             "android.text.format.DateFormat#is24HourFormat",
             "android.util.Xml#newPullParser",
             "android.view.Choreographer#doCallbacks",

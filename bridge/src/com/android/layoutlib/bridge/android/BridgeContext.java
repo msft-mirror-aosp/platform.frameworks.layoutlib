@@ -174,7 +174,7 @@ public class BridgeContext extends Context {
     private final LayoutlibCallback mLayoutlibCallback;
     private final WindowManager mWindowManager;
     private final DisplayManager mDisplayManager;
-    private final AutofillManager mAutofillManager;
+    private AutofillManager mAutofillManager;
     private final ClipboardManager mClipboardManager;
     private final ActivityManager mActivityManager;
     private final ConnectivityManager mConnectivityManager;
@@ -269,7 +269,6 @@ public class BridgeContext extends Context {
 
         mWindowManager = new WindowManagerImpl(this, mMetrics);
         mDisplayManager = new DisplayManager(this);
-        mAutofillManager = new AutofillManager(this, new Default());
         mClipboardManager = new ClipboardManager(this, null);
         mActivityManager = ActivityManager_Accessor.getActivityManagerInstance(this);
         mConnectivityManager = new ConnectivityManager(this, null);
@@ -689,6 +688,9 @@ public class BridgeContext extends Context {
                 return InputMethodManager.forContext(this);
 
             case AUTOFILL_MANAGER_SERVICE:
+                if (mAutofillManager == null) {
+                    mAutofillManager = new AutofillManager(this, new Default());
+                }
                 return mAutofillManager;
 
             case CLIPBOARD_SERVICE:
