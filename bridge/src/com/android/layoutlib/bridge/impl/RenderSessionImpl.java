@@ -493,7 +493,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         }
 
         try {
-            if (mViewRoot == null) {
+            if (mViewRoot == null || mRenderer == null) {
                 return ERROR_NOT_INFLATED.createResult();
             }
 
@@ -1231,7 +1231,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Override
     public void dispose() {
         try {
-            mRenderer.destroy();
+            if (mRenderer != null) {
+                mRenderer.destroy();
+            }
             disposeImageSurface();
             mImage = null;
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
