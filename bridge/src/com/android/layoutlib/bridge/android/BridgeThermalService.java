@@ -90,4 +90,9 @@ public class BridgeThermalService implements IThermalService {
     public float getThermalHeadroom(int forecastSeconds) {
         return Float.NaN;
     }
+
+    @Override
+    public float[] getThermalHeadroomThresholds() {
+        return new float[]{};
+    }
 }
