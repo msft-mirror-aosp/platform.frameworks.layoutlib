@@ -77,8 +77,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
-import android.view.ViewRootImpl;
-import android.view.ViewRootImpl_Accessor;
 import android.view.WindowManagerImpl;
 import android.widget.ActionMenuView;
 import android.widget.FrameLayout;
@@ -384,11 +382,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mViewRoot.layout(0, 0, mMeasuredScreenWidth, mMeasuredScreenHeight);
             mViewRoot.getViewRootImpl().mTmpFrames.displayFrame.set(mViewRoot.getLeft(),
                     mViewRoot.getTop(), mViewRoot.getRight(), mViewRoot.getBottom());
-
-            ViewRootImpl rootImpl = AttachInfo_Accessor.getRootView(mViewRoot);
-            if (rootImpl != null) {
-                ViewRootImpl_Accessor.setChild(rootImpl, mViewRoot);
-            }
 
             mSystemViewInfoList =
                     visitAllChildren(mViewRoot, 0, 0, params, false);

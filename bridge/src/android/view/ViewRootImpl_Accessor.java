@@ -26,9 +26,13 @@ public class ViewRootImpl_Accessor {
 
     public static void setChild(ViewRootImpl viewRoot, View child) {
         viewRoot.mView = child;
-        child.assignParent(viewRoot);
-        viewRoot.mWidth = child.getWidth();
-        viewRoot.mHeight = child.getHeight();
+        if (child != null) {
+            viewRoot.mWidth = child.getWidth();
+            viewRoot.mHeight = child.getHeight();
+        } else {
+            viewRoot.mWidth = -1;
+            viewRoot.mHeight = -1;
+        }
     }
 
     public static void detachFromWindow(ViewRootImpl viewRoot) {
