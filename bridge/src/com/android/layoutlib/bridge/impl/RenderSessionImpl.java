@@ -77,6 +77,8 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
+import android.view.ViewRootImpl;
+import android.view.ViewRootImpl_Accessor;
 import android.view.WindowManagerImpl;
 import android.widget.ActionMenuView;
 import android.widget.FrameLayout;
@@ -1212,6 +1214,19 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             // If the event was not consumed by a Window, pass it down to the root layout
             mViewRoot.dispatchKeyEvent(androidEvent);
         }
+    }
+
+    @Override
+    public void release() {
+        super.release();
+        if (mViewRoot == null) {
+            return;
+        }
+        ViewRootImpl viewRootImpl = mViewRoot.getViewRootImpl();
+        if (viewRootImpl == null) {
+            return;
+        }
+        ViewRootImpl_Accessor.detachFromWindow(viewRootImpl);
     }
 
     private void disposeImageSurface() {
