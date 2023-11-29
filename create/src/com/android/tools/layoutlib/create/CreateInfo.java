@@ -336,6 +336,11 @@ public final class CreateInfo implements ICreateInfo {
         "android.view.Choreographer#mCallbackQueues", // required for tests only
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
         "android.view.ViewRootImpl#mTmpFrames",
+        "android.view.accessibility.AccessibilityInteractionClient#sCaches",
+        "android.view.accessibility.AccessibilityInteractionClient#sClients",
+        "android.view.accessibility.AccessibilityInteractionClient#sConnectionCache",
+        "android.view.accessibility.AccessibilityInteractionClient#sDirectConnectionCount",
+        "android.view.accessibility.AccessibilityInteractionClient#sScrollingWindows",
         "com.android.internal.util.ArrayUtils#sCache",
     };
 
