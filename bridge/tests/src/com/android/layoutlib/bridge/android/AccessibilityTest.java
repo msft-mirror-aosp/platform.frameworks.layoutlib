@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityInteractionClient;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.io.FileNotFoundException;
@@ -64,6 +65,7 @@ public class AccessibilityTest extends RenderTestBase {
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
+            assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
             View rootView = (View)session.getSystemRootViews().get(0).getViewObject();
             AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
             assertNotNull(rootNode);
@@ -150,6 +152,7 @@ public class AccessibilityTest extends RenderTestBase {
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
+            assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
             View rootView =
                     (View)((View) session.getSystemRootViews().get(1).getViewObject()).getParent();
             int[] counter = {0};
@@ -159,6 +162,7 @@ public class AccessibilityTest extends RenderTestBase {
                 rootNode.setQueryFromAppProcessEnabled(rootView, true);
                 traverseAccessibilityTree(rootNode, counter);
             });
+            assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
             assertEquals(17, counter[0]);
         } finally {
             session.dispose();

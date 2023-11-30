@@ -43,6 +43,7 @@ import android.view.IWindowManagerImpl;
 import android.view.Surface;
 import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
+import android.view.accessibility.AccessibilityInteractionClient_Accessor;
 import android.view.inputmethod.InputMethodManager_Accessor;
 
 import java.util.Collections;
@@ -313,6 +314,7 @@ public abstract class RenderAction<T extends RenderParams> {
         ParserFactory.setParserFactory(null);
 
         PropertyValuesHolder_Accessor.clearClassCaches();
+        AccessibilityInteractionClient_Accessor.clearCaches();
     }
 
     public static BridgeContext getCurrentContext() {
