@@ -38,6 +38,8 @@ import com.android.resources.ScreenOrientation;
 import android.R.id;
 import android.annotation.NonNull;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -194,6 +196,25 @@ class Layout extends FrameLayout {
         //addView(createSysUiOverlay(mBuilder.mContext));
         // Done with the builder. Don't hold a reference to it.
         mBuilder = null;
+    }
+
+    @Override
+    public boolean getChildVisibleRect(View child, Rect r, Point offset, boolean forceParentCheck) {
+        return r.intersect(0, 0, getWidth(), getHeight());
+    }
+
+    @Override
+    public boolean getGlobalVisibleRect(Rect r, Point globalOffset) {
+        int width = mRight - mLeft;
+        int height = mBottom - mTop;
+        if (width > 0 && height > 0) {
+            r.set(0, 0, width, height);
+            if (globalOffset != null) {
+                globalOffset.set(-mScrollX, -mScrollY);
+            }
+            return true;
+        }
+        return false;
     }
 
     @NonNull
