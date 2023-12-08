@@ -154,6 +154,7 @@ public final class CreateInfo implements ICreateInfo {
         new ActivityThreadInAnimationReplacer(),
         new ReferenceRefersToReplacer(),
         new HtmlApplicationResourceReplacer(),
+        new NativeAllocationRegistryApplyFreeFunctionReplacer(),
     };
 
     /**
@@ -274,6 +275,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.view.MotionEvent",
         "android.view.Surface",
         "com.android.internal.util.VirtualRefBasePtr",
+        "libcore.util.NativeAllocationRegistry",
     };
 
     /**
@@ -670,6 +672,21 @@ public final class CreateInfo implements ICreateInfo {
             mi.name = "getResources";
             mi.opcode = Opcodes.INVOKESTATIC;
             mi.desc = "(Landroid/app/Application;)Landroid/content/res/Resources;";
+        }
+    }
+
+    public static class NativeAllocationRegistryApplyFreeFunctionReplacer
+        implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return "libcore/util/NativeAllocationRegistry".equals(owner) &&
+                    "applyFreeFunction".equals(name) && "(JJ)V".equals(desc);
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "libcore/util/NativeAllocationRegistry_Delegate";
+            mi.opcode = Opcodes.INVOKESTATIC;
         }
     }
 }

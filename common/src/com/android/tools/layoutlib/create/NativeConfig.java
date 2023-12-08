@@ -154,7 +154,6 @@ public class NativeConfig {
             "libcore.io.MemoryMappedFile#bigEndianIterator",
             "libcore.io.MemoryMappedFile#close",
             "libcore.io.MemoryMappedFile#mmapRO",
-            "libcore.util.NativeAllocationRegistry#applyFreeFunction",
     };
 
     public final static String[] DELEGATE_CLASS_NATIVES = new String[] {
@@ -182,7 +181,7 @@ public class NativeConfig {
             "android.view.MotionEvent",
             "android.view.Surface",
             "com.android.internal.util.VirtualRefBasePtr",
-            "libcore.util.NativeAllocationRegistry_Delegate",
+            "libcore.util.NativeAllocationRegistry",
     };
 
     /**
