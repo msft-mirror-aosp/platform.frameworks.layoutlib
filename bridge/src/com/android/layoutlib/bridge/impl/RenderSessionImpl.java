@@ -375,11 +375,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mViewRoot.getViewRootImpl().mTmpFrames.displayFrame.set(mViewRoot.getLeft(),
                     mViewRoot.getTop(), mViewRoot.getRight(), mViewRoot.getBottom());
 
-            ViewRootImpl rootImpl = AttachInfo_Accessor.getRootView(mViewRoot);
-            if (rootImpl != null) {
-                ViewRootImpl_Accessor.setChild(rootImpl, mViewRoot);
-            }
-
             mSystemViewInfoList =
                     visitAllChildren(mViewRoot, 0, 0, params, false);
 
@@ -1211,6 +1206,19 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             // If the event was not consumed by a Window, pass it down to the root layout
             mViewRoot.dispatchKeyEvent(androidEvent);
         }
+    }
+
+    @Override
+    public void release() {
+        super.release();
+        if (mViewRoot == null) {
+            return;
+        }
+        ViewRootImpl viewRootImpl = mViewRoot.getViewRootImpl();
+        if (viewRootImpl == null) {
+            return;
+        }
+        ViewRootImpl_Accessor.detachFromWindow(viewRootImpl);
     }
 
     private void disposeImageSurface() {

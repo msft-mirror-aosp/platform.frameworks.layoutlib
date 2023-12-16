@@ -41,6 +41,8 @@ import com.android.internal.R;
 import com.android.internal.policy.DecorView;
 import com.android.layoutlib.bridge.Bridge;
 
+import java.util.ArrayList;
+
 public class WindowManagerImpl implements WindowManager {
 
     private final Context mContext;
@@ -179,16 +181,32 @@ public class WindowManagerImpl implements WindowManager {
             }
         }
         mCurrentRootView.addView(arg0, frameLayoutParams);
+        ViewRootImpl_Accessor.setChild(mBaseRootView.getViewRootImpl(), arg0);
     }
 
     @Override
     public void removeView(View arg0) {
+        ViewRootImpl viewRootImpl = arg0.getViewRootImpl();
         if (mCurrentRootView != null) {
             mCurrentRootView.removeView(arg0);
             if (mBaseRootView != null && mCurrentRootView.getChildCount() == 0) {
                 mBaseRootView.removeView(mCurrentRootView);
                 mCurrentRootView = null;
             }
+        }
+        if (viewRootImpl != null && viewRootImpl.getView() == arg0) {
+            View newRoot = null;
+            if (mCurrentRootView != null && mCurrentRootView.getChildCount() > 0) {
+                ArrayList<View> childrenList = mCurrentRootView.buildOrderedChildList();
+                newRoot = childrenList.get(childrenList.size() - 1);
+            } else if (mBaseRootView != null) {
+                View root = mBaseRootView;
+                while (root.getParent() instanceof View) {
+                    root = (View)root.getParent();
+                }
+                newRoot = root;
+            }
+            ViewRootImpl_Accessor.setChild(viewRootImpl, newRoot);
         }
     }
 

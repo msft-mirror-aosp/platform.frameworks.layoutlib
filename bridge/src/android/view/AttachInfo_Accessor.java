@@ -37,6 +37,8 @@ public class AttachInfo_Accessor {
         info.mInTouchMode = false; // this is so that we can display selections.
         info.mHardwareAccelerated = false;
         info.mApplicationScale = 1.0f;
+        ViewRootImpl_Accessor.setChild(root, view);
+        view.assignParent(root);
         view.dispatchAttachedToWindow(info, 0);
     }
 
