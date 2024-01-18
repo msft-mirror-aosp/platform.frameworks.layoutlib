@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package android.permission;
+package android.view.accessibility;
 
-import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
-
-import android.content.pm.PackageManager;
-
-public class PermissionManager_Delegate {
-
-    @LayoutlibDelegate
-    public static int checkPermission(String permission, int pid, int uid, int deviceId) {
-        return PackageManager.PERMISSION_GRANTED;
+public class AccessibilityInteractionClient_Accessor {
+    public static void clearCaches() {
+        AccessibilityInteractionClient.sCaches.clear();
+        AccessibilityInteractionClient.sClients.clear();
+        AccessibilityInteractionClient.sConnectionCache.clear();
+        AccessibilityInteractionClient.sScrollingWindows.clear();
+        AccessibilityInteractionClient.sDirectConnectionCount = 0;
     }
 }

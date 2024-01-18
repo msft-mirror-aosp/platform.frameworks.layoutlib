@@ -250,6 +250,9 @@ public final class BridgeInflater extends LayoutInflater {
      */
     @Nullable
     private View createViewFromCustomInflater(@NotNull String name, @NotNull AttributeSet attrs) {
+        if (!mLayoutlibCallback.shouldUseCustomInflater()) {
+            return null;
+        }
         if (mCustomInflater == null) {
             Context context = getContext();
             context = getBaseContext(context);

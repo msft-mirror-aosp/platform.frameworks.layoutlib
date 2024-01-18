@@ -36,4 +36,9 @@ public class VMRuntime_Delegate {
     /*package*/ static int getNotifyNativeInterval() {
         return VMRuntimeCommonHelper.getNotifyNativeInterval();
     }
+
+    @LayoutlibDelegate
+    public static boolean is64Bit(VMRuntime runtime) {
+        return true;
+    }
 }

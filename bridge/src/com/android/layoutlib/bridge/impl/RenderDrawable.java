@@ -39,6 +39,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -78,7 +79,7 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
             return Status.ERROR_NOT_A_DRAWABLE.createResult();
         }
 
-        Drawable d = ResourceHelper.getDrawable(drawableResource, context);
+        Drawable d = ResourceHelper.getDrawable(drawableResource, context, context.getTheme());
         if (d == null) {
             return Status.ERROR_NOT_A_DRAWABLE.createResult();
         }
@@ -128,15 +129,6 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
             // Use screen size when either intrinsic width or height isn't available.
             w = screenWidth;
             h = screenHeight;
-        } else if (w > screenWidth || h > screenHeight) {
-            // If image wouldn't fit to the screen, resize it to avoid cropping.
-
-            // We need to find scale such that scale * w <= screenWidth, scale * h <= screenHeight.
-            double scale = Math.min((double) screenWidth / w, (double) screenHeight / h);
-
-            // scale * w / scale * h = w / h, so, proportions are preserved.
-            w = (int) Math.floor(scale * w);
-            h = (int) Math.floor(scale * h);
         }
 
         int w_spec = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
@@ -149,46 +141,30 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
         // Pre-draw setup.
         AttachInfo_Accessor.dispatchOnPreDraw(content);
 
-        // Draw into a new image.
-        BufferedImage image = getImage(w, h);
-
-        // Create an Android bitmap around the BufferedImage.
-        Bitmap bitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(),
-                Config.ARGB_8888);
-        bitmap.setPixels(image.getRGB(0, 0, image.getWidth(), image.getHeight(),
-                null, 0, image.getWidth()), 0, image.getWidth(), 0, 0, image
-                .getWidth(), image.getHeight());
-
-        // Create a Canvas around the Android bitmap.
+        Bitmap bitmap = Bitmap.createBitmap(w, h, Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         canvas.setDensity(hardwareConfig.getDensity().getDpiValue());
 
         // Draw.
         content.draw(canvas);
-        int[] pixels = new int[image.getWidth() * image.getHeight()];
-        bitmap.getPixels(pixels, 0, image.getWidth(), 0, 0, image.getWidth(),
+
+        if (w > screenWidth || h > screenHeight) {
+            // If image wouldn't fit to the screen, resize it to avoid cropping.
+
+            // We need to find scale such that scale * w <= screenWidth, scale * h <= screenHeight.
+            double scale = Math.min((double) screenWidth / w, (double) screenHeight / h);
+            bitmap = Bitmap.createScaledBitmap(bitmap, (int) (w * scale), (int) (h * scale), true);
+        }
+
+        // Copy bitmap into BufferedImage.
+        BufferedImage image = new BufferedImage(bitmap.getWidth(), bitmap.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        int[] imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        bitmap.getPixels(imageData, 0, image.getWidth(), 0, 0, image.getWidth(),
                 image.getHeight());
-        image.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
         // Detach root from window after draw.
         AttachInfo_Accessor.detachFromWindow(content);
-
-        return image;
-    }
-
-    @NonNull
-    protected BufferedImage getImage(int w, int h) {
-        BufferedImage image = new BufferedImage(w > 0 ? w : 1,
-                h > 0 ? h : 1,
-                BufferedImage.TYPE_INT_ARGB);
-        Graphics2D gc = image.createGraphics();
-        gc.setComposite(AlphaComposite.Src);
-
-        gc.setColor(new Color(0x00000000, true));
-        gc.fillRect(0, 0, w, h);
-
-        // done
-        gc.dispose();
 
         return image;
     }
