@@ -155,6 +155,7 @@ public final class CreateInfo implements ICreateInfo {
         new ReferenceRefersToReplacer(),
         new HtmlApplicationResourceReplacer(),
         new NativeAllocationRegistryApplyFreeFunctionReplacer(),
+        new LineBreakConfigApplicationInfoReplacer(),
     };
 
     /**
@@ -687,6 +688,23 @@ public final class CreateInfo implements ICreateInfo {
         public void replace(MethodInformation mi) {
             mi.owner = "libcore/util/NativeAllocationRegistry_Delegate";
             mi.opcode = Opcodes.INVOKESTATIC;
+        }
+    }
+
+    public static class LineBreakConfigApplicationInfoReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return "android/graphics/text/LineBreakConfig".equals(sourceClass) &&
+                    "android/app/Application".equals(owner) &&
+                    name.equals("getApplicationInfo");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "android/app/Application_Delegate";
+            mi.name = "getApplicationInfo";
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.desc = "(Landroid/app/Application;)Landroid/content/pm/ApplicationInfo;";
         }
     }
 }
