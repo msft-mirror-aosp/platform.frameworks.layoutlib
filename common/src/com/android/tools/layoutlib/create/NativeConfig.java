@@ -126,7 +126,6 @@ public class NativeConfig {
             "android.view.LayoutInflater#rInflate",
             "android.view.MenuInflater#registerMenu",
             "android.view.PointerIcon#loadResource",
-            "android.view.PointerIcon#registerDisplayListener",
             "android.view.SurfaceControl#nativeCreateTransaction",
             "android.view.SurfaceControl#nativeGetNativeTransactionFinalizer",
             "android.view.VelocityTracker#obtain",
