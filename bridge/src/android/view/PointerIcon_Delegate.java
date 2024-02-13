@@ -24,8 +24,7 @@ import android.content.res.Resources;
 public class PointerIcon_Delegate {
 
     @LayoutlibDelegate
-    /*package*/ static void loadResource(PointerIcon icon, Context context, Resources resources,
-            int resourceId) {
+    /*package*/ static void loadResource(PointerIcon icon, Resources resources, int resourceId) {
         // HACK: This bypasses the problem of having an enum resolved as a resourceId.
         // PointerIcon would not be displayed by layoutlib anyway, so we always return the null
         // icon.
