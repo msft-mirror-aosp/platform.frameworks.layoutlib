@@ -106,4 +106,9 @@ class CreateInfoAdapter implements ICreateInfo {
     public String[] getDeferredStaticInitializerClasses() {
         return EMPTY_STRING_ARRAY;
     }
+
+    @Override
+    public String[] getRemovedFinalModifierFields() {
+        return EMPTY_STRING_ARRAY;
+    }
 }

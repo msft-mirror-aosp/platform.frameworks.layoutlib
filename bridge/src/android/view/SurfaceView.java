@@ -18,11 +18,17 @@ package android.view;
 
 import com.android.layoutlib.bridge.MockView;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.os.IBinder;
 import android.util.AttributeSet;
+import android.view.SurfaceControl.Transaction;
+
+import java.util.function.Consumer;
 
 /**
  * Mock version of the SurfaceView.
@@ -50,6 +56,11 @@ public class SurfaceView extends MockView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    public SurfaceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes, boolean disableBackgroundLayer) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
     public boolean gatherTransparentRegion(Region region) {
       return false;
     }
@@ -60,11 +71,73 @@ public class SurfaceView extends MockView {
     public void setZOrderOnTop(boolean onTop) {
     }
 
+    public boolean isZOrderedOnTop() {
+        return false;
+    }
+
+    public boolean setZOrderedOnTop(boolean onTop, boolean allowDynamicChange) {
+        return true;
+    }
+
     public void setSecure(boolean isSecure) {
     }
 
     public SurfaceHolder getHolder() {
         return mSurfaceHolder;
+    }
+
+    public void setUseAlpha() {
+    }
+
+    public void setEnableSurfaceClipping(boolean enabled) {
+    }
+
+    public void setCornerRadius(float cornerRadius) {
+    }
+
+    public float getCornerRadius() {
+        return 0;
+    }
+
+    public void setSurfaceLifecycle(int lifecycleStrategy) {
+    }
+
+    public String getName() {
+        return "MockSurfaceView";
+    }
+
+    public void requestUpdateSurfacePositionAndScale() {
+    }
+
+    public @NonNull Rect getSurfaceRenderPosition() {
+        return new Rect();
+    }
+
+    public boolean isFixedSize() {
+        return true;
+    }
+
+    public void setResizeBackgroundColor(int bgColor) {
+    }
+
+    public void setResizeBackgroundColor(@NonNull SurfaceControl.Transaction t, int bgColor) {
+    }
+
+    public SurfaceControl getSurfaceControl() {
+        return null;
+    }
+
+    public @Nullable IBinder getHostToken() {
+        return null;
+    }
+
+    public void setChildSurfacePackage(@NonNull SurfaceControlViewHost.SurfacePackage p) {
+    }
+
+    public void syncNextFrame(Consumer<Transaction> t) {
+    }
+
+    public void applyTransactionToFrame(@NonNull SurfaceControl.Transaction transaction) {
     }
 
     private SurfaceHolder mSurfaceHolder = new SurfaceHolder() {

@@ -30,7 +30,7 @@ java_binary_host {
         "guava",
         "layoutlib-common",
         "layoutlib_create-classpath",
-        "atf-prebuilt-502584086",
+        "atf-prebuilt-557133692",
         "libprotobuf-java-lite",
     ],
 }
