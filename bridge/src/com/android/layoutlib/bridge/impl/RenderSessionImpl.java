@@ -582,6 +582,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 mRenderer.setLightSourceGeometry(mMeasuredScreenWidth / 2, lightY, lightZ, lightRadius);
                 mRenderer.setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha);
                 mRenderer.draw(mViewRoot);
+                // Wait for render thread to finish rendering
+                mRenderer.fence();
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
 
