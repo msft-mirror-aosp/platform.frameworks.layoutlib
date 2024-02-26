@@ -28,8 +28,8 @@ public class PermissionManager_Delegate {
     }
 
     @LayoutlibDelegate
-    public static int checkPermission(String permissionName, String packageName,
-            String persistentDeviceId, int userId) {
+    public static int checkPermission(PermissionManager thisManager, String permissionName,
+            String packageName, String persistentDeviceId) {
         return PackageManager.PERMISSION_GRANTED;
     }
 }
