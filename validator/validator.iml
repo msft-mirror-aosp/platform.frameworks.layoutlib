@@ -14,5 +14,6 @@
     <orderEntry type="library" name="guava" level="project" />
     <orderEntry type="library" name="jsoup" level="project" />
     <orderEntry type="library" name="libprotobuf-java-lite" level="project" />
+    <orderEntry type="library" scope="TEST" name="hamcrest" level="project" />
   </component>
 </module>
