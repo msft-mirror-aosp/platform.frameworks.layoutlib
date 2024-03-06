@@ -36,7 +36,6 @@ import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.BitmapDrawable;
 import android.widget.ImageView;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class SysUiResources {
@@ -67,10 +66,8 @@ public class SysUiResources {
         return null;
     }
 
-    public static ImageView loadIcon(Context context, int api, ImageView imageView, String
-            iconName,
-            Density density, boolean
-            isRtl) {
+    public static ImageView loadIcon(Context context, int api, ImageView imageView,
+            String iconName, Density density, boolean isRtl, int color) {
         LayoutDirection dir = isRtl ? LayoutDirection.RTL : null;
         IconLoader iconLoader = new IconLoader(iconName, density, api,
                 dir);
@@ -90,6 +87,7 @@ public class SysUiResources {
 
             if (bitmap != null) {
                 BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+                drawable.setTint(color);
                 imageView.setImageDrawable(drawable);
             }
         }
