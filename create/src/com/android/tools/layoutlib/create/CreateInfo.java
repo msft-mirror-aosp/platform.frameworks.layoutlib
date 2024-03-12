@@ -129,6 +129,11 @@ public final class CreateInfo implements ICreateInfo {
         return DEFERRED_STATIC_INITIALIZER_CLASSES;
     }
 
+    @Override
+    public String[] getRemovedFinalModifierFields() {
+        return REMOVED_FINAL_MODIFIER_FIELDS;
+    }
+
     //-----
 
     private static final MethodReplacer[] METHOD_REPLACERS = new MethodReplacer[] {
@@ -331,6 +336,11 @@ public final class CreateInfo implements ICreateInfo {
         "android.view.Choreographer#mCallbackQueues", // required for tests only
         "android.view.Choreographer$CallbackQueue#mHead", // required for tests only
         "android.view.ViewRootImpl#mTmpFrames",
+        "android.view.accessibility.AccessibilityInteractionClient#sCaches",
+        "android.view.accessibility.AccessibilityInteractionClient#sClients",
+        "android.view.accessibility.AccessibilityInteractionClient#sConnectionCache",
+        "android.view.accessibility.AccessibilityInteractionClient#sDirectConnectionCount",
+        "android.view.accessibility.AccessibilityInteractionClient#sScrollingWindows",
         "com.android.internal.util.ArrayUtils#sCache",
     };
 
@@ -380,6 +390,12 @@ public final class CreateInfo implements ICreateInfo {
 
     private final static Map<String, InjectMethodRunnable> INJECTED_METHODS = Map.of(
             "android.content.Context", InjectMethodRunnables.CONTEXT_GET_FRAMEWORK_CLASS_LOADER);
+
+    /**
+     * List of fields for which we will remove the final modifier.
+     */
+    private final static String[] REMOVED_FINAL_MODIFIER_FIELDS =
+            new String[]{"android.animation.AnimationHandler#sAnimatorHandler"};
 
     public static class LinkedHashMapEldestReplacer implements MethodReplacer {
 

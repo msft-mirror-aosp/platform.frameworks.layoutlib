@@ -16,4 +16,13 @@
         <item name="android:windowBackground">@drawable/theme_attribute_drawable</item>
     </style>
 
+    <style name="LightStatusBarTheme" parent="android:Theme.Material.Light.DarkActionBar">
+        <item name="android:statusBarColor">#ffff0000</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="DarkStatusBarTheme" parent="android:Theme.Material.Light.DarkActionBar">
+        <item name="android:statusBarColor">#ffff0000</item>
+    </style>
+
 </resources>
