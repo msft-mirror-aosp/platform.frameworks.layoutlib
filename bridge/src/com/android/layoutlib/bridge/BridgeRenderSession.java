@@ -22,6 +22,7 @@ import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.Result;
+import com.android.ide.common.rendering.api.Result.Status;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.internal.lang.System_Delegate;
 import com.android.internal.util.ArrayUtils_Delegate;
@@ -208,6 +209,14 @@ public class BridgeRenderSession extends RenderSession {
                 mSession.release();
                 Bridge.cleanupThread();
             }
+        }
+    }
+
+    @Override
+    public void releaseRender() {
+        mLastResult = Status.ERROR_NOT_INFLATED.createResult("Render was disposed");
+        if (mSession != null) {
+            mSession.releaseRender();
         }
     }
 
