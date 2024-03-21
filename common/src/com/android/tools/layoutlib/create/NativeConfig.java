@@ -139,6 +139,7 @@ public class NativeConfig {
             "android.view.WindowManagerGlobal#getWindowManagerService",
             "android.view.accessibility.AccessibilityManager#getInstance",
             "android.view.accessibility.AccessibilityManager#getWindowTransformationSpec",
+            "android.view.flags.Flags#sensitiveContentAppProtection",
             "android.view.inputmethod.InputMethodManager#hideSoftInputFromWindow",
             "android.view.inputmethod.InputMethodManager#isInEditMode",
             "android.view.inputmethod.InputMethodManager#showSoftInput",
