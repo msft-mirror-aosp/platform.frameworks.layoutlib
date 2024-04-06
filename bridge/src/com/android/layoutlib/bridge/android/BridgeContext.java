@@ -1069,7 +1069,7 @@ public class BridgeContext extends Context {
     @Override
     public PackageManager getPackageManager() {
         if (mPackageManager == null) {
-            mPackageManager = new BridgePackageManager();
+            mPackageManager = new BridgePackageManager(this);
         }
         return mPackageManager;
     }
