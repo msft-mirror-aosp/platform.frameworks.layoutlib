@@ -17,12 +17,27 @@
 package android.view;
 
 import android.content.Context;
+import android.graphics.Insets;
+import android.util.Pair;
 import android.view.View.AttachInfo;
+import android.view.Window.OnContentApplyWindowInsetsListener;
+
+import static android.view.View.SYSTEM_UI_LAYOUT_FLAGS;
 
 /**
  * Class allowing access to package-protected methods/fields.
  */
 public class AttachInfo_Accessor {
+    // Copied from PhoneWindow.java
+    private static final OnContentApplyWindowInsetsListener sDefaultContentInsetsApplier =
+            (view, insets) -> {
+                if ((view.getWindowSystemUiVisibility() & SYSTEM_UI_LAYOUT_FLAGS) != 0) {
+                    return new Pair<>(Insets.NONE, insets);
+                }
+                Insets insetsToApply = insets.getSystemWindowInsets();
+                return new Pair<>(insetsToApply,
+                        insets.inset(insetsToApply).consumeSystemWindowInsets());
+            };
 
     public static LayoutlibRenderer setAttachInfo(ViewGroup view) {
         Context context = view.getContext();
@@ -31,6 +46,7 @@ public class AttachInfo_Accessor {
         Display display = wm.getDefaultDisplay();
         ViewRootImpl root = new ViewRootImpl(context, display, new IWindowSession.Default(),
                 new WindowLayout());
+        root.setOnContentApplyWindowInsetsListener(sDefaultContentInsetsApplier);
         LayoutlibRenderer renderer = new LayoutlibRenderer(context, false, "layoutlib-renderer");
         AttachInfo info = root.mAttachInfo;
         info.mThreadedRenderer = renderer;
