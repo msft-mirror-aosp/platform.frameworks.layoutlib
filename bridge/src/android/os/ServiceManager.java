@@ -16,6 +16,8 @@
 
 package android.os;
 
+import android.content.Context;
+
 import java.util.Map;
 
 public final class ServiceManager {
@@ -34,7 +36,11 @@ public final class ServiceManager {
      * Is not supposed to return null, but that is fine for layoutlib.
      */
     public static IBinder getServiceOrThrow(String name) throws ServiceNotFoundException {
-        throw new ServiceNotFoundException(name);
+        if (Context.UI_MODE_SERVICE.equals(name)) {
+            // Avoid exception in constructor of UiModeManager
+            return null;
+        }
+        return null;
     }
 
     /**
