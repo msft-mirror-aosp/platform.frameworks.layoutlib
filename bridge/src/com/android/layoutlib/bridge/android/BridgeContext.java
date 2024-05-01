@@ -48,6 +48,8 @@ import android.app.ActivityManager_Accessor;
 import android.app.AppOpsManager;
 import android.app.AppOpsManager_Accessor;
 import android.app.SystemServiceRegistry;
+import android.app.UiModeManager;
+import android.app.UiModeManager_Accessor;
 import android.content.BroadcastReceiver;
 import android.content.ClipboardManager;
 import android.content.ComponentCallbacks;
@@ -183,6 +185,7 @@ public class BridgeContext extends Context {
     private final AudioManager mAudioManager;
     private final InputManager mInputManager;
     private final AppOpsManager mAppOpsManager;
+    private final UiModeManager mUiModeManager;
     private final HashMap<View, Integer> mScrollYPos = new HashMap<>();
     private final HashMap<View, Integer> mScrollXPos = new HashMap<>();
 
@@ -278,6 +281,7 @@ public class BridgeContext extends Context {
         mAudioManager = new AudioManager(this);
         mInputManager = new InputManager(this);
         mAppOpsManager = AppOpsManager_Accessor.getAppOpsManagerInstance(this);
+        mUiModeManager = UiModeManager_Accessor.getUiModeManagerInstance(this);
 
         if (mLayoutlibCallback.isResourceNamespacingRequired()) {
             if (mLayoutlibCallback.hasAndroidXAppCompat()) {
@@ -723,6 +727,9 @@ public class BridgeContext extends Context {
 
             case APP_OPS_SERVICE:
                 return mAppOpsManager;
+
+            case UI_MODE_SERVICE:
+                return mUiModeManager;
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
