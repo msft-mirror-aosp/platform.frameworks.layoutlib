@@ -26,15 +26,8 @@ public class NativeConfig {
 
     public final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES = new String [] {
             "android.graphics.ColorSpace",
-            "android.graphics.FontFamily",
             "android.graphics.Matrix",
-            "android.graphics.Path",
-            // Order is important! Fonts and FontFamily have to be initialized before Typeface
-            "android.graphics.fonts.Font",
-            "android.graphics.fonts.FontFamily$Builder",
             "android.graphics.Typeface",
-            "android.graphics.text.PositionedGlyphs",
-            "android.graphics.text.LineBreaker",
     };
 
     public static final String[] DELEGATE_METHODS = new String[] {
