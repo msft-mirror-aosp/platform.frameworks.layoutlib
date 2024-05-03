@@ -226,6 +226,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.LinearGradient",
         "android.graphics.MaskFilter",
         "android.graphics.Matrix",
+        "android.graphics.Matrix$ExtraNatives",
         "android.graphics.NinePatch",
         "android.graphics.Paint",
         "android.graphics.PaintFlagsDrawFilter",
