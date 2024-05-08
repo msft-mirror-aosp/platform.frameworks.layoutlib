@@ -83,6 +83,12 @@ public final class RenderParamsFlags {
     public static final Key<Boolean> FLAG_KEY_USE_THEMED_ICON =
             new Key<>("useThemedIcon", Boolean.class);
 
+    /**
+     * To tell Layoutlib to the gesture navigation, instead of a button navigation bar.
+     */
+    public static final Key<Boolean> FLAG_KEY_USE_GESTURE_NAV =
+            new Key<>("useGestureNav", Boolean.class);
+
     // Disallow instances.
     private RenderParamsFlags() {}
 }
