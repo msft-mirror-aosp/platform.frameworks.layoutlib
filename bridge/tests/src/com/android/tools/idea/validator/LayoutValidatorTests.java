@@ -17,20 +17,22 @@
 package com.android.tools.idea.validator;
 
 import com.android.ide.common.rendering.api.SessionParams;
-import com.android.layoutlib.bridge.intensive.RenderTestBase;
+import com.android.layoutlib.bridge.android.RenderTestBase;
+import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
-import com.android.layoutlib.bridge.intensive.setup.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
+import com.android.layoutlib.common.util.ReflectionUtils;
 import com.android.tools.idea.validator.ValidatorData.CompoundFix;
 import com.android.tools.idea.validator.ValidatorData.Issue;
 import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.idea.validator.ValidatorData.SetViewAttributeFix;
-
 import com.android.tools.idea.validator.ValidatorData.Type;
 
 import org.junit.Test;
 
+import android.util.SparseArray;
 import android.view.View;
+import android.view.accessibility.AccessibilityInteractionClient;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -56,7 +58,7 @@ public class LayoutValidatorTests extends RenderTestBase {
 
     @Test
     public void testEnsureObtainCharacterLocation() {
-        assertFalse(LayoutValidator.obtainCharacterLocations());
+        assertTrue(LayoutValidator.obtainCharacterLocations());
     }
 
     @Test
@@ -74,6 +76,9 @@ public class LayoutValidatorTests extends RenderTestBase {
                 .build();
 
         renderAndVerify(params, "a11y_test1.png");
+        Object connectionCache = ReflectionUtils.getFieldValue(AccessibilityInteractionClient.class,
+                AccessibilityInteractionClient.getInstance(), "sConnectionCache");
+        assertEquals(0, ((SparseArray)connectionCache).size());
     }
 
     @Test
@@ -84,7 +89,9 @@ public class LayoutValidatorTests extends RenderTestBase {
                     null,
                     SCALE_X_FOR_NEXUS_5,
                     SCALE_Y_FOR_NEXUS_5);
-            assertEquals(30, result.getIssues().size());
+            assertEquals(4, result.getSrcMap().size());
+            assertEquals(4, result.getNodeInfoMap().size());
+            assertEquals(31, result.getIssues().size());
             ArrayList<Issue> errorIssues = new ArrayList<>();
             for (Issue issue : result.getIssues()) {
                 assertEquals(Type.ACCESSIBILITY, issue.mType);
@@ -172,7 +179,7 @@ public class LayoutValidatorTests extends RenderTestBase {
                         null,
                         SCALE_X_FOR_NEXUS_5,
                         SCALE_Y_FOR_NEXUS_5);
-                assertEquals(27, result.getIssues().size());
+                assertEquals(26, result.getIssues().size());
                 result.getIssues().forEach(issue ->assertEquals(Level.VERBOSE, issue.mLevel));
             });
         } finally {

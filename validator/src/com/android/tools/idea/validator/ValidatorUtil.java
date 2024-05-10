@@ -98,6 +98,12 @@ public class ValidatorUtil {
             TextContrastCheck.class, TouchTargetSizeCheck.class,  EditableContentDescCheck.class);
 
     /**
+     * The maximum allowed length of the requested text location data is used to avoid the
+     * performance issue caused by obtaining character location data for a view with a long text.
+     */
+    public static final int CHARACTER_LOCATION_ARG_MAX_LENGTH = 100;
+
+    /**
      * @param policy policy to apply for the hierarchy
      * @param view root view to build hierarchy from
      * @param image screenshot image that matches the view
@@ -122,8 +128,11 @@ public class ValidatorUtil {
         try {
             hierarchy.mView = AccessibilityHierarchyAndroid
                     .newBuilder(view)
+                    .enableViewOverlay()
                     .setViewOriginMap(builder.mSrcMap)
+                    .setNodeInfoOriginMap(builder.mNodeInfoMap)
                     .setObtainCharacterLocations(LayoutValidator.obtainCharacterLocations())
+                    .setCharacterLocationArgMaxLength(CHARACTER_LOCATION_ARG_MAX_LENGTH)
                     .setCustomViewBuilder(new CustomViewBuilderAndroid() {
                         @Override
                         public Class<?> getClassByName(

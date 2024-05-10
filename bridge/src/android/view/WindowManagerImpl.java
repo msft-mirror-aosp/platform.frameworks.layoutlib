@@ -16,6 +16,7 @@
 package android.view;
 
 import static android.view.View.SYSTEM_UI_FLAG_VISIBLE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
@@ -27,6 +28,8 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
@@ -35,7 +38,10 @@ import android.widget.FrameLayout;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.internal.R;
+import com.android.internal.policy.DecorView;
 import com.android.layoutlib.bridge.Bridge;
+
+import java.util.ArrayList;
 
 public class WindowManagerImpl implements WindowManager {
 
@@ -103,10 +109,14 @@ public class WindowManagerImpl implements WindowManager {
             FrameLayout layout = new FrameLayout(mContext) {
                 @Override
                 public boolean dispatchTouchEvent(MotionEvent ev) {
+                    float offsetX = - getX();
+                    float offsetY = - getY();
                     View baseRootParent = (View)mBaseRootView.getParent();
                     if (baseRootParent != null) {
-                        ev.offsetLocation(-baseRootParent.getX(), -baseRootParent.getY());
+                        offsetX -= baseRootParent.getX();
+                        offsetY -= baseRootParent.getY();
                     }
+                    ev.offsetLocation(offsetX, offsetY);
                     return super.dispatchTouchEvent(ev);
                 }
 
@@ -143,8 +153,12 @@ public class WindowManagerImpl implements WindowManager {
                 event.offsetLocation(-arg0.getX(), -arg0.getY());
                 return arg0.dispatchTouchEvent(event);
             });
-            mBaseRootView.addView(layout, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
+            int layoutMode = WRAP_CONTENT;
+            if (arg0 instanceof DecorView) {
+                // DecorView background should cover the entire screen
+                layoutMode = MATCH_PARENT;
+            }
+            mBaseRootView.addView(layout, new FrameLayout.LayoutParams(layoutMode, layoutMode));
             mCurrentRootView = layout;
         }
 
@@ -154,13 +168,25 @@ public class WindowManagerImpl implements WindowManager {
             frameLayoutParams.gravity = params.gravity;
             if ((params.flags & LayoutParams.FLAG_DIM_BEHIND) != 0) {
                 mCurrentRootView.setBackgroundColor(Color.argb(params.dimAmount, 0, 0, 0));
+            } else {
+                int backgroundColor = Color.WHITE;
+                Drawable background = mBaseRootView.getBackground();
+                if (background == null) {
+                    background = mBaseRootView.getRootView().getBackground();
+                }
+                if (background instanceof ColorDrawable) {
+                    backgroundColor = ((ColorDrawable) background).getColor();
+                }
+                mCurrentRootView.setBackgroundColor(backgroundColor);
             }
         }
         mCurrentRootView.addView(arg0, frameLayoutParams);
+        ViewRootImpl_Accessor.setChild(mBaseRootView.getViewRootImpl(), arg0);
     }
 
     @Override
     public void removeView(View arg0) {
+        ViewRootImpl viewRootImpl = arg0.getViewRootImpl();
         if (mCurrentRootView != null) {
             mCurrentRootView.removeView(arg0);
             if (mBaseRootView != null && mCurrentRootView.getChildCount() == 0) {
@@ -168,11 +194,42 @@ public class WindowManagerImpl implements WindowManager {
                 mCurrentRootView = null;
             }
         }
+        if (viewRootImpl != null && viewRootImpl.getView() == arg0) {
+            View newRoot = null;
+            if (mCurrentRootView != null && mCurrentRootView.getChildCount() > 0) {
+                ArrayList<View> childrenList = mCurrentRootView.buildOrderedChildList();
+                newRoot = childrenList.get(childrenList.size() - 1);
+            } else if (mBaseRootView != null) {
+                View root = mBaseRootView;
+                while (root.getParent() instanceof View) {
+                    root = (View)root.getParent();
+                }
+                newRoot = root;
+            }
+            ViewRootImpl_Accessor.setChild(viewRootImpl, newRoot);
+        }
     }
 
     @Override
-    public void updateViewLayout(View arg0, android.view.ViewGroup.LayoutParams arg1) {
-        // pass
+    public void updateViewLayout(View view, android.view.ViewGroup.LayoutParams params) {
+        if (view == null) {
+            throw new IllegalArgumentException("view must not be null");
+        }
+        if (!(params instanceof WindowManager.LayoutParams)) {
+            throw new IllegalArgumentException("Params must be WindowManager.LayoutParams");
+        }
+
+        WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
+        FrameLayout.LayoutParams lparams = new FrameLayout.LayoutParams(params);
+        lparams.gravity = wparams.gravity;
+        view.setLayoutParams(lparams);
+        if (mCurrentRootView != null) {
+            Rect bounds = new Rect();
+            mBaseRootView.getBoundsOnScreen(bounds);
+            mCurrentRootView.setX(wparams.x - bounds.left);
+            mCurrentRootView.setY(wparams.y - bounds.top);
+            mCurrentRootView.setElevation(view.getElevation());
+        }
     }
 
 
@@ -233,16 +290,15 @@ public class WindowManagerImpl implements WindowManager {
     private WindowInsets computeWindowInsets() {
         try {
             final InsetsState insetsState = new InsetsState();
-            final boolean alwaysConsumeSystemBars =
-                    WindowManagerGlobal.getWindowManagerService().getWindowInsets(
-                            new WindowManager.LayoutParams(), mContext.getDisplayId(), insetsState);
+            WindowManagerGlobal.getWindowManagerService().getWindowInsets(mContext.getDisplayId(),
+                    null /* token */, insetsState);
             final Configuration config = mContext.getResources().getConfiguration();
             final boolean isScreenRound = config.isScreenRound();
-            final int windowingMode = config.windowConfiguration.getWindowingMode();
+            final int activityType = config.windowConfiguration.getActivityType();
             return insetsState.calculateInsets(getCurrentBounds(mContext),
-                    null /* ignoringVisibilityState*/, isScreenRound, alwaysConsumeSystemBars,
-                    SOFT_INPUT_ADJUST_NOTHING, 0, SYSTEM_UI_FLAG_VISIBLE, TYPE_APPLICATION,
-                    windowingMode, null /* typeSideMap */);
+                    null /* ignoringVisibilityState */, isScreenRound, SOFT_INPUT_ADJUST_NOTHING,
+                    0 /* legacySystemUiFlags */, SYSTEM_UI_FLAG_VISIBLE, TYPE_APPLICATION,
+                    activityType, null /* typeSideMap */);
         } catch (RemoteException ignore) {
         }
         return null;

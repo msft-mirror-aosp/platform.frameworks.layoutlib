@@ -27,6 +27,9 @@ import android.os.PowerSaveState;
 import android.os.RemoteException;
 import android.os.WorkSource;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Fake implementation of IPowerManager.
  */
@@ -38,6 +41,16 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public boolean isDisplayInteractive(int displayId) {
+        return true;
+    }
+
+    @Override
+    public boolean areAutoPowerSaveModesEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
     public boolean isPowerSaveMode() throws RemoteException {
         return false;
     }
@@ -45,6 +58,11 @@ public class BridgePowerManager implements IPowerManager {
     @Override
     public boolean setPowerSaveModeEnabled(boolean mode) throws RemoteException {
         return false;
+    }
+
+    @Override
+    public boolean isBatterySaverSupported() throws RemoteException {
+        return true;
     }
 
     @Override
@@ -147,6 +165,12 @@ public class BridgePowerManager implements IPowerManager {
 
     @Override
     public void goToSleep(long arg0, int arg1, int arg2) throws RemoteException {
+        // pass for now.
+    }
+
+    @Override
+    public void goToSleepWithDisplayId(int arg0, long arg1, int arg2, int arg3)
+            throws RemoteException {
         // pass for now.
     }
 
@@ -256,6 +280,47 @@ public class BridgePowerManager implements IPowerManager {
     @Override
     public boolean isLowPowerStandbyEnabled() {
         return false;
+    }
+
+    @Override
+    public void setLowPowerStandbyPolicy(LowPowerStandbyPolicy policy) {
+        // pass for now.
+    }
+
+    @Override
+    public LowPowerStandbyPolicy getLowPowerStandbyPolicy() {
+        return null;
+    }
+
+    @Override
+    public boolean isExemptFromLowPowerStandby() {
+        return true;
+    }
+
+    @Override
+    public boolean isReasonAllowedInLowPowerStandby(int reason) {
+        return true;
+    }
+
+    @Override
+    public boolean isFeatureAllowedInLowPowerStandby(String feature) {
+        return true;
+    }
+
+    @Override
+    public void acquireLowPowerStandbyPorts(IBinder token,
+            List<LowPowerStandbyPortDescription> ports) {
+        // pass for now
+    }
+
+    @Override
+    public void releaseLowPowerStandbyPorts(IBinder token) {
+        // pass for now
+    }
+
+    @Override
+    public List<LowPowerStandbyPortDescription> getActiveLowPowerStandbyPorts() {
+        return Collections.emptyList();
     }
 
     @Override

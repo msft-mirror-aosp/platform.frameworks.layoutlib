@@ -211,7 +211,7 @@ public final class BridgeTypedArray extends TypedArray {
         if (resourceValue instanceof TextResourceValue) {
             String rawValue =
                     ValueXmlHelper.unescapeResourceString(resourceValue.getRawXmlValue(),
-                            true, false);
+                            true, true);
             if (rawValue != null && !rawValue.equals(value)) {
                 return ResourceHelper.parseHtml(rawValue);
             }
@@ -907,7 +907,7 @@ public final class BridgeTypedArray extends TypedArray {
             boolean found = false;
 
             String value = mResourceData[index].getValue();
-            if (!value.isEmpty()) {
+            if (value != null && !value.isEmpty()) {
                 // Check if the value string is already representing an integer and return it if so.
                 // Resources coming from res.apk in an AAR may have flags and enums in integer form.
                 char c = value.charAt(0);

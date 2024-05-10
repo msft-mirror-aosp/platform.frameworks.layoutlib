@@ -87,6 +87,8 @@ public class Resources_Delegate {
                 "Resources_Delegate.initSystem called twice before disposeSystem was called";
         Resources resources = new Resources(Resources_Delegate.class.getClassLoader());
         resources.setImpl(new ResourcesImpl(assets, metrics, config, new DisplayAdjustments()));
+        resources.getConfiguration().windowConfiguration.setMaxBounds(0, 0, metrics.widthPixels,
+                metrics.heightPixels);
         sContexts.put(resources, Objects.requireNonNull(context));
         sLayoutlibCallbacks.put(resources, Objects.requireNonNull(layoutlibCallback));
         return Resources.mSystem = resources;
@@ -220,26 +222,19 @@ public class Resources_Delegate {
             try {
                 return ResourceHelper.getColor(resourceValue.getValue());
             } catch (NumberFormatException e) {
-                // Check if the value passed is a file. If it is, mostly likely, user is referencing
-                // a color state list from a place where they should reference only a pure color.
-                AssetRepository repository = getAssetRepository(resources);
-                String message;
-                if (repository.isFileResource(resourceValue.getValue())) {
-                    String resource = (resourceValue.isFramework() ? "@android:" : "@") + "color/"
-                            + resourceValue.getName();
-                    message = "Hexadecimal color expected, found Color State List for " + resource;
-                } else {
-                    message = e.getMessage();
+                ColorStateList stateList = ResourceHelper.getColorStateList(resourceValue,
+                        getContext(resources), theme);
+                if (stateList != null) {
+                    return stateList.getDefaultColor();
                 }
-                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT, message, e, null, null);
+                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_FORMAT, resourceValue.getName() +
+                        " is neither a color value nor a color state list", null, null);
                 return 0;
             }
         }
 
-        // Suppress possible NPE. getColorStateList will never return null, it will instead
-        // throw an exception, but intelliJ can't figure that out
-        //noinspection ConstantConditions
-        return getColorStateList(resources, id, theme).getDefaultColor();
+        throwException(resources, id);
+        return 0;
     }
 
     @LayoutlibDelegate

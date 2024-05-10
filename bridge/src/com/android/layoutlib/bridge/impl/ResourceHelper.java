@@ -111,7 +111,7 @@ import static android.content.res.AssetManager.ACCESS_STREAMING;
 public final class ResourceHelper {
     private static final Key<Set<ResourceValue>> KEY_GET_DRAWABLE =
             Key.create("ResourceHelper.getDrawable");
-    private static final Pattern sFloatPattern = Pattern.compile("(-?[0-9]*(?:\\.[0-9]+)?)(.*)");
+    private static final Pattern sFloatPattern = Pattern.compile("(-?[0-9]*(?:\\.[0-9]*)?)(.*)");
     private static final float[] sFloatOut = new float[1];
 
     private static final TypedValue mValue = new TypedValue();
@@ -368,7 +368,7 @@ public final class ResourceHelper {
         if (value instanceof DensityBasedResourceValue) {
             density = ((DensityBasedResourceValue) value).getResourceDensity();
             if (density == Density.NODPI || density == Density.ANYDPI) {
-                density = Density.getEnum(context.getConfiguration().densityDpi);
+                density = Density.create(context.getConfiguration().densityDpi);
             }
         }
 
@@ -421,7 +421,8 @@ public final class ResourceHelper {
                         }
                         Options options = new Options();
                         options.inDensity = density.getDpiValue();
-                        bitmap = BitmapFactory.decodeStream(stream, null, options);
+                        Rect padding = new Rect();
+                        bitmap = BitmapFactory.decodeStream(stream, padding, options);
                         if (bitmap != null && bitmap.getNinePatchChunk() == null &&
                                 lowerCaseValue.endsWith(NinePatch.EXTENSION_9PATCH)) {
                             //We are dealing with a non-compiled nine patch.
@@ -441,14 +442,20 @@ public final class ResourceHelper {
 
                             bitmap.setDensity(options.inDensity);
                             bitmap.setNinePatchChunk(ninePatch.getChunk().getSerializedChunk());
+                            int[] padArray = ninePatch.getChunk().getPadding();
+                            padding.set(padArray[0], padArray[1], padArray[2], padArray[3]);
                         }
+                        Bridge.setCachedBitmapPadding(stringValue, padding,
+                                value.isFramework() ? null : context.getProjectKey());
                         Bridge.setCachedBitmap(stringValue, bitmap,
                                 value.isFramework() ? null : context.getProjectKey());
                     }
 
                     if (bitmap != null && bitmap.getNinePatchChunk() != null) {
+                        Rect padding = Bridge.getCachedBitmapPadding(stringValue,
+                                value.isFramework() ? null : context.getProjectKey());
                         return new NinePatchDrawable(context.getResources(), bitmap, bitmap
-                                .getNinePatchChunk(), new Rect(), lowerCaseValue);
+                                .getNinePatchChunk(), padding, lowerCaseValue);
                     } else {
                         return new BitmapDrawable(context.getResources(), bitmap);
                     }
@@ -474,7 +481,7 @@ public final class ResourceHelper {
      */
     public static Typeface getFont(String fontName, BridgeContext context, Theme theme, boolean
             isFramework) {
-        if (fontName == null) {
+        if (fontName == null || fontName.isBlank()) {
             return null;
         }
 
@@ -542,6 +549,9 @@ public final class ResourceHelper {
         String str = string.replaceAll("<li>", "<ul><li>")
                 .replaceAll("</li>","</li></ul>");
         int firstTagIndex = str.indexOf('<');
+        if (firstTagIndex == -1) {
+            return string;
+        }
         int lastTagIndex = str.lastIndexOf('>');
         StringBuilder stringBuilder = new StringBuilder(str.substring(0, firstTagIndex));
         List<Tag> tagList = new ArrayList<>();

@@ -21,6 +21,7 @@ import com.android.tools.idea.validator.ValidatorData.Level;
 import com.android.tools.layoutlib.annotations.NotNull;
 
 import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +36,21 @@ import com.google.common.collect.ImmutableBiMap;
 public class ValidatorResult {
 
     @NotNull private final ImmutableBiMap<Long, View> mSrcMap;
+    @NotNull private final ImmutableBiMap<Long, AccessibilityNodeInfo> mNodeInfoMap;
     @NotNull private final ArrayList<Issue> mIssues;
     @NotNull private final Metric mMetric;
 
     /**
      * Please use {@link Builder} for creating results.
      */
-    private ValidatorResult(BiMap<Long, View> srcMap, ArrayList<Issue> issues, Metric metric) {
+    private ValidatorResult(BiMap<Long, View> srcMap,
+            BiMap<Long, AccessibilityNodeInfo> nodeInfoMap,
+            ArrayList<Issue> issues,
+            Metric metric) {
         mSrcMap = ImmutableBiMap.<Long, View>builder().putAll(srcMap).build();
+        mNodeInfoMap = ImmutableBiMap.<Long, AccessibilityNodeInfo>builder()
+                .putAll(nodeInfoMap)
+                .build();
         mIssues = issues;
         mMetric = metric;
     }
@@ -52,6 +60,13 @@ public class ValidatorResult {
      */
     public ImmutableBiMap<Long, View> getSrcMap() {
         return mSrcMap;
+    }
+
+    /**
+     * @return the map from source ID to AccessibilityNodeInfo.
+     */
+    public ImmutableBiMap<Long, AccessibilityNodeInfo> getNodeInfoMap() {
+        return mNodeInfoMap;
     }
 
     /**
@@ -89,11 +104,12 @@ public class ValidatorResult {
 
     public static class Builder {
         @NotNull public final BiMap<Long, View> mSrcMap = HashBiMap.create();
+        @NotNull public final BiMap<Long, AccessibilityNodeInfo> mNodeInfoMap = HashBiMap.create();
         @NotNull public final ArrayList<Issue> mIssues = new ArrayList<>();
         @NotNull public final Metric mMetric = new Metric();
 
         public ValidatorResult build() {
-            return new ValidatorResult(mSrcMap, mIssues, mMetric);
+            return new ValidatorResult(mSrcMap, mNodeInfoMap, mIssues, mMetric);
         }
     }
 
