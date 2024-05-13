@@ -29,6 +29,7 @@ import com.android.layoutlib.bridge.bars.BridgeActionBar;
 import com.android.layoutlib.bridge.bars.Config;
 import com.android.layoutlib.bridge.bars.FrameworkActionBar;
 import com.android.layoutlib.bridge.bars.NavigationBar;
+import com.android.layoutlib.bridge.bars.NavigationHandle;
 import com.android.layoutlib.bridge.bars.StatusBar;
 import com.android.layoutlib.bridge.bars.TitleBar;
 import com.android.resources.Density;
@@ -54,6 +55,7 @@ import android.widget.RelativeLayout;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.VERTICAL;
+import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_USE_GESTURE_NAV;
 import static com.android.layoutlib.bridge.impl.ResourceHelper.getBooleanThemeFrameworkAttrValue;
 import static com.android.layoutlib.bridge.impl.ResourceHelper.getBooleanThemeValue;
 
@@ -145,7 +147,7 @@ class Layout extends FrameLayout {
         View appCompatActionBar = null;
         TitleBar titleBar = null;
         StatusBar statusBar = null;
-        NavigationBar navBar = null;
+        View navBar = null;
 
         if (builder.mWindowBackground != null) {
             Drawable d = ResourceHelper.getDrawable(builder.mWindowBackground, builder.mContext,
@@ -160,8 +162,8 @@ class Layout extends FrameLayout {
         setLayoutDirection(isRtl ? LAYOUT_DIRECTION_RTL : LAYOUT_DIRECTION_LTR);
 
         if (mBuilder.hasNavBar()) {
-            navBar = createNavBar(getContext(), density, isRtl, getParams().isRtlSupported(),
-                    simulatedPlatformVersion, false);
+            navBar = createNavBar(getContext(), mBuilder.useGestureNav(), density, isRtl,
+                    getParams().isRtlSupported(), simulatedPlatformVersion, false);
         }
 
         if (builder.hasStatusBar()) {
@@ -357,21 +359,27 @@ class Layout extends FrameLayout {
     }
 
     /**
+     * @param useGestureNav whether the system UI is using gesture navigation.
      * @param isRtl whether the current locale is an RTL locale.
      * @param isRtlSupported whether the applications supports RTL (i.e. has supportsRtl=true in the
      * manifest and targetSdkVersion >= 17.
      */
     @NonNull
-    private NavigationBar createNavBar(BridgeContext context, Density density, boolean isRtl,
-            boolean isRtlSupported, int simulatedPlatformVersion, boolean isQuickStepEnabled) {
+    private View createNavBar(BridgeContext context, boolean useGestureNav,
+            Density density, boolean isRtl, boolean isRtlSupported, int simulatedPlatformVersion,
+            boolean isQuickStepEnabled) {
         int orientation = mBuilder.mNavBarOrientation;
         int size = mBuilder.mNavBarSize;
         // Only allow quickstep in the latest version or >= 28
         isQuickStepEnabled = isQuickStepEnabled &&
                 (simulatedPlatformVersion == 0 || simulatedPlatformVersion >= 28);
-        NavigationBar navBar =
-                new NavigationBar(context, density, orientation, isRtl, isRtlSupported,
-                        simulatedPlatformVersion, isQuickStepEnabled);
+        View navBar;
+        if (useGestureNav) {
+            navBar = new NavigationHandle(context);
+        } else {
+            navBar = new NavigationBar(context, density, orientation, isRtl, isRtlSupported,
+                            simulatedPlatformVersion, isQuickStepEnabled);
+        }
         boolean isVertical = mBuilder.isNavBarVertical();
         int w = isVertical ? size : MATCH_PARENT;
         int h = isVertical ? MATCH_PARENT : size;
@@ -426,6 +434,7 @@ class Layout extends FrameLayout {
         private int mTitleBarSize;
         private boolean mTranslucentStatus;
         private boolean mTranslucentNav;
+        private boolean mUseGestureNav;
 
         public Builder(@NonNull SessionParams params, @NonNull BridgeContext context) {
             mParams = params;
@@ -538,11 +547,12 @@ class Layout extends FrameLayout {
 
         private void findNavBar() {
             if (hasSoftwareButtons() && !mWindowIsFloating) {
+                mUseGestureNav = Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_USE_GESTURE_NAV));
                 // get orientation
                 HardwareConfig hwConfig = mParams.getHardwareConfig();
                 boolean barOnBottom = true;
 
-                if (hwConfig.getOrientation() == ScreenOrientation.LANDSCAPE) {
+                if (hwConfig.getOrientation() == ScreenOrientation.LANDSCAPE && !mUseGestureNav) {
                     int shortSize = hwConfig.getScreenHeight();
                     int shortSizeDp = shortSize * DisplayMetrics.DENSITY_DEFAULT /
                             hwConfig.getDensity().getDpiValue();
@@ -601,6 +611,10 @@ class Layout extends FrameLayout {
         private boolean hasNavBar() {
             return Config.showOnScreenNavBar(mParams.getSimulatedPlatformVersion()) &&
                     hasSoftwareButtons() && mNavBarSize > 0;
+        }
+
+        private boolean useGestureNav() {
+            return mUseGestureNav;
         }
 
         private boolean hasTitleBar() {
