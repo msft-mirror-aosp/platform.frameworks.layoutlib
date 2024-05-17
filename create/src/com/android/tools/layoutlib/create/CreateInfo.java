@@ -205,7 +205,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Color",
         "android.graphics.ColorFilter",
         "android.graphics.ColorMatrixColorFilter",
-        "android.graphics.ColorSpace$Rgb",
+        "android.graphics.ColorSpace$Rgb$Native",
         "android.graphics.ComposePathEffect",
         "android.graphics.ComposeShader",
         "android.graphics.CornerPathEffect",

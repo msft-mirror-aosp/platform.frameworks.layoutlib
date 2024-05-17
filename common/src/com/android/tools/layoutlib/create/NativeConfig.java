@@ -25,8 +25,6 @@ public class NativeConfig {
     private NativeConfig() {}
 
     public final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES = new String [] {
-            "android.graphics.ColorSpace",
-            "android.graphics.Matrix",
             "android.graphics.Typeface",
     };
 
