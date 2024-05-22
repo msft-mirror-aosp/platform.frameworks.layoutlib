@@ -185,7 +185,7 @@ public class DynamicRenderResources extends RenderResources {
     private static void extractPalette(String name,
             Map<String, Integer> colorMap, TonalPalette tonalPalette) {
         String resourcePrefix = "system_" + name;
-        tonalPalette.getAllShadesMapped().forEach((key, value) -> {
+        tonalPalette.allShadesMapped.forEach((key, value) -> {
             String resourceName = resourcePrefix + "_" + key;
             int colorValue = ColorUtils.setAlphaComponent(value, 0xFF);
             colorMap.put(resourceName, colorValue);
