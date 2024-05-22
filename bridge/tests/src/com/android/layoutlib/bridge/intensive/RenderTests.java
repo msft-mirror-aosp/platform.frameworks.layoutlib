@@ -71,6 +71,7 @@ import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
 import static android.os._Original_Build.VERSION.SDK_INT;
+import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_USE_GESTURE_NAV;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -2174,5 +2175,54 @@ public class RenderTests extends RenderTestBase {
                         "using with higher APIs. To avoid, you can set a lower API for your " +
                         "previews.", SDK_INT)));
         assertTrue(hasApiError);
+    }
+
+    @Test
+    public void testGestureNavBar() throws ClassNotFoundException {
+        final String layout =
+                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:layout_width=\"match_parent\"\n" +
+                        "              android:layout_height=\"match_parent\">\n" + "\n" +
+                        "    <TextView\n" +
+                        "        android:layout_width=\"wrap_content\"\n" +
+                        "        android:layout_height=\"wrap_content\"\n" +
+                        "        android:text=\"Test gesture nav bar\"\n" +
+                        "        android:textSize=\"30sp\"/>\n" +
+                        "</FrameLayout>";
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(FLAG_KEY_USE_GESTURE_NAV, true);
+
+        renderAndVerify(params, "light_gesture_nav.png", TimeUnit.SECONDS.toNanos(2));
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(FLAG_KEY_USE_GESTURE_NAV, true);
+
+        renderAndVerify(params, "dark_gesture_nav.png", TimeUnit.SECONDS.toNanos(2));
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setConfigGenerator(ConfigGenerator.NEXUS_5_LAND)
+                .setTheme("Theme.Material", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(FLAG_KEY_USE_GESTURE_NAV, true);
+
+        renderAndVerify(params, "land_gesture_nav.png", TimeUnit.SECONDS.toNanos(2));
     }
 }
