@@ -64,7 +64,7 @@ public class AsmGeneratorTest {
     private String mOsDestJar;
     private File mTempFile;
 
-    // ASM internal name for the the class in java package that should be refactored.
+    // ASM internal name for the class in java package that should be refactored.
     private static final String JAVA_CLASS_NAME = "notjava.lang.JavaClass";
 
     @Before

@@ -19,6 +19,8 @@ package com.android.layoutlib.bridge.android;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.SessionParams;
+import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
+import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
@@ -28,9 +30,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityInteractionClient;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +64,7 @@ public class AccessibilityTest extends RenderTestBase {
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
+            assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
             View rootView = (View)session.getSystemRootViews().get(0).getViewObject();
             AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
             assertNotNull(rootNode);
@@ -69,6 +76,103 @@ public class AccessibilityTest extends RenderTestBase {
             assertEquals(75, child.getBoundsInScreen().bottom);
         } finally {
             session.dispose();
+        }
+    }
+
+    @Test
+    public void customHierarchyParserTest() throws FileNotFoundException,
+            ClassNotFoundException {
+        LayoutPullParser parser = createParserFromPath("allwidgets.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(ConfigGenerator.NEXUS_5)
+                .setCallback(layoutLibCallback)
+                .build();
+        params.setCustomContentHierarchyParser(viewObject -> {
+            List<ViewInfo> result = new ArrayList<>();
+            if (viewObject instanceof ViewGroup) {
+                ViewGroup view = (ViewGroup)viewObject;
+                for (int i = 0; i < view.getChildCount(); i++) {
+                    View child = view.getChildAt(i);
+                    ViewInfo childInfo =
+                            new ViewInfo(child.toString(), null, child.getLeft(), child.getTop(),
+                                    child.getRight(), child.getBottom(), child,
+                                    child.createAccessibilityNodeInfo(), null);
+                    childInfo.setChildren(null);
+                    result.add(childInfo);
+                }
+            }
+            return result;
+        });
+        RenderSession session = sBridge.createSession(params);
+        try {
+            Result renderResult = session.render(50000);
+            assertTrue(renderResult.isSuccess());
+            ViewInfo contentRootViewInfo = session.getRootViews().get(0);
+            contentRootViewInfo.getChildren().forEach(child -> {
+                assertNotNull(child.getAccessibilityObject());
+                assertEquals(0, child.getChildren().size());
+            });
+        } finally {
+            session.dispose();
+        }
+    }
+
+    @Test
+    public void testDialogAccessibility() throws Exception {
+        String layout =
+                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "              android:padding=\"16dp\"\n" +
+                        "              android:orientation=\"horizontal\"\n" +
+                        "              android:layout_width=\"fill_parent\"\n" +
+                        "              android:layout_height=\"fill_parent\">\n" +
+                        "    <com.android.layoutlib.test.myapplication.widgets.DialogView\n" +
+                        "             android:layout_height=\"wrap_content\"\n" +
+                        "             android:layout_width=\"wrap_content\" />\n" +
+                        "</LinearLayout>\n";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
+        RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(1);
+        try {
+            Result renderResult = session.render(50000);
+            assertTrue(renderResult.isSuccess());
+            assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
+            View rootView =
+                    (View)((View) session.getSystemRootViews().get(1).getViewObject()).getParent();
+            int[] counter = {0};
+            session.execute(() -> {
+                AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
+                assertNotNull(rootNode);
+                rootNode.setQueryFromAppProcessEnabled(rootView, true);
+                traverseAccessibilityTree(rootNode, counter);
+            });
+            assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
+            assertEquals(17, counter[0]);
+        } finally {
+            session.dispose();
+        }
+    }
+
+    private void traverseAccessibilityTree(AccessibilityNodeInfo node, int[] counter) {
+        int childrenSize = node.getChildCount();
+        for (int i = 0; i < childrenSize; i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            counter[0]++;
+            traverseAccessibilityTree(child, counter);
         }
     }
 }

@@ -32,8 +32,10 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
+import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
 import android.util.DisplayMetrics;
@@ -42,6 +44,7 @@ import android.view.IWindowManagerImpl;
 import android.view.Surface;
 import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
+import android.view.accessibility.AccessibilityInteractionClient_Accessor;
 import android.view.inputmethod.InputMethodManager_Accessor;
 
 import java.util.Collections;
@@ -51,6 +54,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static android.os._Original_Build.VERSION.SDK_INT;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_LOCK_INTERRUPTED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_TIMEOUT;
 import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
@@ -68,6 +72,12 @@ import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
  *
  */
 public abstract class RenderAction<T extends RenderParams> {
+    /**
+     * Static field to store an SDK version coming from the render configuration.
+     * This is to be accessed when wanting to know the simulated SDK version instead
+     * of Build.VERSION.SDK_INT.
+     */
+    public static int sSimulatedSdk;
 
     private static final Set<String> COMPOSE_CLASS_FQNS =
             Set.of("androidx.compose.ui.tooling.ComposeViewAdapter",
@@ -99,6 +109,7 @@ public abstract class RenderAction<T extends RenderParams> {
      */
     protected RenderAction(T params) {
         mParams = params;
+        sSimulatedSdk = SDK_INT;
     }
 
     /**
@@ -276,6 +287,7 @@ public abstract class RenderAction<T extends RenderParams> {
         ILayoutLog currentLog = mParams.getLog();
         Bridge.setLog(currentLog);
         mContext.getRenderResources().setLogger(currentLog);
+        AnimationHandler.sAnimatorHandler = mContext.getAnimationHandlerThreadLocal();
     }
 
     /**
@@ -303,6 +315,7 @@ public abstract class RenderAction<T extends RenderParams> {
         ParserFactory.setParserFactory(null);
 
         PropertyValuesHolder_Accessor.clearClassCaches();
+        AccessibilityInteractionClient_Accessor.clearCaches();
     }
 
     public static BridgeContext getCurrentContext() {
@@ -425,6 +438,11 @@ public abstract class RenderAction<T extends RenderParams> {
         config.fontScale = params.getFontScale();
         config.uiMode = params.getUiMode();
 
+        Rect bounds = new Rect(0, 0, hardwareConfig.getScreenWidth(),
+                hardwareConfig.getScreenHeight());
+        config.windowConfiguration.setBounds(bounds);
+        config.windowConfiguration.setAppBounds(bounds);
+        config.windowConfiguration.setMaxBounds(bounds);
         // TODO: fill in more config info.
 
         return config;
@@ -467,6 +485,14 @@ public abstract class RenderAction<T extends RenderParams> {
         if (sCurrentContext != null) {
             // quit HandlerThread created during this session.
             HandlerThread_Delegate.cleanUp(sCurrentContext);
+
+            AnimationHandler animationHandler =
+                    sCurrentContext.getAnimationHandlerThreadLocal().get();
+            if (animationHandler != null) {
+                animationHandler.mDelayedCallbackStartTime.clear();
+                animationHandler.mAnimationCallbacks.clear();
+                animationHandler.mCommitCallbacks.clear();
+            }
         }
 
         sCurrentContext = null;

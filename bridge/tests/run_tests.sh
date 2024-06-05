@@ -9,7 +9,7 @@ echo "BASE_DIR: $BASE_DIR"
 readonly FAILURE_DIR=layoutlib-test-failures
 readonly FAILURE_ZIP=layoutlib-test-failures.zip
 
-readonly CLEAN_TMP_FILES=0
+readonly CLEAN_TMP_FILES=1
 readonly USE_SOONG=1
 
 readonly APP_NAME="regression"
@@ -25,7 +25,7 @@ SDK="${BASE_DIR}/out/host/linux-x86/sdk/sdk*/android-sdk*"
 SDK_REPO="${BASE_DIR}/out/host/linux-x86/sdk-repo"
 FONT_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/fonts_intermediates"
 KEYBOARD_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/keyboards_intermediates"
-ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt72l.dat"
+ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt75l.dat"
 TMP_DIR=${OUT_DIR}"/layoutlib_tmp"
 
 PLATFORM=${TMP_DIR}/"android"
@@ -76,6 +76,7 @@ set +x
 
 
 # Create zip of all failure screenshots
+rm -f ${OUT_DIR}/${FAILURE_ZIP}
 if [[ -d "${OUT_DIR}/${FAILURE_DIR}" ]]; then
     zip -q -j -r ${OUT_DIR}/${FAILURE_ZIP} ${OUT_DIR}/${FAILURE_DIR}
 fi
