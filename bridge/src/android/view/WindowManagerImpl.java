@@ -15,15 +15,11 @@
  */
 package android.view;
 
-import static android.view.View.SYSTEM_UI_FLAG_VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
-import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
+import static com.android.layoutlib.bridge.util.InsetUtil.getCurrentBounds;
 
-import android.app.ResourcesManager;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -31,7 +27,6 @@ import android.graphics.Region;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.view.Display.Mode;
 import android.view.KeyboardShortcutGroup;
@@ -160,7 +155,9 @@ public class WindowManagerImpl implements WindowManager {
                 // DecorView background should cover the entire screen
                 layoutMode = MATCH_PARENT;
             }
-            mBaseRootView.addView(layout, new FrameLayout.LayoutParams(layoutMode, layoutMode));
+            // Always add a new "window" on top but underneath the System UI.
+            mBaseRootView.addView(layout, mBaseRootView.getChildCount() -1,
+                    new FrameLayout.LayoutParams(layoutMode, layoutMode));
             mCurrentRootView = layout;
         }
 
@@ -277,12 +274,6 @@ public class WindowManagerImpl implements WindowManager {
         return new WindowMetrics(bound, computeWindowInsets());
     }
 
-    private static Rect getCurrentBounds(Context context) {
-        synchronized (ResourcesManager.getInstance()) {
-            return context.getResources().getConfiguration().windowConfiguration.getBounds();
-        }
-    }
-
     @Override
     public WindowMetrics getMaximumWindowMetrics() {
         return new WindowMetrics(getMaximumBounds(), computeWindowInsets());
@@ -295,20 +286,10 @@ public class WindowManagerImpl implements WindowManager {
     }
 
     private WindowInsets computeWindowInsets() {
-        try {
-            final InsetsState insetsState = new InsetsState();
-            WindowManagerGlobal.getWindowManagerService().getWindowInsets(mContext.getDisplayId(),
-                    null /* token */, insetsState);
-            final Configuration config = mContext.getResources().getConfiguration();
-            final boolean isScreenRound = config.isScreenRound();
-            final int activityType = config.windowConfiguration.getActivityType();
-            return insetsState.calculateInsets(getCurrentBounds(mContext),
-                    null /* ignoringVisibilityState */, isScreenRound, SOFT_INPUT_ADJUST_NOTHING,
-                    0 /* legacySystemUiFlags */, SYSTEM_UI_FLAG_VISIBLE, TYPE_APPLICATION,
-                    activityType, null /* typeSideMap */);
-        } catch (RemoteException ignore) {
+        if (mBaseRootView == null) {
+            return null;
         }
-        return null;
+        return mBaseRootView.getViewRootImpl().getWindowInsets(true);
     }
 
     // ---- Extra methods for layoutlib ----
