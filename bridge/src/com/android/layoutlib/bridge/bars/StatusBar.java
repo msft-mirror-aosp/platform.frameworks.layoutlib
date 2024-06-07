@@ -18,81 +18,65 @@ package com.android.layoutlib.bridge.bars;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.RenderResources;
-import com.android.ide.common.rendering.api.ResourceNamespace;
+import com.android.internal.R;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
-import com.android.layoutlib.bridge.android.BridgeXmlBlockParser;
-import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
-import com.android.layoutlib.bridge.resources.IconLoader;
 import com.android.resources.Density;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
+import android.graphics.Color;
+import android.graphics.Insets;
+import android.graphics.PixelFormat;
+import android.view.Display;
+import android.view.DisplayCutout;
+import android.view.DisplayInfo;
 import android.view.Gravity;
+import android.view.InsetsFrameProvider;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.graphics.Color.WHITE;
 import static android.os._Original_Build.VERSION_CODES.M;
+import static android.view.WindowInsets.Type.mandatorySystemGestures;
+import static android.view.WindowInsets.Type.statusBars;
+import static android.view.WindowInsets.Type.tappableElement;
+import static android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_COLOR_SPACE_AGNOSTIC;
 import static com.android.layoutlib.bridge.bars.Config.getTimeColor;
 import static com.android.layoutlib.bridge.bars.Config.isGreaterOrEqual;
 
 public class StatusBar extends CustomBar {
 
-    private final int mSimulatedPlatformVersion;
-    /**
-     * Color corresponding to light_mode_icon_color_single_tone
-     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
-     */
-    private static final int LIGHT_ICON_COLOR = 0xffffffff;
-    /**
-     * Color corresponding to dark_mode_icon_color_single_tone
-     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
-     */
-    private static final int DARK_ICON_COLOR = 0x99000000;
     /** Status bar background color attribute name. */
     private static final String ATTR_COLOR = "statusBarColor";
     /** Attribute for translucency property. */
     public static final String ATTR_TRANSLUCENT = "windowTranslucentStatus";
 
-    /**
-     * Constructor to be used when creating the {@link StatusBar} as a regular control. This
-     * is currently used by the theme editor.
-     */
-    @SuppressWarnings("UnusedParameters")
-    public StatusBar(Context context, AttributeSet attrs) {
-        this((BridgeContext) context,
-                Density.create(((BridgeContext) context).getMetrics().densityDpi),
-                ((BridgeContext) context).getConfiguration().getLayoutDirection() ==
-                        View.LAYOUT_DIRECTION_RTL,
-                (context.getApplicationInfo().flags & ApplicationInfo.FLAG_SUPPORTS_RTL) != 0,
-                context.getApplicationInfo().targetSdkVersion);
-    }
-
     @SuppressWarnings("UnusedParameters")
     public StatusBar(BridgeContext context, Density density, boolean isRtl, boolean rtlEnabled,
-            int simulatedPlatformVersion) {
+            boolean isEdgeToEdge, int simulatedPlatformVersion) {
         // FIXME: if direction is RTL but it's not enabled in application manifest, mirror this bar.
         super(context, LinearLayout.HORIZONTAL, "status_bar.xml", simulatedPlatformVersion);
-        mSimulatedPlatformVersion = simulatedPlatformVersion;
 
         // FIXME: use FILL_H?
         setGravity(Gravity.START | Gravity.TOP | Gravity.RIGHT);
 
-        int color = getBarColor(ATTR_COLOR, ATTR_TRANSLUCENT);
-        setBackgroundColor(color == 0 ? Config.getStatusBarColor(simulatedPlatformVersion) : color);
+        int backgroundColor;
+        if (isEdgeToEdge) {
+            backgroundColor = Color.TRANSPARENT;
+        } else {
+            int color = getBarColor(ATTR_COLOR, ATTR_TRANSLUCENT);
+            backgroundColor = color == 0 ? Config.getStatusBarColor(simulatedPlatformVersion) : color;
+        }
+        setBackgroundColor(backgroundColor);
 
         List<ImageView> icons = new ArrayList<>(2);
         TextView clockView = null;
@@ -112,7 +96,8 @@ public class StatusBar extends CustomBar {
             return;
         }
 
-        int foregroundColor = getForegroundColor(simulatedPlatformVersion);
+        int foregroundColor =
+                isEdgeToEdge ? DARK_ICON_COLOR : getForegroundColor(simulatedPlatformVersion);
         // Cannot access the inside items through id because no R.id values have been
         // created for them.
         // We do know the order though.
@@ -148,40 +133,80 @@ public class StatusBar extends CustomBar {
     }
 
     @Override
-    protected ImageView loadIcon(ImageView imageView, String iconName, Density density, int color) {
-        if (!iconName.endsWith(".xml")) {
-            return super.loadIcon(imageView, iconName, density, color);
-        }
-
-        // The xml is stored only in xhdpi.
-        IconLoader iconLoader = new IconLoader(iconName, Density.XHIGH,
-                mSimulatedPlatformVersion, null);
-        InputStream stream = iconLoader.getIcon();
-
-        if (stream != null) {
-            try {
-                BridgeXmlBlockParser parser =
-                        new BridgeXmlBlockParser(
-                                ParserFactory.create(stream, iconName),
-                                (BridgeContext) mContext,
-                                ResourceNamespace.ANDROID);
-                Drawable drawable = Drawable.createFromXml(mContext.getResources(), parser);
-                drawable.setTint(color);
-                imageView.setImageDrawable(drawable);
-            } catch (XmlPullParserException e) {
-                Bridge.getLog().error(ILayoutLog.TAG_BROKEN, "Unable to draw wifi icon", e,
-                        null, null);
-            } catch (IOException e) {
-                Bridge.getLog().error(ILayoutLog.TAG_BROKEN, "Unable to draw wifi icon", e,
-                        null, null);
-            }
-        }
-
-        return imageView;
-    }
-
-    @Override
     protected TextView getStyleableTextView() {
         return null;
+    }
+
+    // Copied/adapted from packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
+    public WindowManager.LayoutParams getBarLayoutParams() {
+        int rotation = Surface.ROTATION_0;
+        if (getOrientation() == LinearLayout.VERTICAL) {
+            rotation = Surface.ROTATION_90;
+        }
+        return getBarLayoutParamsForRotation(rotation);
+    }
+
+    // Copied/adapted from packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
+    private WindowManager.LayoutParams getBarLayoutParamsForRotation(int rotation) {
+        int height = getStatusBarHeightForRotation(mContext, rotation);
+        WindowManager.LayoutParams lp = createWindowParams(height);
+        final InsetsFrameProvider gestureInsetsProvider =
+                new InsetsFrameProvider(this, 0, mandatorySystemGestures());
+        final int safeTouchRegionHeight = mContext.getResources().getDimensionPixelSize(
+                com.android.internal.R.dimen.display_cutout_touchable_region_size);
+        if (safeTouchRegionHeight > 0) {
+            gestureInsetsProvider.setMinimalInsetsSizeInDisplayCutoutSafe(
+                    Insets.of(0, safeTouchRegionHeight, 0, 0));
+        }
+        lp.providedInsets = new InsetsFrameProvider[]{
+                new InsetsFrameProvider(this, 0, statusBars()).setInsetsSize(getInsets(height)),
+                new InsetsFrameProvider(this, 0, tappableElement()).setInsetsSize(
+                        getInsets(height)), gestureInsetsProvider};
+        return lp;
+
+    }
+
+    // Copied/adapted from packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
+    private static int getStatusBarHeightForRotation(Context context,
+            @Surface.Rotation int targetRot) {
+        final Display display = context.getDisplay();
+        final int rotation = display.getRotation();
+        final DisplayCutout cutout = display.getCutout();
+        DisplayInfo info = new DisplayInfo();
+        display.getDisplayInfo(info);
+        Insets insets;
+        Insets waterfallInsets;
+        if (cutout == null) {
+            insets = Insets.NONE;
+            waterfallInsets = Insets.NONE;
+        } else {
+            DisplayCutout rotated =
+                    cutout.getRotated(info.logicalWidth, info.logicalHeight, rotation, targetRot);
+            insets = Insets.of(rotated.getSafeInsets());
+            waterfallInsets = rotated.getWaterfallInsets();
+        }
+        final int defaultSize =
+                context.getResources().getDimensionPixelSize(R.dimen.status_bar_height_default);
+        // The status bar height should be:
+        // Max(top cutout size, (status bar default height + waterfall top size))
+        return Math.max(insets.top, defaultSize + waterfallInsets.top);
+    }
+
+    private static WindowManager.LayoutParams createWindowParams(int height) {
+        WindowManager.LayoutParams lp =
+                new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, height,
+                        WindowManager.LayoutParams.TYPE_STATUS_BAR,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                                WindowManager.LayoutParams.FLAG_SPLIT_TOUCH |
+                                WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS,
+                        PixelFormat.TRANSLUCENT);
+        lp.privateFlags |= PRIVATE_FLAG_COLOR_SPACE_AGNOSTIC;
+        lp.gravity = Gravity.TOP;
+        lp.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+        return lp;
+    }
+
+    private static Insets getInsets(int height) {
+        return Insets.of(0, height, 0, 0);
     }
 }

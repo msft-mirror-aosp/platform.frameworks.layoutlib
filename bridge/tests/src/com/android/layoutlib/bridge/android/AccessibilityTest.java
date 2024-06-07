@@ -66,15 +66,17 @@ public class AccessibilityTest extends RenderTestBase {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
             assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
-            View rootView = (View)session.getSystemRootViews().get(0).getViewObject();
-            AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
-            assertNotNull(rootNode);
-            rootNode.setQueryFromAppProcessEnabled(rootView, true);
-            assertEquals(38, rootNode.getChildCount());
-            AccessibilityNodeInfo child = rootNode.getChild(0);
-            assertNotNull(child);
-            assertEquals(136, child.getBoundsInScreen().right);
-            assertEquals(75, child.getBoundsInScreen().bottom);
+            session.execute(() -> {
+                View rootView = (View) session.getSystemRootViews().get(0).getViewObject();
+                AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
+                assertNotNull(rootNode);
+                rootNode.setQueryFromAppProcessEnabled(rootView, true);
+                assertEquals(37, rootNode.getChildCount());
+                AccessibilityNodeInfo child = rootNode.getChild(0);
+                assertNotNull(child);
+                assertEquals(147, child.getBoundsInScreen().right);
+                assertEquals(346, child.getBoundsInScreen().bottom);
+            });
         } finally {
             session.dispose();
         }
