@@ -1902,6 +1902,13 @@ public class BridgeContext extends Context {
         // pass
     }
 
+    public void sendOrderedBroadcastAsUserMultiplePermissions(Intent intent, UserHandle user,
+            String[] receiverPermissions, int appOp, Bundle options,
+            BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
+            String initialData, Bundle initialExtras) {
+        // pass
+    }
+
     @Override
     public void sendStickyBroadcast(Intent arg0) {
         // pass
