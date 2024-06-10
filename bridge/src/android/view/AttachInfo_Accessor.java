@@ -65,6 +65,10 @@ public class AttachInfo_Accessor {
         view.mAttachInfo.mTreeObserver.dispatchOnPreDraw();
     }
 
+    public static void dispatchOnGlobalLayout(View view) {
+        view.mAttachInfo.mTreeObserver.dispatchOnGlobalLayout();
+    }
+
     public static void detachFromWindow(final View view) {
         if (view != null) {
             final View.AttachInfo attachInfo = view.mAttachInfo;
