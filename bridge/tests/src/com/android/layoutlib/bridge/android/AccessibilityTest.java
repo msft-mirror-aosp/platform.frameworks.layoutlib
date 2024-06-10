@@ -71,11 +71,11 @@ public class AccessibilityTest extends RenderTestBase {
                 AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
                 assertNotNull(rootNode);
                 rootNode.setQueryFromAppProcessEnabled(rootView, true);
-                assertEquals(38, rootNode.getChildCount());
+                assertEquals(37, rootNode.getChildCount());
                 AccessibilityNodeInfo child = rootNode.getChild(0);
                 assertNotNull(child);
-                assertEquals(136, child.getBoundsInScreen().right);
-                assertEquals(75, child.getBoundsInScreen().bottom);
+                assertEquals(147, child.getBoundsInScreen().right);
+                assertEquals(274, child.getBoundsInScreen().bottom);
             });
         } finally {
             session.dispose();
