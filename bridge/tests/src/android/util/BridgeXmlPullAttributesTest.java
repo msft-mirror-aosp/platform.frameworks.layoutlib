@@ -20,8 +20,10 @@ import com.android.ide.common.rendering.api.LayoutlibCallback;
 import com.android.ide.common.rendering.api.RenderResources;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceNamespace.Resolver;
+import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.layoutlib.bridge.BridgeConstants;
 import com.android.layoutlib.bridge.android.BridgeContext;
+import com.android.tools.layoutlib.annotations.NotNull;
 
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParser;
@@ -34,12 +36,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BridgeXmlPullAttributesTest {
-
-    @Test
-    public void testGetAttributeIntValueForEnums() {
-        RenderResources renderResources = new RenderResources();
-
+    @NotNull
+    private static XmlPullParser prepareParser() {
         XmlPullParser parser = mock(XmlPullParser.class);
+
         when(parser.getAttributeValue(BridgeConstants.NS_RESOURCES, "layout_width"))
                 .thenReturn("match_parent");
         when(parser.getAttributeName(0)).thenReturn("layout_width");
@@ -50,34 +50,53 @@ public class BridgeXmlPullAttributesTest {
         when(parser.getAttributeName(1)).thenReturn("my_custom_attr");
         when(parser.getAttributeNamespace(1)).thenReturn(BridgeConstants.NS_APP_RES_AUTO);
 
-        BridgeContext context = mock(BridgeContext.class);
-        when(context.getRenderResources()).thenReturn(renderResources);
+        return parser;
+    }
 
+    @NotNull
+    private static BridgeContext prepareContext() {
+        BridgeContext context = mock(BridgeContext.class);
+        RenderResources renderResources = new RenderResources() {
+            @Override
+            public ResourceValue resolveResValue(ResourceValue value) {
+                // Simulate behaviour from the actual resolver where a failed resolution will
+                // return the passed value.
+                return value;
+            }
+        };
+        when(context.getRenderResources()).thenReturn(renderResources);
         LayoutlibCallback callback = mock(LayoutlibCallback.class);
         when(callback.getImplicitNamespaces()).thenReturn(Resolver.EMPTY_RESOLVER);
         when(context.getLayoutlibCallback()).thenReturn(callback);
 
-        BridgeXmlPullAttributes attributes = new BridgeXmlPullAttributes(
-                parser,
-                context,
-                ResourceNamespace.RES_AUTO,
-                attrName -> {
-                    if ("layout_width".equals(attrName)) {
-                        return ImmutableMap.of(
-                                "match_parent", 123);
-                    }
-                    return ImmutableMap.of();
-                },
-                (ns, attrName) -> {
-                    if ("my_custom_attr".equals(attrName)) {
-                        return ImmutableMap.of(
-                                "a", 1,
-                                "b", 2
-                        );
-                    }
-                    return ImmutableMap.of();
-                });
+        return context;
+    }
 
+    private final XmlPullParser parser = prepareParser();
+    private final BridgeContext context = prepareContext();
+    private final  BridgeXmlPullAttributes attributes = new BridgeXmlPullAttributes(
+            parser,
+            context,
+            ResourceNamespace.RES_AUTO,
+            attrName -> {
+                if ("layout_width".equals(attrName)) {
+                    return ImmutableMap.of(
+                            "match_parent", 123);
+                }
+                return ImmutableMap.of();
+            },
+            (ns, attrName) -> {
+                if ("my_custom_attr".equals(attrName)) {
+                    return ImmutableMap.of(
+                            "a", 1,
+                            "b", 2
+                    );
+                }
+                return ImmutableMap.of();
+            });
+
+    @Test
+    public void testGetAttributeIntValueForEnums() {
         // Test a framework defined enum attribute
         assertEquals(123, attributes.getAttributeIntValue(BridgeConstants.NS_RESOURCES,
                 "layout_width", 500));
@@ -115,4 +134,11 @@ public class BridgeXmlPullAttributesTest {
                 "my_other_attr", 500));
     }
 
+    @Test
+    public void testNotExistingAttributes() {
+        assertEquals(501, attributes.getAttributeUnsignedIntValue(BridgeConstants.NS_APP_RES_AUTO,
+                "my_other_attr", 501));
+        assertEquals(502, attributes.getAttributeResourceValue(BridgeConstants.NS_APP_RES_AUTO,
+                "my_other_attr", 502));
+    }
 }

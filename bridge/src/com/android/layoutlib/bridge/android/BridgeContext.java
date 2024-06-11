@@ -40,11 +40,16 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.animation.AnimationHandler;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityManager_Accessor;
+import android.app.AppOpsManager;
+import android.app.AppOpsManager_Accessor;
 import android.app.SystemServiceRegistry;
+import android.app.UiModeManager;
+import android.app.UiModeManager_Accessor;
 import android.content.BroadcastReceiver;
 import android.content.ClipboardManager;
 import android.content.ComponentCallbacks;
@@ -71,6 +76,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.hardware.EmptySensorManager;
 import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
@@ -81,6 +87,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Looper;
+import android.os.NullVibrator;
+import android.os.NullVibratorManager;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -170,12 +178,14 @@ public class BridgeContext extends Context {
     private final LayoutlibCallback mLayoutlibCallback;
     private final WindowManager mWindowManager;
     private final DisplayManager mDisplayManager;
-    private final AutofillManager mAutofillManager;
+    private AutofillManager mAutofillManager;
     private final ClipboardManager mClipboardManager;
     private final ActivityManager mActivityManager;
     private final ConnectivityManager mConnectivityManager;
     private final AudioManager mAudioManager;
     private final InputManager mInputManager;
+    private final AppOpsManager mAppOpsManager;
+    private final UiModeManager mUiModeManager;
     private final HashMap<View, Integer> mScrollYPos = new HashMap<>();
     private final HashMap<View, Integer> mScrollXPos = new HashMap<>();
 
@@ -199,10 +209,12 @@ public class BridgeContext extends Context {
     private Boolean mIsThemeAppCompat;
     private boolean mUseThemedIcon;
     private Context mApplicationContext;
+    private AccessibilityManager mAccessibilityManager;
     private final ResourceNamespace mAppCompatNamespace;
     private final Map<Key<?>, Object> mUserData = new HashMap<>();
 
     private final SessionInteractiveData mSessionInteractiveData;
+    private final ThreadLocal<AnimationHandler> mAnimationHandlerThreadLocal = new ThreadLocal<>();
 
     /**
      * Some applications that target both pre API 17 and post API 17, set the newer attrs to
@@ -263,12 +275,13 @@ public class BridgeContext extends Context {
 
         mWindowManager = new WindowManagerImpl(this, mMetrics);
         mDisplayManager = new DisplayManager(this);
-        mAutofillManager = new AutofillManager(this, new Default());
         mClipboardManager = new ClipboardManager(this, null);
         mActivityManager = ActivityManager_Accessor.getActivityManagerInstance(this);
         mConnectivityManager = new ConnectivityManager(this, null);
         mAudioManager = new AudioManager(this);
         mInputManager = new InputManager(this);
+        mAppOpsManager = AppOpsManager_Accessor.getAppOpsManagerInstance(this);
+        mUiModeManager = UiModeManager_Accessor.getUiModeManagerInstance(this);
 
         if (mLayoutlibCallback.isResourceNamespacingRequired()) {
             if (mLayoutlibCallback.hasAndroidXAppCompat()) {
@@ -462,9 +475,12 @@ public class BridgeContext extends Context {
                 try {
                     outValue.data = Integer.parseInt(stringValue);
                     outValue.type = TypedValue.TYPE_INT_DEC;
-                } catch (NumberFormatException e) {
-                    outValue.type = TypedValue.TYPE_STRING;
-                    outValue.string = stringValue;
+                }
+                catch (NumberFormatException e) {
+                    if (!ResourceHelper.parseFloatAttribute(null, stringValue, outValue, false)) {
+                        outValue.type = TypedValue.TYPE_STRING;
+                        outValue.string = stringValue;
+                    }
                 }
             }
         }
@@ -601,6 +617,13 @@ public class BridgeContext extends Context {
         return isThemeAppCompat;
     }
 
+    public AccessibilityManager getAccessibilityManager() {
+        if (mAccessibilityManager == null) {
+            mAccessibilityManager = new AccessibilityManager(this, null, UserHandle.USER_CURRENT);
+        }
+        return mAccessibilityManager;
+    }
+
     // ------------ Context methods
 
     @Override
@@ -673,6 +696,9 @@ public class BridgeContext extends Context {
                 return InputMethodManager.forContext(this);
 
             case AUTOFILL_MANAGER_SERVICE:
+                if (mAutofillManager == null) {
+                    mAutofillManager = new AutofillManager(this, new Default());
+                }
                 return mAutofillManager;
 
             case CLIPBOARD_SERVICE:
@@ -689,6 +715,21 @@ public class BridgeContext extends Context {
 
             case INPUT_SERVICE:
                 return mInputManager;
+
+            case VIBRATOR_SERVICE:
+                return NullVibrator.getInstance();
+
+            case VIBRATOR_MANAGER_SERVICE:
+                return NullVibratorManager.getInstance();
+
+            case SENSOR_SERVICE:
+                return EmptySensorManager.getInstance();
+
+            case APP_OPS_SERVICE:
+                return mAppOpsManager;
+
+            case UI_MODE_SERVICE:
+                return mUiModeManager;
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
@@ -1046,7 +1087,7 @@ public class BridgeContext extends Context {
     @Override
     public PackageManager getPackageManager() {
         if (mPackageManager == null) {
-            mPackageManager = new BridgePackageManager();
+            mPackageManager = new BridgePackageManager(this);
         }
         return mPackageManager;
     }
@@ -1525,7 +1566,7 @@ public class BridgeContext extends Context {
     @Override
     public ContentResolver getContentResolver() {
         if (mContentResolver == null) {
-            mContentResolver = new BridgeContentResolver(this);
+            mContentResolver = new BridgeContentResolver(getApplicationContext());
         }
         return mContentResolver;
     }
@@ -2288,5 +2329,10 @@ public class BridgeContext extends Context {
 
     public void applyWallpaper(String wallpaperPath) {
         mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
+    }
+
+    @NotNull
+    public ThreadLocal<AnimationHandler> getAnimationHandlerThreadLocal() {
+        return mAnimationHandlerThreadLocal;
     }
 }

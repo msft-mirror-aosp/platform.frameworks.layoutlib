@@ -24,7 +24,7 @@ import org.objectweb.asm.Type;
 
 
 /**
- * {@link MethodVisitor} that replaces the method the implementation of the method with
+ * {@link MethodVisitor} that replaces the implementation of the method with
  * <code>
  * throw new RuntimeException("Stub!");
  * </code>

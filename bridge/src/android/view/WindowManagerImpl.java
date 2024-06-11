@@ -41,6 +41,8 @@ import com.android.internal.R;
 import com.android.internal.policy.DecorView;
 import com.android.layoutlib.bridge.Bridge;
 
+import java.util.ArrayList;
+
 public class WindowManagerImpl implements WindowManager {
 
     private final Context mContext;
@@ -179,16 +181,32 @@ public class WindowManagerImpl implements WindowManager {
             }
         }
         mCurrentRootView.addView(arg0, frameLayoutParams);
+        ViewRootImpl_Accessor.setChild(mBaseRootView.getViewRootImpl(), arg0);
     }
 
     @Override
     public void removeView(View arg0) {
+        ViewRootImpl viewRootImpl = arg0.getViewRootImpl();
         if (mCurrentRootView != null) {
             mCurrentRootView.removeView(arg0);
             if (mBaseRootView != null && mCurrentRootView.getChildCount() == 0) {
                 mBaseRootView.removeView(mCurrentRootView);
                 mCurrentRootView = null;
             }
+        }
+        if (viewRootImpl != null && viewRootImpl.getView() == arg0) {
+            View newRoot = null;
+            if (mCurrentRootView != null && mCurrentRootView.getChildCount() > 0) {
+                ArrayList<View> childrenList = mCurrentRootView.buildOrderedChildList();
+                newRoot = childrenList.get(childrenList.size() - 1);
+            } else if (mBaseRootView != null) {
+                View root = mBaseRootView;
+                while (root.getParent() instanceof View) {
+                    root = (View)root.getParent();
+                }
+                newRoot = root;
+            }
+            ViewRootImpl_Accessor.setChild(viewRootImpl, newRoot);
         }
     }
 
@@ -272,16 +290,15 @@ public class WindowManagerImpl implements WindowManager {
     private WindowInsets computeWindowInsets() {
         try {
             final InsetsState insetsState = new InsetsState();
-            final boolean alwaysConsumeSystemBars =
-                    WindowManagerGlobal.getWindowManagerService().getWindowInsets(
-                            mContext.getDisplayId(), null /* token */, insetsState);
+            WindowManagerGlobal.getWindowManagerService().getWindowInsets(mContext.getDisplayId(),
+                    null /* token */, insetsState);
             final Configuration config = mContext.getResources().getConfiguration();
             final boolean isScreenRound = config.isScreenRound();
-            final int windowingMode = config.windowConfiguration.getWindowingMode();
+            final int activityType = config.windowConfiguration.getActivityType();
             return insetsState.calculateInsets(getCurrentBounds(mContext),
-                    null /* ignoringVisibilityState*/, isScreenRound, alwaysConsumeSystemBars,
-                    SOFT_INPUT_ADJUST_NOTHING, 0, SYSTEM_UI_FLAG_VISIBLE, TYPE_APPLICATION,
-                    windowingMode, null /* typeSideMap */);
+                    null /* ignoringVisibilityState */, isScreenRound, SOFT_INPUT_ADJUST_NOTHING,
+                    0 /* legacySystemUiFlags */, SYSTEM_UI_FLAG_VISIBLE, TYPE_APPLICATION,
+                    activityType, null /* typeSideMap */);
         } catch (RemoteException ignore) {
         }
         return null;

@@ -37,6 +37,8 @@ public class AttachInfo_Accessor {
         info.mInTouchMode = false; // this is so that we can display selections.
         info.mHardwareAccelerated = false;
         info.mApplicationScale = 1.0f;
+        ViewRootImpl_Accessor.setChild(root, view);
+        view.assignParent(root);
         view.dispatchAttachedToWindow(info, 0);
     }
 
@@ -44,9 +46,17 @@ public class AttachInfo_Accessor {
         view.mAttachInfo.mTreeObserver.dispatchOnPreDraw();
     }
 
+    public static void dispatchOnGlobalLayout(View view) {
+        view.mAttachInfo.mTreeObserver.dispatchOnGlobalLayout();
+    }
+
     public static void detachFromWindow(final View view) {
         if (view != null) {
+            final View.AttachInfo attachInfo = view.mAttachInfo;
             view.dispatchDetachedFromWindow();
+            if (attachInfo != null) {
+                ViewRootImpl_Accessor.detachFromWindow(attachInfo.mViewRootImpl);
+            }
         }
     }
 
