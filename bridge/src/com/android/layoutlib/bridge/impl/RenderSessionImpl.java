@@ -423,6 +423,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
         // now do the layout.
         viewRoot.layout(0, 0, width, height);
+        AttachInfo_Accessor.dispatchOnGlobalLayout(viewRoot);
         handleScrolling(context, viewRoot);
     }
 
