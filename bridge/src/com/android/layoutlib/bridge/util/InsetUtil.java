@@ -51,7 +51,6 @@ public class InsetUtil {
         }
     }
 
-
     /**
      * This applies all insets provided by the System UI.
      * This is a simplified version of what happens in
@@ -62,6 +61,7 @@ public class InsetUtil {
         Rect currentBounds = getCurrentBounds(context);
         insetsController.onFrameChanged(currentBounds);
         InsetsState insetsState = insetsController.getState();
+        Rect tmpRect = new Rect();
         // First set the window frame to all inset sources
         for (InsetsFrameProvider provider : insetsFrameProviders) {
             InsetsSource source =
@@ -73,8 +73,22 @@ public class InsetUtil {
             Insets insets = provider.getInsetsSize();
             InsetsSource source =
                     insetsState.getOrCreateSource(provider.getId(), provider.getType());
+            Rect sourceFrame = source.getFrame();
+            if (provider.getMinimalInsetsSizeInDisplayCutoutSafe() != null) {
+                tmpRect.set(sourceFrame);
+            }
             source.updateSideHint(currentBounds);
-            calculateInsetsFrame(source.getFrame(), insets);
+            calculateInsetsFrame(sourceFrame, insets);
+
+            if (provider.getMinimalInsetsSizeInDisplayCutoutSafe() != null) {
+                // The insets is at least with the given size within the display cutout safe area.
+                // Calculate the smallest size.
+                calculateInsetsFrame(tmpRect, provider.getMinimalInsetsSizeInDisplayCutoutSafe());
+                // If it's larger than previous calculation, use it.
+                if (tmpRect.contains(sourceFrame)) {
+                    sourceFrame.set(tmpRect);
+                }
+            }
         }
     }
 
