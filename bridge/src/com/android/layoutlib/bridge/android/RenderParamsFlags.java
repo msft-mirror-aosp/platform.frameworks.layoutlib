@@ -93,7 +93,13 @@ public final class RenderParamsFlags {
      * To tell Layoutlib to display the app edge to edge.
      */
     public static final Key<Boolean> FLAG_KEY_EDGE_TO_EDGE =
-            new Key<>("useGestureNav", Boolean.class);
+            new Key<>("edgeToEdge", Boolean.class);
+
+    /**
+     * To tell Layoutlib to display the device cutout if there is one.
+     */
+    public static final Key<Boolean> FLAG_KEY_SHOW_CUTOUT =
+            new Key<>("showCutout", Boolean.class);
 
     // Disallow instances.
     private RenderParamsFlags() {}
