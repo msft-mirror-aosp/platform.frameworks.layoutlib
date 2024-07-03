@@ -719,6 +719,17 @@ public class ApplicationContext extends Context {
     }
 
     @Override
+    public void sendOrderedBroadcastAsUserMultiplePermissions(Intent intent, UserHandle user,
+            String[] receiverPermissions, int appOp, Bundle options,
+            BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
+            String initialData, Bundle initialExtras) {
+        Context context = mContextRef.get();
+        if (context != null) {
+            context.sendOrderedBroadcastAsUserMultiplePermissions(intent, user, receiverPermissions, appOp, options, resultReceiver, scheduler, initialCode, initialData, initialExtras);
+        }
+    }
+
+    @Override
     public void sendStickyBroadcast(Intent intent) {
         Context context = mContextRef.get();
         if (context != null) {
