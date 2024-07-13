@@ -34,6 +34,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.view.Display.Mode;
+import android.view.KeyboardShortcutGroup;
+import android.view.KeyboardShortcutInfo;
 import android.widget.FrameLayout;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
@@ -236,6 +238,11 @@ public class WindowManagerImpl implements WindowManager {
     @Override
     public void removeViewImmediate(View arg0) {
         removeView(arg0);
+    }
+
+    @Override
+    public KeyboardShortcutGroup getApplicationLaunchKeyboardShortcuts(int deviceId) {
+        return new KeyboardShortcutGroup("", new ArrayList<KeyboardShortcutInfo>());
     }
 
     @Override
