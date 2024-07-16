@@ -15,7 +15,7 @@ readonly USE_SOONG=1
 readonly APP_NAME="regression"
 #readonly APP_NAME="test_HelloActivity"
 
-STUDIO_JDK="${BASE_DIR}/prebuilts/jdk/jdk17/linux-x86"
+STUDIO_JDK="${BASE_DIR}/prebuilts/jdk/jdk21/linux-x86"
 NATIVE_LIBRARIES="${BASE_DIR}/out/host/linux-x86/lib64/"
 JAVA_LIBRARIES="${BASE_DIR}/out/host/common/obj/JAVA_LIBRARIES/"
 HOST_LIBRARIES="${BASE_DIR}/out/host/linux-x86"
