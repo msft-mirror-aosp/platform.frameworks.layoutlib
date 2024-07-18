@@ -15,7 +15,7 @@ readonly USE_SOONG=1
 readonly APP_NAME="regression"
 #readonly APP_NAME="test_HelloActivity"
 
-STUDIO_JDK="${BASE_DIR}/prebuilts/jdk/jdk17/linux-x86"
+STUDIO_JDK="${BASE_DIR}/prebuilts/jdk/jdk21/linux-x86"
 MISC_COMMON="${BASE_DIR}/prebuilts/misc/common"
 OUT_INTERMEDIATES="${BASE_DIR}/out/soong/.intermediates"
 NATIVE_LIBRARIES="${BASE_DIR}/out/host/linux-x86/lib64/"
