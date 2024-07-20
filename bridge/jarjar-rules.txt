@@ -1,1 +1,3 @@
 rule com.google.protobuf.** com.android.layoutlib.protobuf.@1
+rule org.hamcrest.** com.android.layoutlib.hamcrest.@1
+rule org.jsoup.** com.android.layoutlib.jsoup.@1

@@ -18,6 +18,7 @@ package libcore.util;
 
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
+import libcore.util.NativeAllocationRegistry;
 
 /**
  * Delegate implementing the native methods of {@link NativeAllocationRegistry}
@@ -50,7 +51,6 @@ public class NativeAllocationRegistry_Delegate {
         return sManager.addNewDelegate(new NativeAllocationRegistry_Delegate(finalizer));
     }
 
-    @LayoutlibDelegate
     /*package*/ static void applyFreeFunction(long freeFunction, long nativePtr) {
         // This method MIGHT run in the context of the finalizer thread. If the delegate method
         // crashes, it could bring down the VM. That's why we catch all the exceptions and ignore
@@ -60,7 +60,8 @@ public class NativeAllocationRegistry_Delegate {
             if (delegate != null) {
                 delegate.mFinalizer.free(nativePtr);
             } else if (freeFunction != 0) {
-                nativeApplyFreeFunction(freeFunction, nativePtr);
+               // Call the real method
+                NativeAllocationRegistry.applyFreeFunction(freeFunction, nativePtr);
             }
         } catch (Throwable ignore) {
         }
@@ -69,6 +70,4 @@ public class NativeAllocationRegistry_Delegate {
     public interface FreeFunction {
         void free(long nativePtr);
     }
-
-    private static native void nativeApplyFreeFunction(long freeFunction, long nativePtr);
 }

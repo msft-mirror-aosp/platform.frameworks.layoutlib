@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package android.app;
+package android.view.flags;
 
-import android.content.pm.ApplicationInfo;
-import android.content.res.Resources;
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
-
-public class Application_Delegate {
-    public static Resources getResources(Application app) {
-        return Resources.getSystem();
-    }
-
-    public static ApplicationInfo getApplicationInfo(Application app) {
-        return getCurrentContext().getApplicationInfo();
+public class Flags_Delegate {
+    @LayoutlibDelegate
+    public static boolean sensitiveContentAppProtection() {
+        return false;
     }
 }

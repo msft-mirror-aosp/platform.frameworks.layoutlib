@@ -25,16 +25,7 @@ public class NativeConfig {
     private NativeConfig() {}
 
     public final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES = new String [] {
-            "android.graphics.ColorSpace",
-            "android.graphics.FontFamily",
-            "android.graphics.Matrix",
-            "android.graphics.Path",
-            // Order is important! Fonts and FontFamily have to be initialized before Typeface
-            "android.graphics.fonts.Font",
-            "android.graphics.fonts.FontFamily$Builder",
             "android.graphics.Typeface",
-            "android.graphics.text.PositionedGlyphs",
-            "android.graphics.text.LineBreaker",
     };
 
     public static final String[] DELEGATE_METHODS = new String[] {
@@ -126,7 +117,6 @@ public class NativeConfig {
             "android.view.LayoutInflater#rInflate",
             "android.view.MenuInflater#registerMenu",
             "android.view.PointerIcon#loadResource",
-            "android.view.PointerIcon#registerDisplayListener",
             "android.view.SurfaceControl#nativeCreateTransaction",
             "android.view.SurfaceControl#nativeGetNativeTransactionFinalizer",
             "android.view.VelocityTracker#obtain",
@@ -140,6 +130,7 @@ public class NativeConfig {
             "android.view.WindowManagerGlobal#getWindowManagerService",
             "android.view.accessibility.AccessibilityManager#getInstance",
             "android.view.accessibility.AccessibilityManager#getWindowTransformationSpec",
+            "android.view.flags.Flags#sensitiveContentAppProtection",
             "android.view.inputmethod.InputMethodManager#hideSoftInputFromWindow",
             "android.view.inputmethod.InputMethodManager#isInEditMode",
             "android.view.inputmethod.InputMethodManager#showSoftInput",
@@ -154,7 +145,6 @@ public class NativeConfig {
             "libcore.io.MemoryMappedFile#bigEndianIterator",
             "libcore.io.MemoryMappedFile#close",
             "libcore.io.MemoryMappedFile#mmapRO",
-            "libcore.util.NativeAllocationRegistry#applyFreeFunction",
     };
 
     public final static String[] DELEGATE_CLASS_NATIVES = new String[] {
@@ -176,7 +166,7 @@ public class NativeConfig {
             "android.util.Log",
             "android.view.MotionEvent",
             "com.android.internal.util.VirtualRefBasePtr",
-            "libcore.util.NativeAllocationRegistry_Delegate",
+            "libcore.util.NativeAllocationRegistry",
     };
 
     /**

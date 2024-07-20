@@ -179,7 +179,7 @@ public class BridgeContextTest extends RenderTestBase {
                 params.getTargetSdkVersion(), params.isRtlSupported());
         context.initResources(params.getAssets());
         try {
-            assertEquals(-13749965, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+            assertEquals(-13684682, context.getResources().getColor(android.R.color.system_neutral1_800, null));
 
             ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
                     "/com/android/layoutlib/testdata/wallpaper1.webp",
