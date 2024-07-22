@@ -30,7 +30,6 @@ import com.android.resources.ResourceType;
 
 import android.annotation.NonNull;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -52,6 +51,16 @@ import static android.os._Original_Build.VERSION_CODES.LOLLIPOP;
  * It also provides a few utility methods to configure the content of the layout.
  */
 abstract class CustomBar extends LinearLayout {
+    /**
+     * Color corresponding to light_mode_icon_color_single_tone
+     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
+     */
+    public static final int LIGHT_ICON_COLOR = 0xffffffff;
+    /**
+     * Color corresponding to dark_mode_icon_color_single_tone
+     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
+     */
+    public static final int DARK_ICON_COLOR = 0x99000000;
     private final int mSimulatedPlatformVersion;
 
     protected CustomBar(BridgeContext context, int orientation, String layoutName,
@@ -86,12 +95,13 @@ abstract class CustomBar extends LinearLayout {
                 density, false, color);
     }
 
-    protected ImageView loadIcon(int index, String iconName, Density density, boolean isRtl) {
+    protected ImageView loadIcon(int index, String iconName, Density density, boolean isRtl,
+            int color) {
         View child = getChildAt(index);
         if (child instanceof ImageView) {
             ImageView imageView = (ImageView) child;
             return SysUiResources.loadIcon(mContext, mSimulatedPlatformVersion, imageView, iconName,
-                    density, isRtl, Color.WHITE);
+                    density, isRtl, color);
         }
 
         return null;

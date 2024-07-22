@@ -84,10 +84,22 @@ public final class RenderParamsFlags {
             new Key<>("useThemedIcon", Boolean.class);
 
     /**
-     * To tell Layoutlib to the gesture navigation, instead of a button navigation bar.
+     * To tell Layoutlib to use the gesture navigation, instead of a button navigation bar.
      */
     public static final Key<Boolean> FLAG_KEY_USE_GESTURE_NAV =
             new Key<>("useGestureNav", Boolean.class);
+
+    /**
+     * To tell Layoutlib to display the app edge to edge.
+     */
+    public static final Key<Boolean> FLAG_KEY_EDGE_TO_EDGE =
+            new Key<>("edgeToEdge", Boolean.class);
+
+    /**
+     * To tell Layoutlib to display the device cutout if there is one.
+     */
+    public static final Key<Boolean> FLAG_KEY_SHOW_CUTOUT =
+            new Key<>("showCutout", Boolean.class);
 
     // Disallow instances.
     private RenderParamsFlags() {}

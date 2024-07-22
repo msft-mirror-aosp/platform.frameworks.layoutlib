@@ -155,7 +155,7 @@ public class PromoteClassClassAdapterTest {
         PromoteClassClassAdapter adapter = new PromoteClassClassAdapter(log, Set.of(
                 PackageProtectedClass.class.getName()));
         reader.accept(adapter, 0);
-        assertTrue(log.mLog.contains("[visit] - version=55, access=[public], " +
+        assertTrue(log.mLog.contains("[visit] - version=61, access=[public], " +
                 "name=com/android/tools/layoutlib/create/PackageProtectedClass, signature=null, " +
                 "superName=java/lang/Object, interfaces=[]"));
 

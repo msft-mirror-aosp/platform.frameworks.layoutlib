@@ -62,7 +62,7 @@ class DisplayCutoutView extends View {
         if (!mBoundingPath.isEmpty()) {
             mPaint.setColor(Color.BLACK);
             mPaint.setStyle(Paint.Style.FILL);
-            canvas.drawPath(mBoundingPath, mPaint);
+            canvas.drawPath(mInfo.displayCutout.getCutoutPath(), mPaint);
         }
     }
 

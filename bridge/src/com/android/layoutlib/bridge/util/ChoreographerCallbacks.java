@@ -75,11 +75,11 @@ public class ChoreographerCallbacks {
         }
     }
 
-    public void execute(long currentTimeMs, @NotNull ILayoutLog logger) {
-        final long currentTimeNanos = currentTimeMs * TimeUtils.NANOS_PER_MS;
+    public void execute(long currentTimeNanos, @NotNull ILayoutLog logger) {
         List<Callback> toExecute;
         synchronized (mCallbacks) {
             int idx = 0;
+            long currentTimeMs = currentTimeNanos / TimeUtils.NANOS_PER_MS;
             while (idx < mCallbacks.size()) {
                 if (mCallbacks.get(idx).mDueTime > currentTimeMs) {
                     break;
