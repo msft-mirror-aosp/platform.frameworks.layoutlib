@@ -119,6 +119,7 @@ public class NativeConfig {
             "android.view.PointerIcon#loadResource",
             "android.view.SurfaceControl#nativeCreateTransaction",
             "android.view.SurfaceControl#nativeGetNativeTransactionFinalizer",
+            "android.view.TextureView#getTextureLayer",
             "android.view.VelocityTracker#obtain",
             "android.view.View#dispatchDetachedFromWindow",
             "android.view.View#draw",
