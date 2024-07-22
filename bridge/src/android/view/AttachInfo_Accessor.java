@@ -16,6 +16,9 @@
 
 package android.view;
 
+import com.android.layoutlib.bridge.impl.Layout;
+import com.android.layoutlib.bridge.util.InsetUtil;
+
 import android.content.Context;
 import android.view.View.AttachInfo;
 
@@ -41,6 +44,10 @@ public class AttachInfo_Accessor {
         info.mApplicationScale = 1.0f;
         ViewRootImpl_Accessor.setChild(root, view);
         view.assignParent(root);
+        if (view instanceof Layout) {
+            InsetUtil.setupSysUiInsets(context, root.getInsetsController(),
+                    ((Layout)view).getInsetsFrameProviders());
+        }
         view.dispatchAttachedToWindow(info, 0);
         return renderer;
     }
