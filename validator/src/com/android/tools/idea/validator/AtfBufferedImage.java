@@ -32,6 +32,7 @@ import com.google.android.apps.common.testing.accessibility.framework.utils.cont
 import javax.imageio.ImageIO;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
+import static java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE;
 
 /**
  * Image implementation to be used in Accessibility Test Framework.
@@ -69,7 +70,6 @@ public class AtfBufferedImage implements Image {
             (int) (image.getHeight() * 1.0f / scaleY),
             scaleX,
             scaleY);
-        assert(image.getType() == TYPE_INT_ARGB);
 
         // FOR DEBUGGING ONLY
         if (LayoutValidator.shouldSaveCroppedImages()) {
@@ -128,18 +128,8 @@ public class AtfBufferedImage implements Image {
             return new int[0];
         }
 
-        BufferedImage cropped = mImage.getSubimage(
-                scaledLeft, scaledTop, scaledWidth, scaledHeight);
-        WritableRaster raster =
-                cropped.copyData(cropped.getRaster().createCompatibleWritableRaster());
-        int[] toReturn = ((DataBufferInt) raster.getDataBuffer()).getData();
-        mMetric.mImageMemoryBytes += toReturn.length * 4;
-
-        if (LayoutValidator.shouldSaveCroppedImages()) {
-            saveImage(cropped);
-        }
-
-        return toReturn;
+        return mImage.getRGB(scaledLeft, scaledTop, scaledWidth, scaledHeight, null, 0,
+                scaledWidth);
     }
 
     // FOR DEBUGGING ONLY
