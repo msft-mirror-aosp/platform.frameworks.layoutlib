@@ -37,13 +37,16 @@ import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.internal.R;
 import com.android.internal.policy.DecorView;
 import com.android.layoutlib.bridge.Bridge;
+import com.android.server.wm.DisplayFrames;
 
 import java.util.ArrayList;
 
 public class WindowManagerImpl implements WindowManager {
-
+    private static final PrivacyIndicatorBounds sPrivacyIndicatorBounds =
+            new PrivacyIndicatorBounds();
     private final Context mContext;
     private final DisplayMetrics mMetrics;
+    private final DisplayInfo mDisplayInfo;
     private final Display mDisplay;
     /**
      * Root view of the base window, new windows will be added on top of this.
@@ -54,19 +57,21 @@ public class WindowManagerImpl implements WindowManager {
      * null if there is only the base window present.
      */
     private ViewGroup mCurrentRootView;
+    private DisplayFrames mDisplayFrames;
 
     public WindowManagerImpl(Context context, DisplayMetrics metrics) {
         mContext = context;
         mMetrics = metrics;
 
-        DisplayInfo info = new DisplayInfo();
-        info.logicalHeight = mMetrics.heightPixels;
-        info.logicalWidth = mMetrics.widthPixels;
-        info.supportedModes = new Mode[] {
+        mDisplayInfo = new DisplayInfo();
+        mDisplayInfo.logicalHeight = mMetrics.heightPixels;
+        mDisplayInfo.logicalWidth = mMetrics.widthPixels;
+        mDisplayInfo.supportedModes = new Mode[] {
                 new Mode(0, mMetrics.widthPixels, mMetrics.heightPixels, 60f)
         };
-        info.logicalDensityDpi = mMetrics.densityDpi;
-        mDisplay = new Display(null, Display.DEFAULT_DISPLAY, info,
+        mDisplayInfo.logicalDensityDpi = mMetrics.densityDpi;
+        mDisplayInfo.displayCutout = DisplayCutout.NO_CUTOUT;
+        mDisplay = new Display(null, Display.DEFAULT_DISPLAY, mDisplayInfo,
                 DisplayAdjustments.DEFAULT_DISPLAY_ADJUSTMENTS);
     }
 
@@ -155,9 +160,7 @@ public class WindowManagerImpl implements WindowManager {
                 // DecorView background should cover the entire screen
                 layoutMode = MATCH_PARENT;
             }
-            // Always add a new "window" on top but underneath the System UI.
-            mBaseRootView.addView(layout, mBaseRootView.getChildCount() -1,
-                    new FrameLayout.LayoutParams(layoutMode, layoutMode));
+            mBaseRootView.addView(layout, new FrameLayout.LayoutParams(layoutMode, layoutMode));
             mCurrentRootView = layout;
         }
 
@@ -319,5 +322,27 @@ public class WindowManagerImpl implements WindowManager {
 
     public ViewGroup getCurrentRootView() {
         return mCurrentRootView;
+    }
+
+    public void createOrUpdateDisplayFrames(InsetsState insetsState) {
+        if (mDisplayFrames == null) {
+            mDisplayFrames = new DisplayFrames(insetsState, mDisplayInfo,
+                    mDisplayInfo.displayCutout, RoundedCorners.NO_ROUNDED_CORNERS,
+                    sPrivacyIndicatorBounds, DisplayShape.NONE);
+        } else {
+            mDisplayFrames.update(mDisplayInfo.rotation, mDisplayInfo.logicalWidth,
+                    mDisplayInfo.logicalHeight, mDisplayInfo.displayCutout,
+                    RoundedCorners.NO_ROUNDED_CORNERS, sPrivacyIndicatorBounds, DisplayShape.NONE);
+        }
+    }
+
+    public void setupDisplayCutout() {
+        DisplayCutout displayCutout =
+                DisplayCutout.fromResourcesRectApproximation(mContext.getResources(), null,
+                        mMetrics.widthPixels, mMetrics.heightPixels, mMetrics.widthPixels,
+                        mMetrics.heightPixels);
+        if (displayCutout != null) {
+            mDisplayInfo.displayCutout = displayCutout;
+        }
     }
 }
