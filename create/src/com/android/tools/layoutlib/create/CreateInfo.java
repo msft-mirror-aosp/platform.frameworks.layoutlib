@@ -148,7 +148,6 @@ public final class CreateInfo implements ICreateInfo {
         new ContextGetClassLoaderReplacer(),
         new ImageReaderNativeInitReplacer(),
         new NioUtilsFreeBufferReplacer(),
-        new ProcessInitializerInitSchedReplacer(),
         new NativeInitPathReplacer(),
         new AdaptiveIconMaskReplacer(),
         new ActivityThreadInAnimationReplacer(),
@@ -569,6 +568,7 @@ public final class CreateInfo implements ICreateInfo {
             mi.desc = "(Ljava/lang/Object;ILjava/lang/Object;II)V";
         }
     }
+
     public static class NioUtilsFreeBufferReplacer implements MethodReplacer {
         @Override
         public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
@@ -578,21 +578,6 @@ public final class CreateInfo implements ICreateInfo {
         @Override
         public void replace(MethodInformation mi) {
             mi.owner = Type.getInternalName(NioUtils_Delegate.class);
-        }
-    }
-
-    public static class ProcessInitializerInitSchedReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "android/graphics/HardwareRenderer$ProcessInitializer".equals(owner) &&
-                    name.equals("initSched");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "android/graphics/HardwareRenderer_ProcessInitializer_Delegate";
-            mi.opcode = Opcodes.INVOKESTATIC;
-            mi.desc = "(J)V";
         }
     }
 
