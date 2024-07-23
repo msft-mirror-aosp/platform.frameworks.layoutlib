@@ -25,6 +25,7 @@ public class NativeConfig {
     private NativeConfig() {}
 
     public final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES = new String [] {
+            "android.graphics.PathIterator",
             "android.graphics.Typeface",
     };
 
@@ -202,6 +203,7 @@ public class NativeConfig {
             "android.graphics.Paint",
             "android.graphics.Path",
             "android.graphics.PathEffect",
+            "android.graphics.PathIterator",
             "android.graphics.PathMeasure",
             "android.graphics.Picture",
             "android.graphics.RecordingCanvas",
