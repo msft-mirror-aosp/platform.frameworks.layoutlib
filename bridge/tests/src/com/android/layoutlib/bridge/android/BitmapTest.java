@@ -64,17 +64,17 @@ public class BitmapTest extends RenderTestBase {
         Assert.assertArrayEquals(compiledBitmap.getNinePatchChunk(), ninePatch.getChunk().getSerializedChunk());
     }
 
-//    @Test
-//    public void testNativeBitmap() {
-//        InputStream compiled =
-//                getClass().getResourceAsStream("/com/android/layoutlib/testdata/compiled.9.png");
-//        Bitmap compiledBitmap = BitmapFactory.decodeStream(compiled, null, null);
-//        assertNotNull(compiledBitmap);
-//        Buffer buffer = ByteBuffer.allocate(compiledBitmap.getByteCount());
-//        compiledBitmap.copyPixelsToBuffer(buffer);
-//        buffer.rewind();
-//        compiledBitmap.copyPixelsFromBuffer(buffer);
-//    }
+    @Test
+    public void testNativeBitmap() {
+        InputStream compiled =
+                getClass().getResourceAsStream("/com/android/layoutlib/testdata/compiled.9.png");
+        Bitmap compiledBitmap = BitmapFactory.decodeStream(compiled, null, null);
+        assertNotNull(compiledBitmap);
+        Buffer buffer = ByteBuffer.allocate(compiledBitmap.getByteCount());
+        compiledBitmap.copyPixelsToBuffer(buffer);
+        buffer.rewind();
+        compiledBitmap.copyPixelsFromBuffer(buffer);
+    }
 
     @Test
     public void testImageDecoder() throws Exception {

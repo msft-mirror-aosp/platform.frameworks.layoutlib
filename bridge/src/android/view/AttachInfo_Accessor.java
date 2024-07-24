@@ -84,6 +84,15 @@ public class AttachInfo_Accessor {
             view.dispatchDetachedFromWindow();
             if (attachInfo != null) {
                 ViewRootImpl_Accessor.detachFromWindow(attachInfo.mViewRootImpl);
+                final ThreadedRenderer threadedRenderer = attachInfo.mThreadedRenderer;
+                if(threadedRenderer != null) {
+                    threadedRenderer.destroy();
+                }
+                ThreadedRenderer rootRenderer =
+                        attachInfo.mViewRootImpl.mAttachInfo.mThreadedRenderer;
+                if (rootRenderer != null) {
+                    rootRenderer.destroy();
+                }
             }
         }
     }
