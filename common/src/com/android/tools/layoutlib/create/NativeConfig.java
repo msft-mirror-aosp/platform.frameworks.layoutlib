@@ -25,6 +25,7 @@ public class NativeConfig {
     private NativeConfig() {}
 
     public final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES = new String [] {
+            "android.graphics.PathIterator",
             "android.graphics.Typeface",
     };
 
@@ -166,6 +167,7 @@ public class NativeConfig {
             "android.text.AndroidCharacter",
             "android.util.Log",
             "android.view.MotionEvent",
+            "android.view.Surface",
             "com.android.internal.util.VirtualRefBasePtr",
             "libcore.util.NativeAllocationRegistry",
     };
@@ -187,6 +189,7 @@ public class NativeConfig {
             "android.graphics.FontFamily",
             "android.graphics.Gainmap",
             "android.graphics.Graphics",
+            "android.graphics.HardwareRenderer",
             "android.graphics.ImageDecoder",
             "android.graphics.Interpolator",
             "android.graphics.MaskFilter",
@@ -195,6 +198,7 @@ public class NativeConfig {
             "android.graphics.Paint",
             "android.graphics.Path",
             "android.graphics.PathEffect",
+            "android.graphics.PathIterator",
             "android.graphics.PathMeasure",
             "android.graphics.Picture",
             "android.graphics.RecordingCanvas",
