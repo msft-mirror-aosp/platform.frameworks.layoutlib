@@ -24,18 +24,13 @@ import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.BridgeXmlBlockParser;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
-import com.android.layoutlib.bridge.resources.IconLoader;
 import com.android.layoutlib.bridge.resources.SysUiResources;
 import com.android.resources.Density;
-import com.android.resources.LayoutDirection;
 import com.android.resources.ResourceType;
 
 import android.annotation.NonNull;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -45,12 +40,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.InputStream;
-
 import static android.os._Original_Build.VERSION_CODES.LOLLIPOP;
 
 /**
- * Base "bar" class for the window decor around the the edited layout.
+ * Base "bar" class for the window decor around the edited layout.
  * This is basically an horizontal layout that loads a given layout on creation (it is read
  * through {@link Class#getResourceAsStream(String)}).
  * <p>
@@ -88,9 +81,9 @@ abstract class CustomBar extends LinearLayout {
                 layoutName);
     }
 
-    protected ImageView loadIcon(ImageView imageView, String iconName, Density density) {
+    protected ImageView loadIcon(ImageView imageView, String iconName, Density density, int color) {
         return SysUiResources.loadIcon(mContext, mSimulatedPlatformVersion, imageView, iconName,
-                density, false);
+                density, false, color);
     }
 
     protected ImageView loadIcon(int index, String iconName, Density density, boolean isRtl) {
@@ -98,37 +91,10 @@ abstract class CustomBar extends LinearLayout {
         if (child instanceof ImageView) {
             ImageView imageView = (ImageView) child;
             return SysUiResources.loadIcon(mContext, mSimulatedPlatformVersion, imageView, iconName,
-                    density, isRtl);
+                    density, isRtl, Color.WHITE);
         }
 
         return null;
-    }
-
-    protected ImageView loadIcon(ImageView imageView, String iconName, Density density,
-            boolean isRtl) {
-        LayoutDirection dir = isRtl ? LayoutDirection.RTL : null;
-        IconLoader iconLoader = new IconLoader(iconName, density, mSimulatedPlatformVersion, dir);
-        InputStream stream = iconLoader.getIcon();
-
-        if (stream != null) {
-            density = iconLoader.getDensity();
-            String path = iconLoader.getPath();
-            // look for a cached bitmap
-            Bitmap bitmap = Bridge.getCachedBitmap(path, Boolean.TRUE /*isFramework*/);
-            if (bitmap == null) {
-                Options options = new Options();
-                options.inDensity = density.getDpiValue();
-                bitmap = BitmapFactory.decodeStream(stream, null, options);
-                Bridge.setCachedBitmap(path, bitmap, Boolean.TRUE /*isFramework*/);
-            }
-
-            if (bitmap != null) {
-                BitmapDrawable drawable = new BitmapDrawable(getContext().getResources(), bitmap);
-                imageView.setImageDrawable(drawable);
-            }
-        }
-
-        return imageView;
     }
 
     protected TextView setText(int index, String string) {
@@ -247,9 +213,7 @@ abstract class CustomBar extends LinearLayout {
         resource = renderResources.resolveResValue(resource);
         if (resource != null) {
             ResourceType type = resource.getResourceType();
-            if (type == null || type == ResourceType.COLOR) {
-                // if no type is specified, the value may have been specified directly in the style
-                // file, rather than referencing a color resource value.
+            if (type == ResourceType.STYLE_ITEM || type == ResourceType.COLOR) {
                 try {
                     return ResourceHelper.getColor(resource.getValue());
                 } catch (NumberFormatException e) {

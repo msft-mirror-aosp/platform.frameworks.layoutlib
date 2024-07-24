@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package android.permission;
+package android.provider;
 
+import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-import android.content.pm.PackageManager;
+import android.content.ContentResolver;
 
-public class PermissionManager_Delegate {
-
+/**
+ * Delegate that provides alternative implementation for methods in {@link Settings.Config}
+ * <p/>
+ * Through the layoutlib_create tool, selected methods of DeviceConfig have been replaced by
+ * calls to methods of the same name in this delegate class.
+ */
+public class Settings_Config_Delegate {
     @LayoutlibDelegate
-    public static int checkPermission(String permission, int pid, int uid, int deviceId) {
-        return PackageManager.PERMISSION_GRANTED;
+    static ContentResolver getContentResolver() {
+        return RenderAction.getCurrentContext().getContentResolver();
     }
 }
