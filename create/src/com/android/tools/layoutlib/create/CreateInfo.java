@@ -233,6 +233,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Path",
         "android.graphics.PathDashPathEffect",
         "android.graphics.PathEffect",
+        "android.graphics.PathIterator",
         "android.graphics.PathMeasure",
         "android.graphics.Picture",
         "android.graphics.PorterDuffColorFilter",
