@@ -46,6 +46,15 @@
     <orderEntry type="module-library" scope="RUNTIME">
       <library>
         <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/frameworks/base/framework-all/android_common/combined/framework-all.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="RUNTIME">
+      <library>
+        <CLASSES>
           <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/frameworks/base/ext/android_common/withres/ext.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -62,15 +71,14 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="RUNTIME" name="libprotobuf-java-lite" level="project" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="RUNTIME">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/frameworks/base/packages/SystemUI/monet/monet/android_common/withres/monet.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/frameworks/libs/systemui/monet/monet/android_common/combined/monet.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" scope="RUNTIME" name="framework.jar" level="project" />
   </component>
 </module>
