@@ -54,11 +54,7 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
-import android.media.Image;
-import android.media.Image.Plane;
-import android.media.ImageReader;
 import android.preference.Preference_Delegate;
 import android.util.Pair;
 import android.util.TimeUtils;
@@ -138,8 +134,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private List<ViewInfo> mSystemViewInfoList;
     private Layout.Builder mLayoutBuilder;
     private boolean mNewRenderSize;
-    private ImageReader mImageReader;
-    private Image mNativeImage;
     private LayoutlibRenderer mRenderer;
 
     // Passed in MotionEvent initialization when dispatching a touch event.
@@ -203,9 +197,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         mBlockParser = new BridgeXmlBlockParser(layoutParser, context, layoutParser.getLayoutNamespace());
 
         Bitmap.setDefaultDensity(params.getHardwareConfig().getDensity().getDpiValue());
-
-        // Needed in order to initialize static state of ImageReader
-        ImageReader.nativeClassInit();
 
         return SUCCESS.createResult();
     }
