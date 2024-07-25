@@ -18,7 +18,6 @@ package com.android.tools.layoutlib.create;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.java.LinkedHashMap_Delegate;
-import com.android.tools.layoutlib.java.NioUtils_Delegate;
 import com.android.tools.layoutlib.java.Reference_Delegate;
 
 import org.objectweb.asm.Opcodes;
@@ -146,7 +145,6 @@ public final class CreateInfo implements ICreateInfo {
         new SystemCurrentTimeMillisReplacer(),
         new LinkedHashMapEldestReplacer(),
         new ContextGetClassLoaderReplacer(),
-        new NioUtilsFreeBufferReplacer(),
         new NativeInitPathReplacer(),
         new AdaptiveIconMaskReplacer(),
         new ActivityThreadInAnimationReplacer(),
@@ -170,7 +168,6 @@ public final class CreateInfo implements ICreateInfo {
             InjectMethodRunnables.class,
             /* Java package classes */
             LinkedHashMap_Delegate.class,
-            NioUtils_Delegate.class,
             Reference_Delegate.class,
         };
 
@@ -545,18 +542,6 @@ public final class CreateInfo implements ICreateInfo {
         @Override
         public void replace(MethodInformation mi) {
             mi.desc = "(Ljava/lang/Object;ILjava/lang/Object;II)V";
-        }
-    }
-
-    public static class NioUtilsFreeBufferReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "java/nio/NioUtils".equals(owner) && name.equals("freeDirectBuffer");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = Type.getInternalName(NioUtils_Delegate.class);
         }
     }
 
