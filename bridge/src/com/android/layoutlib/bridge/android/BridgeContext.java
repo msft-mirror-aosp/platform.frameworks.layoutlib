@@ -215,6 +215,7 @@ public class BridgeContext extends Context {
 
     private final SessionInteractiveData mSessionInteractiveData;
     private final ThreadLocal<AnimationHandler> mAnimationHandlerThreadLocal = new ThreadLocal<>();
+    private Display mDisplay;
 
     /**
      * Some applications that target both pre API 17 and post API 17, set the newer attrs to
@@ -1902,6 +1903,13 @@ public class BridgeContext extends Context {
         // pass
     }
 
+    public void sendOrderedBroadcastAsUserMultiplePermissions(Intent intent, UserHandle user,
+            String[] receiverPermissions, int appOp, Bundle options,
+            BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
+            String initialData, Bundle initialExtras) {
+        // pass
+    }
+
     @Override
     public void sendStickyBroadcast(Intent arg0) {
         // pass
@@ -2080,8 +2088,10 @@ public class BridgeContext extends Context {
 
     @Override
     public Display getDisplay() {
-        // pass
-        return null;
+        if (mDisplay == null) {
+            mDisplay = mWindowManager.getDefaultDisplay();
+        }
+        return mDisplay;
     }
 
     @Override

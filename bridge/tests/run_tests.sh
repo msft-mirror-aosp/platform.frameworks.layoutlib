@@ -15,12 +15,10 @@ readonly USE_SOONG=1
 readonly APP_NAME="regression"
 #readonly APP_NAME="test_HelloActivity"
 
-STUDIO_JDK="${BASE_DIR}/prebuilts/jdk/jdk17/linux-x86"
-MISC_COMMON="${BASE_DIR}/prebuilts/misc/common"
-OUT_INTERMEDIATES="${BASE_DIR}/out/soong/.intermediates"
+STUDIO_JDK="${BASE_DIR}/prebuilts/jdk/jdk21/linux-x86"
 NATIVE_LIBRARIES="${BASE_DIR}/out/host/linux-x86/lib64/"
 JAVA_LIBRARIES="${BASE_DIR}/out/host/common/obj/JAVA_LIBRARIES/"
-HOST_LIBRARIES="${BASE_DIR}/out/host/linux-x86/"
+HOST_LIBRARIES="${BASE_DIR}/out/host/linux-x86"
 SDK="${BASE_DIR}/out/host/linux-x86/sdk/sdk*/android-sdk*"
 SDK_REPO="${BASE_DIR}/out/host/linux-x86/sdk-repo"
 FONT_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/fonts_intermediates"
@@ -52,7 +50,7 @@ if [ ! -d $TMP_DIR ]; then
 fi
 
 
-TEST_JARS="${OUT_INTERMEDIATES}/frameworks/layoutlib/bridge/tests/layoutlib-tests/linux_glibc_common/withres/layoutlib-tests.jar"
+TEST_JARS="${HOST_LIBRARIES}/framework/layoutlib-tests.jar"
 GRADLE_RES="-Dtest_res.dir=${SCRIPT_DIR}/res"
 
 # Run layoutlib tests
