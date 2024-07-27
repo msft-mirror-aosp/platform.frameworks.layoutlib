@@ -134,8 +134,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private List<ViewInfo> mSystemViewInfoList;
     private Layout.Builder mLayoutBuilder;
     private boolean mNewRenderSize;
-    private Canvas mCanvas;
-    private Bitmap mBitmap;
     private LayoutlibRenderer mRenderer;
 
     // Passed in MotionEvent initialization when dispatching a touch event.
