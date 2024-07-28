@@ -29,7 +29,6 @@ import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode.SizeAction;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.ViewType;
-import com.android.internal.R;
 import com.android.internal.view.menu.ActionMenuItemView;
 import com.android.internal.view.menu.BridgeMenuItemImpl;
 import com.android.internal.view.menu.IconMenuItemView;
@@ -53,9 +52,7 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
 import android.preference.Preference_Delegate;
@@ -65,6 +62,7 @@ import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+import android.view.LayoutlibRenderer;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -87,6 +85,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -135,8 +134,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private List<ViewInfo> mSystemViewInfoList;
     private Layout.Builder mLayoutBuilder;
     private boolean mNewRenderSize;
-    private Canvas mCanvas;
-    private Bitmap mBitmap;
+    private LayoutlibRenderer mRenderer;
 
     // Passed in MotionEvent initialization when dispatching a touch event.
     private final MotionEvent.PointerProperties[] mPointerProperties =
@@ -359,7 +357,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             context.popParser();
 
             // set the AttachInfo on the root view.
-            AttachInfo_Accessor.setAttachInfo(mViewRoot);
+            mRenderer = AttachInfo_Accessor.setAttachInfo(mViewRoot);
 
             // post-inflate process. For now this supports TabHost/TabWidget
             postInflateProcess(view, params.getLayoutlibCallback(), isPreference ? view : null);
@@ -415,23 +413,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         viewRoot.layout(0, 0, width, height);
         AttachInfo_Accessor.dispatchOnGlobalLayout(viewRoot);
         handleScrolling(context, viewRoot);
-    }
-
-    /**
-     * Creates a display list for the root view and draws that display list with a "hardware"
-     * renderer. In layoutlib the renderer is not actually hardware (in contrast to the actual
-     * android) but pretends to be so in order to draw all the advanced android features (e.g.
-     * shadows).
-     */
-    private static Result renderAndBuildResult(@NonNull ViewGroup viewRoot,
-            @Nullable Canvas canvas) {
-        if (canvas == null) {
-            return SUCCESS.createResult();
-        }
-        AttachInfo_Accessor.dispatchOnPreDraw(viewRoot);
-        viewRoot.draw(canvas);
-
-        return SUCCESS.createResult();
     }
 
     /**
@@ -496,14 +477,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         }
 
         try {
-            if (mViewRoot == null) {
+            if (mViewRoot == null || mRenderer == null) {
                 return ERROR_NOT_INFLATED.createResult();
             }
 
             measureLayout(params);
 
-            HardwareConfig hardwareConfig = params.getHardwareConfig();
-            Result renderResult = SUCCESS.createResult();
             float scaleX = 1.0f;
             float scaleY = 1.0f;
             if (onlyMeasure) {
@@ -518,7 +497,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 boolean disableBitmapCaching = Boolean.TRUE.equals(params.getFlag(
                     RenderParamsFlags.FLAG_KEY_DISABLE_BITMAP_CACHING));
 
-                if (mNewRenderSize || mCanvas == null || disableBitmapCaching) {
+                if (mNewRenderSize || mImage == null || disableBitmapCaching) {
                     if (params.getImageFactory() != null) {
                         mImage = params.getImageFactory().getImage(
                                 mMeasuredScreenWidth,
@@ -527,21 +506,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                         mImage = new BufferedImage(
                                 mMeasuredScreenWidth,
                                 mMeasuredScreenHeight,
-                                BufferedImage.TYPE_INT_ARGB);
+                                BufferedImage.TYPE_INT_ARGB_PRE);
                     }
 
-                    // create an Android bitmap around the BufferedImage
-                    mBitmap = Bitmap.createBitmap(mImage.getWidth(), mImage.getHeight(),
-                            Config.ARGB_8888);
-                    int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
-                    mBitmap.setPixels(imageData, 0, mImage.getWidth(), 0, 0, mImage.getWidth(), mImage.getHeight());
-
-                    if (mCanvas == null) {
-                        // create a Canvas around the Android bitmap
-                        mCanvas = new Canvas(mBitmap);
-                    } else {
-                        mCanvas.setBitmap(mBitmap);
-                    }
+                    assert mImage.getType() == BufferedImage.TYPE_INT_ARGB_PRE;
 
                     boolean enableImageResizing =
                             mImage.getWidth() != mMeasuredScreenWidth &&
@@ -549,14 +517,19 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                     Boolean.TRUE.equals(params.getFlag(
                                             RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE));
 
+                    if (enableImageResizing || mNewRenderSize) {
+                        disposeImageSurface();
+                    }
+
                     if (enableImageResizing) {
                         scaleX = mImage.getWidth() * 1.0f / mMeasuredScreenWidth;
                         scaleY = mImage.getHeight() * 1.0f / mMeasuredScreenHeight;
-                        mCanvas.scale(scaleX, scaleY);
+                        mRenderer.setScale(scaleX, scaleY);
                     } else {
-                        mCanvas.scale(1.0f, 1.0f);
+                        mRenderer.setScale(1.0f, 1.0f);
                     }
 
+                    mRenderer.setup(mImage.getWidth(), mImage.getHeight(), mViewRoot);
                     mNewRenderSize = false;
                 }
 
@@ -576,11 +549,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                             mElapsedFrameTimeNanos / 1000000;
                 }
 
-                renderResult = renderAndBuildResult(mViewRoot, mCanvas);
+                mRenderer.draw(mViewRoot);
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
-                mBitmap.getPixels(imageData, 0, mImage.getWidth(), 0, 0, mImage.getWidth(),
-                        mImage.getHeight());
+                IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
+                int len = buff.remaining();
+                buff.get(imageData, 0, len);
             }
 
             mSystemViewInfoList =
@@ -623,7 +597,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             // success!
-            return renderResult;
+            return SUCCESS.createResult();
         } catch (Throwable e) {
             // get the real cause of the exception.
             Throwable t = e;
@@ -1222,9 +1196,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     private void disposeImageSurface() {
-        if (mCanvas != null) {
-            mCanvas.release();
-            mCanvas = null;
+        if (mRenderer != null) {
+            mRenderer.reset();
         }
     }
 
@@ -1237,6 +1210,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Override
     public void dispose() {
         try {
+            if (mRenderer != null) {
+                mRenderer.destroy();
+            }
             releaseRender();
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
