@@ -9,7 +9,7 @@ readonly SCRIPT_DIR="$(dirname "$0")"
 readonly ARM=arm64
 readonly X86=x86_64
 
-NATIVE_LIBRARIES=${SCRIPT_DIR}"/../../out/host/darwin-x86/lib64"
+NATIVE_LIBRARIES=${DIST_DIR}"/layoutlib_native/darwin"
 
 # Find lipo command used to create and manipulate universal binaries
 LIPO=$(/usr/bin/xcrun --find lipo)
