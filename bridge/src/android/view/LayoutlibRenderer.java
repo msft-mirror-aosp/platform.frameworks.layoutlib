@@ -16,14 +16,23 @@
 
 package android.view;
 
+import com.android.internal.lang.System_Delegate;
+
 import android.content.Context;
 import android.graphics.BlendMode;
 import android.graphics.RecordingCanvas;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class LayoutlibRenderer extends ThreadedRenderer {
 
     private float scaleX = 1.0f;
     private float scaleY = 1.0f;
+    @SuppressWarnings("unused") // Used by native code
+    private long mNativeContext;
+    /** Buffer in which the rendering will be drawn */
+    private ByteBuffer mBuffer;
 
     LayoutlibRenderer(Context context, boolean translucent, String name) {
         super(context, translucent, name);
@@ -34,6 +43,8 @@ public class LayoutlibRenderer extends ThreadedRenderer {
         if (rootView == null) {
             return;
         }
+        // Animations require mDrawingTime to be set to animate
+        rootView.mAttachInfo.mDrawingTime = System_Delegate.currentTimeMillis();
         this.draw(viewGroup, rootView.mAttachInfo,
                 new DrawCallbacks() {
                     @Override
@@ -54,5 +65,43 @@ public class LayoutlibRenderer extends ThreadedRenderer {
     public void setScale(float scaleX, float scaleY) {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
+        invalidateRoot();
     }
+
+    /**
+     * Prepares the renderer for drawing
+     */
+    public void setup(int width, int height, View rootView) {
+        ViewRootImpl viewRoot =  rootView.mAttachInfo.mViewRootImpl;
+        if (viewRoot == null) {
+            return;
+        }
+
+        // If the surface associated with the ViewRootImpl is not valid,
+        // create a new one.
+        if (!viewRoot.mSurface.isValid()) {
+            Surface surface = nativeCreateSurface();
+            viewRoot.mSurface.transferFrom(surface);
+        }
+
+        // Create a new buffer to draw the image in, making sure that it is following the native
+        // ordering to work on all platforms.
+        mBuffer = nativeCreateBuffer(width, height);
+        mBuffer.order(ByteOrder.nativeOrder());
+
+        setup(width, height, rootView.mAttachInfo, viewRoot.mWindowAttributes.surfaceInsets);
+        setSurface(viewRoot.mSurface);
+    }
+
+    public ByteBuffer getBuffer() {
+        return mBuffer;
+    }
+
+    public void reset() {
+        mBuffer = null;
+    }
+
+    private native Surface nativeCreateSurface();
+
+    private native ByteBuffer nativeCreateBuffer(int width, int height);
 }
