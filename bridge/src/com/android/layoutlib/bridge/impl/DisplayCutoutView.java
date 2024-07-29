@@ -111,7 +111,7 @@ class DisplayCutoutView extends View {
                 resolveSizeAndState(mBoundingRect.height(), heightMeasureSpec, 0));
     }
 
-    public static void boundsFromDirection(DisplayCutout displayCutout, int gravity, Rect out) {
+    private static void boundsFromDirection(DisplayCutout displayCutout, int gravity, Rect out) {
         Region bounds = new Region(displayCutout.getBoundingRectTop());
         switch (gravity) {
             case Gravity.TOP:
