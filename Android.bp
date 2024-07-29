@@ -75,23 +75,34 @@ cc_library_host_shared {
     ],
     static_libs: [
         "libbase",
-        "libbinder",
-        "libcutils",
-        "libharfbuzz_ng",
         "libhostgraphics",
         "libhwui",
-        "libicui18n",
-        "libicuuc",
-        "libicuuc_stubdata",
-        "libimage_io",
         "libinput",
-        "liblog",
-        "libjpegdecoder",
-        "libjpegencoder",
-        "libminikin",
         "libnativehelper_jvm",
-        "libui-types",
-        "libultrahdr",
-        "libutils",
     ],
+    target: {
+        windows: {
+            enabled: true,
+        },
+        darwin: {
+            dist: {
+                targets: ["libandroid_runtime"],
+                dir: "layoutlib_native/darwin",
+            },
+        },
+        linux_glibc_x86_64: {
+            dist: {
+                targets: ["layoutlib"],
+                dir: "layoutlib_native/linux",
+                tag: "stripped_all",
+            },
+        },
+        windows_x86_64: {
+            dist: {
+                targets: ["layoutlib"],
+                dir: "layoutlib_native/windows",
+                tag: "stripped_all",
+            },
+        },
+    }
 }
