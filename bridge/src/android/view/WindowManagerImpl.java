@@ -163,8 +163,7 @@ public class WindowManagerImpl implements WindowManager {
         }
 
         FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(arg1);
-        if (arg1 instanceof WindowManager.LayoutParams) {
-            LayoutParams params = (LayoutParams) arg1;
+        if (arg1 instanceof LayoutParams params) {
             frameLayoutParams.gravity = params.gravity;
             if ((params.flags & LayoutParams.FLAG_DIM_BEHIND) != 0) {
                 mCurrentRootView.setBackgroundColor(Color.argb(params.dimAmount, 0, 0, 0));
@@ -215,11 +214,10 @@ public class WindowManagerImpl implements WindowManager {
         if (view == null) {
             throw new IllegalArgumentException("view must not be null");
         }
-        if (!(params instanceof WindowManager.LayoutParams)) {
+        if (!(params instanceof LayoutParams wparams)) {
             throw new IllegalArgumentException("Params must be WindowManager.LayoutParams");
         }
 
-        WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
         FrameLayout.LayoutParams lparams = new FrameLayout.LayoutParams(params);
         lparams.gravity = wparams.gravity;
         view.setLayoutParams(lparams);
