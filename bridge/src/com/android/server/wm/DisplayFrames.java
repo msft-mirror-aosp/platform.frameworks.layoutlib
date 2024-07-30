@@ -36,12 +36,12 @@ public class DisplayFrames {
     private static final int ID_DISPLAY_CUTOUT_RIGHT = createId(null, 2, displayCutout());
     private static final int ID_DISPLAY_CUTOUT_BOTTOM = createId(null, 3, displayCutout());
 
-    public final InsetsState mInsetsState;
-    public final Rect mUnrestricted = new Rect();
-    public final Rect mDisplayCutoutSafe = new Rect();
-    public int mWidth;
-    public int mHeight;
-    public int mRotation;
+    private final InsetsState mInsetsState;
+    private final Rect mUnrestricted = new Rect();
+    private final Rect mDisplayCutoutSafe = new Rect();
+    private int mWidth;
+    private int mHeight;
+    private int mRotation;
 
     public DisplayFrames(InsetsState insetsState, DisplayInfo info, DisplayCutout cutout,
             RoundedCorners roundedCorners, PrivacyIndicatorBounds indicatorBounds,

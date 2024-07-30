@@ -52,8 +52,6 @@ public class RenameClassAdapter extends AbstractClassAdapter {
         if (pos > 0) {
             mNewBase = mNewName.substring(0, pos);
         }
-
-        assert (mOldBase == null && mNewBase == null) || (mOldBase != null && mNewBase != null);
     }
 
     /**

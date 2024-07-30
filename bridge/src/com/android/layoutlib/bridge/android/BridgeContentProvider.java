@@ -35,7 +35,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteCallback;
 import android.os.RemoteException;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /**
@@ -96,7 +95,7 @@ public final class BridgeContentProvider implements IContentProvider {
     }
 
     
-    public String getTypeAnonymous(Uri arg0) throws RemoteException {
+    private String getTypeAnonymous(Uri arg0) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -125,7 +124,7 @@ public final class BridgeContentProvider implements IContentProvider {
     @Override
     public AssetFileDescriptor openAssetFile(AttributionSource attributionSource,
             Uri arg0, String arg1, ICancellationSignal signal)
-            throws RemoteException, FileNotFoundException {
+            throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -133,7 +132,7 @@ public final class BridgeContentProvider implements IContentProvider {
     @Override
     public ParcelFileDescriptor openFile(AttributionSource attributionSource, Uri arg0,
             String arg1, ICancellationSignal signal)
-            throws RemoteException, FileNotFoundException {
+            throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -168,7 +167,7 @@ public final class BridgeContentProvider implements IContentProvider {
     @Override
     public AssetFileDescriptor openTypedAssetFile(AttributionSource attributionSource,
             Uri arg0, String arg1, Bundle arg2, ICancellationSignal signal)
-            throws RemoteException, FileNotFoundException {
+            throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }

@@ -50,11 +50,12 @@ public class ValidatorResultTests {
         for (int i = 0; i < 3; i++) {
             builder.mIssues.add(createIssueBuilder().setMsg("issue " + i).build());
         }
-        assertEquals(
-                "Result containing 3 issues:\n" +
-                        " - [ERROR] issue 0\n" +
-                        " - [ERROR] issue 1\n" +
-                        " - [ERROR] issue 2\n",
+        assertEquals("""
+                        Result containing 3 issues:
+                         - [ERROR] issue 0
+                         - [ERROR] issue 1
+                         - [ERROR] issue 2
+                        """,
                 builder.build().toString());
     }
 

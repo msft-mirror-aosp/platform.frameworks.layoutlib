@@ -182,7 +182,7 @@ public class AsmAnalyzer {
      *                  in the form "android/data/dataFile".
      */
     void parseZip(List<String> jarPathList, Map<String, ClassReader> classes,
-            Map<String, InputStream> filesFound) throws IOException {
+            Map<String, InputStream> filesFound) {
         if (classes == null || filesFound == null) {
             return;
         }
@@ -252,8 +252,8 @@ public class AsmAnalyzer {
     }
 
     private static boolean matchesAny(@Nullable String className, @NotNull Pattern[] patterns) {
-        for (int i = 0; i < patterns.length; i++) {
-            if (patterns[i].matcher(className).matches()) {
+        for (Pattern pattern : patterns) {
+            if (pattern.matcher(className).matches()) {
                 return true;
             }
         }
@@ -308,7 +308,7 @@ public class AsmAnalyzer {
     }
 
 
-    static Pattern getPatternFromGlob(String globPattern) {
+    private static Pattern getPatternFromGlob(String globPattern) {
      // transforms the glob pattern in a regexp:
         // - escape "." with "\."
         // - replace "*" by "[^.]*"
@@ -371,10 +371,8 @@ public class AsmAnalyzer {
      * Finds all dependencies for all classes in keepClasses which are also
      * listed in zipClasses. Returns a map of all the dependencies found.
      */
-    void findDeps(Log log,
-            Map<String, ClassReader> zipClasses,
-            Map<String, ClassReader> inOutKeepClasses,
-            Consumer<Entry<String, ClassReader>> newKeep,
+    private void findDeps(Log log, Map<String, ClassReader> zipClasses,
+            Map<String, ClassReader> inOutKeepClasses, Consumer<Entry<String, ClassReader>> newKeep,
             Consumer<Entry<String, ClassReader>> newDep) {
 
         TreeMap<String, ClassReader> keep = new TreeMap<>(inOutKeepClasses);
@@ -392,7 +390,7 @@ public class AsmAnalyzer {
             cr.accept(visitor, 0 /* flags */);
         }
 
-        while (new_deps.size() > 0 || new_keep.size() > 0) {
+        while (!new_deps.isEmpty() || !new_keep.isEmpty()) {
             new_deps.entrySet().forEach(newDep);
             new_keep.entrySet().forEach(newKeep);
             keep.putAll(new_keep);
@@ -443,11 +441,9 @@ public class AsmAnalyzer {
          * @param inDeps Dependencies already known.
          * @param outDeps New dependencies found by this visitor.
          */
-        public DependencyVisitor(Map<String, ClassReader> zipClasses,
-                Map<String, ClassReader> inKeep,
-                Map<String, ClassReader> outKeep,
-                Map<String,ClassReader> inDeps,
-                Map<String,ClassReader> outDeps) {
+        private DependencyVisitor(Map<String, ClassReader> zipClasses,
+                Map<String, ClassReader> inKeep, Map<String, ClassReader> outKeep,
+                Map<String, ClassReader> inDeps, Map<String, ClassReader> outDeps) {
             super(Main.ASM_VERSION);
             mZipClasses = zipClasses;
             mInKeep = inKeep;
@@ -464,7 +460,7 @@ public class AsmAnalyzer {
          * Considers the given class name as a dependency.
          * If it does, add to the mOutDeps map.
          */
-        public void considerName(String className) {
+        private void considerName(String className) {
             if (className == null) {
                 return;
             }
@@ -509,7 +505,7 @@ public class AsmAnalyzer {
         /**
          * Considers this array of names using considerName().
          */
-        public void considerNames(String[] classNames) {
+        private void considerNames(String[] classNames) {
             if (classNames != null) {
                 for (String className : classNames) {
                     considerName(className);
@@ -521,7 +517,7 @@ public class AsmAnalyzer {
          * Considers this signature or type signature by invoking the {@link SignatureVisitor}
          * on it.
          */
-        public void considerSignature(String signature) {
+        private void considerSignature(String signature) {
             if (signature != null) {
                 SignatureReader sr = new SignatureReader(signature);
                 // SignatureReader.accept will call accessType so we don't really have
@@ -535,7 +531,7 @@ public class AsmAnalyzer {
          * If the type is an object, its internal name is considered. If it is a method type,
          * iterate through the argument and return types.
          */
-        public void considerType(Type t) {
+        private void considerType(Type t) {
             if (t != null) {
                 if (t.getSort() == Type.ARRAY) {
                     t = t.getElementType();
@@ -556,7 +552,7 @@ public class AsmAnalyzer {
          * Considers a descriptor string. The descriptor is converted to a {@link Type}
          * and then considerType() is invoked.
          */
-        public void considerDesc(String desc) {
+        private void considerDesc(String desc) {
             if (desc != null) {
                 try {
                     Type t = Type.getType(desc);
@@ -612,7 +608,7 @@ public class AsmAnalyzer {
 
         private class MyFieldVisitor extends FieldVisitor {
 
-            public MyFieldVisitor() {
+            private MyFieldVisitor() {
                 super(Main.ASM_VERSION);
             }
 
@@ -683,9 +679,9 @@ public class AsmAnalyzer {
 
         private class MyMethodVisitor extends MethodVisitor {
 
-            private String mOwnerClass;
+            private final String mOwnerClass;
 
-            public MyMethodVisitor(String ownerClass) {
+            private MyMethodVisitor(String ownerClass) {
                 super(Main.ASM_VERSION);
                 mOwnerClass = ownerClass;
             }
@@ -853,7 +849,7 @@ public class AsmAnalyzer {
 
         private class MySignatureVisitor extends SignatureVisitor {
 
-            public MySignatureVisitor() {
+            private MySignatureVisitor() {
                 super(Main.ASM_VERSION);
             }
 
@@ -952,7 +948,7 @@ public class AsmAnalyzer {
 
         private class MyAnnotationVisitor extends AnnotationVisitor {
 
-            public MyAnnotationVisitor() {
+            protected MyAnnotationVisitor() {
                 super(Main.ASM_VERSION);
             }
 

@@ -21,7 +21,6 @@ import com.android.layoutlib.bridge.MockView;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Picture;
-import android.os.Bundle;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;

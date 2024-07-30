@@ -29,19 +29,18 @@ import com.android.ide.common.rendering.api.SessionParams.Key;
  */
 public final class RenderParamsFlags {
 
-    public static final Key<String> FLAG_KEY_ROOT_TAG =
-            new Key<String>("rootTag", String.class);
+    public static final Key<String> FLAG_KEY_ROOT_TAG = new Key<>("rootTag", String.class);
     public static final Key<Boolean> FLAG_KEY_DISABLE_BITMAP_CACHING =
-            new Key<Boolean>("disableBitmapCaching", Boolean.class);
+            new Key<>("disableBitmapCaching", Boolean.class);
     public static final Key<Boolean> FLAG_KEY_RENDER_ALL_DRAWABLE_STATES =
-            new Key<Boolean>("renderAllDrawableStates", Boolean.class);
+            new Key<>("renderAllDrawableStates", Boolean.class);
 
     /**
      * To tell LayoutLib to not render when creating a new session. This allows controlling when the first
      * layout rendering will happen.
      */
     public static final Key<Boolean> FLAG_DO_NOT_RENDER_ON_CREATE =
-            new Key<Boolean>("doNotRenderOnCreate", Boolean.class);
+            new Key<>("doNotRenderOnCreate", Boolean.class);
     /**
      * To tell Layoutlib which path to use for the adaptive icon mask.
      */
@@ -55,7 +54,7 @@ public final class RenderParamsFlags {
      * returned by {@link IImageFactory#getImage(int, int)}.
      */
     public static final Key<Boolean> FLAG_KEY_RESULT_IMAGE_AUTO_SCALE =
-            new Key<Boolean>("enableResultImageAutoScale", Boolean.class);
+            new Key<>("enableResultImageAutoScale", Boolean.class);
 
     /**
      * Enables layout validation calls within rendering.

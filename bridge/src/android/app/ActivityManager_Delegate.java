@@ -16,40 +16,7 @@
 
 package android.app;
 
-import com.android.internal.os.IResultReceiver;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
-
-import android.app.ActivityManager.MemoryInfo;
-import android.app.ActivityManager.PendingIntentInfo;
-import android.app.ActivityManager.ProcessErrorStateInfo;
-import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.ActivityManager.RunningServiceInfo;
-import android.app.ActivityManager.RunningTaskInfo;
-import android.app.ActivityTaskManager.RootTaskInfo;
-import android.content.ComponentName;
-import android.content.IIntentReceiver;
-import android.content.IIntentSender;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.LocusId;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.IPackageDataObserver;
-import android.content.pm.ParceledListSlice;
-import android.content.pm.UserInfo;
-import android.content.res.Configuration;
-import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Debug;
-import android.os.IBinder;
-import android.os.IProgressListener;
-import android.os.ParcelFileDescriptor;
-import android.os.RemoteCallback;
-import android.os.RemoteException;
-import android.os.StrictMode.ViolationInfo;
-import android.os.WorkSource;
-
-import java.util.List;
 
 public class ActivityManager_Delegate {
     private static final IActivityManager sStubManager = new IActivityManager.Default();

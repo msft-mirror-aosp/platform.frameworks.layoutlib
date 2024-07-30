@@ -59,8 +59,7 @@ public class Fragment_Delegate {
     @LayoutlibDelegate
     /*package*/ static Fragment instantiate(Context context, String fname, Bundle args) {
         try {
-            if (context instanceof BridgeContext) {
-                BridgeContext bc = (BridgeContext) context;
+            if (context instanceof BridgeContext bc) {
                 Fragment f = (Fragment) bc.getLayoutlibCallback().loadView(fname,
                         new Class[0], new Object[0]);
 

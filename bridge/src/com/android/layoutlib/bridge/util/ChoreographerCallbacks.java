@@ -105,15 +105,13 @@ public class ChoreographerCallbacks {
     private static void executeSafely(@NotNull Object action, long frameTimeNanos,
             @NotNull ILayoutLog logger) {
         try {
-            if (action instanceof FrameCallback) {
-                FrameCallback callback = (FrameCallback) action;
+            if (action instanceof FrameCallback callback) {
                 callback.doFrame(frameTimeNanos);
-            } else if (action instanceof Runnable) {
-                Runnable runnable = (Runnable) action;
+            } else if (action instanceof Runnable runnable) {
                 runnable.run();
             } else {
                 logger.error(ILayoutLog.TAG_BROKEN,
-                        "Unexpected action as Choreographer callback", (Object) null, null);
+                        "Unexpected action as Choreographer callback", null, null);
             }
         } catch (Throwable t) {
             logger.error(ILayoutLog.TAG_BROKEN, "Failed executing Choreographer callback", t,

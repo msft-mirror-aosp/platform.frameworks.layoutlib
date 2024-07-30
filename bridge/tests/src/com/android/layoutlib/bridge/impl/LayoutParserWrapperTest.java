@@ -92,92 +92,94 @@ public class LayoutParserWrapperTest {
 
     private static final String sDataBindingLayout =
             //language=XML
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                    "<layout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                    "        xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n" +
-                    "        xmlns:tools=\"http://schemas.android.com/tools\"\n" +
-                    "        tools:context=\".MainActivity\"\n" +
-                    "        tools:showIn=\"@layout/activity_main\">\n" +
-                    "\n" +
-                    "    <data>\n" +
-                    "\n" +
-                    "        <variable\n" +
-                    "            name=\"user\"\n" +
-                    "            type=\"com.example.User\" />\n" +
-                    "        <variable\n" +
-                    "            name=\"activity\"\n" +
-                    "            type=\"com.example.MainActivity\" />\n" +
-                    "    </data>\n" +
-                    "\n" +
-                    "    <RelativeLayout\n" +
-                    "        android:layout_width=\"match_parent\"\n" +
-                    "        android:layout_height=\"match_parent\"\n" +
-                    "        android:paddingBottom=\"@dimen/activity_vertical_margin\"\n" +
-                    "        android:paddingLeft=\"@dimen/activity_horizontal_margin\"\n" +
-                    "        android:paddingRight=\"@dimen/activity_horizontal_margin\"\n" +
-                    "        android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
-                    "        app:layout_behavior=\"@string/appbar_scrolling_view_behavior\"\n" +
-                    "    >\n" +
-                    "\n" +
-                    "        <TextView\n" +
-                    "            android:id=\"@+id/first\"\n" +
-                    "            android:layout_width=\"wrap_content\"\n" +
-                    "            android:layout_alignParentStart=\"true\"\n" +
-                    "            android:layout_alignParentLeft=\"true\"\n" +
-                    "            android:layout_height=\"wrap_content\"\n" +
-                    "            android:text=\"@{user.firstName,default=World}\" />\n" +
-                    "\n" +
-                    "        <TextView\n" +
-                    "            android:id=\"@+id/last\"\n" +
-                    "            android:layout_width=\"wrap_content\"\n" +
-                    "            android:layout_height=\"wrap_content\"\n" +
-                    "            android:layout_toEndOf=\"@id/first\"\n" +
-                    "            android:layout_toRightOf=\"@id/first\"\n" +
-                    "            android:text=\"@{user.lastName,default=Hello}\" />\n" +
-                    "\n" +
-                    "        <Button\n" +
-                    "            android:layout_width=\"wrap_content\"\n" +
-                    "            android:layout_height=\"wrap_content\"\n" +
-                    "            android:layout_below=\"@id/last\"\n" +
-                    "            android:text=\"Submit\"\n" +
-                    "            android:onClick=\"@{activity.onClick}\"/>\n" +
-                    "    </RelativeLayout>\n" +
-                    "</layout>";
+            """
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <layout xmlns:android="http://schemas.android.com/apk/res/android"
+                            xmlns:app="http://schemas.android.com/apk/res-auto"
+                            xmlns:tools="http://schemas.android.com/tools"
+                            tools:context=".MainActivity"
+                            tools:showIn="@layout/activity_main">
+
+                        <data>
+
+                            <variable
+                                name="user"
+                                type="com.example.User" />
+                            <variable
+                                name="activity"
+                                type="com.example.MainActivity" />
+                        </data>
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:paddingBottom="@dimen/activity_vertical_margin"
+                            android:paddingLeft="@dimen/activity_horizontal_margin"
+                            android:paddingRight="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/activity_vertical_margin"
+                            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                        >
+
+                            <TextView
+                                android:id="@+id/first"
+                                android:layout_width="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentLeft="true"
+                                android:layout_height="wrap_content"
+                                android:text="@{user.firstName,default=World}" />
+
+                            <TextView
+                                android:id="@+id/last"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_toEndOf="@id/first"
+                                android:layout_toRightOf="@id/first"
+                                android:text="@{user.lastName,default=Hello}" />
+
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/last"
+                                android:text="Submit"
+                                android:onClick="@{activity.onClick}"/>
+                        </RelativeLayout>
+                    </layout>""";
 
     private static final String sNonDataBindingLayout =
             //language=XML
-            "<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                    "    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n" +
-                    "    android:layout_width=\"match_parent\"\n" +
-                    "    android:layout_height=\"match_parent\"\n" +
-                    "    android:paddingBottom=\"@dimen/activity_vertical_margin\"\n" +
-                    "    android:paddingLeft=\"@dimen/activity_horizontal_margin\"\n" +
-                    "    android:paddingRight=\"@dimen/activity_horizontal_margin\"\n" +
-                    "    android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
-                    "    app:layout_behavior=\"@string/appbar_scrolling_view_behavior\"\n" +
-                    ">\n" +
-                    "\n" +
-                    "    <TextView\n" +
-                    "        android:id=\"@+id/first\"\n" +
-                    "        android:layout_width=\"wrap_content\"\n" +
-                    "        android:layout_alignParentStart=\"true\"\n" +
-                    "        android:layout_alignParentLeft=\"true\"\n" +
-                    "        android:layout_height=\"wrap_content\"\n" +
-                    "        android:text=\"@{user.firstName,default=World}\" />\n" +
-                    "\n" +
-                    "    <TextView\n" +
-                    "        android:id=\"@+id/last\"\n" +
-                    "        android:layout_width=\"wrap_content\"\n" +
-                    "        android:layout_height=\"wrap_content\"\n" +
-                    "        android:layout_toEndOf=\"@id/first\"\n" +
-                    "        android:layout_toRightOf=\"@id/first\"\n" +
-                    "        android:text=\"@{user.lastName,default=Hello}\" />\n" +
-                    "\n" +
-                    "    <Button\n" +
-                    "        android:layout_width=\"wrap_content\"\n" +
-                    "        android:layout_height=\"wrap_content\"\n" +
-                    "        android:layout_below=\"@id/last\"\n" +
-                    "        android:text=\"Submit\"\n" +
-                    "        android:onClick=\"@{activity.onClick}\"/>\n" +
-                    "</RelativeLayout>";
+            """
+                    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:app="http://schemas.android.com/apk/res-auto"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingBottom="@dimen/activity_vertical_margin"
+                        android:paddingLeft="@dimen/activity_horizontal_margin"
+                        android:paddingRight="@dimen/activity_horizontal_margin"
+                        android:paddingTop="@dimen/activity_vertical_margin"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    >
+
+                        <TextView
+                            android:id="@+id/first"
+                            android:layout_width="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentLeft="true"
+                            android:layout_height="wrap_content"
+                            android:text="@{user.firstName,default=World}" />
+
+                        <TextView
+                            android:id="@+id/last"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@id/first"
+                            android:layout_toRightOf="@id/first"
+                            android:text="@{user.lastName,default=Hello}" />
+
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/last"
+                            android:text="Submit"
+                            android:onClick="@{activity.onClick}"/>
+                    </RelativeLayout>""";
 }

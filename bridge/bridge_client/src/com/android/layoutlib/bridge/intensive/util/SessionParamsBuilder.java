@@ -48,7 +48,6 @@ public class SessionParamsBuilder {
 
     private LayoutPullParser mLayoutParser;
     private RenderingMode mRenderingMode = RenderingMode.NORMAL;
-    private Object mProjectKey = null;
     private ConfigGenerator mConfigGenerator = ConfigGenerator.NEXUS_5;
     private ResourceRepository mFrameworkResources;
     private ResourceRepository mProjectResources;
@@ -59,7 +58,7 @@ public class SessionParamsBuilder {
     private int mMinSdk = 0;
     private int mSimulatedSdk = 0;
     private ILayoutLog mLayoutLog;
-    private Map<SessionParams.Key, Object> mFlags = new HashMap<>();
+    private final Map<SessionParams.Key, Object> mFlags = new HashMap<>();
     private AssetRepository mAssetRepository = null;
     private boolean mDecor = true;
     private IImageFactory mImageFactory = null;
@@ -150,7 +149,7 @@ public class SessionParamsBuilder {
     }
 
     @NonNull
-    public SessionParamsBuilder setFlag(@NonNull SessionParams.Key flag, Object value) {
+    public SessionParamsBuilder setFlag(@NonNull SessionParams.Key<?> flag, Object value) {
         mFlags.put(flag, value);
         return this;
     }
@@ -222,7 +221,7 @@ public class SessionParamsBuilder {
                         ResourceType.STYLE,
                         mThemeName));
 
-        SessionParams params = new SessionParams(mLayoutParser, mRenderingMode, mProjectKey /* for
+        SessionParams params = new SessionParams(mLayoutParser, mRenderingMode, null /* for
         caching */, mConfigGenerator.getHardwareConfig(), resourceResolver, mLayoutlibCallback,
                 mMinSdk, mTargetSdk, mLayoutLog, mSimulatedSdk);
         params.setFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR, enableLayoutValidator);

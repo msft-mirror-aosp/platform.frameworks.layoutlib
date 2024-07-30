@@ -81,6 +81,6 @@ public class BridgeAssetManager extends AssetManager {
         return getAssetRepository().openNonAsset(cookie, fileName, accessMode);
     }
 
-    public BridgeAssetManager() {
+    private BridgeAssetManager() {
     }
 }

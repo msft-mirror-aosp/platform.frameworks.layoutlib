@@ -42,7 +42,7 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
      */
     abstract String renameInternalType(String name);
 
-    public AbstractClassAdapter(ClassVisitor cv) {
+    protected AbstractClassAdapter(ClassVisitor cv) {
         super(Main.ASM_VERSION, cv);
     }
 
@@ -63,7 +63,7 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
      * object element, e.g. "[Lcom.package.MyClass;"
      * If the type doesn't need to be renamed, returns the internal name of the input type.
      */
-    String renameType(Type type) {
+    private String renameType(Type type) {
         if (type == null) {
             return null;
         }
@@ -72,12 +72,8 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
             String in = type.getInternalName();
             return "L" + renameInternalType(in) + ";";
         } else if (type.getSort() == Type.ARRAY) {
-            StringBuilder sb = new StringBuilder();
-            for (int n = type.getDimensions(); n > 0; n--) {
-                sb.append('[');
-            }
-            sb.append(renameType(type.getElementType()));
-            return sb.toString();
+            return "[".repeat(Math.max(0, type.getDimensions())) +
+                    renameType(type.getElementType());
         }
         return type.getDescriptor();
     }
@@ -88,7 +84,7 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
      * This is like renameType() except that it returns a Type object.
      * If the type doesn't need to be renamed, returns the input type object.
      */
-    Type renameTypeAsType(Type type) {
+    private Type renameTypeAsType(Type type) {
         if (type == null) {
             return null;
         }
@@ -100,12 +96,9 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
                 return Type.getType("L" + newIn + ";");
             }
         } else if (type.getSort() == Type.ARRAY) {
-            StringBuilder sb = new StringBuilder();
-            for (int n = type.getDimensions(); n > 0; n--) {
-                sb.append('[');
-            }
-            sb.append(renameType(type.getElementType()));
-            return Type.getType(sb.toString());
+            String sb = "[".repeat(Math.max(0, type.getDimensions())) +
+                    renameType(type.getElementType());
+            return Type.getType(sb);
         }
         return type;
     }
@@ -140,7 +133,7 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
      * Renames the ClassSignature handled by ClassVisitor.visit
      * or the MethodTypeSignature handled by ClassVisitor.visitMethod.
      */
-    String renameTypeSignature(String sig) {
+    private String renameTypeSignature(String sig) {
         if (sig == null) {
             return null;
         }
@@ -156,7 +149,7 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
      * Renames the FieldTypeSignature handled by ClassVisitor.visitField
      * or MethodVisitor.visitLocalVariable.
      */
-    String renameFieldSignature(String sig) {
+    private String renameFieldSignature(String sig) {
         return renameTypeSignature(sig);
     }
 
@@ -219,14 +212,14 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
     /**
      * A method visitor that renames all references from an old class name to a new class name.
      */
-    public class RenameMethodAdapter extends MethodVisitor {
+    private class RenameMethodAdapter extends MethodVisitor {
 
         /**
          * Creates a method visitor that renames all references from a given old name to a given new
          * name. The method visitor will also rename all inner classes.
          * The names must be full qualified internal ASM names (e.g. com/blah/MyClass$InnerClass).
          */
-        public RenameMethodAdapter(MethodVisitor mv) {
+        private RenameMethodAdapter(MethodVisitor mv) {
             super(Main.ASM_VERSION, mv);
         }
 
@@ -314,11 +307,11 @@ public abstract class AbstractClassAdapter extends ClassVisitor {
 
     //----------------------------------
 
-    public class RenameSignatureAdapter extends SignatureVisitor {
+    private class RenameSignatureAdapter extends SignatureVisitor {
 
         private final SignatureVisitor mSv;
 
-        public RenameSignatureAdapter(SignatureVisitor sv) {
+        private RenameSignatureAdapter(SignatureVisitor sv) {
             super(Main.ASM_VERSION);
             mSv = sv;
         }

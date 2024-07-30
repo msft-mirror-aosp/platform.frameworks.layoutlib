@@ -17,7 +17,6 @@ package com.android.internal.lang;
 
 import com.android.layoutlib.bridge.android.BridgeContext;
 
-import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;

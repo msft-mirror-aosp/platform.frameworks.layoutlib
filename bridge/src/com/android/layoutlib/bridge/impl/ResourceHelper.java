@@ -715,12 +715,12 @@ public final class ResourceHelper {
     // This is taken from //device/libs/utils/ResourceTypes.cpp
 
     private static final class UnitEntry {
-        String name;
-        int type;
-        int unit;
-        float scale;
+        private final String name;
+        private final int type;
+        private final int unit;
+        private final float scale;
 
-        UnitEntry(String name, int type, int unit, float scale) {
+        private UnitEntry(String name, int type, int unit, float scale) {
             this.name = name;
             this.type = type;
             this.unit = unit;
@@ -768,7 +768,7 @@ public final class ResourceHelper {
         value = value.trim();
         int len = value.length();
 
-        if (len <= 0) {
+        if (len == 0) {
             return false;
         }
 
@@ -799,7 +799,7 @@ public final class ResourceHelper {
                 return false;
             }
 
-            if (end.length() > 0 && end.charAt(0) != ' ') {
+            if (!end.isEmpty() && end.charAt(0) != ' ') {
                 // Might be a unit...
                 if (parseUnit(end, outValue, sFloatOut)) {
                     computeTypedValue(outValue, f, sFloatOut[0]);
@@ -811,7 +811,7 @@ public final class ResourceHelper {
             // make sure it's only spaces at the end.
             end = end.trim();
 
-            if (end.length() == 0) {
+            if (end.isEmpty()) {
                 if (outValue != null) {
                     if (!requireUnit) {
                         outValue.type = TypedValue.TYPE_FLOAT;
@@ -892,13 +892,12 @@ public final class ResourceHelper {
     private static void applyUnit(UnitEntry unit, TypedValue outValue, float[] outScale) {
         outValue.type = unit.type;
         // COMPLEX_UNIT_SHIFT is 0 and hence intelliJ complains about it. Suppress the warning.
-        //noinspection PointlessBitwiseExpression
         outValue.data = unit.unit << TypedValue.COMPLEX_UNIT_SHIFT;
         outScale[0] = unit.scale;
     }
 
     private static class Tag {
-        private String mLabel;
+        private final String mLabel;
         private int mStart;
         private int mEnd;
         private Attributes mAttributes;

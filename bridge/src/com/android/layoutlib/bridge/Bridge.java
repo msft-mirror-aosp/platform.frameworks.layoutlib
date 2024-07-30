@@ -47,7 +47,6 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.fonts.SystemFonts_Delegate;
 import android.hardware.input.IInputManager;
-import android.hardware.input.InputManager;
 import android.hardware.input.InputManagerGlobal;
 import android.icu.util.ULocale;
 import android.os.Looper;
@@ -73,6 +72,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -92,10 +92,10 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
 
     private static final String ICU_LOCALE_DIRECTION_RTL = "right-to-left";
 
-    public static class StaticMethodNotImplementedException extends RuntimeException {
+    protected static class StaticMethodNotImplementedException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
-        public StaticMethodNotImplementedException(String msg) {
+        protected StaticMethodNotImplementedException(String msg) {
             super(msg);
         }
     }
@@ -530,8 +530,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
 
     @Override
     public Result getViewIndex(Object viewObject) {
-        if (viewObject instanceof View) {
-            View view = (View) viewObject;
+        if (viewObject instanceof View view) {
             ViewParent parentView = view.getParent();
 
             if (parentView instanceof ViewGroup) {
@@ -604,11 +603,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             throw new IllegalStateException("scene must be acquired first. see #acquire(long)");
         }
 
-        if (log != null) {
-            sCurrentLog = log;
-        } else {
-            sCurrentLog = sDefaultLog;
-        }
+        sCurrentLog = Objects.requireNonNullElse(log, sDefaultLog);
     }
 
     /**

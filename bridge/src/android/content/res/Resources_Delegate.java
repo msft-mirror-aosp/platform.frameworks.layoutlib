@@ -70,13 +70,13 @@ import static com.android.ide.common.rendering.api.AndroidConstants.APP_PREFIX;
 import static com.android.ide.common.rendering.api.AndroidConstants.PREFIX_RESOURCE_REF;
 
 public class Resources_Delegate {
-    private static WeakHashMap<Resources, LayoutlibCallback> sLayoutlibCallbacks =
+    private static final WeakHashMap<Resources, LayoutlibCallback> sLayoutlibCallbacks =
             new WeakHashMap<>();
-    private static WeakHashMap<Resources, BridgeContext> sContexts = new WeakHashMap<>();
+    private static final WeakHashMap<Resources, BridgeContext> sContexts = new WeakHashMap<>();
 
     // TODO: This cache is cleared every time a render session is disposed. Look into making this
     // more long lived.
-    private static LruCache<String, Drawable.ConstantState> sDrawableCache = new LruCache<>(50);
+    private static final LruCache<String, Drawable.ConstantState> sDrawableCache = new LruCache<>(50);
 
     public static Resources initSystem(@NonNull BridgeContext context,
             @NonNull AssetManager assets,
@@ -270,11 +270,9 @@ public class Resources_Delegate {
             ResourceValue resValue = value.second;
 
             assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    return v;
-                }
+            String v = resValue.getValue();
+            if (v != null) {
+                return v;
             }
         }
 
@@ -289,11 +287,9 @@ public class Resources_Delegate {
             ResourceValue resValue = value.second;
 
             assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    return v;
-                }
+            String v = resValue.getValue();
+            if (v != null) {
+                return v;
             }
         }
 
@@ -311,8 +307,7 @@ public class Resources_Delegate {
             // Error already logged by getArrayResourceValue.
             return new CharSequence[0];
         }
-        if (resValue instanceof ArrayResourceValue) {
-            ArrayResourceValue arrayValue = (ArrayResourceValue) resValue;
+        if (resValue instanceof ArrayResourceValue arrayValue) {
             return resolveValues(resources, arrayValue);
         }
         RenderResources renderResources = getContext(resources).getRenderResources();
@@ -326,8 +321,7 @@ public class Resources_Delegate {
             // Error already logged by getArrayResourceValue.
             return new String[0];
         }
-        if (resValue instanceof ArrayResourceValue) {
-            ArrayResourceValue arv = (ArrayResourceValue) resValue;
+        if (resValue instanceof ArrayResourceValue arv) {
             return resolveValues(resources, arv);
         }
         return new String[] { resolveReference(resources, resValue) };
@@ -356,8 +350,7 @@ public class Resources_Delegate {
             // Error already logged by getArrayResourceValue.
             return new int[0];
         }
-        if (rv instanceof ArrayResourceValue) {
-            ArrayResourceValue resValue = (ArrayResourceValue) rv;
+        if (rv instanceof ArrayResourceValue resValue) {
             int n = resValue.getElementCount();
             int[] values = new int[n];
             for (int i = 0; i < n; i++) {
@@ -429,23 +422,21 @@ public class Resources_Delegate {
             ResourceValue resValue = v.second;
 
             assert resValue != null;
-            if (resValue != null) {
-                final ResourceType type = resValue.getResourceType();
-                if (type != ResourceType.ARRAY) {
-                    Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_RESOLVE,
-                            String.format(
-                                    "Resource with id 0x%1$X is not an array resource, but %2$s",
-                                    id, type == null ? "null" : type.getDisplayName()),
-                            null, null);
-                    return null;
-                }
-                if (!(resValue instanceof ArrayResourceValue)) {
-                    Bridge.getLog().warning(ILayoutLog.TAG_UNSUPPORTED,
-                            "Obtaining resource arrays via getTextArray, getStringArray or getIntArray is not fully supported in this version of the IDE.",
-                            null, null);
-                }
-                return resValue;
+            final ResourceType type = resValue.getResourceType();
+            if (type != ResourceType.ARRAY) {
+                Bridge.getLog().error(ILayoutLog.TAG_RESOURCES_RESOLVE,
+                        String.format(
+                                "Resource with id 0x%1$X is not an array resource, but %2$s",
+                                id, type == null ? "null" : type.getDisplayName()),
+                        null, null);
+                return null;
             }
+            if (!(resValue instanceof ArrayResourceValue)) {
+                Bridge.getLog().warning(ILayoutLog.TAG_UNSUPPORTED,
+                        "Obtaining resource arrays via getTextArray, getStringArray or getIntArray is not fully supported in this version of the IDE.",
+                        null, null);
+            }
+            return resValue;
         }
 
         // id was not found or not resolved. Throw a NotFoundException.
@@ -549,11 +540,10 @@ public class Resources_Delegate {
         RenderResources renderResources = context.getRenderResources();
         ResourceValue value = renderResources.getResolvedResource(reference);
 
-        if (!(value instanceof ArrayResourceValue)) {
+        if (!(value instanceof ArrayResourceValue arrayValue)) {
             throw new NotFoundException("Array resource ID #0x" + Integer.toHexString(id));
         }
 
-        ArrayResourceValue arrayValue = (ArrayResourceValue) value;
         int length = arrayValue.getElementCount();
         ResourceNamespace namespace = arrayValue.getNamespace();
         BridgeTypedArray typedArray = newTypeArray(resources, length);
@@ -584,21 +574,19 @@ public class Resources_Delegate {
             ResourceValue resValue = value.second;
 
             assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    if (v.equals(BridgeConstants.MATCH_PARENT) ||
-                            v.equals(BridgeConstants.FILL_PARENT)) {
-                        return LayoutParams.MATCH_PARENT;
-                    } else if (v.equals(BridgeConstants.WRAP_CONTENT)) {
-                        return LayoutParams.WRAP_CONTENT;
-                    }
-                    TypedValue tmpValue = new TypedValue();
-                    if (ResourceHelper.parseFloatAttribute(
-                            value.first, v, tmpValue, true /*requireUnit*/) &&
-                            tmpValue.type == TypedValue.TYPE_DIMENSION) {
-                        return tmpValue.getDimension(resources.getDisplayMetrics());
-                    }
+            String v = resValue.getValue();
+            if (v != null) {
+                if (v.equals(BridgeConstants.MATCH_PARENT) ||
+                        v.equals(BridgeConstants.FILL_PARENT)) {
+                    return LayoutParams.MATCH_PARENT;
+                } else if (v.equals(BridgeConstants.WRAP_CONTENT)) {
+                    return LayoutParams.WRAP_CONTENT;
+                }
+                TypedValue tmpValue = new TypedValue();
+                if (ResourceHelper.parseFloatAttribute(
+                        value.first, v, tmpValue, true /*requireUnit*/) &&
+                        tmpValue.type == TypedValue.TYPE_DIMENSION) {
+                    return tmpValue.getDimension(resources.getDisplayMetrics());
                 }
             }
         }
@@ -618,16 +606,14 @@ public class Resources_Delegate {
             ResourceValue resValue = value.second;
 
             assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    TypedValue tmpValue = new TypedValue();
-                    if (ResourceHelper.parseFloatAttribute(
-                            value.first, v, tmpValue, true /*requireUnit*/) &&
-                            tmpValue.type == TypedValue.TYPE_DIMENSION) {
-                        return TypedValue.complexToDimensionPixelOffset(tmpValue.data,
-                                resources.getDisplayMetrics());
-                    }
+            String v = resValue.getValue();
+            if (v != null) {
+                TypedValue tmpValue = new TypedValue();
+                if (ResourceHelper.parseFloatAttribute(
+                        value.first, v, tmpValue, true /*requireUnit*/) &&
+                        tmpValue.type == TypedValue.TYPE_DIMENSION) {
+                    return TypedValue.complexToDimensionPixelOffset(tmpValue.data,
+                            resources.getDisplayMetrics());
                 }
             }
         }
@@ -647,16 +633,14 @@ public class Resources_Delegate {
             ResourceValue resValue = value.second;
 
             assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    TypedValue tmpValue = new TypedValue();
-                    if (ResourceHelper.parseFloatAttribute(
-                            value.first, v, tmpValue, true /*requireUnit*/) &&
-                            tmpValue.type == TypedValue.TYPE_DIMENSION) {
-                        return TypedValue.complexToDimensionPixelSize(tmpValue.data,
-                                resources.getDisplayMetrics());
-                    }
+            String v = resValue.getValue();
+            if (v != null) {
+                TypedValue tmpValue = new TypedValue();
+                if (ResourceHelper.parseFloatAttribute(
+                        value.first, v, tmpValue, true /*requireUnit*/) &&
+                        tmpValue.type == TypedValue.TYPE_DIMENSION) {
+                    return TypedValue.complexToDimensionPixelSize(tmpValue.data,
+                            resources.getDisplayMetrics());
                 }
             }
         }
@@ -676,14 +660,12 @@ public class Resources_Delegate {
             ResourceValue resValue = value.second;
 
             assert resValue != null;
-            if (resValue != null) {
-                String v = resValue.getValue();
-                if (v != null) {
-                    try {
-                        return getInt(v);
-                    } catch (NumberFormatException e) {
-                        // return exception below
-                    }
+            String v = resValue.getValue();
+            if (v != null) {
+                try {
+                    return getInt(v);
+                } catch (NumberFormatException e) {
+                    // return exception below
                 }
             }
         }
@@ -827,8 +809,7 @@ public class Resources_Delegate {
         Pair<String, ResourceValue> value = getResourceValue(resources, id);
 
         if (value != null) {
-            if (value.second instanceof PluralsResourceValue) {
-                PluralsResourceValue pluralsResourceValue = (PluralsResourceValue) value.second;
+            if (value.second instanceof PluralsResourceValue pluralsResourceValue) {
                 PluralRules pluralRules = PluralRules.forLocale(resources.getConfiguration().getLocales()
                         .get(0));
                 String strValue = pluralsResourceValue.getValue(pluralRules.select(quantity));
@@ -977,7 +958,7 @@ public class Resources_Delegate {
             int assetCookie, String type) throws NotFoundException {
         // even though we know the XML file to load directly, we still need to resolve the
         // id so that we can know if it's a platform or project resource.
-        // (mPlatformResouceFlag will get the result and will be used later).
+        // (mPlatformResourceFlag will get the result and will be used later).
         Pair<String, ResourceValue> result = getResourceValue(resources, id);
 
         ResourceNamespace layoutNamespace;

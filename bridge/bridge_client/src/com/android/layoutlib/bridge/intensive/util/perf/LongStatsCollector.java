@@ -53,7 +53,7 @@ public class LongStatsCollector implements LongConsumer {
         Arrays.sort(buffer);
 
         int midPoint = size / 2;
-        median = (size % 2 == 0) ? (buffer[midPoint - 1] + buffer[midPoint]) / 2 : buffer[midPoint];
+        median = (size % 2 == 0) ? (buffer[midPoint - 1] + buffer[midPoint]) / 2. : buffer[midPoint];
 
         return new Stats(mAllValues.size(), mMin, mMax, median);
     }

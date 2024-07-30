@@ -55,7 +55,7 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
     private final ActionBarCallback mActionBarCallback = new ActionBarCallback();
     private final ClassLoader mModuleClassLoader;
     private String mAdaptiveIconMaskPath;
-    private String mPackageName;
+    private final String mPackageName;
 
     public LayoutlibBridgeClientCallback(ILogger logger, ClassLoader classLoader,
             String packageName) {
@@ -122,14 +122,6 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
         } catch (FileNotFoundException e) {
             return null;
         }
-    }
-
-    @Override
-    public Object getAdapterItemValue(ResourceReference adapterView, Object adapterCookie,
-            ResourceReference itemRef, int fullPosition, int positionPerType,
-            int fullParentPosition, int parentPositionPerType, ResourceReference viewRef,
-            ViewAttribute viewAttribute, Object defaultValue) {
-        return null;
     }
 
     @Override

@@ -69,7 +69,7 @@ public class Choreographer_Delegate {
         }
         if (action == null) {
             Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
-                    "Callback with null action", (Object) null, null);
+                    "Callback with null action", null, null);
         }
         context.getSessionInteractiveData().getChoreographerCallbacks().add(action,
                 token, delayMillis);

@@ -81,6 +81,7 @@ public abstract class RenderAction<T extends RenderParams> {
      * This is to be accessed when wanting to know the simulated SDK version instead
      * of Build.VERSION.SDK_INT.
      */
+    @SuppressWarnings("WeakerAccess") // Field accessed from Studio
     public static int sSimulatedSdk;
 
     private static final Set<String> COMPOSE_CLASS_FQNS =
@@ -285,7 +286,6 @@ public abstract class RenderAction<T extends RenderParams> {
         // Set-up WindowManager
         // FIXME: find those out, and possibly add them to the render params
         boolean hasNavigationBar = true;
-        //noinspection ConstantConditions
         IWindowManager iwm = new IWindowManagerImpl(getContext().getConfiguration(),
                 getContext().getMetrics(), Surface.ROTATION_0, hasNavigationBar);
         WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
@@ -400,12 +400,7 @@ public abstract class RenderAction<T extends RenderParams> {
 
         config.screenWidthDp = hardwareConfig.getScreenWidth() * 160 / density.getDpiValue();
         config.screenHeightDp = hardwareConfig.getScreenHeight() * 160 / density.getDpiValue();
-        if (config.screenHeightDp < config.screenWidthDp) {
-            //noinspection SuspiciousNameCombination
-            config.smallestScreenWidthDp = config.screenHeightDp;
-        } else {
-            config.smallestScreenWidthDp = config.screenWidthDp;
-        }
+        config.smallestScreenWidthDp = Math.min(config.screenHeightDp, config.screenWidthDp);
         config.densityDpi = density.getDpiValue();
 
         // never run in compat mode:

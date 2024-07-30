@@ -62,7 +62,7 @@ public class ValidatorData {
          * List of checks to use for the scan. If empty we use the default set
          * defined by {@link AccessibilityCheckPreset.LATEST}
          */
-        @NotNull public final HashSet<AccessibilityHierarchyCheck> mChecks = new HashSet();
+        @NotNull public final HashSet<AccessibilityHierarchyCheck> mChecks = new HashSet<>();
 
         public Policy(@NotNull EnumSet<Type> types, @NotNull EnumSet<Level> levels) {
             mTypes = types;
@@ -73,6 +73,7 @@ public class ValidatorData {
     /**
      * Issue describing the layout problem.
      */
+    @SuppressWarnings("WeakerAccess") // Public fields are accessed in Studio
     public static class Issue {
         @NotNull
         public final String mCategory;
@@ -181,6 +182,7 @@ public class ValidatorData {
     /**
      * Represents a view attribute which contains a namespace and an attribute name.
      */
+    @SuppressWarnings("WeakerAccess") // Public fields are accessed in Studio
     public static class ViewAttribute {
         /** The namespace used in XML files for this view attribute. */
         @NotNull public final String mNamespaceUri;
@@ -202,7 +204,7 @@ public class ValidatorData {
     /**
      * Suggested fix to the user or to the studio.
      */
-    public static interface Fix {
+    public interface Fix {
         /**
          * @return a human-readable description for this fix.
          */
@@ -221,6 +223,7 @@ public class ValidatorData {
      *       to an empty string.
      * </ul>
      */
+    @SuppressWarnings("WeakerAccess") // Public fields are accessed in Studio
     public static class SetViewAttributeFix implements Fix {
         /** The {@link ViewAttribute} suggested to be changed. */
         @NotNull public final ViewAttribute mViewAttribute;
@@ -246,6 +249,7 @@ public class ValidatorData {
     /**
      * Suggest removing a {@link ViewAttribute} to fix a specific {@link Issue}.
      */
+    @SuppressWarnings("WeakerAccess") // Public fields are accessed in Studio
     public static class RemoveViewAttributeFix implements Fix {
         /** The {@link ViewAttribute} suggested to be removed. */
         @NotNull public final ViewAttribute mViewAttribute;

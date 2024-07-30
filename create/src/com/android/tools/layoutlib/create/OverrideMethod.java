@@ -19,7 +19,7 @@ package com.android.tools.layoutlib.create;
 import java.util.HashMap;
 
 /**
- * Allows stub methods from LayoutLib to be overriden at runtime.
+ * Allows stub methods from LayoutLib to be overridden at runtime.
  * <p/>
  * Implementation note: all types required by this class(inner/outer classes & interfaces)
  * must be referenced by the injectClass argument to {@link AsmGenerator} in Main.java;
@@ -28,7 +28,7 @@ import java.util.HashMap;
 public final class OverrideMethod {
 
     /** Map of method overridden. */
-    private static HashMap<String, MethodListener> sMethods = new HashMap<>();
+    private static final HashMap<String, MethodListener> sMethods = new HashMap<>();
     /** Default listener for all method not listed in sMethods. Nothing if null. */
     private static MethodListener sDefaultListener = null;
     

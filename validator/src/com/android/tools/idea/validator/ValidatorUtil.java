@@ -70,17 +70,17 @@ import com.google.common.collect.ImmutableSet;
 public class ValidatorUtil {
 
     static {
-        /**
-         * Overriding default ResourceBundle ATF uses. ATF would use generic Java resources
-         * instead of Android's .xml.
-         *
-         * By default ATF generates ResourceBundle to support Android specific env/ classloader,
-         * which is quite different from Layoutlib, which supports multiple classloader depending
-         * on env (testing vs in studio).
-         *
-         * To support ATF in Layoutlib, easiest way is to convert resources from Android xml to
-         * generic Java resources (strings.properties), and have the default ResourceBundle ATF
-         * uses be redirected.
+        /*
+          Overriding default ResourceBundle ATF uses. ATF would use generic Java resources
+          instead of Android's .xml.
+
+          By default ATF generates ResourceBundle to support Android specific env/ classloader,
+          which is quite different from Layoutlib, which supports multiple classloader depending
+          on env (testing vs in studio).
+
+          To support ATF in Layoutlib, easiest way is to convert resources from Android xml to
+          generic Java resources (strings.properties), and have the default ResourceBundle ATF
+          uses be redirected.
          */
         StringManager.setResourceBundleProvider(locale -> ResourceBundle.getBundle("strings"));
     }
@@ -278,8 +278,8 @@ public class ValidatorUtil {
     /**
      * @return the list filtered by the source class name. Useful for testing and debugging.
      */
-    public static List<Issue> filterByTypes(
-            List<ValidatorData.Issue> results, EnumSet<Type> types) {
+    private static List<Issue> filterByTypes(List<ValidatorData.Issue> results,
+            EnumSet<Type> types) {
         return results.stream().filter(
                 issue -> types.contains(issue.mType)).collect(Collectors.toList());
     }
@@ -304,19 +304,13 @@ public class ValidatorUtil {
     /** Convert {@link AccessibilityCheckResultType} to {@link ValidatorData.Level} */
     @NotNull
     private static ValidatorData.Level convertLevel(@NotNull AccessibilityCheckResultType type) {
-        switch (type) {
-            case ERROR:
-                return Level.ERROR;
-            case WARNING:
-                return Level.WARNING;
-            case INFO:
-                return Level.INFO;
+        return switch (type) {
+            case ERROR -> Level.ERROR;
+            case WARNING -> Level.WARNING;
+            case INFO -> Level.INFO;
             // TODO: Maybe useful later?
-            case SUPPRESSED:
-            case NOT_RUN:
-            default:
-                return Level.VERBOSE;
-        }
+            default -> Level.VERBOSE;
+        };
     }
 
     /**
@@ -346,26 +340,18 @@ public class ValidatorUtil {
     /** Convert {@link FixSuggestion} to {@link ValidatorData.Fix} */
     @Nullable
     private static ValidatorData.Fix convertFix(@NotNull FixSuggestion fixSuggestion) {
-        if (fixSuggestion instanceof CompoundFixSuggestions) {
-            CompoundFixSuggestions compoundFixSuggestions = (CompoundFixSuggestions)fixSuggestion;
-            List<ValidatorData.Fix> fixes =
-                    compoundFixSuggestions
-                            .getFixSuggestions()
-                            .stream()
-                            .map(ValidatorUtil::convertFix)
-                            .collect(Collectors.toList());
-            return new CompoundFix(
-                    fixes,
-                    compoundFixSuggestions.getDescription(Locale.ENGLISH));
-        } else if (fixSuggestion instanceof RemoveViewAttributeFixSuggestion) {
-            RemoveViewAttributeFixSuggestion removeViewAttributeFix =
-                    (RemoveViewAttributeFixSuggestion)fixSuggestion;
+        if (fixSuggestion instanceof CompoundFixSuggestions compoundFixSuggestions) {
+            List<ValidatorData.Fix> fixes = compoundFixSuggestions
+                    .getFixSuggestions()
+                    .stream()
+                    .map(ValidatorUtil::convertFix)
+                    .collect(Collectors.toList());
+            return new CompoundFix(fixes, compoundFixSuggestions.getDescription(Locale.ENGLISH));
+        } else if (fixSuggestion instanceof RemoveViewAttributeFixSuggestion removeViewAttributeFix) {
             return new RemoveViewAttributeFix(
                     convertViewAttribute(removeViewAttributeFix.getViewAttribute()),
                     removeViewAttributeFix.getDescription(Locale.ENGLISH));
-        } else if (fixSuggestion instanceof SetViewAttributeFixSuggestion) {
-            SetViewAttributeFixSuggestion setViewAttributeFixSuggestion =
-                    (SetViewAttributeFixSuggestion)fixSuggestion;
+        } else if (fixSuggestion instanceof SetViewAttributeFixSuggestion setViewAttributeFixSuggestion) {
             return new SetViewAttributeFix(
                     convertViewAttribute(setViewAttributeFixSuggestion.getViewAttribute()),
                     setViewAttributeFixSuggestion.getSuggestedValue(),
