@@ -174,19 +174,19 @@ public final class CreateInfo implements ICreateInfo {
     /**
      * The list of methods to rewrite as delegates.
      */
-    public final static String[] DELEGATE_METHODS = NativeConfig.DELEGATE_METHODS;
+    private final static String[] DELEGATE_METHODS = NativeConfig.DELEGATE_METHODS;
 
     /**
      * The list of classes on which to delegate all native methods.
      */
-    public final static String[] DELEGATE_CLASS_NATIVES = NativeConfig.DELEGATE_CLASS_NATIVES;
+    private final static String[] DELEGATE_CLASS_NATIVES = NativeConfig.DELEGATE_CLASS_NATIVES;
 
-    public final static String[] DELEGATE_CLASS_NATIVES_TO_NATIVES = new String[] {};
+    private final static String[] DELEGATE_CLASS_NATIVES_TO_NATIVES = new String[] {};
 
     /**
      * The list of classes on which NOT to delegate any native method.
      */
-    public final static String[] KEEP_CLASS_NATIVES = new String[] {
+    private final static String[] KEEP_CLASS_NATIVES = new String[] {
         "android.animation.PropertyValuesHolder",
         "android.content.res.StringBlock",
         "android.content.res.XmlBlock",
@@ -529,7 +529,7 @@ public final class CreateInfo implements ICreateInfo {
          * Descriptors for specialized versions {@link System#arraycopy} that are not present on the
          * Desktop VM.
          */
-        private static Set<String> ARRAYCOPY_DESCRIPTORS = new HashSet<>(Arrays.asList(
+        private static final Set<String> ARRAYCOPY_DESCRIPTORS = new HashSet<>(Arrays.asList(
                 "([CI[CII)V", "([BI[BII)V", "([SI[SII)V", "([II[III)V",
                 "([JI[JII)V", "([FI[FII)V", "([DI[DII)V", "([ZI[ZII)V"));
 
