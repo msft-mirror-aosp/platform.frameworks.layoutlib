@@ -38,10 +38,9 @@ public class ImageDecoder_Delegate {
     @LayoutlibDelegate
     /*package*/ static Bitmap decodeBitmapImpl(@NonNull Source src,
             @NonNull OnHeaderDecodedListener listener) throws IOException {
-        if (src instanceof ResourceSource) {
+        if (src instanceof ResourceSource source) {
             // Bypass ImageDecoder for ResourceSource as it goes through the native AssetManager
             // which is not supported in layoutlib.
-            ResourceSource source = (ResourceSource) src;
             return BitmapFactory.decodeResource(source.mResources, source.mResId);
         }
         InputStream stream = src instanceof InputStreamSource ?

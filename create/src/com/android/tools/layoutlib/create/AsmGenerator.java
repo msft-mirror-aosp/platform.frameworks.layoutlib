@@ -53,7 +53,7 @@ public class AsmGenerator {
     private Map<String, ClassReader> mKeep;
     /** All dependencies that must be completely stubbed. */
     private Map<String, ClassReader> mDeps;
-    private Map<String, ClassWriter> mDelegates = new HashMap<>();
+    private final Map<String, ClassWriter> mDelegates = new HashMap<>();
     /** All files that are to be copied as-is. */
     private Map<String, InputStream> mCopyFiles;
     /** All classes where certain method calls need to be rewritten. */
@@ -65,9 +65,9 @@ public class AsmGenerator {
     /** FQCN Names of "old" classes that were NOT renamed. This starts with the full list of
      *  old-FQCN to rename and they get erased as they get renamed. At the end, classes still
      *  left here are not in the code base anymore and thus were not renamed. */
-    private HashSet<String> mClassesNotRenamed;
+    private final HashSet<String> mClassesNotRenamed;
     /** A map { FQCN => set { list of return types to delete from the FQCN } }. */
-    private HashMap<String, Set<String>> mDeleteReturns;
+    private final HashMap<String, Set<String>> mDeleteReturns;
     /** A map { FQCN => set { method names } } of methods to rewrite as delegates.
      *  The special name {@link DelegateClassAdapter#ALL_NATIVES} can be used as in internal set. */
     private final HashMap<String, Set<String>> mDelegateMethods;
@@ -88,11 +88,11 @@ public class AsmGenerator {
 
     private final Set<String> mDelegateAllNative;
     /** A set of classes for which to rename static initializers */
-    private Set<String> mRenameStaticInitializerClasses;
+    private final Set<String> mRenameStaticInitializerClasses;
 
     /** A Set of methods that should be intercepted and replaced **/
     private final Set<MethodReplacer> mMethodReplacers;
-    private boolean mKeepAllNativeClasses;
+    private final boolean mKeepAllNativeClasses;
 
     /** A map { FQCN => set { field names } } which should have their final modifier removed */
     private final Map<String, Set<String>> mRemoveFinalModifierFields;
@@ -129,11 +129,7 @@ public class AsmGenerator {
 
         for (String className : createInfo.getDelegateClassNatives()) {
             className = binaryToInternalClassName(className);
-            Set<String> methods = mDelegateMethods.get(className);
-            if (methods == null) {
-                methods = new HashSet<>();
-                mDelegateMethods.put(className, methods);
-            }
+            Set<String> methods = mDelegateMethods.computeIfAbsent(className, k -> new HashSet<>());
             methods.add(DelegateClassAdapter.ALL_NATIVES);
         }
 
@@ -237,11 +233,7 @@ public class AsmGenerator {
             }
             String className = binaryToInternalClassName(entry.substring(0, pos));
             String methodOrFieldName = entry.substring(pos + 1);
-            Set<String> set = map.get(className);
-            if (set == null) {
-                set = new HashSet<>();
-                map.put(className, set);
-            }
+            Set<String> set = map.computeIfAbsent(className, k -> new HashSet<>());
             set.add(methodOrFieldName);
         }
     }
@@ -322,7 +314,7 @@ public class AsmGenerator {
      * Utility method that converts a fully qualified java name into a JAR entry path
      * e.g. for the input "android.view.View" it returns "android/view/View.class"
      */
-    String classNameToEntryPath(String className) {
+    private String classNameToEntryPath(String className) {
         return className.replace('.', '/').concat(".class");
     }
 
@@ -350,7 +342,7 @@ public class AsmGenerator {
      * Note that unfortunately static methods cannot be changed to non-static (since static and
      * non-static are invoked differently.)
      */
-    byte[] transform(ClassReader cr, boolean stubNativesOnly) {
+    private byte[] transform(ClassReader cr, boolean stubNativesOnly) {
 
         boolean hasNativeMethods = hasNativeMethods(cr);
 
@@ -386,7 +378,7 @@ public class AsmGenerator {
         }
 
         String binaryNewName = newName.replace('/', '.');
-        if (mInjectedMethodsMap.keySet().contains(binaryNewName)) {
+        if (mInjectedMethodsMap.containsKey(binaryNewName)) {
             cv = new InjectMethodsAdapter(cv, mInjectedMethodsMap.get(binaryNewName));
         }
 
@@ -453,7 +445,7 @@ public class AsmGenerator {
      * @param className The internal ASM name of the class that may have to be renamed
      * @return A new transformed name or the original input argument.
      */
-    String transformName(String className) {
+    private String transformName(String className) {
         String newName = mRenameClasses.get(className);
         if (newName != null) {
             return newName;
@@ -474,7 +466,7 @@ public class AsmGenerator {
     /**
      * Returns true if a class has any native methods.
      */
-    boolean hasNativeMethods(ClassReader cr) {
+    private boolean hasNativeMethods(ClassReader cr) {
         ClassHasNativeVisitor cv = new ClassHasNativeVisitor();
         cr.accept(cv, 0);
         return cv.hasNativeMethods();
