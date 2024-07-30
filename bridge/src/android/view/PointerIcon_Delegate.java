@@ -18,7 +18,6 @@ package android.view;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-import android.content.Context;
 import android.content.res.Resources;
 
 public class PointerIcon_Delegate {

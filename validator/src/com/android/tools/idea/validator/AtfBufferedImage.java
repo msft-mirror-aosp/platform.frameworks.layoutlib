@@ -23,16 +23,11 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import android.annotation.NonNull;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 
 import com.google.android.apps.common.testing.accessibility.framework.utils.contrast.Image;
 import javax.imageio.ImageIO;
-
-import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
-import static java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE;
 
 /**
  * Image implementation to be used in Accessibility Test Framework.
