@@ -17,12 +17,15 @@
 package com.android.layoutlib.bridge.bars;
 
 import com.android.layoutlib.bridge.android.BridgeContext;
+import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.resources.Density;
 
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import static com.android.layoutlib.bridge.bars.Config.getNavIconType;
 
 public class NavigationBar extends CustomBar {
 
@@ -38,21 +41,31 @@ public class NavigationBar extends CustomBar {
     private static final int WIDTH_DEFAULT = 36;
     private static final int WIDTH_SW360 = 40;
     private static final int WIDTH_SW600 = 48;
-    protected static final String LAYOUT_XML = "navigation_bar.xml";
+    private static final String LAYOUT_XML = "navigation_bar.xml";
     private static final String LAYOUT_600DP_XML = "navigation_bar600dp.xml";
 
     public NavigationBar(BridgeContext context, Density density, int orientation, boolean isRtl,
-      boolean rtlEnabled, int simulatedPlatformVersion, boolean quickStepEnabled) {
-        this(context, density, orientation, isRtl, rtlEnabled, simulatedPlatformVersion,
-          getShortestWidth(context)>= 600 ? LAYOUT_600DP_XML : LAYOUT_XML, quickStepEnabled);
+            boolean rtlEnabled, boolean isEdgeToEdge, int simulatedPlatformVersion,
+            boolean quickStepEnabled) {
+        this(context, density, orientation, isRtl, rtlEnabled, isEdgeToEdge,
+                simulatedPlatformVersion,
+                getShortestWidth(context) >= 600 ? LAYOUT_600DP_XML : LAYOUT_XML, quickStepEnabled);
     }
 
-    protected NavigationBar(BridgeContext context, Density density, int orientation, boolean isRtl,
-      boolean rtlEnabled, int simulatedPlatformVersion, String layoutPath, boolean quickStepEnabled) {
+    private NavigationBar(BridgeContext context, Density density, int orientation, boolean isRtl,
+            boolean rtlEnabled, boolean isEdgeToEdge, int simulatedPlatformVersion,
+            String layoutPath, boolean quickStepEnabled) {
         super(context, orientation, layoutPath, simulatedPlatformVersion);
 
-        int color = getBarColor(ATTR_COLOR, ATTR_TRANSLUCENT);
-        setBackgroundColor(color == 0 ? 0xFF000000 : color);
+        boolean isLightTheme =
+                ResourceHelper.getBooleanThemeFrameworkAttrValue(context.getRenderResources(),
+                        "isLightTheme", false);
+        if (isEdgeToEdge) {
+            setBackgroundColor(isLightTheme ? 0xe6ffffff : 0x66000000);
+        } else {
+            int color = getBarColor(ATTR_COLOR, ATTR_TRANSLUCENT);
+            setBackgroundColor(color == 0 ? 0xFF000000 : color);
+        }
 
         // Cannot access the inside items through id because no R.id values have been
         // created for them.
@@ -66,17 +79,17 @@ public class NavigationBar extends CustomBar {
             recent = 1;
         }
 
+        int iconColor = isLightTheme ? DARK_ICON_COLOR : LIGHT_ICON_COLOR;
+        String ext = getNavIconType(simulatedPlatformVersion);
         //noinspection SpellCheckingInspection
-        loadIcon(back,
-                quickStepEnabled ? "ic_sysbar_back_quick_step.png" : "ic_sysbar_back.png",
-                density, isRtl);
+        loadIcon(back, (quickStepEnabled ? "ic_sysbar_back_quick_step." : "ic_sysbar_back.") + ext,
+                density, isRtl, iconColor);
         //noinspection SpellCheckingInspection
-        loadIcon(3, quickStepEnabled ? "ic_sysbar_home_quick_step.png" : "ic_sysbar_home.png",
-                density,
-                isRtl);
+        loadIcon(3, (quickStepEnabled ? "ic_sysbar_home_quick_step." : "ic_sysbar_home.") + ext,
+                density, isRtl, iconColor);
         if (!quickStepEnabled) {
             //noinspection SpellCheckingInspection
-            loadIcon(recent, "ic_sysbar_recent.png", density, isRtl);
+            loadIcon(recent, "ic_sysbar_recent." + ext, density, isRtl, iconColor);
         }
         setupNavBar(context, orientation);
     }
@@ -99,7 +112,7 @@ public class NavigationBar extends CustomBar {
     }
 
     private static void setSize(BridgeContext context, View view, int orientation, int size) {
-        size *= context.getMetrics().density;
+        size = (int) (size * context.getMetrics().density);
         LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
         if (orientation == HORIZONTAL) {
             layoutParams.width = size;
@@ -109,7 +122,7 @@ public class NavigationBar extends CustomBar {
         view.setLayoutParams(layoutParams);
     }
 
-    protected int getSidePadding(float sw) {
+    private int getSidePadding(float sw) {
         if (sw >= 400) {
             return PADDING_WIDTH_SW400;
         }
@@ -131,8 +144,7 @@ public class NavigationBar extends CustomBar {
 
     private static float getShortestWidth(BridgeContext context) {
         DisplayMetrics metrics = context.getMetrics();
-        float sw = metrics.widthPixels < metrics.heightPixels ?
-                metrics.widthPixels : metrics.heightPixels;
+        float sw = Math.min(metrics.widthPixels, metrics.heightPixels);
         sw /= metrics.density;
         return sw;
     }

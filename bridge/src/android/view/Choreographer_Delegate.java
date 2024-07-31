@@ -23,6 +23,8 @@ import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.annotations.Nullable;
 
+import android.view.DisplayEventReceiver.VsyncEventData;
+
 import java.lang.StackWalker.StackFrame;
 import java.util.Optional;
 
@@ -36,6 +38,9 @@ import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
  *
  */
 public class Choreographer_Delegate {
+    private static VsyncEventData sVsyncEventData;
+    public static long sChoreographerTime = 0;
+
     @LayoutlibDelegate
     public static float getRefreshRate() {
         return 60.f;
@@ -64,7 +69,7 @@ public class Choreographer_Delegate {
         }
         if (action == null) {
             Bridge.getLog().error(ILayoutLog.TAG_BROKEN,
-                    "Callback with null action", (Object) null, null);
+                    "Callback with null action", null, null);
         }
         context.getSessionInteractiveData().getChoreographerCallbacks().add(action,
                 token, delayMillis);
@@ -84,9 +89,25 @@ public class Choreographer_Delegate {
         context.getSessionInteractiveData().getChoreographerCallbacks().remove(action, token);
     }
 
+    /**
+     * This method is called from {@link Choreographer#doFrame} and is responsible for figuring
+     * out which callbacks have to be executed based on the callbackType and frameData.
+     * In layoutlib, we are only interested in animation callbacks.
+     */
     @LayoutlibDelegate
-    public static long getFrameTimeNanos(Choreographer thiz) {
-        return System.nanoTime();
+    public static void doCallbacks(Choreographer thiz, int callbackType, long frameIntervalNanos) {
+        BridgeContext context = getCurrentContext();
+        if (context == null) {
+            return;
+        }
+        if (callbackType != Choreographer.CALLBACK_ANIMATION) {
+            // Ignore non-animation callbacks
+            return;
+        }
+        thiz.mCallbacksRunning = true;
+        context.getSessionInteractiveData().getChoreographerCallbacks().execute(
+                System_Delegate.nanoTime(), Bridge.getLog());
+        thiz.mCallbacksRunning = false;
     }
 
     /**
@@ -108,5 +129,25 @@ public class Choreographer_Delegate {
         } catch (Throwable ex) {
             return null;
         }
+    }
+
+    /**
+     * This is a way to call the {@link Choreographer#doFrame} method bypassing the
+     * scheduling system of the Choreographer. That system relies on callbacks being
+     * stored in queues inside the Choreographer class, but Layoutlib has its own way
+     * of storing callbacks that is incompatible.
+     * The doFrame method is responsible for updating the Choreographer FrameInfo object
+     * which is used by the ThreadedRenderer to know which frame to draw. It also triggers
+     * the execution of the relevant callbacks through calls to the doCallback method.
+     */
+    public static void doFrame(long frameTimeNanos) {
+        if (sVsyncEventData == null) {
+            sVsyncEventData = new VsyncEventData();
+            sVsyncEventData.frameTimelinesLength = 1;
+        }
+        Choreographer choreographer = Choreographer.getInstance();
+        choreographer.mFrameScheduled = true;
+        choreographer.doFrame(frameTimeNanos, 0, sVsyncEventData);
+        sChoreographerTime = frameTimeNanos;
     }
 }
