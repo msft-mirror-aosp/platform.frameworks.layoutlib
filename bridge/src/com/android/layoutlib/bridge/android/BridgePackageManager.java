@@ -392,7 +392,7 @@ public class BridgePackageManager extends PackageManager {
     }
 
     @Override
-    public void clearInstantAppCookie() {;
+    public void clearInstantAppCookie() {
 
     }
 

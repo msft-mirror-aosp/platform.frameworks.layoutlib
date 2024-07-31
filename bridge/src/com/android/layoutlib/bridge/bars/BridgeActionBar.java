@@ -38,7 +38,8 @@ import android.widget.RelativeLayout;
 public abstract class BridgeActionBar {
     // Store a reference to the context so that we don't have to cast it repeatedly.
     @NonNull protected final BridgeContext mBridgeContext;
-    @NonNull protected final SessionParams mParams;
+    @NonNull
+    private final SessionParams mParams;
     // A Layout that contains the inflated action bar. The menu popup is added to this layout.
     @Nullable protected final ViewGroup mEnclosingLayout;
 
@@ -48,7 +49,7 @@ public abstract class BridgeActionBar {
     @SuppressWarnings("NotNullFieldNotInitialized") // Should be initialized by subclasses.
     @NonNull private FrameLayout mContentRoot;
 
-    public BridgeActionBar(@NonNull BridgeContext context, @NonNull SessionParams params) {
+    protected BridgeActionBar(@NonNull BridgeContext context, @NonNull SessionParams params) {
         mBridgeContext = context;
         mParams = params;
         mCallback = params.getLayoutlibCallback().getActionBarCallback();
@@ -151,7 +152,7 @@ public abstract class BridgeActionBar {
         return mEnclosingLayout == null ? mDecorContent : mEnclosingLayout;
     }
 
-    public ActionBarCallback getCallBack() {
+    protected ActionBarCallback getCallBack() {
         return mCallback;
     }
 

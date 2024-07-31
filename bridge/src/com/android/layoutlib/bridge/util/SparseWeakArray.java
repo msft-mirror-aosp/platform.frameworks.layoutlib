@@ -44,7 +44,7 @@ import java.lang.ref.WeakReference;
 public class SparseWeakArray<E> {
 
     private static final Object DELETED_REF = new Object();
-    private static final WeakReference<?> DELETED = new WeakReference(DELETED_REF);
+    private static final WeakReference<?> DELETED = new WeakReference<>(DELETED_REF);
     private boolean mGarbage = false;
 
     /**
@@ -153,13 +153,13 @@ public class SparseWeakArray<E> {
         int i = binarySearch(mKeys, 0, mSize, key);
 
         if (i >= 0) {
-            mValues[i] = new WeakReference(value);
+            mValues[i] = new WeakReference<>(value);
         } else {
             i = ~i;
 
             if (i < mSize && (mValues[i] == DELETED || mValues[i].get() == null)) {
                 mKeys[i] = key;
-                mValues[i] = new WeakReference(value);
+                mValues[i] = new WeakReference<>(value);
                 return;
             }
 
@@ -171,7 +171,7 @@ public class SparseWeakArray<E> {
             }
 
             mKeys = GrowingArrayUtils.insert(mKeys, mSize, i, key);
-            mValues = GrowingArrayUtils.insert(mValues, mSize, i, new WeakReference(value));
+            mValues = GrowingArrayUtils.insert(mValues, mSize, i, new WeakReference<>(value));
             mSize++;
         }
     }
@@ -224,7 +224,7 @@ public class SparseWeakArray<E> {
             gc();
         }
 
-        mValues[index] = new WeakReference(value);
+        mValues[index] = new WeakReference<>(value);
     }
 
     /**
@@ -290,7 +290,7 @@ public class SparseWeakArray<E> {
         }
 
         mKeys = GrowingArrayUtils.append(mKeys, mSize, key);
-        mValues = GrowingArrayUtils.append(mValues, mSize, new WeakReference(value));
+        mValues = GrowingArrayUtils.append(mValues, mSize, new WeakReference<>(value));
         mSize++;
     }
 

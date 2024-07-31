@@ -171,7 +171,7 @@ This is the easiest: we currently inject the following classes:
   (platform/libcore/luni/src/main/java/java/...).
 - Charsets, IntegralToString and UnsafeByteSequence are not part of the Desktop VM. They are
   added to the Dalvik VM for performance reasons. An implementation that is very close to the
-  original (which is at platform/libcore/luni/src/main/java/...) is injected. Since these classees
+  original (which is at platform/libcore/luni/src/main/java/...) is injected. Since these classes
   were in part of the java package, where we can't inject classes, all references to these have been
   updated (See strategy 4- Refactoring Classes).
 
@@ -179,7 +179,7 @@ This is the easiest: we currently inject the following classes:
 2- Overriding methods
 
 As explained earlier, the creator doesn't have any replacement code for methods to override. Instead
-it removes the original code and replaces it by a call to a specific OveriddeMethod.invokeX(). The
+it removes the original code and replaces it by a call to a specific OverrideMethod.invokeX(). The
 bridge then registers a listener on the method signature and can provide an implementation.
 
 This strategy is now obsolete and replaced by the method delegates (See strategy 6- Method
