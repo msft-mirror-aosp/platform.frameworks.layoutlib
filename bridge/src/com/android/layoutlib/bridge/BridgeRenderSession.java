@@ -31,15 +31,13 @@ import com.android.layoutlib.bridge.impl.RenderSessionImpl;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Handler_Delegate;
-import android.os.SystemClock_Delegate;
+import android.view.Choreographer_Delegate;
 import android.view.MotionEvent;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
 
 /**
  * An implementation of {@link RenderSession}.
@@ -157,12 +155,9 @@ public class BridgeRenderSession extends RenderSession {
         try {
             Bridge.prepareThread();
             mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
-            boolean hasMoreCallbacks = Handler_Delegate.executeCallbacks();
-            long currentTimeMs = SystemClock_Delegate.uptimeMillis();
-            getCurrentContext()
-                    .getSessionInteractiveData()
-                    .getChoreographerCallbacks()
-                    .execute(currentTimeMs, Bridge.getLog());
+            long currentTimeNanos = System_Delegate.nanoTime();
+            boolean hasMoreCallbacks = Handler_Delegate.executeCallbacks(currentTimeNanos);
+            Choreographer_Delegate.doFrame(currentTimeNanos);
             return hasMoreCallbacks;
         } catch (Throwable t) {
             Bridge.getLog().error(ILayoutLog.TAG_BROKEN, "Failed executing Choreographer#doFrame "
@@ -175,15 +170,11 @@ public class BridgeRenderSession extends RenderSession {
     }
 
     private static int toMotionEventType(TouchEventType eventType) {
-        switch (eventType) {
-            case PRESS:
-                return MotionEvent.ACTION_DOWN;
-            case RELEASE:
-                return MotionEvent.ACTION_UP;
-            case DRAG:
-                return MotionEvent.ACTION_MOVE;
-        }
-        throw new IllegalStateException("Unexpected touch event type: " + eventType);
+        return switch (eventType) {
+            case PRESS -> MotionEvent.ACTION_DOWN;
+            case RELEASE -> MotionEvent.ACTION_UP;
+            case DRAG -> MotionEvent.ACTION_MOVE;
+        };
     }
 
     @Override
