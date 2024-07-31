@@ -34,7 +34,6 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityInteractionClient;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +48,7 @@ public class AccessibilityTest extends RenderTestBase {
     }
 
     @Test
-    public void accessibilityNodeInfoCreation() throws FileNotFoundException,
-            ClassNotFoundException {
+    public void accessibilityNodeInfoCreation() throws ClassNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -61,27 +59,29 @@ public class AccessibilityTest extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .build();
         RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(1);
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
             assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
-            View rootView = (View)session.getSystemRootViews().get(0).getViewObject();
-            AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
-            assertNotNull(rootNode);
-            rootNode.setQueryFromAppProcessEnabled(rootView, true);
-            assertEquals(38, rootNode.getChildCount());
-            AccessibilityNodeInfo child = rootNode.getChild(0);
-            assertNotNull(child);
-            assertEquals(136, child.getBoundsInScreen().right);
-            assertEquals(75, child.getBoundsInScreen().bottom);
+            session.execute(() -> {
+                View rootView = (View) session.getSystemRootViews().get(0).getViewObject();
+                AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
+                assertNotNull(rootNode);
+                rootNode.setQueryFromAppProcessEnabled(rootView, true);
+                assertEquals(37, rootNode.getChildCount());
+                AccessibilityNodeInfo child = rootNode.getChild(0);
+                assertNotNull(child);
+                assertEquals(147, child.getBoundsInScreen().right);
+                assertEquals(274, child.getBoundsInScreen().bottom);
+            });
         } finally {
             session.dispose();
         }
     }
 
     @Test
-    public void customHierarchyParserTest() throws FileNotFoundException,
-            ClassNotFoundException {
+    public void customHierarchyParserTest() throws ClassNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -93,8 +93,7 @@ public class AccessibilityTest extends RenderTestBase {
                 .build();
         params.setCustomContentHierarchyParser(viewObject -> {
             List<ViewInfo> result = new ArrayList<>();
-            if (viewObject instanceof ViewGroup) {
-                ViewGroup view = (ViewGroup)viewObject;
+            if (viewObject instanceof ViewGroup view) {
                 for (int i = 0; i < view.getChildCount(); i++) {
                     View child = view.getChildAt(i);
                     ViewInfo childInfo =
@@ -108,6 +107,7 @@ public class AccessibilityTest extends RenderTestBase {
             return result;
         });
         RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(1);
         try {
             Result renderResult = session.render(50000);
             assertTrue(renderResult.isSuccess());
@@ -123,16 +123,17 @@ public class AccessibilityTest extends RenderTestBase {
 
     @Test
     public void testDialogAccessibility() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.DialogView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <com.android.layoutlib.test.myapplication.widgets.DialogView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
