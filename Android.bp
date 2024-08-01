@@ -86,7 +86,7 @@ cc_library_host_shared {
         },
         darwin: {
             dist: {
-                targets: ["libandroid_runtime"],
+                targets: ["layoutlib_jni"],
                 dir: "layoutlib_native/darwin",
             },
         },
