@@ -31,8 +31,6 @@ import com.android.layoutlib.bridge.impl.RenderSessionImpl;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Handler_Delegate;
-import android.os.SystemClock;
-import android.os.SystemClock_Delegate;
 import android.view.Choreographer_Delegate;
 import android.view.MotionEvent;
 
@@ -172,15 +170,11 @@ public class BridgeRenderSession extends RenderSession {
     }
 
     private static int toMotionEventType(TouchEventType eventType) {
-        switch (eventType) {
-            case PRESS:
-                return MotionEvent.ACTION_DOWN;
-            case RELEASE:
-                return MotionEvent.ACTION_UP;
-            case DRAG:
-                return MotionEvent.ACTION_MOVE;
-        }
-        throw new IllegalStateException("Unexpected touch event type: " + eventType);
+        return switch (eventType) {
+            case PRESS -> MotionEvent.ACTION_DOWN;
+            case RELEASE -> MotionEvent.ACTION_UP;
+            case DRAG -> MotionEvent.ACTION_MOVE;
+        };
     }
 
     @Override

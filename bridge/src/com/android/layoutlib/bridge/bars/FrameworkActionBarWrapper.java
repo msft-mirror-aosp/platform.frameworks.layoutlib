@@ -178,7 +178,7 @@ public abstract class FrameworkActionBarWrapper {
         @NonNull
         private final Toolbar mToolbar;  // This is the view.
 
-        ToolbarWrapper(@NonNull BridgeContext context, @NonNull ActionBarCallback callback,
+        private ToolbarWrapper(@NonNull BridgeContext context, @NonNull ActionBarCallback callback,
                 @NonNull Toolbar toolbar) {
             super(context, callback, new ToolbarActionBar(toolbar, "", new WindowCallback()));
             mToolbar = toolbar;
@@ -246,7 +246,7 @@ public abstract class FrameworkActionBarWrapper {
         @NonNull private final View mDecorContentRoot;
         private MenuBuilder mMenuBuilder;
 
-        public WindowActionBarWrapper(@NonNull BridgeContext context,
+        private WindowActionBarWrapper(@NonNull BridgeContext context,
                 @NonNull ActionBarCallback callback, @NonNull View decorContentRoot,
                 @NonNull ActionBarView actionBarView) {
             super(context, callback, new WindowDecorActionBar(decorContentRoot));
@@ -267,7 +267,7 @@ public abstract class FrameworkActionBarWrapper {
             }
 
             // Set action bar to be split, if needed.
-            ViewGroup splitView = (ViewGroup) mDecorContentRoot.findViewById(R.id.split_action_bar);
+            ViewGroup splitView = mDecorContentRoot.findViewById(R.id.split_action_bar);
             if (splitView != null) {
                 mActionBarView.setSplitView(splitView);
                 Resources res = mContext.getResources();

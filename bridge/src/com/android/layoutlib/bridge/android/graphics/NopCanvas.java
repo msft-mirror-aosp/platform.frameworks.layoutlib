@@ -35,11 +35,9 @@ import android.graphics.text.MeasuredText;
  * Canvas implementation that does not do any rendering
  */
 public class NopCanvas extends Canvas {
-    private boolean mIsInitialized = false;
 
     public NopCanvas() {
         super();
-        mIsInitialized = true;
     }
 
     @Override
