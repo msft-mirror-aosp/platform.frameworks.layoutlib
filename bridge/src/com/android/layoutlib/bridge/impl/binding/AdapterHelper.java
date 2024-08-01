@@ -65,8 +65,7 @@ public class AdapterHelper {
 
     private static void fillView(BridgeContext context, View view, AdapterItem item,
             AdapterItem parentItem, LayoutlibCallback callback, ResourceReference adapterRef) {
-        if (view instanceof ViewGroup) {
-            ViewGroup group = (ViewGroup) view;
+        if (view instanceof ViewGroup group) {
             final int count = group.getChildCount();
             for (int i = 0 ; i < count ; i++) {
                 fillView(context, group.getChildAt(i), item, parentItem, callback, adapterRef);
@@ -82,8 +81,7 @@ public class AdapterHelper {
                     int parentPositionPerType = parentItem != null ?
                             parentItem.getPositionPerType() : 0;
 
-                    if (view instanceof TextView) {
-                        TextView tv = (TextView) view;
+                    if (view instanceof TextView tv) {
                         Object value = callback.getAdapterItemValue(
                                 adapterRef, context.getViewKey(view),
                                 item.getDataBindingItem().getViewReference(),
@@ -101,8 +99,7 @@ public class AdapterHelper {
                         }
                     }
 
-                    if (view instanceof Checkable) {
-                        Checkable cb = (Checkable) view;
+                    if (view instanceof Checkable cb) {
 
                         Object value = callback.getAdapterItemValue(
                                 adapterRef, context.getViewKey(view),
@@ -121,8 +118,7 @@ public class AdapterHelper {
                         }
                     }
 
-                    if (view instanceof ImageView) {
-                        ImageView iv = (ImageView) view;
+                    if (view instanceof ImageView iv) {
 
                         Object value = callback.getAdapterItemValue(
                                 adapterRef, context.getViewKey(view),

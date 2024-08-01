@@ -70,7 +70,7 @@ public class Config {
         if (platformVersion == 0) {
             return sDefaultResourceDir;
         }
-        List<String> list = new ArrayList<String>(10);
+        List<String> list = new ArrayList<>(10);
         // Gingerbread - uses custom battery and wifi icons.
         if (platformVersion <= GINGERBREAD) {
             list.add(GINGERBREAD_DIR);
