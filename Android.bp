@@ -80,6 +80,7 @@ cc_library_host_shared {
         "libinput",
         "libnativehelper_jvm",
     ],
+    stl: "libc++_static",
     target: {
         windows: {
             enabled: true,
@@ -104,5 +105,5 @@ cc_library_host_shared {
                 tag: "stripped_all",
             },
         },
-    }
+    },
 }
