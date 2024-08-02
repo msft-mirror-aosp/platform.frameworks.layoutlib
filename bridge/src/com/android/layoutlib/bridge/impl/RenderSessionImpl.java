@@ -89,6 +89,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -110,10 +111,10 @@ import static com.android.layoutlib.common.util.ReflectionUtils.isInstanceOf;
 public class RenderSessionImpl extends RenderAction<SessionParams> {
 
     private static final Canvas NOP_CANVAS = new NopCanvas();
-    private static final String SIMULATED_SDK_TOO_HIGH =
-            String.format("The current rendering only supports APIs up to %d. You may encounter " +
-                    "crashes if using with higher APIs. To avoid, you can set a lower API for " +
-                    "your previews.", SDK_INT);
+    private static final String SIMULATED_SDK_TOO_HIGH = String.format(Locale.ENGLISH,
+            "The current rendering only supports APIs up to %d. You may encounter crashes if " +
+                    "using with higher APIs. To avoid, you can set a lower API for your previews.",
+            SDK_INT);
 
     // scene state
     private RenderSession mScene;
@@ -654,12 +655,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         }
         if (view instanceof TabHost) {
             setupTabHost((TabHost) view, layoutlibCallback);
-        } else if (view instanceof QuickContactBadge) {
-            QuickContactBadge badge = (QuickContactBadge) view;
+        } else if (view instanceof QuickContactBadge badge) {
             badge.setImageToDefault();
-        } else if (view instanceof ViewGroup) {
+        } else if (view instanceof ViewGroup group) {
             mInflater.postInflateProcess(view);
-            ViewGroup group = (ViewGroup) view;
             final int count = group.getChildCount();
             for (int c = 0; c < count; c++) {
                 View child = group.getChildAt(c);
@@ -694,10 +693,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     private View findChildView(View view, String[] className) {
-        if (!(view instanceof ViewGroup)) {
+        if (!(view instanceof ViewGroup group)) {
             return null;
         }
-        ViewGroup group = (ViewGroup) view;
         for (int i = 0; i < group.getChildCount(); i++) {
             if (isInstanceOf(group.getChildAt(i), className)) {
                 return group.getChildAt(i);
@@ -707,10 +705,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     private boolean hasToolbar(View collapsingToolbar) {
-        if (!(collapsingToolbar instanceof ViewGroup)) {
+        if (!(collapsingToolbar instanceof ViewGroup group)) {
             return false;
         }
-        ViewGroup group = (ViewGroup) collapsingToolbar;
         for (int i = 0; i < group.getChildCount(); i++) {
             if (isInstanceOf(group.getChildAt(i), DesignLibUtil.CN_TOOLBAR)) {
                 return true;
@@ -746,10 +743,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
         }
 
-        if (!(view instanceof ViewGroup)) {
+        if (!(view instanceof ViewGroup group)) {
             return;
         }
-        ViewGroup group = (ViewGroup) view;
         for (int i = 0; i < group.getChildCount(); i++) {
             View child = group.getChildAt(i);
             handleScrolling(context, child);
@@ -787,14 +783,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     "TabHost requires a FrameLayout with id \"android:id/tabcontent\".");
         }
 
-        if (!(v instanceof FrameLayout)) {
+        if (!(v instanceof FrameLayout content)) {
             //noinspection SpellCheckingInspection
             throw new PostInflateException(String.format(
                     "TabHost requires a FrameLayout with id \"android:id/tabcontent\".\n" +
                     "View found with id 'tabcontent' is '%s'", v.getClass().getCanonicalName()));
         }
-
-        FrameLayout content = (FrameLayout)v;
 
         // now process the content of the frameLayout and dynamically create tabs for it.
         final int count = content.getChildCount();
@@ -850,8 +844,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         ViewInfo result = createViewInfo(view, hOffset, vOffset, params.getExtendedViewInfoMode(),
                 isContentFrame);
 
-        if (view instanceof ViewGroup) {
-            ViewGroup group = ((ViewGroup) view);
+        if (view instanceof ViewGroup group) {
             result.setChildren(visitAllChildren(group, isContentFrame ? 0 : hOffset,
                     isContentFrame ? 0 : vOffset,
                     params, isContentFrame));
@@ -947,7 +940,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * set.
      * @param hOffset horizontal offset for the view bounds. Used only if view is part of the
      * content frame.
-     * @param vOffset vertial an offset for the view bounds. Used only if view is part of the
+     * @param vOffset vertical an offset for the view bounds. Used only if view is part of the
      * content frame.
      */
     private ViewInfo createViewInfo(View view, int hOffset, int vOffset, boolean setExtendedInfo,
@@ -1105,7 +1098,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         return mValidatorHierarchy;
     }
 
-    public void setValidatorHierarchy(@NotNull ValidatorHierarchy validatorHierarchy) {
+    private void setValidatorHierarchy(@NotNull ValidatorHierarchy validatorHierarchy) {
         mValidatorHierarchy = validatorHierarchy;
     }
 
