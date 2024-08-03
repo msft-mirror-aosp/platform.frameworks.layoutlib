@@ -20,7 +20,6 @@ import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.ResourceValueImpl;
 import com.android.ide.common.resources.ResourceValueMap;
 import com.android.ide.common.resources.deprecated.ValueResourceParser.IValueResourceRepository;
-import com.android.io.IAbstractFile;
 import com.android.io.StreamException;
 import com.android.resources.ResourceType;
 import com.android.utils.XmlUtils;
