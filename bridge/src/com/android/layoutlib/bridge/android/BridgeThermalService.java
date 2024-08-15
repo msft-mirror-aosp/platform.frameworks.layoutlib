@@ -23,9 +23,6 @@ import android.os.IThermalStatusListener;
 import android.os.IThermalService;
 import android.os.Temperature;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Fake implementation of IThermalService
  */

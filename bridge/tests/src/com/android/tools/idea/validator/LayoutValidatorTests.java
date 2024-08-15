@@ -77,13 +77,13 @@ public class LayoutValidatorTests extends RenderTestBase {
 
         renderAndVerify(params, "a11y_test1.png");
         Object connectionCache = ReflectionUtils.getFieldValue(AccessibilityInteractionClient.class,
-                AccessibilityInteractionClient.getInstance(), "sConnectionCache");
-        assertEquals(0, ((SparseArray)connectionCache).size());
+                null, "sConnectionCache");
+        assertEquals(0, ((SparseArray<?>)connectionCache).size());
     }
 
     @Test
     public void testValidation() throws Exception {
-        render(sBridge, generateParams(), -1, session -> {
+        render(sBridge, generateParams(), -1, session -> session.execute(() -> {
             ValidatorResult result = LayoutValidator.validate(
                     ((View) session.getRootViews().get(0).getViewObject()),
                     null,
@@ -119,7 +119,7 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertEquals("https://support.google.com/accessibility/android/answer/7101858",
                          second.mHelpfulUrl);
             assertEquals("TouchTargetSizeCheck", second.mSourceClass);
-            assertTrue(compoundFix.mFixes.size() == 2);
+            assertEquals(2, compoundFix.mFixes.size());
             assertEquals(
                     "Set this item's android:layout_width to 48dp.",
                     compoundFix.mFixes.get(0).getDescription());
@@ -138,7 +138,7 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertTrue(third.mFix instanceof SetViewAttributeFix);
             assertEquals("Set this item's android:textColor to #757575.",
                     third.mFix.getDescription());
-        });
+        }));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class LayoutValidatorTests extends RenderTestBase {
                     EnumSet.of(Level.VERBOSE));
             LayoutValidator.updatePolicy(newPolicy);
 
-            render(sBridge, generateParams(), -1, session -> {
+            render(sBridge, generateParams(), -1, session -> session.execute(() -> {
                 ValidatorResult result = LayoutValidator.validate(
                         ((View) session.getRootViews().get(0).getViewObject()),
                         null,
@@ -181,7 +181,7 @@ public class LayoutValidatorTests extends RenderTestBase {
                         SCALE_Y_FOR_NEXUS_5);
                 assertEquals(26, result.getIssues().size());
                 result.getIssues().forEach(issue ->assertEquals(Level.VERBOSE, issue.mLevel));
-            });
+            }));
         } finally {
             LayoutValidator.updatePolicy(LayoutValidator.DEFAULT_POLICY);
         }
@@ -203,7 +203,7 @@ public class LayoutValidatorTests extends RenderTestBase {
             newPolicy.mChecks.addAll(filtered);
             LayoutValidator.updatePolicy(newPolicy);
 
-            render(sBridge, generateParams(), -1, session -> {
+            render(sBridge, generateParams(), -1, session -> session.execute(() -> {
                 ValidatorResult result = LayoutValidator.validate(
                         ((View) session.getRootViews().get(0).getViewObject()),
                         null,
@@ -218,7 +218,7 @@ public class LayoutValidatorTests extends RenderTestBase {
                 assertEquals("https://support.google.com/accessibility/android/answer/7158390",
                         textCheck.mHelpfulUrl);
                 assertEquals("TextContrastCheck", textCheck.mSourceClass);
-            });
+            }));
         } finally {
             LayoutValidator.updatePolicy(LayoutValidator.DEFAULT_POLICY);
         }

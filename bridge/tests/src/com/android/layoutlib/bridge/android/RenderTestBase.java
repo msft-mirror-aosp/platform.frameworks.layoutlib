@@ -26,7 +26,7 @@ import com.android.layoutlib.bridge.intensive.BridgeClient;
 
 public class RenderTestBase extends BridgeClient {
     private static final String RESOURCE_DIR_PROPERTY = "test_res.dir";
-    public static final String S_PACKAGE_NAME = "com.android.layoutlib.test.myapplication";
+    private static final String S_PACKAGE_NAME = "com.android.layoutlib.test.myapplication";
 
     public String getAppTestDir() {
         return "testApp/MyApplication";
