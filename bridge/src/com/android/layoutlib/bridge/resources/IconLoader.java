@@ -30,7 +30,7 @@ public class IconLoader {
     private final LayoutDirection mDirection;
 
     private Density mCurrentDensity;
-    private StringBuilder mCurrentPath;
+    private final StringBuilder mCurrentPath;
 
     public IconLoader(String iconName, Density density, int platformVersion, LayoutDirection
             direction) {
