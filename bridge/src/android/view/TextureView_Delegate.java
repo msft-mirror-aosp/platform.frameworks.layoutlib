@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package android.media;
+package android.view;
 
-public class ImageReader_Delegate {
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-    static void nativeClassInit() {
-        // Call ImageReader.nativeClassInit(); in layoutlib implicitly before using ImageReader
+import android.graphics.TextureLayer;
+
+public class TextureView_Delegate {
+    @LayoutlibDelegate
+    static TextureLayer getTextureLayer(TextureView thisTextureView) {
+        /*
+         * Currently layoutlib does not support TextureLayers (no OpenGL)
+         */
+        return null;
     }
 }
