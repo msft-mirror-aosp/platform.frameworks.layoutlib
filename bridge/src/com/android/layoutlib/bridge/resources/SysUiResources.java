@@ -16,6 +16,7 @@
 
 package com.android.layoutlib.bridge.resources;
 
+import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -34,8 +35,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 public class SysUiResources {
@@ -69,29 +72,49 @@ public class SysUiResources {
     public static ImageView loadIcon(Context context, int api, ImageView imageView,
             String iconName, Density density, boolean isRtl, int color) {
         LayoutDirection dir = isRtl ? LayoutDirection.RTL : null;
-        IconLoader iconLoader = new IconLoader(iconName, density, api,
-                dir);
-        InputStream stream = iconLoader.getIcon();
-
-        if (stream != null) {
-            density = iconLoader.getDensity();
-            String path = iconLoader.getPath();
-            // look for a cached bitmap
-            Bitmap bitmap = Bridge.getCachedBitmap(path, Boolean.TRUE /*isFramework*/);
-            if (bitmap == null) {
-                Options options = new Options();
-                options.inDensity = density.getDpiValue();
-                bitmap = BitmapFactory.decodeStream(stream, null, options);
-                Bridge.setCachedBitmap(path, bitmap, Boolean.TRUE /*isFramework*/);
+        Drawable drawable = null;
+        if (iconName.endsWith("xml")) {
+            IconLoader iconLoader = new IconLoader(iconName, Density.ANYDPI, api, dir);
+            InputStream stream = iconLoader.getIcon();
+            if (stream != null) {
+                try {
+                    BridgeXmlBlockParser parser =
+                            new BridgeXmlBlockParser(
+                                    ParserFactory.create(stream, iconName),
+                                    (BridgeContext) context,
+                                    ResourceNamespace.ANDROID);
+                    drawable = Drawable.createFromXml(context.getResources(), parser);
+                } catch (XmlPullParserException | IOException e) {
+                    Bridge.getLog().error(ILayoutLog.TAG_BROKEN, "Unable to load icon " + iconName, e,
+                            null, null);
+                }
             }
+        } else {
+            IconLoader iconLoader = new IconLoader(iconName, density, api, dir);
+            InputStream stream = iconLoader.getIcon();
 
-            if (bitmap != null) {
-                BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
-                drawable.setTint(color);
-                imageView.setImageDrawable(drawable);
+            if (stream != null) {
+                density = iconLoader.getDensity();
+                String path = iconLoader.getPath();
+                // look for a cached bitmap
+                Bitmap bitmap = Bridge.getCachedBitmap(path, Boolean.TRUE /*isFramework*/);
+                if (bitmap == null) {
+                    Options options = new Options();
+                    options.inDensity = density.getDpiValue();
+                    bitmap = BitmapFactory.decodeStream(stream, null, options);
+                    Bridge.setCachedBitmap(path, bitmap, Boolean.TRUE /*isFramework*/);
+                }
+
+                if (bitmap != null) {
+                    drawable = new BitmapDrawable(context.getResources(), bitmap);
+                }
             }
         }
 
+        if (drawable != null) {
+            drawable.setTint(color);
+            imageView.setImageDrawable(drawable);
+        }
         return imageView;
     }
 }

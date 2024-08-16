@@ -47,7 +47,6 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.fonts.SystemFonts_Delegate;
 import android.hardware.input.IInputManager;
-import android.hardware.input.InputManager;
 import android.hardware.input.InputManagerGlobal;
 import android.icu.util.ULocale;
 import android.os.Looper;
@@ -73,6 +72,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -92,10 +92,10 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
 
     private static final String ICU_LOCALE_DIRECTION_RTL = "right-to-left";
 
-    public static class StaticMethodNotImplementedException extends RuntimeException {
+    protected static class StaticMethodNotImplementedException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
-        public StaticMethodNotImplementedException(String msg) {
+        protected StaticMethodNotImplementedException(String msg) {
             super(msg);
         }
     }
@@ -172,10 +172,11 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     private static String sIcuDataPath;
     private static String[] sKeyboardPaths;
 
-    private static final String[] LINUX_NATIVE_LIBRARIES = {"libandroid_runtime.so"};
-    private static final String[] MAC_NATIVE_LIBRARIES = {"libandroid_runtime.dylib"};
+    private static final String[] LINUX_NATIVE_LIBRARIES = {"layoutlib_jni.so"};
+    private static final String[] MAC_NATIVE_LIBRARIES = {"layoutlib_jni.dylib"};
     private static final String[] WINDOWS_NATIVE_LIBRARIES =
-            {"libicuuc_stubdata.dll", "libicuuc-host.dll", "libandroid_runtime.dll"};
+            {"libicuuc_stubdata.dll", "libicuuc-host.dll", "libandroid_runtime.dll",
+                    "layoutlib_jni.dll"};
 
     @Override
     public boolean init(Map<String, String> platformProperties,
@@ -334,6 +335,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         for (Entry<String, String> property : sPlatformProperties.entrySet()) {
             SystemProperties.set(property.getKey(), property.getValue());
         }
+        SystemProperties.set("ro.icu.data.path", Bridge.getIcuDataPath());
+        SystemProperties.set("ro.keyboard.paths", String.join(",", sKeyboardPaths));
     }
 
     /**
@@ -527,8 +530,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
 
     @Override
     public Result getViewIndex(Object viewObject) {
-        if (viewObject instanceof View) {
-            View view = (View) viewObject;
+        if (viewObject instanceof View view) {
             ViewParent parentView = view.getParent();
 
             if (parentView instanceof ViewGroup) {
@@ -601,11 +603,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             throw new IllegalStateException("scene must be acquired first. see #acquire(long)");
         }
 
-        if (log != null) {
-            sCurrentLog = log;
-        } else {
-            sCurrentLog = sDefaultLog;
-        }
+        sCurrentLog = Objects.requireNonNullElse(log, sDefaultLog);
     }
 
     /**
@@ -800,10 +798,8 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                     NativeConfig.CORE_CLASS_NATIVES));
             System.setProperty("graphics_native_classes", String.join(",",
                     NativeConfig.GRAPHICS_CLASS_NATIVES));
-            System.setProperty("icu.data.path", Bridge.getIcuDataPath());
             System.setProperty("use_bridge_for_logging", "true");
             System.setProperty("register_properties_during_load", "true");
-            System.setProperty("keyboard_paths", String.join(",", sKeyboardPaths));
             for (String library : getNativeLibraries()) {
                 String path = new File(nativeLibDir, library).getAbsolutePath();
                 System.load(path);

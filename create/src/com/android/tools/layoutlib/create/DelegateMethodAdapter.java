@@ -41,7 +41,7 @@ import java.util.ArrayList;
  *   This step is omitted if the method is native, since it has no Java implementation.
  * <li> A brand new implementation of {@code SomeClass.MethodName()} which calls to a
  *   non-existing method named {@code SomeClass_Delegate.MethodName()}.
- *   The implementation of this 'delegate' method is done in layoutlib_brigde.
+ *   The implementation of this 'delegate' method is done in layoutlib_bridge.
  * </ul>
  * A method visitor is generally constructed to generate a single method; however
  * here we might want to generate one or two depending on the context. To achieve
@@ -80,11 +80,11 @@ class DelegateMethodAdapter extends MethodVisitor {
 
     /** The parent method writer to copy of the original method.
      *  Null when dealing with a native original method. */
-    private MethodVisitor mOrgWriter;
+    private final MethodVisitor mOrgWriter;
     /** The parent method writer to generate the delegating method. Never null. */
-    private MethodVisitor mDelWriter;
+    private final MethodVisitor mDelWriter;
     /** The original method descriptor (return type + argument types.) */
-    private String mDesc;
+    private final String mDesc;
     /** True if the original method is static. */
     private final boolean mIsStatic;
     /** True if the method is contained in a static inner class */
@@ -266,7 +266,7 @@ class DelegateMethodAdapter extends MethodVisitor {
         // we pushed on the call stack. The return type remains unchanged.
         String desc = Type.getMethodDescriptor(
                 Type.getReturnType(mDesc),
-                paramTypes.toArray(new Type[paramTypes.size()]));
+                paramTypes.toArray(new Type[0]));
 
         // Invoke the static delegate
         mDelWriter.visitMethodInsn(Opcodes.INVOKESTATIC,
