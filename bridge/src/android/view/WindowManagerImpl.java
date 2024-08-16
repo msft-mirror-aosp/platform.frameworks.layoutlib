@@ -29,8 +29,6 @@ import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.view.Display.Mode;
-import android.view.KeyboardShortcutGroup;
-import android.view.KeyboardShortcutInfo;
 import android.widget.FrameLayout;
 
 import com.android.ide.common.rendering.api.ILayoutLog;
@@ -165,8 +163,7 @@ public class WindowManagerImpl implements WindowManager {
         }
 
         FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(arg1);
-        if (arg1 instanceof WindowManager.LayoutParams) {
-            LayoutParams params = (LayoutParams) arg1;
+        if (arg1 instanceof LayoutParams params) {
             frameLayoutParams.gravity = params.gravity;
             if ((params.flags & LayoutParams.FLAG_DIM_BEHIND) != 0) {
                 mCurrentRootView.setBackgroundColor(Color.argb(params.dimAmount, 0, 0, 0));
@@ -217,11 +214,10 @@ public class WindowManagerImpl implements WindowManager {
         if (view == null) {
             throw new IllegalArgumentException("view must not be null");
         }
-        if (!(params instanceof WindowManager.LayoutParams)) {
+        if (!(params instanceof LayoutParams wparams)) {
             throw new IllegalArgumentException("Params must be WindowManager.LayoutParams");
         }
 
-        WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
         FrameLayout.LayoutParams lparams = new FrameLayout.LayoutParams(params);
         lparams.gravity = wparams.gravity;
         view.setLayoutParams(lparams);
@@ -242,7 +238,7 @@ public class WindowManagerImpl implements WindowManager {
 
     @Override
     public KeyboardShortcutGroup getApplicationLaunchKeyboardShortcuts(int deviceId) {
-        return new KeyboardShortcutGroup("", new ArrayList<KeyboardShortcutInfo>());
+        return new KeyboardShortcutGroup("", new ArrayList<>());
     }
 
     @Override

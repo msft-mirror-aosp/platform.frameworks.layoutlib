@@ -50,7 +50,7 @@ public class FrameworkActionBar extends BridgeActionBar {
     private static final String LAYOUT_ATTR_NAME = "windowActionBarFullscreenDecorLayout";
 
     // The Action Bar
-    @NonNull private FrameworkActionBarWrapper mActionBar;
+    @NonNull private final FrameworkActionBarWrapper mActionBar;
 
     // A fake parent for measuring views.
     @Nullable private ViewGroup mMeasureParent;
@@ -66,7 +66,7 @@ public class FrameworkActionBar extends BridgeActionBar {
         mActionBar = FrameworkActionBarWrapper.getActionBarWrapper(context, getCallBack(),
                 decorContent);
 
-        FrameLayout contentRoot = (FrameLayout) decorContent.findViewById(android.R.id.content);
+        FrameLayout contentRoot = decorContent.findViewById(android.R.id.content);
 
         // If something went wrong and we were not able to initialize the content root,
         // just add a frame layout inside this and return.
@@ -155,11 +155,11 @@ public class FrameworkActionBar extends BridgeActionBar {
         layoutParams.setMarginEnd(getPixelValue("5dp", metrics));
         listView.setLayoutParams(layoutParams);
         listView.setAdapter(adapter);
-        final TypedArray a = mActionBar.getPopupContext().obtainStyledAttributes(null,
-                R.styleable.PopupWindow, R.attr.popupMenuStyle, 0);
-        listView.setBackground(a.getDrawable(R.styleable.PopupWindow_popupBackground));
-        listView.setDivider(a.getDrawable(R.attr.actionBarDivider));
-        a.recycle();
+        try (final TypedArray a = mActionBar.getPopupContext().obtainStyledAttributes(null,
+                R.styleable.PopupWindow, R.attr.popupMenuStyle, 0)) {
+            listView.setBackground(a.getDrawable(R.styleable.PopupWindow_popupBackground));
+            listView.setDivider(a.getDrawable(R.attr.actionBarDivider));
+        }
         listView.setElevation(mActionBar.getMenuPopupElevation());
         assert mEnclosingLayout != null : "Unable to find view to attach ActionMenuPopup.";
         mEnclosingLayout.addView(listView);
