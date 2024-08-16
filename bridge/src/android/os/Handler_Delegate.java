@@ -23,6 +23,8 @@ import com.android.layoutlib.bridge.util.HandlerMessageQueue;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.annotations.NotNull;
 
+import android.util.TimeUtils;
+
 import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
 
 /**
@@ -84,15 +86,15 @@ public class Handler_Delegate {
      *
      * @return if there are more callbacks to execute
      */
-    public static boolean executeCallbacks() {
+    public static boolean executeCallbacks(long frameTimeNanos) {
         BridgeContext context = getCurrentContext();
         if (context == null) {
             return false;
         }
+        long frameTimeMs = frameTimeNanos / TimeUtils.NANOS_PER_MS;
         HandlerMessageQueue queue = context.getSessionInteractiveData().getHandlerMessageQueue();
-        long uptimeMillis = SystemClock_Delegate.uptimeMillis();
         Runnable r;
-        while ((r = queue.extractFirst(uptimeMillis)) != null) {
+        while ((r = queue.extractFirst(frameTimeMs)) != null) {
             executeSafely(r);
         }
         return queue.isNotEmpty();
@@ -102,8 +104,7 @@ public class Handler_Delegate {
         void sendMessageAtTime(Handler handler, Message msg, long uptimeMillis);
     }
 
-    private final static ThreadLocal<IHandlerCallback> sCallbacks =
-        new ThreadLocal<IHandlerCallback>();
+    private final static ThreadLocal<IHandlerCallback> sCallbacks = new ThreadLocal<>();
 
     public static void setCallback(IHandlerCallback callback) {
         sCallbacks.set(callback);
