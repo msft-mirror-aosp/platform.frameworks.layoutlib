@@ -62,7 +62,7 @@ class DisplayCutoutView extends View {
         if (!mBoundingPath.isEmpty()) {
             mPaint.setColor(Color.BLACK);
             mPaint.setStyle(Paint.Style.FILL);
-            canvas.drawPath(mBoundingPath, mPaint);
+            canvas.drawPath(mInfo.displayCutout.getCutoutPath(), mPaint);
         }
     }
 
@@ -111,7 +111,7 @@ class DisplayCutoutView extends View {
                 resolveSizeAndState(mBoundingRect.height(), heightMeasureSpec, 0));
     }
 
-    public static void boundsFromDirection(DisplayCutout displayCutout, int gravity, Rect out) {
+    private static void boundsFromDirection(DisplayCutout displayCutout, int gravity, Rect out) {
         Region bounds = new Region(displayCutout.getBoundingRectTop());
         switch (gravity) {
             case Gravity.TOP:
