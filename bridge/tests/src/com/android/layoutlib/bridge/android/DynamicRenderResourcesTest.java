@@ -57,5 +57,9 @@ public class DynamicRenderResourcesTest extends RenderTestBase {
         assertEquals(-4632, (int)dynamicColorMap.get("system_neutral2_50"));
         assertEquals(-4413535, (int)dynamicColorMap.get("system_neutral2_300"));
         assertEquals(-12899031, (int)dynamicColorMap.get("system_neutral2_800"));
+
+        assertEquals(-8956083, (int)dynamicColorMap.get("system_secondary_light"));
+        assertEquals(-1589839, (int)dynamicColorMap.get("system_secondary_dark"));
+        assertEquals(-12973312, (int)dynamicColorMap.get("system_on_primary_fixed"));
     }
 }

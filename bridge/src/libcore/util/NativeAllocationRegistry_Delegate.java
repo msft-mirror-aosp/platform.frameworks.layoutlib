@@ -17,6 +17,7 @@
 package libcore.util;
 
 import com.android.layoutlib.bridge.impl.DelegateManager;
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 /**
  * Delegate implementing the native methods of {@link NativeAllocationRegistry}
@@ -47,6 +48,35 @@ public class NativeAllocationRegistry_Delegate {
      */
     public static long createFinalizer(FreeFunction finalizer) {
         return sManager.addNewDelegate(new NativeAllocationRegistry_Delegate(finalizer));
+    }
+
+    @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(ClassLoader classLoader,
+            long freeFunction, long size) {
+        if (classLoader == null) {
+            classLoader = NativeAllocationRegistry_Delegate.class.getClassLoader();
+        }
+        return NativeAllocationRegistry.createMalloced_Original(classLoader, freeFunction, size);
+    }
+
+    @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(ClassLoader classLoader,
+            long freeFunction) {
+        if (classLoader == null) {
+            classLoader = NativeAllocationRegistry_Delegate.class.getClassLoader();
+        }
+        return NativeAllocationRegistry.createMalloced_Original(classLoader, freeFunction);
+    }
+
+    @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(Class clazz, long freeFunction,
+            long size) {
+        return NativeAllocationRegistry.createMalloced_Original(clazz, freeFunction, size);
+    }
+
+    @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(Class clazz, long freeFunction) {
+        return NativeAllocationRegistry.createMalloced_Original(clazz, freeFunction);
     }
 
     /*package*/ static void applyFreeFunction(long freeFunction, long nativePtr) {
