@@ -66,6 +66,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
+import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_EDGE_TO_EDGE;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_USE_GESTURE_NAV;
 import static com.android.layoutlib.bridge.bars.Config.isGreaterOrEqual;
 import static com.android.layoutlib.bridge.impl.ResourceHelper.getBooleanThemeFrameworkAttrValue;
@@ -514,7 +515,7 @@ public class Layout extends FrameLayout {
             if (!mParams.isForceNoDecor()) {
                 mIsEdgeToEdge = isGreaterOrEqual(mParams.getSimulatedPlatformVersion(),
                         VANILLA_ICE_CREAM) ||
-                        Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_USE_GESTURE_NAV));
+                        Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_EDGE_TO_EDGE));
                 findStatusBar();
                 findFrameworkBar();
                 findAppCompatActionBar();

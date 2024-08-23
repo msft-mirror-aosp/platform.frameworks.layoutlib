@@ -93,7 +93,7 @@ public final class RenderParamsFlags {
      * To tell Layoutlib to display the app edge to edge.
      */
     public static final Key<Boolean> FLAG_KEY_EDGE_TO_EDGE =
-            new Key<>("useGestureNav", Boolean.class);
+            new Key<>("edgeToEdge", Boolean.class);
 
     // Disallow instances.
     private RenderParamsFlags() {}
