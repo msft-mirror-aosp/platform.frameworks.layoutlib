@@ -34,19 +34,16 @@ import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
-import android.os.SystemProperties;
 import android.util.DisplayMetrics;
 import android.view.IWindowManager;
 import android.view.IWindowManagerImpl;
 import android.view.Surface;
 import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
-import android.view.WindowManagerImpl;
 import android.view.accessibility.AccessibilityInteractionClient_Accessor;
 import android.view.inputmethod.InputMethodManager_Accessor;
 
@@ -61,7 +58,6 @@ import static android.os._Original_Build.VERSION.SDK_INT;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_LOCK_INTERRUPTED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_TIMEOUT;
 import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_SHOW_CUTOUT;
 
 /**
  * Base class for rendering action.
@@ -138,8 +134,6 @@ public abstract class RenderAction<T extends RenderParams> {
         HardwareConfig hardwareConfig = mParams.getHardwareConfig();
 
         // setup the display Metrics.
-        SystemProperties.set("qemu.sf.lcd_density",
-                Integer.toString(hardwareConfig.getDensity().getDpiValue()));
         DisplayMetrics metrics = new DisplayMetrics();
         metrics.densityDpi = metrics.noncompatDensityDpi =
                 hardwareConfig.getDensity().getDpiValue();
@@ -289,10 +283,6 @@ public abstract class RenderAction<T extends RenderParams> {
         IWindowManager iwm = new IWindowManagerImpl(getContext().getConfiguration(),
                 getContext().getMetrics(), Surface.ROTATION_0, hasNavigationBar);
         WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
-        if (Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_SHOW_CUTOUT))) {
-            ((WindowManagerImpl) mContext.getSystemService(Context.WINDOW_SERVICE))
-                    .setupDisplayCutout();
-        }
 
         ILayoutLog currentLog = mParams.getLog();
         Bridge.setLog(currentLog);

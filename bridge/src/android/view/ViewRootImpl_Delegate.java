@@ -29,7 +29,7 @@ public class ViewRootImpl_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static boolean performHapticFeedback(ViewRootImpl thisViewRoot, int effectId,
-            int flags, int privFlags) {
+            boolean always, boolean fromIme) {
         return false;
     }
 }

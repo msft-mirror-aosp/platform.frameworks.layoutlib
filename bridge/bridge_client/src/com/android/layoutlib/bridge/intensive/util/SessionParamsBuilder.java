@@ -26,7 +26,6 @@ import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.resources.ResourceResolver;
-import com.android.ide.common.resources.ResourceValueMap;
 import com.android.ide.common.resources.configuration.FolderConfiguration;
 import com.android.ide.common.resources.deprecated.ResourceRepository;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
@@ -66,7 +65,6 @@ public class SessionParamsBuilder {
     private boolean enableLayoutValidator = false;
     private boolean enableLayoutValidatorImageCheck = false;
     private boolean transparentBackground = false;
-    private Map<ResourceType, ResourceValueMap> mFrameworkOverlayResources;
 
     @NonNull
     public SessionParamsBuilder setParser(@NonNull LayoutPullParser layoutParser) {
@@ -184,17 +182,10 @@ public class SessionParamsBuilder {
         this.enableLayoutValidatorImageCheck = true;
         return this;
     }
-
+    
     @NonNull
     public SessionParamsBuilder setTransparentBackground() {
         this.transparentBackground = true;
-        return this;
-    }
-
-    @NonNull
-    public SessionParamsBuilder setFrameworkOverlayResources(
-            Map<ResourceType, ResourceValueMap> resources) {
-        this.mFrameworkOverlayResources = resources;
         return this;
     }
 
@@ -207,15 +198,9 @@ public class SessionParamsBuilder {
         assert mLayoutlibCallback != null;
 
         FolderConfiguration config = mConfigGenerator.getFolderConfig();
-        Map<ResourceType, ResourceValueMap> frameworkConfigResources =
-                mFrameworkResources.getConfiguredResources(config);
-        if (mFrameworkOverlayResources != null) {
-            mFrameworkOverlayResources.keySet().forEach(type ->
-                    frameworkConfigResources.get(type).putAll(mFrameworkOverlayResources.get(type)));
-        }
         ResourceResolver resourceResolver = ResourceResolver.create(
                 ImmutableMap.of(
-                        ResourceNamespace.ANDROID, frameworkConfigResources,
+                        ResourceNamespace.ANDROID, mFrameworkResources.getConfiguredResources(config),
                         ResourceNamespace.TODO(), mProjectResources.getConfiguredResources(config)),
                 new ResourceReference(
                         ResourceNamespace.fromBoolean(!isProjectTheme),

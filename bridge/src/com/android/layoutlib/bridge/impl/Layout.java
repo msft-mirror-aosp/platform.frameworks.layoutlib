@@ -39,6 +39,7 @@ import com.android.resources.ScreenOrientation;
 import android.R.id;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -65,9 +66,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_EDGE_TO_EDGE;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_USE_GESTURE_NAV;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_SHOW_CUTOUT;
 import static com.android.layoutlib.bridge.bars.Config.isGreaterOrEqual;
 import static com.android.layoutlib.bridge.impl.ResourceHelper.getBooleanThemeFrameworkAttrValue;
 import static com.android.layoutlib.bridge.impl.ResourceHelper.getBooleanThemeValue;
@@ -215,8 +214,9 @@ public class Layout extends FrameLayout {
                 mContentRoot == null ? (mContentRoot = createContentFrame(navBar, statusBar)) :
                         frameworkActionBar, appCompatActionBar);
         addView(mAppUiRoot);
+        //addView(createSysUiOverlay(mBuilder.mContext));
 
-        ViewGroup sysUiRoot = buildSysUi(statusBar, navBar);
+        LinearLayout sysUiRoot = buildSysUi(statusBar, navBar);
         if (sysUiRoot != null) {
             addView(sysUiRoot, MATCH_PARENT, MATCH_PARENT);
         }
@@ -225,35 +225,27 @@ public class Layout extends FrameLayout {
     }
 
     @Nullable
-    private ViewGroup buildSysUi(@Nullable StatusBar statusBar, @Nullable View navBar) {
-        if (statusBar == null && navBar == null && !mBuilder.mShowCutout) {
+    private LinearLayout buildSysUi(@Nullable StatusBar statusBar, @Nullable View navBar) {
+        if (statusBar == null && navBar == null) {
             return null;
         }
-
-        FrameLayout sysUiRoot = new FrameLayout(mContext);
-        if (navBar != null && statusBar != null) {
-            if (!mBuilder.useGestureNav() && mBuilder.mNavBarOrientation == VERTICAL) {
-                LinearLayout insideLayout = new LinearLayout(mContext);
-                insideLayout.setOrientation(HORIZONTAL);
-                ViewGroup statusBarContainer = new FrameLayout(mContext);
-                statusBarContainer.addView(statusBar);
-                insideLayout.addView(statusBarContainer,
-                        new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT, 1.0f));
-                insideLayout.addView(navBar);
-                sysUiRoot.addView(insideLayout, MATCH_PARENT, MATCH_PARENT);
-            } else {
-                sysUiRoot.addView(statusBar);
-                sysUiRoot.addView(navBar);
-            }
-        } else if (navBar == null) {
+        LinearLayout sysUiRoot = new LinearLayout(mBuilder.mContext);
+        if (navBar == null) {
             sysUiRoot.addView(statusBar);
-        } else {
+        } else if (statusBar == null) {
             sysUiRoot.addView(navBar);
-        }
+        } else {
+            ViewGroup statusBarContainer = new FrameLayout(mBuilder.mContext);
+            statusBarContainer.addView(statusBar);
+            sysUiRoot.addView(statusBarContainer,
+                    new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT, 1.0f));
 
-        if (mBuilder.mShowCutout) {
-            sysUiRoot.addView(new DisplayCutoutView(mBuilder.mContext, true),
-                    MATCH_PARENT, MATCH_PARENT);
+            if (!mBuilder.useGestureNav() && mBuilder.mNavBarOrientation == VERTICAL) {
+                sysUiRoot.setOrientation(HORIZONTAL);
+            } else {
+                sysUiRoot.setOrientation(VERTICAL);
+            }
+            sysUiRoot.addView(navBar);
         }
         return sysUiRoot;
     }
@@ -275,6 +267,14 @@ public class Layout extends FrameLayout {
             return true;
         }
         return false;
+    }
+
+    @NonNull
+    private static View createSysUiOverlay(@NonNull BridgeContext context) {
+        SysUiOverlay overlay =  new SysUiOverlay(context, 20, 10, 50, 40, 60);
+        overlay.setNotchColor(Color.BLACK);
+        overlay.setLayoutParams(new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        return overlay;
     }
 
     @NonNull
@@ -448,7 +448,7 @@ public class Layout extends FrameLayout {
         WindowManager.LayoutParams layoutParams =
                 getNavBarLayoutParamsForRotation(mBuilder.mContext, navBar, rotation);
         mInsetsFrameProviders.addAll(Arrays.asList(layoutParams.providedInsets));
-        FrameLayout.LayoutParams lparams = new FrameLayout.LayoutParams(layoutParams);
+        LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(layoutParams);
         lparams.gravity = layoutParams.gravity;
         navBar.setLayoutParams(lparams);
         navBar.setId(getId(ID_NAV_BAR));
@@ -501,7 +501,6 @@ public class Layout extends FrameLayout {
         private boolean mTranslucentNav;
         private boolean mUseGestureNav;
         private boolean mIsEdgeToEdge;
-        private boolean mShowCutout;
 
         public Builder(@NonNull SessionParams params, @NonNull BridgeContext context) {
             mParams = params;
@@ -515,8 +514,7 @@ public class Layout extends FrameLayout {
             if (!mParams.isForceNoDecor()) {
                 mIsEdgeToEdge = isGreaterOrEqual(mParams.getSimulatedPlatformVersion(),
                         VANILLA_ICE_CREAM) ||
-                        Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_EDGE_TO_EDGE));
-                mShowCutout = Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_SHOW_CUTOUT));
+                        Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_USE_GESTURE_NAV));
                 findStatusBar();
                 findFrameworkBar();
                 findAppCompatActionBar();

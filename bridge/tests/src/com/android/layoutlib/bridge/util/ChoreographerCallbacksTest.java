@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.util.TimeUtils;
 import android.view.Choreographer.FrameCallback;
 
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ public class ChoreographerCallbacksTest {
 
         callbacks.add((Runnable) () -> order.add(2), null, 200);
         callbacks.add((FrameCallback) frameTimeNanos -> order.add(1), null, 100);
-        callbacks.execute(200 * TimeUtils.NANOS_PER_MS, logger);
+        callbacks.execute(200, logger);
 
         Assert.assertArrayEquals(order.toArray(), new Object[] { 1, 2 });
         Assert.assertTrue(logger.errorMessages.isEmpty());
@@ -74,7 +73,7 @@ public class ChoreographerCallbacksTest {
 
         callbacks.add((Runnable) () -> order.add(2), null, 200);
         callbacks.add((FrameCallback) frameTimeNanos -> order.add(1), null, 100);
-        callbacks.execute(100 * TimeUtils.NANOS_PER_MS, logger);
+        callbacks.execute(100, logger);
 
         Assert.assertArrayEquals(order.toArray(), new Object[] { 1 });
         Assert.assertTrue(logger.errorMessages.isEmpty());
@@ -89,7 +88,7 @@ public class ChoreographerCallbacksTest {
         callbacks.add(runnable, null, 200);
         callbacks.add((FrameCallback) frameTimeNanos -> order.add(1), null, 100);
         callbacks.remove(runnable, null);
-        callbacks.execute(200 * TimeUtils.NANOS_PER_MS, logger);
+        callbacks.execute(200, logger);
 
         Assert.assertArrayEquals(order.toArray(), new Object[] { 1 });
         Assert.assertTrue(logger.errorMessages.isEmpty());
@@ -100,7 +99,7 @@ public class ChoreographerCallbacksTest {
         ChoreographerCallbacks callbacks = new ChoreographerCallbacks();
 
         callbacks.add(new Object(), null, 100);
-        callbacks.execute(200 * TimeUtils.NANOS_PER_MS, logger);
+        callbacks.execute(200, logger);
 
         Assert.assertFalse(logger.errorMessages.isEmpty());
         Assert.assertEquals(logger.errorMessages.get(0), "Unexpected action as Choreographer callback");
@@ -118,7 +117,7 @@ public class ChoreographerCallbacksTest {
         callbacks.add((Runnable) () -> order.add(3), token2, 100);
         callbacks.add((Runnable) () -> order.add(4), null, 200);
         callbacks.remove(null, token1);
-        callbacks.execute(200 * TimeUtils.NANOS_PER_MS, logger);
+        callbacks.execute(200, logger);
 
         Assert.assertArrayEquals(order.toArray(), new Object[] { 3, 4 });
         Assert.assertTrue(logger.errorMessages.isEmpty());

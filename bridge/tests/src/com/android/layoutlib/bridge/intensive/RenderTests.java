@@ -25,7 +25,6 @@ import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.XmlParserFactory;
-import com.android.ide.common.resources.ResourceValueMap;
 import com.android.internal.R;
 import com.android.internal.lang.System_Delegate;
 import com.android.layoutlib.bridge.android.BridgeContext;
@@ -69,12 +68,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static android.os._Original_Build.VERSION.SDK_INT;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_EDGE_TO_EDGE;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_SHOW_CUTOUT;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_USE_GESTURE_NAV;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -2228,57 +2224,5 @@ public class RenderTests extends RenderTestBase {
         params.setFlag(FLAG_KEY_USE_GESTURE_NAV, true);
 
         renderAndVerify(params, "land_gesture_nav.png", TimeUnit.SECONDS.toNanos(2));
-    }
-
-    @Test
-    public void testCutouts() throws ClassNotFoundException {
-        final String layout =
-                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" + "\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Test cutouts\"\n" +
-                        "        android:textSize=\"30sp\"/>\n" +
-                        "</FrameLayout>";
-        // Create LayoutLibCallback.
-        LayoutLibTestCallback layoutLibCallback =
-                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
-        layoutLibCallback.initResources();
-
-        ResourceValueMap stringOverlay = ResourceValueMap.create();
-        stringOverlay.put(new ResourceValueImpl(ResourceNamespace.ANDROID, ResourceType.STRING,
-                "config_mainBuiltInDisplayCutout",
-                "M 128,83 A 44,44 0 0 1 84,127 44,44 0 0 1 40,83 44,44 0 0 1 84,39 44,44 0 0 1 128,83 Z @left"));
-        stringOverlay.put(new ResourceValueImpl(ResourceNamespace.ANDROID, ResourceType.STRING,
-                "config_mainBuiltInDisplayCutoutRectApproximation",
-                "M 0.0,0.0 h 136 v 136 h -136 Z @left"));
-
-        ResourceValueMap booleanOverlay = ResourceValueMap.create();
-        booleanOverlay.put(new ResourceValueImpl(ResourceNamespace.ANDROID, ResourceType.BOOL,
-                "config_fillMainBuiltInDisplayCutout", "true"));
-
-        ResourceValueMap dimenOverlay = ResourceValueMap.create();
-        dimenOverlay.put(new ResourceValueImpl(ResourceNamespace.ANDROID, ResourceType.DIMEN,
-                "status_bar_height_portrait", "136px"));
-        dimenOverlay.put(new ResourceValueImpl(ResourceNamespace.ANDROID, ResourceType.DIMEN,
-                "status_bar_height_landscape", "28dp"));
-
-        Map<ResourceType, ResourceValueMap> frameworkOverlay = Map.of(
-                ResourceType.STRING, stringOverlay,
-                ResourceType.BOOL, booleanOverlay,
-                ResourceType.DIMEN, dimenOverlay);
-
-        SessionParams params = getSessionParamsBuilder()
-                .setParser(LayoutPullParser.createFromString(layout))
-                .setCallback(layoutLibCallback)
-                .setTheme("Theme.Material.Light", false)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .setFrameworkOverlayResources(frameworkOverlay)
-                .build();
-        params.setFlag(FLAG_KEY_SHOW_CUTOUT, true);
-
-        renderAndVerify(params, "hole_cutout.png", TimeUnit.SECONDS.toNanos(2));
     }
 }
