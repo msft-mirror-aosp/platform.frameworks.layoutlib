@@ -81,7 +81,8 @@ public abstract class RenderAction<T extends RenderParams> {
      * This is to be accessed when wanting to know the simulated SDK version instead
      * of Build.VERSION.SDK_INT.
      */
-    protected static int sSimulatedSdk;
+    @SuppressWarnings("WeakerAccess") // Field accessed from Studio
+    public static int sSimulatedSdk;
 
     private static final Set<String> COMPOSE_CLASS_FQNS =
             Set.of("androidx.compose.ui.tooling.ComposeViewAdapter",
