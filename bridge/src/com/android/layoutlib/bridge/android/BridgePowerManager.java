@@ -258,6 +258,12 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public void wakeUpWithDisplayId(long time, @WakeReason int reason,
+        String details , String opPackageName, int displayId) throws RemoteException {
+        // pass for now.
+    }
+
+    @Override
     public void boostScreenBrightness(long time) throws RemoteException {
         // pass for now.
     }
