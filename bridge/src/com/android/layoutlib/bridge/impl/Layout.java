@@ -45,6 +45,7 @@ import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.AttachInfo_Accessor;
+import android.view.DisplayCutout.BoundsPosition;
 import android.view.InsetsFrameProvider;
 import android.view.Surface;
 import android.view.View;
@@ -61,6 +62,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static android.os._Original_Build.VERSION_CODES.VANILLA_ICE_CREAM;
+import static android.view.DisplayCutout.BOUNDS_POSITION_LEFT;
+import static android.view.DisplayCutout.BOUNDS_POSITION_TOP;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
@@ -216,7 +219,8 @@ public class Layout extends FrameLayout {
                         frameworkActionBar, appCompatActionBar);
         addView(mAppUiRoot);
 
-        ViewGroup sysUiRoot = buildSysUi(statusBar, navBar);
+        ViewGroup sysUiRoot = buildSysUi(statusBar, navBar,
+                hwConfig.getOrientation() == ScreenOrientation.LANDSCAPE);
         if (sysUiRoot != null) {
             addView(sysUiRoot, MATCH_PARENT, MATCH_PARENT);
         }
@@ -225,7 +229,8 @@ public class Layout extends FrameLayout {
     }
 
     @Nullable
-    private ViewGroup buildSysUi(@Nullable StatusBar statusBar, @Nullable View navBar) {
+    private ViewGroup buildSysUi(@Nullable StatusBar statusBar, @Nullable View navBar,
+            boolean rotated) {
         if (statusBar == null && navBar == null && !mBuilder.mShowCutout) {
             return null;
         }
@@ -252,7 +257,8 @@ public class Layout extends FrameLayout {
         }
 
         if (mBuilder.mShowCutout) {
-            sysUiRoot.addView(new DisplayCutoutView(mBuilder.mContext, true),
+            sysUiRoot.addView(
+                    new DisplayCutoutView(mBuilder.mContext, rotated? BOUNDS_POSITION_LEFT : BOUNDS_POSITION_TOP),
                     MATCH_PARENT, MATCH_PARENT);
         }
         return sysUiRoot;
