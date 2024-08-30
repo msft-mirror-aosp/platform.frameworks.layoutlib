@@ -22,6 +22,7 @@ package dalvik.system;
 class VMRuntimeCommonHelper {
 
     // Copied from libcore/libdvm/src/main/java/dalvik/system/VMRuntime
+    @SuppressWarnings("UnnecessaryLocalVariable")
     /*package*/ static Object newUnpaddedArray(VMRuntime runtime, Class<?> componentType,
             int minLength) {
         // Dalvik has 32bit pointers, the array header is 16bytes plus 4bytes for dlmalloc,

@@ -45,10 +45,10 @@ public class StubClassAdapter extends ClassVisitor {
     }
 
     public static class Builder {
-        private Log mLogger;
+        private final Log mLogger;
         private Set<String> mDeleteReturns;
         private String mClassName;
-        private ClassVisitor mCv;
+        private final ClassVisitor mCv;
         private boolean mStubNativesOnly;
         private boolean mRemoveStaticInitializers;
         private boolean mRemovePrivates;
@@ -77,19 +77,19 @@ public class StubClassAdapter extends ClassVisitor {
         }
 
         @NotNull
-        public Builder withMethodVisitorFactory(@Nullable MethodVisitorFactory factory) {
+        private Builder withMethodVisitorFactory(@Nullable MethodVisitorFactory factory) {
             mMethodVisitorFactory = factory;
             return this;
         }
 
         @NotNull
-        public Builder removePrivates() {
+        private Builder removePrivates() {
             mRemovePrivates = true;
             return this;
         }
 
         @NotNull
-        public Builder removeStaticInitializers() {
+        private Builder removeStaticInitializers() {
             mRemoveStaticInitializers = true;
             return this;
         }
@@ -115,7 +115,7 @@ public class StubClassAdapter extends ClassVisitor {
     private final Set<String> mDeleteReturns;
     private final MethodVisitorFactory mMethodVisitorFactory;
     private final boolean mRemovePrivates;
-    private final boolean mRemoveStaticInitalizers;
+    private final boolean mRemoveStaticInitializers;
 
 
     @NotNull
@@ -144,7 +144,7 @@ public class StubClassAdapter extends ClassVisitor {
         mDeleteReturns = deleteReturns;
         mMethodVisitorFactory = methodVisitorFactory;
         mRemovePrivates = removePrivates;
-        mRemoveStaticInitalizers = removeStaticInitializers;
+        mRemoveStaticInitializers = removeStaticInitializers;
     }
 
     /**
@@ -217,7 +217,7 @@ public class StubClassAdapter extends ClassVisitor {
             return null;
         }
 
-        if (mRemoveStaticInitalizers && "<clinit>".equals(name)) {
+        if (mRemoveStaticInitializers && "<clinit>".equals(name)) {
             return null;
         }
 
@@ -225,10 +225,8 @@ public class StubClassAdapter extends ClassVisitor {
             Type t = Type.getReturnType(desc);
             if (t.getSort() == Type.OBJECT) {
                 String returnType = t.getInternalName();
-                if (returnType != null) {
-                    if (mDeleteReturns.contains(returnType)) {
-                        return null;
-                    }
+                if (mDeleteReturns.contains(returnType)) {
+                    return null;
                 }
             }
         }
