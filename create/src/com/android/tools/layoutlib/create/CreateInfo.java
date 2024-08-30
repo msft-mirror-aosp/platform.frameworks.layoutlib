@@ -18,7 +18,6 @@ package com.android.tools.layoutlib.create;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.java.LinkedHashMap_Delegate;
-import com.android.tools.layoutlib.java.NioUtils_Delegate;
 import com.android.tools.layoutlib.java.Reference_Delegate;
 
 import org.objectweb.asm.Opcodes;
@@ -146,9 +145,6 @@ public final class CreateInfo implements ICreateInfo {
         new SystemCurrentTimeMillisReplacer(),
         new LinkedHashMapEldestReplacer(),
         new ContextGetClassLoaderReplacer(),
-        new ImageReaderNativeInitReplacer(),
-        new NioUtilsFreeBufferReplacer(),
-        new ProcessInitializerInitSchedReplacer(),
         new NativeInitPathReplacer(),
         new AdaptiveIconMaskReplacer(),
         new ActivityThreadInAnimationReplacer(),
@@ -172,7 +168,6 @@ public final class CreateInfo implements ICreateInfo {
             InjectMethodRunnables.class,
             /* Java package classes */
             LinkedHashMap_Delegate.class,
-            NioUtils_Delegate.class,
             Reference_Delegate.class,
         };
 
@@ -233,6 +228,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Path",
         "android.graphics.PathDashPathEffect",
         "android.graphics.PathEffect",
+        "android.graphics.PathIterator",
         "android.graphics.PathMeasure",
         "android.graphics.Picture",
         "android.graphics.PorterDuffColorFilter",
@@ -264,9 +260,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.text.MeasuredText",
         "android.graphics.text.MeasuredText$Builder",
         "android.graphics.text.TextRunShaper",
-        "android.media.ImageReader",
-        "android.media.ImageReader$SurfaceImage",
-        "android.media.PublicFormatUtils",
         "android.os.SystemProperties",
         "android.os.Trace",
         "android.text.AndroidCharacter",
@@ -372,7 +365,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Path#nInit",
         "android.graphics.Typeface$Builder#createAssetUid",
         "android.hardware.input.InputManagerGlobal#<init>",
-        "android.media.ImageReader#nativeClassInit",
         "android.view.ViewRootImpl#getRootMeasureSpec",
     };
 
@@ -517,23 +509,6 @@ public final class CreateInfo implements ICreateInfo {
         }
     }
 
-    /**
-     * This is to replace a static call to a dummy, so that ImageReader can be loaded and accessed
-     * during JNI loading
-     */
-    public static class ImageReaderNativeInitReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "android/media/ImageReader".equals(owner) && name.equals("nativeClassInit");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "android/media/ImageReader_Delegate";
-            mi.opcode = Opcodes.INVOKESTATIC;
-        }
-    }
-
     private static class LocaleGetDefaultReplacer implements MethodReplacer {
 
         @Override
@@ -567,32 +542,6 @@ public final class CreateInfo implements ICreateInfo {
         @Override
         public void replace(MethodInformation mi) {
             mi.desc = "(Ljava/lang/Object;ILjava/lang/Object;II)V";
-        }
-    }
-    public static class NioUtilsFreeBufferReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "java/nio/NioUtils".equals(owner) && name.equals("freeDirectBuffer");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = Type.getInternalName(NioUtils_Delegate.class);
-        }
-    }
-
-    public static class ProcessInitializerInitSchedReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "android/graphics/HardwareRenderer$ProcessInitializer".equals(owner) &&
-                    name.equals("initSched");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "android/graphics/HardwareRenderer_ProcessInitializer_Delegate";
-            mi.opcode = Opcodes.INVOKESTATIC;
-            mi.desc = "(J)V";
         }
     }
 

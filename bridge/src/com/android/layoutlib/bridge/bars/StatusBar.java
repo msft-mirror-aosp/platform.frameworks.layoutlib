@@ -28,6 +28,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.view.Display;
 import android.view.DisplayCutout;
 import android.view.DisplayInfo;
@@ -35,6 +36,7 @@ import android.view.Gravity;
 import android.view.InsetsFrameProvider;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,6 +44,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static android.graphics.Color.WHITE;
 import static android.os._Original_Build.VERSION_CODES.M;
@@ -59,6 +62,9 @@ public class StatusBar extends CustomBar {
     private static final String ATTR_COLOR = "statusBarColor";
     /** Attribute for translucency property. */
     public static final String ATTR_TRANSLUCENT = "windowTranslucentStatus";
+
+    private DisplayCutout mDisplayCutout;
+    private int mStatusBarHeight;
 
     @SuppressWarnings("UnusedParameters")
     public StatusBar(BridgeContext context, Density density, boolean isRtl, boolean rtlEnabled,
@@ -208,5 +214,75 @@ public class StatusBar extends CustomBar {
 
     private static Insets getInsets(int height) {
         return Insets.of(0, height, 0, 0);
+    }
+
+    // ----------------------------------------------------------------------------------------
+    // All the methods that follow deal with taking care of the cutout when laying
+    // out the Status Bar.
+    // Copied/adapted from
+    // packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mDisplayCutout = getRootWindowInsets().getDisplayCutout();
+        if (mDisplayCutout != null) {
+            updateStatusBarHeight();
+            updateSafeInsets();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mDisplayCutout = null;
+    }
+
+    private void updateStatusBarHeight() {
+        final int waterfallTopInset =
+                mDisplayCutout == null ? 0 : mDisplayCutout.getWaterfallInsets().top;
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        int rotation = Surface.ROTATION_0;
+        if (getOrientation() == LinearLayout.VERTICAL) {
+            rotation = Surface.ROTATION_90;
+        }
+        mStatusBarHeight = getStatusBarHeightForRotation(mContext, rotation);
+        layoutParams.height = mStatusBarHeight - waterfallTopInset;
+        setLayoutParams(layoutParams);
+    }
+
+    private void updateSafeInsets() {
+        Insets insets = getStatusBarContentInsets();
+        setPadding(
+                insets.left,
+                insets.top,
+                insets.right,
+                getPaddingBottom());
+    }
+
+    private Insets getStatusBarContentInsets() {
+        Rect screenBounds =
+                getContext().getResources().getConfiguration().windowConfiguration.getMaxBounds();
+        int width = screenBounds.width();
+        List<Rect> cutoutRects = Stream.of(mDisplayCutout.getBoundingRectLeft(),
+                mDisplayCutout.getBoundingRectRight(),
+                mDisplayCutout.getBoundingRectTop()).filter(rect -> !rect.isEmpty()).toList();
+        if (cutoutRects.isEmpty()) {
+            return Insets.NONE;
+        }
+
+        int leftMargin = 0;
+        int rightMargin = 0;
+        Rect sbRect = new Rect(0, 0, width, mStatusBarHeight);
+        for (Rect cutoutRect : cutoutRects) {
+            if (!sbRect.intersects(0, cutoutRect.top, width, cutoutRect.bottom)) {
+                continue;
+            }
+            if (cutoutRect.left == 0) {
+                leftMargin = Math.max(leftMargin, cutoutRect.width());
+            } else if (cutoutRect.right == width) {
+                rightMargin = Math.max(rightMargin, cutoutRect.width());
+            }
+        }
+        return Insets.of(leftMargin, 0, rightMargin, 0);
     }
 }
