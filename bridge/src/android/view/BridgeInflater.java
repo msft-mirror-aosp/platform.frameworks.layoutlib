@@ -256,7 +256,8 @@ public final class BridgeInflater extends LayoutInflater {
         if (mCustomInflater == null) {
             Context context = getContext();
             context = getBaseContext(context);
-            if (context instanceof BridgeContext bc) {
+            if (context instanceof BridgeContext) {
+                BridgeContext bc = (BridgeContext) context;
                 Class<?> inflaterClass = findCustomInflater(bc, mLayoutlibCallback);
 
                 if (inflaterClass != null) {
@@ -323,12 +324,12 @@ public final class BridgeInflater extends LayoutInflater {
             // Creation of ContextThemeWrapper code is same as in the super method.
             // Apply a theme wrapper, if allowed and one is specified.
             if (!ignoreThemeAttr) {
-                try (final TypedArray ta = context.obtainStyledAttributes(attrs, ATTRS_THEME)) {
-                    final int themeResId = ta.getResourceId(0, 0);
-                    if (themeResId != 0) {
-                        context = new ContextThemeWrapper(context, themeResId);
-                    }
+                final TypedArray ta = context.obtainStyledAttributes(attrs, ATTRS_THEME);
+                final int themeResId = ta.getResourceId(0, 0);
+                if (themeResId != 0) {
+                    context = new ContextThemeWrapper(context, themeResId);
                 }
+                ta.recycle();
             }
             if (!(e.getCause() instanceof ClassNotFoundException)) {
                 // There is some unknown inflation exception in inflating a View that was found.
@@ -366,7 +367,8 @@ public final class BridgeInflater extends LayoutInflater {
     public View inflate(int resource, ViewGroup root) {
         Context context = getContext();
         context = getBaseContext(context);
-        if (context instanceof BridgeContext bridgeContext) {
+        if (context instanceof BridgeContext) {
+            BridgeContext bridgeContext = (BridgeContext)context;
 
             ResourceValue value = null;
 
@@ -441,10 +443,11 @@ public final class BridgeInflater extends LayoutInflater {
     private void setupViewInContext(View view, AttributeSet attrs) {
         Context context = getContext();
         context = getBaseContext(context);
-        if (!(context instanceof BridgeContext bc)) {
+        if (!(context instanceof BridgeContext)) {
             return;
         }
 
+        BridgeContext bc = (BridgeContext) context;
         // get the view key
         Object viewKey = getViewKeyFromParser(attrs, bc, mResourceReference, mIsInMerge);
         if (viewKey != null) {
@@ -480,7 +483,8 @@ public final class BridgeInflater extends LayoutInflater {
                 getDrawerLayoutMap().put(view, attrVal);
             }
         }
-        else if (view instanceof NumberPicker numberPicker) {
+        else if (view instanceof NumberPicker) {
+            NumberPicker numberPicker = (NumberPicker) view;
             String minValue = attrs.getAttributeValue(BridgeConstants.NS_TOOLS_URI, "minValue");
             if (minValue != null) {
                 numberPicker.setMinValue(Integer.parseInt(minValue));
@@ -490,7 +494,8 @@ public final class BridgeInflater extends LayoutInflater {
                 numberPicker.setMaxValue(Integer.parseInt(maxValue));
             }
         }
-        else if (view instanceof ImageView img) {
+        else if (view instanceof ImageView) {
+            ImageView img = (ImageView) view;
             Drawable drawable = img.getDrawable();
             if (drawable instanceof Animatable) {
                 if (!((Animatable) drawable).isRunning()) {
@@ -567,7 +572,8 @@ public final class BridgeInflater extends LayoutInflater {
             AdapterBinding binding) {
         if (view instanceof AbsListView) {
             if ((binding.getFooterCount() > 0 || binding.getHeaderCount() > 0) &&
-                    view instanceof ListView list) {
+                    view instanceof ListView) {
+                ListView list = (ListView) view;
 
                 boolean skipCallbackParser = false;
 
@@ -649,9 +655,10 @@ public final class BridgeInflater extends LayoutInflater {
     /*package*/ static Object getViewKeyFromParser(AttributeSet attrs, BridgeContext bc,
             ResourceReference resourceReference, boolean isInMerge) {
 
-        if (!(attrs instanceof BridgeXmlBlockParser parser)) {
+        if (!(attrs instanceof BridgeXmlBlockParser)) {
             return null;
         }
+        BridgeXmlBlockParser parser = ((BridgeXmlBlockParser) attrs);
 
         // get the view key
         Object viewKey = parser.getViewCookie();

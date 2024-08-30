@@ -36,10 +36,11 @@ import java.util.Map;
  */
 public class MemoryMappedFile_Delegate {
 
-    private static final DelegateManager<MemoryMappedFile_Delegate> sManager =
-            new DelegateManager<>(MemoryMappedFile_Delegate.class);
+    private static final DelegateManager<MemoryMappedFile_Delegate> sManager = new
+            DelegateManager<MemoryMappedFile_Delegate>(MemoryMappedFile_Delegate.class);
 
-    private static final Map<MemoryMappedFile, Long> sMemoryMappedFileMap = new HashMap<>();
+    private static final Map<MemoryMappedFile, Long> sMemoryMappedFileMap =
+            new HashMap<MemoryMappedFile, Long>();
 
     private final MappedByteBuffer mMappedByteBuffer;
     private final long mSize;
@@ -63,7 +64,8 @@ public class MemoryMappedFile_Delegate {
             if (!f.exists()) {
                 throw new ErrnoException("File not found: " + f.getPath(), 1);
             }
-            try (RandomAccessFile file = new RandomAccessFile(f, "r")) {
+            RandomAccessFile file = new RandomAccessFile(f, "r");
+            try {
                 long size = file.length();
                 MemoryMappedFile_Delegate newDelegate = new MemoryMappedFile_Delegate(file);
                 long filePointer = file.getFilePointer();
@@ -71,6 +73,8 @@ public class MemoryMappedFile_Delegate {
                 long delegateIndex = sManager.addNewDelegate(newDelegate);
                 sMemoryMappedFileMap.put(mmFile, delegateIndex);
                 return mmFile;
+            } finally {
+                file.close();
             }
         } catch (IOException e) {
             throw new ErrnoException("mmapRO", 1, e);
@@ -94,7 +98,7 @@ public class MemoryMappedFile_Delegate {
 
     // TODO: implement littleEndianIterator()
 
-    private MemoryMappedFile_Delegate(RandomAccessFile file) throws IOException {
+    public MemoryMappedFile_Delegate(RandomAccessFile file) throws IOException {
         mSize = file.length();
         // It's weird that map() takes size as long, but returns MappedByteBuffer which uses an int
         // to store the marker to the position.

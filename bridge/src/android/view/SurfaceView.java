@@ -140,7 +140,7 @@ public class SurfaceView extends MockView {
     public void applyTransactionToFrame(@NonNull SurfaceControl.Transaction transaction) {
     }
 
-    private final SurfaceHolder mSurfaceHolder = new SurfaceHolder() {
+    private SurfaceHolder mSurfaceHolder = new SurfaceHolder() {
 
         @Override
         public boolean isCreating() {

@@ -27,7 +27,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A wrapper around XmlPullParser that can peek forward to inspect if the file is a data-binding
@@ -111,7 +110,8 @@ public class LayoutParserWrapper implements XmlPullParser {
         mNext = mDelegate.next();
         if (mEventType == START_TAG) {
             int count = mDelegate.getAttributeCount();
-            mAttributes = count > 0 ? new ArrayList<>(count) : Collections.emptyList();
+            mAttributes = count > 0 ? new ArrayList<Attribute>(count) :
+                    Collections.<Attribute>emptyList();
             for (int i = 0; i < count; i++) {
                 mAttributes.add(new Attribute(mDelegate.getAttributeNamespace(i),
                         mDelegate.getAttributeName(i), mDelegate.getAttributeValue(i)));
@@ -184,7 +184,9 @@ public class LayoutParserWrapper implements XmlPullParser {
                 }
             } else {
                 for (Attribute attribute : mAttributes) {
-                    if (attribute.name.equals(name) && Objects.equals(attribute.namespace, namespace)) {
+                    //noinspection StringEquality for nullness check.
+                    if (attribute.name.equals(name) && (attribute.namespace == namespace ||
+                            attribute.namespace != null && attribute.namespace.equals(namespace))) {
                         returnValue = attribute.value;
                         break;
                     }
@@ -210,11 +212,11 @@ public class LayoutParserWrapper implements XmlPullParser {
 
     private static class Attribute {
         @Nullable
-        private final String namespace;
-        private final String name;
-        private final String value;
+        public final String namespace;
+        public final String name;
+        public final String value;
 
-        private Attribute(@Nullable String namespace, String name, String value) {
+        public Attribute(@Nullable String namespace, String name, String value) {
             this.namespace = namespace;
             this.name = name;
             this.value = value;
@@ -276,7 +278,7 @@ public class LayoutParserWrapper implements XmlPullParser {
     // -- We don't care much about the methods that follow.
 
     @Override
-    public void require(int i, String s, String s1) {
+    public void require(int i, String s, String s1) throws XmlPullParserException, IOException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
@@ -286,7 +288,7 @@ public class LayoutParserWrapper implements XmlPullParser {
     }
 
     @Override
-    public void defineEntityReplacementText(String s, String s1) {
+    public void defineEntityReplacementText(String s, String s1) throws XmlPullParserException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
@@ -296,22 +298,22 @@ public class LayoutParserWrapper implements XmlPullParser {
     }
 
     @Override
-    public int nextToken() {
+    public int nextToken() throws XmlPullParserException, IOException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
     @Override
-    public int getNamespaceCount(int i) {
+    public int getNamespaceCount(int i) throws XmlPullParserException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
     @Override
-    public String getNamespacePrefix(int i) {
+    public String getNamespacePrefix(int i) throws XmlPullParserException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
     @Override
-    public String getNamespaceUri(int i) {
+    public String getNamespaceUri(int i) throws XmlPullParserException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
@@ -326,7 +328,7 @@ public class LayoutParserWrapper implements XmlPullParser {
     }
 
     @Override
-    public boolean isEmptyElementTag() {
+    public boolean isEmptyElementTag() throws XmlPullParserException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
@@ -366,12 +368,12 @@ public class LayoutParserWrapper implements XmlPullParser {
     }
 
     @Override
-    public String nextText() {
+    public String nextText() throws XmlPullParserException, IOException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 
     @Override
-    public int nextTag() {
+    public int nextTag() throws XmlPullParserException, IOException {
         throw new UnsupportedOperationException("Only few parser methods are supported.");
     }
 }

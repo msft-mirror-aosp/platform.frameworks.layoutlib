@@ -25,7 +25,6 @@ import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.internal.graphics.ColorUtils;
 import com.android.resources.ResourceType;
 import com.android.systemui.monet.ColorScheme;
-import com.android.systemui.monet.DynamicColors;
 import com.android.systemui.monet.Style;
 import com.android.systemui.monet.TonalPalette;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
@@ -34,15 +33,12 @@ import android.app.WallpaperColors;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.ux.material.libmonet.dynamiccolor.DynamicColor;
 
 /**
  * Wrapper for RenderResources that allows overriding default system colors
@@ -169,25 +165,13 @@ public class DynamicRenderResources extends RenderResources {
             }
             WallpaperColors wallpaperColors = WallpaperColors.fromBitmap(wallpaper);
             int seed = ColorScheme.getSeedColor(wallpaperColors);
-            ColorScheme lightScheme = new ColorScheme(seed, false);
-            ColorScheme darkScheme = new ColorScheme(seed, true);
-            ColorScheme currentScheme = isNightMode ? darkScheme : lightScheme;
+            ColorScheme scheme = new ColorScheme(seed, isNightMode);
             Map<String, Integer> dynamicColorMap = new HashMap<>();
-            extractPalette("accent1", dynamicColorMap, currentScheme.getAccent1());
-            extractPalette("accent2", dynamicColorMap, currentScheme.getAccent2());
-            extractPalette("accent3", dynamicColorMap, currentScheme.getAccent3());
-            extractPalette("neutral1", dynamicColorMap, currentScheme.getNeutral1());
-            extractPalette("neutral2", dynamicColorMap, currentScheme.getNeutral2());
-
-            //Themed Colors
-            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
-                    DynamicColors.getAllDynamicColorsMapped(false), false);
-            // Fixed Colors
-            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
-                    DynamicColors.getFixedColorsMapped(false), true);
-            //Custom Colors
-            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
-                    DynamicColors.getCustomColorsMapped(false), false);
+            extractPalette("accent1", dynamicColorMap, scheme.getAccent1());
+            extractPalette("accent2", dynamicColorMap, scheme.getAccent2());
+            extractPalette("accent3", dynamicColorMap, scheme.getAccent3());
+            extractPalette("neutral1", dynamicColorMap, scheme.getNeutral1());
+            extractPalette("neutral2", dynamicColorMap, scheme.getNeutral2());
             return dynamicColorMap;
         } catch (IllegalArgumentException | IOException ignore) {
             return null;
@@ -207,21 +191,6 @@ public class DynamicRenderResources extends RenderResources {
             colorMap.put(resourceName, colorValue);
         });
         colorMap.put(resourcePrefix + "_0", Color.WHITE);
-    }
-
-    private static void extractDynamicColors(Map<String, Integer> colorMap, ColorScheme lightScheme,
-            ColorScheme darkScheme, List<Pair<String, DynamicColor>> colors, Boolean isFixed) {
-        colors.forEach(p -> {
-            String prefix = "system_" + p.first;
-
-            if (isFixed) {
-                colorMap.put(prefix, p.second.getArgb(lightScheme.getMaterialScheme()));
-                return;
-            }
-
-            colorMap.put(prefix + "_light", p.second.getArgb(lightScheme.getMaterialScheme()));
-            colorMap.put(prefix + "_dark", p.second.getArgb(darkScheme.getMaterialScheme()));
-        });
     }
 
     private static boolean isDynamicColor(ResourceValue resourceValue) {

@@ -20,8 +20,10 @@ import com.android.tools.layoutlib.annotations.NonNull;
 import com.android.tools.layoutlib.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  * Utility to convert checked Reflection exceptions to unchecked exceptions.
@@ -63,7 +65,9 @@ public class ReflectionUtils {
             Field field = clazz.getDeclaredField(name);
             field.setAccessible(true);
             return field.get(object);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        } catch (NoSuchFieldException e) {
+            throw new ReflectionException(e);
+        } catch (IllegalAccessException e) {
             throw new ReflectionException(e);
         }
     }
@@ -96,7 +100,7 @@ public class ReflectionUtils {
      * for interfaces.
      */
     public static boolean isInstanceOf(Object object, String className) {
-        Class<?> superClass = object.getClass();
+        Class superClass = object.getClass();
         while (superClass != null) {
             String name = superClass.getName();
             if (name.equals(className)) {
@@ -167,6 +171,34 @@ public class ReflectionUtils {
             superClass = superClass.getSuperclass();
         }
         throw new RuntimeException("invalid object/classname combination.");
+    }
+
+    public static <T> T createProxy(Class<T> interfaze) {
+        ClassLoader loader = interfaze.getClassLoader();
+        return (T) Proxy.newProxyInstance(loader, new Class[]{interfaze}, new InvocationHandler() {
+            public Object invoke(Object proxy, Method m, Object[] args) {
+                final Class<?> returnType = m.getReturnType();
+                if (returnType == boolean.class) {
+                    return false;
+                } else if (returnType == int.class) {
+                    return 0;
+                } else if (returnType == long.class) {
+                    return 0L;
+                } else if (returnType == short.class) {
+                    return 0;
+                } else if (returnType == char.class) {
+                    return 0;
+                } else if (returnType == byte.class) {
+                    return 0;
+                } else if (returnType == float.class) {
+                    return 0f;
+                } else if (returnType == double.class) {
+                    return 0.0;
+                } else {
+                    return null;
+                }
+            }
+        });
     }
 
     /**

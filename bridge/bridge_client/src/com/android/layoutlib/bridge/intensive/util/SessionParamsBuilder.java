@@ -26,7 +26,6 @@ import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.resources.ResourceResolver;
-import com.android.ide.common.resources.ResourceValueMap;
 import com.android.ide.common.resources.configuration.FolderConfiguration;
 import com.android.ide.common.resources.deprecated.ResourceRepository;
 import com.android.layoutlib.bridge.android.RenderParamsFlags;
@@ -48,6 +47,7 @@ public class SessionParamsBuilder {
 
     private LayoutPullParser mLayoutParser;
     private RenderingMode mRenderingMode = RenderingMode.NORMAL;
+    private Object mProjectKey = null;
     private ConfigGenerator mConfigGenerator = ConfigGenerator.NEXUS_5;
     private ResourceRepository mFrameworkResources;
     private ResourceRepository mProjectResources;
@@ -58,14 +58,13 @@ public class SessionParamsBuilder {
     private int mMinSdk = 0;
     private int mSimulatedSdk = 0;
     private ILayoutLog mLayoutLog;
-    private final Map<SessionParams.Key, Object> mFlags = new HashMap<>();
+    private Map<SessionParams.Key, Object> mFlags = new HashMap<>();
     private AssetRepository mAssetRepository = null;
     private boolean mDecor = true;
     private IImageFactory mImageFactory = null;
     private boolean enableLayoutValidator = false;
     private boolean enableLayoutValidatorImageCheck = false;
     private boolean transparentBackground = false;
-    private Map<ResourceType, ResourceValueMap> mFrameworkOverlayResources;
 
     @NonNull
     public SessionParamsBuilder setParser(@NonNull LayoutPullParser layoutParser) {
@@ -149,7 +148,7 @@ public class SessionParamsBuilder {
     }
 
     @NonNull
-    public SessionParamsBuilder setFlag(@NonNull SessionParams.Key<?> flag, Object value) {
+    public SessionParamsBuilder setFlag(@NonNull SessionParams.Key flag, Object value) {
         mFlags.put(flag, value);
         return this;
     }
@@ -183,17 +182,10 @@ public class SessionParamsBuilder {
         this.enableLayoutValidatorImageCheck = true;
         return this;
     }
-
+    
     @NonNull
     public SessionParamsBuilder setTransparentBackground() {
         this.transparentBackground = true;
-        return this;
-    }
-
-    @NonNull
-    public SessionParamsBuilder setFrameworkOverlayResources(
-            Map<ResourceType, ResourceValueMap> resources) {
-        this.mFrameworkOverlayResources = resources;
         return this;
     }
 
@@ -206,22 +198,16 @@ public class SessionParamsBuilder {
         assert mLayoutlibCallback != null;
 
         FolderConfiguration config = mConfigGenerator.getFolderConfig();
-        Map<ResourceType, ResourceValueMap> frameworkConfigResources =
-                mFrameworkResources.getConfiguredResources(config);
-        if (mFrameworkOverlayResources != null) {
-            mFrameworkOverlayResources.keySet().forEach(type ->
-                    frameworkConfigResources.get(type).putAll(mFrameworkOverlayResources.get(type)));
-        }
         ResourceResolver resourceResolver = ResourceResolver.create(
                 ImmutableMap.of(
-                        ResourceNamespace.ANDROID, frameworkConfigResources,
+                        ResourceNamespace.ANDROID, mFrameworkResources.getConfiguredResources(config),
                         ResourceNamespace.TODO(), mProjectResources.getConfiguredResources(config)),
                 new ResourceReference(
                         ResourceNamespace.fromBoolean(!isProjectTheme),
                         ResourceType.STYLE,
                         mThemeName));
 
-        SessionParams params = new SessionParams(mLayoutParser, mRenderingMode, null /* for
+        SessionParams params = new SessionParams(mLayoutParser, mRenderingMode, mProjectKey /* for
         caching */, mConfigGenerator.getHardwareConfig(), resourceResolver, mLayoutlibCallback,
                 mMinSdk, mTargetSdk, mLayoutLog, mSimulatedSdk);
         params.setFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR, enableLayoutValidator);

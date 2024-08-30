@@ -18,10 +18,10 @@ package android.graphics.drawable;
 
 import com.android.internal.R;
 import com.android.layoutlib.bridge.android.BridgeContext;
-import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.content.res.Resources;
+import android.content.res.Resources_Delegate;
 import android.graphics.Canvas;
 
 public class AdaptiveIconDrawable_Delegate {
@@ -43,7 +43,7 @@ public class AdaptiveIconDrawable_Delegate {
     @LayoutlibDelegate
     public static void draw(AdaptiveIconDrawable thisDrawable, Canvas canvas) {
         Resources res = Resources.getSystem();
-        BridgeContext context = RenderAction.getCurrentContext();
+        BridgeContext context = Resources_Delegate.getContext(res);
         if (context.useThemedIcon() && thisDrawable.getMonochrome() != null) {
             AdaptiveIconDrawable themedIcon =
                     createThemedVersionFromMonochrome(thisDrawable.getMonochrome(), res);

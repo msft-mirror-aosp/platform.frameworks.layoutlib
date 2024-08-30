@@ -16,6 +16,7 @@
 
 package com.android.layoutlib.bridge;
 
+import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.Result.Status;
 
 import org.junit.Test;

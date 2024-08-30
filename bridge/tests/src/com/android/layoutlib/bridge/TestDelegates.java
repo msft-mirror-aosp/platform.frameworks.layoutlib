@@ -42,7 +42,7 @@ import junit.framework.TestCase;
  */
 public class TestDelegates extends TestCase {
 
-    private final List<String> mErrors = new ArrayList<>();
+    private List<String> mErrors = new ArrayList<String>();
 
     public void testNativeDelegates() {
 
@@ -76,13 +76,15 @@ public class TestDelegates extends TestCase {
             Class<?> delegateClass = classLoader.loadClass(delegateClassName);
 
             compare(originalClass, delegateClass);
-        } catch (ClassNotFoundException | SecurityException e) {
+        } catch (ClassNotFoundException e) {
+            mErrors.add("Failed to load class: " + e.getMessage());
+        } catch (SecurityException e) {
             mErrors.add("Failed to load class: " + e.getMessage());
         }
     }
 
     private void compare(Class<?> originalClass, Class<?> delegateClass) throws SecurityException {
-        List<Method> checkedDelegateMethods = new ArrayList<>();
+        List<Method> checkedDelegateMethods = new ArrayList<Method>();
 
         // loop on the methods of the original class, and for the ones that are annotated
         // with @LayoutlibDelegate, look for a matching method in the delegate class.
@@ -203,7 +205,9 @@ public class TestDelegates extends TestCase {
                 theClass = theClass.getComponentType();
             }
             sb.append(theClass.getName());
-            sb.append("[]".repeat(Math.max(0, dimensions)));
+            for (int i = 0; i < dimensions; i++) {
+                sb.append("[]");
+            }
             if (j < (parameters.length - 1)) {
                 sb.append(",");
             }

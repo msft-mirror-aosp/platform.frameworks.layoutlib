@@ -40,10 +40,10 @@ import java.util.List;
 public class FakeAdapter extends BaseAdapter {
 
     // don't use a set because the order is important.
-    private final List<ResourceReference> mTypes = new ArrayList<>();
+    private final List<ResourceReference> mTypes = new ArrayList<ResourceReference>();
     private final LayoutlibCallback mCallback;
     private final ResourceReference mAdapterRef;
-    private final List<AdapterItem> mItems = new ArrayList<>();
+    private final List<AdapterItem> mItems = new ArrayList<AdapterItem>();
     private boolean mSkipCallbackParser = false;
 
     public FakeAdapter(ResourceReference adapterRef, AdapterBinding binding,
@@ -79,6 +79,11 @@ public class FakeAdapter extends BaseAdapter {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return true;
     }
 
     @Override

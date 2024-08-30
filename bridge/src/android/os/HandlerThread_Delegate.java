@@ -35,7 +35,8 @@ import java.util.Map;
  */
 public class HandlerThread_Delegate {
 
-    private static final Map<BridgeContext, List<HandlerThread>> sThreads = new HashMap<>();
+    private static final Map<BridgeContext, List<HandlerThread>> sThreads =
+            new HashMap<BridgeContext, List<HandlerThread>>();
 
     public static void cleanUp(BridgeContext context) {
         List<HandlerThread> list = sThreads.get(context);
@@ -55,7 +56,12 @@ public class HandlerThread_Delegate {
     /*package*/ static void run(HandlerThread theThread) {
         // record the thread so that it can be quit() on clean up.
         BridgeContext context = RenderAction.getCurrentContext();
-        List<HandlerThread> list = sThreads.computeIfAbsent(context, k -> new ArrayList<>());
+        List<HandlerThread> list = sThreads.get(context);
+        if (list == null) {
+            list = new ArrayList<HandlerThread>();
+            sThreads.put(context, list);
+        }
+
         list.add(theThread);
 
         // ---- START DEFAULT IMPLEMENTATION.

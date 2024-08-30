@@ -22,7 +22,6 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,7 +49,8 @@ public class ResourceConverter {
     private static void writeStrings(Map<String, String> map, String outputPath) throws Exception {
         File output = new File(outputPath);
         output.createNewFile();
-        try (FileWriter writer = new FileWriter(output, StandardCharsets.UTF_8)) {
+        FileWriter writer = new FileWriter(output);
+        try {
             writer.write(getCopyRight());
             writer.write("\n");
             for (Entry<String, String> entry : map.entrySet()) {
@@ -58,6 +58,8 @@ public class ResourceConverter {
                 String value = entry.getValue();
                 writer.write(name + " = " + value + "\n");
             }
+        } finally {
+            writer.close();
         }
     }
 
@@ -90,18 +92,18 @@ public class ResourceConverter {
 
             StringBuilder valueBuilder = new StringBuilder();
             try {
-                /*
-                  This is a very hacky way to bypass "ns1:g" tag in android's .xml.
-                  Ideally we'll read the tag from the parent and apply it here, but it being the
-                  deep node list I'm not currently sure how to parse it safely. Might need to look
-                  into IntelliJ PSI tree we have in Studio. But I didn't want to add unnecessary
-                  deps to LayoutLib.
-
-                  It also means resource namespaces are rendered useless after conversion.
+                /**
+                 * This is a very hacky way to bypass "ns1:g" tag in android's .xml.
+                 * Ideally we'll read the tag from the parent and apply it here, but it being the
+                 * deep node list I'm not currently sure how to parse it safely. Might need to look
+                 * into IntelliJ PSI tree we have in Studio. But I didn't want to add unnecessary
+                 * deps to LayoutLib.
+                 *
+                 * It also means resource namespaces are rendered useless after conversion.
                  */
                 for (int j = 0; j < node.getChildNodes().getLength(); j++) {
                     Node child = node.getChildNodes().item(j);
-                    String toAdd;
+                    String toAdd = null;
                     if ("ns1:g".equals(child.getNodeName())) {
                         toAdd = child.getFirstChild().getNodeValue();
                     } else if ("xliff:g".equals(child.getNodeName())) {
@@ -124,22 +126,15 @@ public class ResourceConverter {
     }
 
     private static String getCopyRight() {
-        return """
-
-                #
-                # Copyright (C) 2020 The Android Open Source Project
-                #
-                # Licensed under the Apache License, Version 2.0 (the "License");
-                # you may not use this file except in compliance with the License.
-                # You may obtain a copy of the License at
-                #
-                #      http://www.apache.org/licenses/LICENSE-2.0
-                #
-                # Unless required by applicable law or agreed to in writing, software
-                # distributed under the License is distributed on an "AS IS" BASIS,
-                # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                # See the License for the specific language governing permissions and
-                # limitations under the License.
-                #""";
+        return "\n" + "#\n" + "# Copyright (C) 2020 The Android Open Source Project\n" + "#\n" +
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+                "# you may not use this file except in compliance with the License.\n" +
+                "# You may obtain a copy of the License at\n" + "#\n" +
+                "#      http://www.apache.org/licenses/LICENSE-2.0\n" + "#\n" +
+                "# Unless required by applicable law or agreed to in writing, software\n" +
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+                "# See the License for the specific language governing permissions and\n" +
+                "# limitations under the License.\n" + "#";
     }
 }

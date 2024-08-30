@@ -60,7 +60,7 @@ public class LayoutInflater_Delegate {
             View parent, Context context, AttributeSet attrs, boolean finishInflate)
             throws XmlPullParserException, IOException {
 
-        if (!finishInflate) {
+        if (finishInflate == false) {
             // this is a merge rInflate!
             if (thisInflater instanceof BridgeInflater) {
                 ((BridgeInflater) thisInflater).setIsInMerge(true);
@@ -73,7 +73,7 @@ public class LayoutInflater_Delegate {
 
         // ---- END DEFAULT IMPLEMENTATION.
 
-        if (!finishInflate) {
+        if (finishInflate == false) {
             // this is a merge rInflate!
             if (thisInflater instanceof BridgeInflater) {
                 ((BridgeInflater) thisInflater).setIsInMerge(false);
@@ -105,7 +105,7 @@ public class LayoutInflater_Delegate {
             int layout = attrs.getAttributeResourceValue(null, ATTR_LAYOUT, 0);
             if (layout == 0) {
                 final String value = attrs.getAttributeValue(null, ATTR_LAYOUT);
-                if (value == null || value.isEmpty()) {
+                if (value == null || value.length() <= 0) {
                     Bridge.getLog().error(ILayoutLog.TAG_BROKEN, "You must specify a layout in the"
                             + " include tag: <include layout=\"@layout/layoutID\" />", null, null);
                     LayoutInflater.consumeChildElements(parser);
@@ -136,8 +136,10 @@ public class LayoutInflater_Delegate {
                             + "reference. The layout ID " + value + " is not valid.", null, null);
                 }
             } else {
-                try (XmlResourceParser childParser = thisInflater.getContext().getResources()
-                        .getLayout(layout)) {
+                final XmlResourceParser childParser =
+                    thisInflater.getContext().getResources().getLayout(layout);
+
+                try {
                     final AttributeSet childAttrs = Xml.asAttributeSet(childParser);
 
                     while ((type = childParser.next()) != XmlPullParser.START_TAG &&
@@ -219,6 +221,8 @@ public class LayoutInflater_Delegate {
 
                         group.addView(view);
                     }
+                } finally {
+                    childParser.close();
                 }
             }
         } else {

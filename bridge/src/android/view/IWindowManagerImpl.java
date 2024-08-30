@@ -26,12 +26,14 @@ import android.util.DisplayMetrics;
  */
 public class IWindowManagerImpl extends IWindowManager.Default {
 
+    private final Configuration mConfig;
     private final DisplayMetrics mMetrics;
     private final int mRotation;
     private final boolean mHasNavigationBar;
 
     public IWindowManagerImpl(Configuration config, DisplayMetrics metrics, int rotation,
             boolean hasNavigationBar) {
+        mConfig = config;
         mMetrics = metrics;
         mRotation = rotation;
         mHasNavigationBar = hasNavigationBar;

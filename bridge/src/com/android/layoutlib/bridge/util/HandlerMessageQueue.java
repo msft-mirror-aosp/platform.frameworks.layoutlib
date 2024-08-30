@@ -60,7 +60,7 @@ public class HandlerMessageQueue {
     }
 
     private static class HandlerWrapper {
-        private Handler handler;
+        public Handler handler;
     }
 
     /**

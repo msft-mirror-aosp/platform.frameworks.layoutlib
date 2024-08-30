@@ -47,7 +47,7 @@ public class BridgePreferenceInflater extends PreferenceInflater {
             viewKey = ((BridgeXmlBlockParser) attrs).getViewCookie();
         }
 
-        Preference preference;
+        Preference preference = null;
         try {
             preference = super.createItem(name, prefix, attrs);
         } catch (ClassNotFoundException | InflateException exception) {

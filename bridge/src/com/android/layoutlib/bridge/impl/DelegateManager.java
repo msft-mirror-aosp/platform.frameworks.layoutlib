@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Manages native delegates.
  *
- * This is used in conjunction with layoutlib_create: certain Android java classes are mere
+ * This is used in conjunction with layoublib_create: certain Android java classes are mere
  * wrappers around a heavily native based implementation, and we need a way to run these classes
  * in our Android Studio rendering framework without bringing all the native code from the Android
  * platform.

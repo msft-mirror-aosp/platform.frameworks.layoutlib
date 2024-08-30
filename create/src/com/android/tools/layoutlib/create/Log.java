@@ -56,7 +56,7 @@ public class Log {
         PrintWriter pw = new PrintWriter(sw);
         t.printStackTrace(pw);
         pw.flush();
-        error(format + "\n" + sw, args);
+        error(format + "\n" + sw.toString(), args);
     }
 
     /** for unit testing */

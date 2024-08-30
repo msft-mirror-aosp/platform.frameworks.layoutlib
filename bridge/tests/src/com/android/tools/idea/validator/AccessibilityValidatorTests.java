@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.android.apps.common.testing.accessibility.framework.uielement.DefaultCustomViewBuilderAndroid;
 import com.google.android.apps.common.testing.accessibility.framework.uielement.ViewHierarchyElementAndroid;
@@ -62,9 +63,9 @@ public class AccessibilityValidatorTests extends RenderTestBase {
                 ValidatorResult result = getRenderResult(session);
                 List<Issue> dupBounds = filter(result.getIssues(), "DuplicateClickableBoundsCheck");
 
-                /*
-                  Expects no errors since disabled. When enabled it should print
-                  the same result as {@link #testDuplicateClickableBoundsCheck}
+                /**
+                 * Expects no errors since disabled. When enabled it should print
+                 * the same result as {@link #testDuplicateClickableBoundsCheck}
                  */
                 ExpectedLevels expectedLevels = new ExpectedLevels();
                 expectedLevels.check(dupBounds);
@@ -332,7 +333,8 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             List<ViewHierarchyElementAndroid> textViews =
                     hierarchy.mView.getActiveWindow().getAllViews().stream().filter(view->
                             (view.getClassName() != null &&
-                                    view.getClassName().toString().contains("TextView"))).toList();
+                                    view.getClassName().toString().contains("TextView"))).collect(
+                            Collectors.toList());
 
             // The text of the only TextView is very long (more than 1000 characters), but
             // only 100 text character locations are retrieved because
@@ -354,8 +356,9 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         Object validationData = session.getValidationData();
         assertTrue(validationData instanceof ValidatorHierarchy);
 
-        return ValidatorUtil.generateResults(LayoutValidator.DEFAULT_POLICY,
+        ValidatorResult result = ValidatorUtil.generateResults(LayoutValidator.DEFAULT_POLICY,
                 (ValidatorHierarchy) validationData);
+        return result;
     }
     private void render(String fileName, RenderSessionListener verifier) throws Exception {
         render(fileName, verifier, true);
@@ -403,17 +406,17 @@ public class AccessibilityValidatorTests extends RenderTestBase {
      */
     private static class ExpectedLevels {
         // Number of errors expected
-        private int expectedErrors = 0;
+        public int expectedErrors = 0;
         // Number of warnings expected
-        private int expectedWarnings = 0;
+        public int expectedWarnings = 0;
         // Number of infos expected
-        private int expectedInfos = 0;
+        public int expectedInfos = 0;
         // Number of verboses expected
-        private int expectedVerboses = 0;
+        public int expectedVerboses = 0;
         // Number of fixes expected
-        private int expectedFixes = 0;
+        public int expectedFixes = 0;
 
-        private void check(List<Issue> issues) {
+        public void check(List<Issue> issues) {
             int errors = 0;
             int warnings = 0;
             int infos = 0;
@@ -450,5 +453,5 @@ public class AccessibilityValidatorTests extends RenderTestBase {
             int size = expectedErrors + expectedWarnings + expectedInfos + expectedVerboses;
             assertEquals("expected size", size, issues.size());
         }
-    }
+    };
 }

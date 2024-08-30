@@ -75,7 +75,7 @@ public class ImageUtils {
         }
     }
 
-    private static void assertImageSimilar(String relativePath, BufferedImage goldenImage,
+    public static void assertImageSimilar(String relativePath, BufferedImage goldenImage,
             BufferedImage image, double maxPercentDifferent) throws IOException {
         if (goldenImage.getType() != TYPE_INT_ARGB) {
             BufferedImage temp = new BufferedImage(goldenImage.getWidth(), goldenImage.getHeight(),

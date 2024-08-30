@@ -35,6 +35,9 @@ import android.view.AttachInfo_Accessor;
 import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
@@ -85,8 +88,9 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
         if (allStates == Boolean.TRUE) {
             List<BufferedImage> result;
 
-            if (d instanceof StateListDrawable stateList) {
-                result = new ArrayList<>();
+            if (d instanceof StateListDrawable) {
+                result = new ArrayList<BufferedImage>();
+                StateListDrawable stateList = (StateListDrawable) d;
                 for (int i = 0; i < stateList.getStateCount(); i++) {
                     Drawable stateDrawable = stateList.getStateDrawable(i);
                     result.add(renderImage(hardwareConfig, stateDrawable, context));

@@ -25,8 +25,6 @@ import com.android.layoutlib.bridge.android.BridgeXmlBlockParserTest;
 import com.android.layoutlib.bridge.android.DynamicRenderResourcesTest;
 import com.android.layoutlib.bridge.impl.LayoutParserWrapperTest;
 import com.android.layoutlib.bridge.impl.ResourceHelperTest;
-import com.android.layoutlib.bridge.util.ChoreographerCallbacksTest;
-import com.android.layoutlib.bridge.util.HandlerMessageQueueTest;
 import com.android.tools.idea.validator.LayoutValidatorTests;
 import com.android.tools.idea.validator.ValidatorResultTests;
 import com.android.tools.idea.validator.AccessibilityValidatorTests;
@@ -50,7 +48,7 @@ import android.util.BridgeXmlPullAttributesTest;
         BridgeContextTest.class, Resources_DelegateTest.class, ShadowsRenderTests.class,
         LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class,
         ValidatorResultTests.class, BitmapTest.class, DynamicRenderResourcesTest.class,
-        AccessibilityTest.class, ChoreographerCallbacksTest.class, HandlerMessageQueueTest.class
+        AccessibilityTest.class
 })
 public class Main {
 }

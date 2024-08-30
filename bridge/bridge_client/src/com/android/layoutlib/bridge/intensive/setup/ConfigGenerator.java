@@ -230,8 +230,11 @@ public class ConfigGenerator {
                         // Integer.decode cannot handle "ffffffff", see JDK issue 6624867
                         int i = (int) (long) Long.decode(value);
                         assert attr != null;
-                        Map<String, Integer> attributeMap =
-                                map.computeIfAbsent(attr, k -> Maps.newHashMap());
+                        Map<String, Integer> attributeMap = map.get(attr);
+                        if (attributeMap == null) {
+                            attributeMap = Maps.newHashMap();
+                            map.put(attr, attributeMap);
+                        }
                         attributeMap.put(name, i);
                     }
                 } else if (eventType == XmlPullParser.END_TAG) {
@@ -241,7 +244,9 @@ public class ConfigGenerator {
                 }
                 eventType = xmlPullParser.next();
             }
-        } catch (XmlPullParserException | IOException e) {
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return map;

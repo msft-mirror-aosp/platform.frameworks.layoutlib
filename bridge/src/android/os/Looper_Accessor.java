@@ -29,8 +29,13 @@ public class Looper_Accessor {
             Field sMainLooper = Looper.class.getDeclaredField("sMainLooper");
             sMainLooper.setAccessible(true);
             sMainLooper.set(null, null);
-        } catch (SecurityException | IllegalAccessException | NoSuchFieldException |
-                 IllegalArgumentException e) {
+        } catch (SecurityException e) {
+            catchReflectionException();
+        } catch (IllegalArgumentException e) {
+            catchReflectionException();
+        } catch (NoSuchFieldException e) {
+            catchReflectionException();
+        } catch (IllegalAccessException e) {
             catchReflectionException();
         }
 

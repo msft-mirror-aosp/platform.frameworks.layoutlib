@@ -16,6 +16,9 @@
 
 package com.android.tools.layoutlib.create;
 
+import com.android.tools.layoutlib.annotations.VisibleForTesting;
+import com.android.tools.layoutlib.annotations.VisibleForTesting.Visibility;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
@@ -92,7 +95,7 @@ public class DependencyFinder {
         Map<String, Set<String>> deps = result.get(0);
         Map<String, Set<String>> missing = result.get(1);
 
-        // Print all dependencies found in the format:
+        // Print all dependences found in the format:
         // +Found: <FQCN from zip>
         //     uses: FQCN
 
@@ -109,7 +112,7 @@ public class DependencyFinder {
         }
 
 
-        // Now print all missing dependencies in the format:
+        // Now print all missing dependences in the format:
         // -Missing <FQCN>:
         //     used by: <FQCN>
 
@@ -146,20 +149,19 @@ public class DependencyFinder {
      * Parses a JAR file and returns a list of all classes founds using a map
      * class name => ASM ClassReader. Class names are in the form "android.view.View".
      */
-    private Map<String,ClassReader> parseZip(List<String> jarPathList) throws IOException {
+    Map<String,ClassReader> parseZip(List<String> jarPathList) throws IOException {
         TreeMap<String, ClassReader> classes = new TreeMap<>();
 
         for (String jarPath : jarPathList) {
-            try (ZipFile zip = new ZipFile(jarPath)) {
-                Enumeration<? extends ZipEntry> entries = zip.entries();
-                ZipEntry entry;
-                while (entries.hasMoreElements()) {
-                    entry = entries.nextElement();
-                    if (entry.getName().endsWith(".class")) {
-                        ClassReader cr = new ClassReader(zip.getInputStream(entry));
-                        String className = classReaderToClassName(cr);
-                        classes.put(className, cr);
-                    }
+            ZipFile zip = new ZipFile(jarPath);
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            ZipEntry entry;
+            while (entries.hasMoreElements()) {
+                entry = entries.nextElement();
+                if (entry.getName().endsWith(".class")) {
+                    ClassReader cr = new ClassReader(zip.getInputStream(entry));
+                    String className = classReaderToClassName(cr);
+                    classes.put(className, cr);
                 }
             }
         }
@@ -171,7 +173,7 @@ public class DependencyFinder {
      * Utility that returns the fully qualified binary class name for a ClassReader.
      * E.g. it returns something like android.view.View.
      */
-    private static String classReaderToClassName(ClassReader classReader) {
+    static String classReaderToClassName(ClassReader classReader) {
         if (classReader == null) {
             return null;
         } else {
@@ -183,7 +185,7 @@ public class DependencyFinder {
      * Utility that returns the fully qualified binary class name from a path-like FQCN.
      * E.g. it returns android.view.View from android/view/View.
      */
-    private static String internalToBinaryClassName(String className) {
+    static String internalToBinaryClassName(String className) {
         if (className == null) {
             return null;
         } else {
@@ -195,13 +197,13 @@ public class DependencyFinder {
      * Finds all dependencies for all classes in keepClasses which are also
      * listed in zipClasses. Returns a map of all the dependencies found.
      */
-    private Map<String, Set<String>> findClassesDeps(Map<String, ClassReader> zipClasses) {
+    Map<String, Set<String>> findClassesDeps(Map<String, ClassReader> zipClasses) {
 
         // The dependencies that we'll collect.
         // It's a map Class name => uses class names.
         Map<String, Set<String>> dependencyMap = new TreeMap<>();
 
-        DependencyVisitor visitor = new DependencyVisitor();
+        DependencyVisitor visitor = getVisitor();
 
         int count = 0;
         try {
@@ -245,7 +247,11 @@ public class DependencyFinder {
             for (String dep : entry.getValue()) {
                 if (!zipClasses.contains(dep)) {
                     // This dependency doesn't exist in the zip classes.
-                    Set<String> set = missing.computeIfAbsent(dep, k -> new TreeSet<>());
+                    Set<String> set = missing.get(dep);
+                    if (set == null) {
+                        set = new TreeSet<>();
+                        missing.put(dep, set);
+                    }
                     set.add(name);
                 }
             }
@@ -259,16 +265,24 @@ public class DependencyFinder {
     // ----------------------------------
 
     /**
+     * Instantiates a new DependencyVisitor. Useful for unit tests.
+     */
+    @VisibleForTesting(visibility=Visibility.PRIVATE)
+    DependencyVisitor getVisitor() {
+        return new DependencyVisitor();
+    }
+
+    /**
      * Visitor to collect all the type dependencies from a class.
      */
-    protected static class DependencyVisitor extends ClassVisitor {
+    public class DependencyVisitor extends ClassVisitor {
 
         private Set<String> mCurrentDepSet;
 
         /**
          * Creates a new visitor that will find all the dependencies for the visited class.
          */
-        private DependencyVisitor() {
+        public DependencyVisitor() {
             super(Main.ASM_VERSION);
         }
 
@@ -276,14 +290,14 @@ public class DependencyFinder {
          * Sets the {@link Set} where to record direct dependencies for this class.
          * This will change before each {@link ClassReader#accept(ClassVisitor, int)} call.
          */
-        private void setDependencySet(Set<String> set) {
+        public void setDependencySet(Set<String> set) {
             mCurrentDepSet = set;
         }
 
         /**
          * Considers the given class name as a dependency.
          */
-        private void considerName(String className) {
+        public void considerName(String className) {
             if (className == null) {
                 return;
             }
@@ -309,7 +323,7 @@ public class DependencyFinder {
         /**
          * Considers this array of names using considerName().
          */
-        private void considerNames(String[] classNames) {
+        public void considerNames(String[] classNames) {
             if (classNames != null) {
                 for (String className : classNames) {
                     considerName(className);
@@ -321,7 +335,7 @@ public class DependencyFinder {
          * Considers this signature or type signature by invoking the {@link SignatureVisitor}
          * on it.
          */
-        private void considerSignature(String signature) {
+        public void considerSignature(String signature) {
             if (signature != null) {
                 SignatureReader sr = new SignatureReader(signature);
                 // SignatureReader.accept will call accessType so we don't really have
@@ -334,7 +348,7 @@ public class DependencyFinder {
          * Considers this {@link Type}. For arrays, the element type is considered.
          * If the type is an object, it's internal name is considered.
          */
-        private void considerType(Type t) {
+        public void considerType(Type t) {
             if (t != null) {
                 if (t.getSort() == Type.ARRAY) {
                     t = t.getElementType();
@@ -349,10 +363,10 @@ public class DependencyFinder {
          * Considers a descriptor string. The descriptor is converted to a {@link Type}
          * and then considerType() is invoked.
          */
-        private boolean considerDesc(String desc) {
+        public boolean considerDesc(String desc) {
             if (desc != null) {
                 try {
-                    if (!desc.isEmpty() && desc.charAt(0) == '(') {
+                    if (desc.length() > 0 && desc.charAt(0) == '(') {
                         // This is a method descriptor with arguments and a return type.
                         Type t = Type.getReturnType(desc);
                         considerType(t);
@@ -419,7 +433,7 @@ public class DependencyFinder {
 
         private class MyFieldVisitor extends FieldVisitor {
 
-            private MyFieldVisitor() {
+            public MyFieldVisitor() {
                 super(Main.ASM_VERSION);
             }
 
@@ -494,7 +508,7 @@ public class DependencyFinder {
 
         private class MyMethodVisitor extends MethodVisitor {
 
-            private MyMethodVisitor() {
+            public MyMethodVisitor() {
                 super(Main.ASM_VERSION);
             }
 
@@ -639,7 +653,7 @@ public class DependencyFinder {
 
         private class MySignatureVisitor extends SignatureVisitor {
 
-            private MySignatureVisitor() {
+            public MySignatureVisitor() {
                 super(Main.ASM_VERSION);
             }
 
@@ -738,7 +752,7 @@ public class DependencyFinder {
 
         private class MyAnnotationVisitor extends AnnotationVisitor {
 
-            protected MyAnnotationVisitor() {
+            public MyAnnotationVisitor() {
                 super(Main.ASM_VERSION);
             }
 

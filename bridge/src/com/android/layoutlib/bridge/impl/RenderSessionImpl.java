@@ -29,6 +29,7 @@ import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode.SizeAction;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.ViewType;
+import com.android.internal.R;
 import com.android.internal.view.menu.ActionMenuItemView;
 import com.android.internal.view.menu.BridgeMenuItemImpl;
 import com.android.internal.view.menu.IconMenuItemView;
@@ -52,10 +53,16 @@ import com.android.tools.layoutlib.annotations.NotNull;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
+import android.media.Image;
+import android.media.Image.Plane;
+import android.media.ImageReader;
 import android.preference.Preference_Delegate;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
@@ -89,7 +96,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -111,10 +117,10 @@ import static com.android.layoutlib.common.util.ReflectionUtils.isInstanceOf;
 public class RenderSessionImpl extends RenderAction<SessionParams> {
 
     private static final Canvas NOP_CANVAS = new NopCanvas();
-    private static final String SIMULATED_SDK_TOO_HIGH = String.format(Locale.ENGLISH,
-            "The current rendering only supports APIs up to %d. You may encounter crashes if " +
-                    "using with higher APIs. To avoid, you can set a lower API for your previews.",
-            SDK_INT);
+    private static final String SIMULATED_SDK_TOO_HIGH =
+            String.format("The current rendering only supports APIs up to %d. You may encounter " +
+                    "crashes if using with higher APIs. To avoid, you can set a lower API for " +
+                    "your previews.", SDK_INT);
 
     // scene state
     private RenderSession mScene;
@@ -135,6 +141,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     private List<ViewInfo> mSystemViewInfoList;
     private Layout.Builder mLayoutBuilder;
     private boolean mNewRenderSize;
+    private ImageReader mImageReader;
+    private Image mNativeImage;
     private LayoutlibRenderer mRenderer;
 
     // Passed in MotionEvent initialization when dispatching a touch event.
@@ -198,6 +206,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         mBlockParser = new BridgeXmlBlockParser(layoutParser, context, layoutParser.getLayoutNamespace());
 
         Bitmap.setDefaultDensity(params.getHardwareConfig().getDensity().getDpiValue());
+
+        // Needed in order to initialize static state of ImageReader
+        ImageReader.nativeClassInit();
 
         return SUCCESS.createResult();
     }
@@ -498,7 +509,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 boolean disableBitmapCaching = Boolean.TRUE.equals(params.getFlag(
                     RenderParamsFlags.FLAG_KEY_DISABLE_BITMAP_CACHING));
 
-                if (mNewRenderSize || mImage == null || disableBitmapCaching) {
+                if (mNewRenderSize || mImageReader == null || disableBitmapCaching) {
                     if (params.getImageFactory() != null) {
                         mImage = params.getImageFactory().getImage(
                                 mMeasuredScreenWidth,
@@ -530,7 +541,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                         mRenderer.setScale(1.0f, 1.0f);
                     }
 
-                    mRenderer.setup(mImage.getWidth(), mImage.getHeight(), mViewRoot);
+                    if (mImageReader == null) {
+                        mImageReader = ImageReader.newInstance(mImage.getWidth(), mImage.getHeight(), PixelFormat.RGBA_8888, 1);
+                        mRenderer.setSurface(mImageReader.getSurface());
+                        mNativeImage = mImageReader.acquireNextImage();
+                    }
                     mNewRenderSize = false;
                 }
 
@@ -550,12 +565,30 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                             mElapsedFrameTimeNanos / 1000000;
                 }
 
+                final TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.Lighting, 0, 0);
+                float lightY = a.getDimension(R.styleable.Lighting_lightY, 0);
+                float lightZ = a.getDimension(R.styleable.Lighting_lightZ, 0);
+                // Correct light altitude according to ThreadedRenderer.setLightCenter
+                DisplayMetrics displayMetrics = getContext().getMetrics();
+                float zRatio = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                        / (450f * displayMetrics.density);
+                float zWeightedAdjustment = (zRatio + 2) / 3f;
+                lightZ *= zWeightedAdjustment;
+                float lightRadius = a.getDimension(R.styleable.Lighting_lightRadius, 0);
+                float ambientShadowAlpha = a.getFloat(R.styleable.Lighting_ambientShadowAlpha, 0);
+                float spotShadowAlpha = a.getFloat(R.styleable.Lighting_spotShadowAlpha, 0);
+                a.recycle();
+
+                mRenderer.setLightSourceGeometry(mMeasuredScreenWidth / 2, lightY, lightZ, lightRadius);
+                mRenderer.setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha);
                 mRenderer.draw(mViewRoot);
                 // Wait for render thread to finish rendering
                 mRenderer.fence();
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
-                IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
+
+                Plane[] planes = mNativeImage.getPlanes();
+                IntBuffer buff = planes[0].getBuffer().asIntBuffer();
                 int len = buff.remaining();
                 buff.get(imageData, 0, len);
             }
@@ -657,10 +690,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         }
         if (view instanceof TabHost) {
             setupTabHost((TabHost) view, layoutlibCallback);
-        } else if (view instanceof QuickContactBadge badge) {
+        } else if (view instanceof QuickContactBadge) {
+            QuickContactBadge badge = (QuickContactBadge) view;
             badge.setImageToDefault();
-        } else if (view instanceof ViewGroup group) {
+        } else if (view instanceof ViewGroup) {
             mInflater.postInflateProcess(view);
+            ViewGroup group = (ViewGroup) view;
             final int count = group.getChildCount();
             for (int c = 0; c < count; c++) {
                 View child = group.getChildAt(c);
@@ -695,9 +730,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     private View findChildView(View view, String[] className) {
-        if (!(view instanceof ViewGroup group)) {
+        if (!(view instanceof ViewGroup)) {
             return null;
         }
+        ViewGroup group = (ViewGroup) view;
         for (int i = 0; i < group.getChildCount(); i++) {
             if (isInstanceOf(group.getChildAt(i), className)) {
                 return group.getChildAt(i);
@@ -707,9 +743,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     private boolean hasToolbar(View collapsingToolbar) {
-        if (!(collapsingToolbar instanceof ViewGroup group)) {
+        if (!(collapsingToolbar instanceof ViewGroup)) {
             return false;
         }
+        ViewGroup group = (ViewGroup) collapsingToolbar;
         for (int i = 0; i < group.getChildCount(); i++) {
             if (isInstanceOf(group.getChildAt(i), DesignLibUtil.CN_TOOLBAR)) {
                 return true;
@@ -745,9 +782,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
         }
 
-        if (!(view instanceof ViewGroup group)) {
+        if (!(view instanceof ViewGroup)) {
             return;
         }
+        ViewGroup group = (ViewGroup) view;
         for (int i = 0; i < group.getChildCount(); i++) {
             View child = group.getChildAt(i);
             handleScrolling(context, child);
@@ -785,12 +823,14 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     "TabHost requires a FrameLayout with id \"android:id/tabcontent\".");
         }
 
-        if (!(v instanceof FrameLayout content)) {
+        if (!(v instanceof FrameLayout)) {
             //noinspection SpellCheckingInspection
             throw new PostInflateException(String.format(
                     "TabHost requires a FrameLayout with id \"android:id/tabcontent\".\n" +
                     "View found with id 'tabcontent' is '%s'", v.getClass().getCanonicalName()));
         }
+
+        FrameLayout content = (FrameLayout)v;
 
         // now process the content of the frameLayout and dynamically create tabs for it.
         final int count = content.getChildCount();
@@ -846,7 +886,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         ViewInfo result = createViewInfo(view, hOffset, vOffset, params.getExtendedViewInfoMode(),
                 isContentFrame);
 
-        if (view instanceof ViewGroup group) {
+        if (view instanceof ViewGroup) {
+            ViewGroup group = ((ViewGroup) view);
             result.setChildren(visitAllChildren(group, isContentFrame ? 0 : hOffset,
                     isContentFrame ? 0 : vOffset,
                     params, isContentFrame));
@@ -942,7 +983,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * set.
      * @param hOffset horizontal offset for the view bounds. Used only if view is part of the
      * content frame.
-     * @param vOffset vertical an offset for the view bounds. Used only if view is part of the
+     * @param vOffset vertial an offset for the view bounds. Used only if view is part of the
      * content frame.
      */
     private ViewInfo createViewInfo(View view, int hOffset, int vOffset, boolean setExtendedInfo,
@@ -1100,7 +1141,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         return mValidatorHierarchy;
     }
 
-    private void setValidatorHierarchy(@NotNull ValidatorHierarchy validatorHierarchy) {
+    public void setValidatorHierarchy(@NotNull ValidatorHierarchy validatorHierarchy) {
         mValidatorHierarchy = validatorHierarchy;
     }
 
@@ -1191,8 +1232,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     private void disposeImageSurface() {
-        if (mRenderer != null) {
-            mRenderer.reset();
+        if (mImageReader != null) {
+            mImageReader.close();
+            mImageReader = null;
         }
     }
 

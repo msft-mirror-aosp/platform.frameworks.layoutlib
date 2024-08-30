@@ -18,13 +18,14 @@ package android.view;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
+import android.content.Context;
 import android.content.res.Resources;
 
 public class PointerIcon_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static void loadResource(PointerIcon icon, Resources resources, int resourceId,
-            Resources.Theme theme, float pointerScale) {
+            Resources.Theme theme) {
         // HACK: This bypasses the problem of having an enum resolved as a resourceId.
         // PointerIcon would not be displayed by layoutlib anyway, so we always return the null
         // icon.

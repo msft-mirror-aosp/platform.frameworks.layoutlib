@@ -137,14 +137,31 @@ public class FrameworkResources extends ResourceRepository {
                                         // in one platform version, there are 1500 drawables
                                         // and 1200 strings but only 175 and 25 public ones
                                         // respectively.
-                                        int size = switch (type) {
-                                            case STYLE -> 500;
-                                            case ATTR -> 1050;
-                                            case DRAWABLE -> 200;
-                                            case ID -> 50;
-                                            case LAYOUT, COLOR, STRING, ANIM, INTERPOLATOR -> 30;
-                                            default -> 10;
-                                        };
+                                        int size;
+                                        switch (type) {
+                                            case STYLE:
+                                                size = 500;
+                                                break;
+                                            case ATTR:
+                                                size = 1050;
+                                                break;
+                                            case DRAWABLE:
+                                                size = 200;
+                                                break;
+                                            case ID:
+                                                size = 50;
+                                                break;
+                                            case LAYOUT:
+                                            case COLOR:
+                                            case STRING:
+                                            case ANIM:
+                                            case INTERPOLATOR:
+                                                size = 30;
+                                                break;
+                                            default:
+                                                size = 10;
+                                                break;
+                                        }
                                         publicList = new ArrayList<>(size);
                                         mPublicResourceMap.put(type, publicList);
                                     }

@@ -4,6 +4,7 @@ import com.android.layoutlib.bridge.util.ChoreographerCallbacks;
 import com.android.layoutlib.bridge.util.HandlerMessageQueue;
 import com.android.tools.layoutlib.annotations.NotNull;
 
+import android.view.Choreographer;
 import android.view.Choreographer_Delegate;
 
 import java.util.concurrent.atomic.AtomicLong;

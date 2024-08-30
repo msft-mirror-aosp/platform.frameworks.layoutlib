@@ -17,6 +17,8 @@
 package libcore.util;
 
 import com.android.layoutlib.bridge.impl.DelegateManager;
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
+import libcore.util.NativeAllocationRegistry;
 
 /**
  * Delegate implementing the native methods of {@link NativeAllocationRegistry}

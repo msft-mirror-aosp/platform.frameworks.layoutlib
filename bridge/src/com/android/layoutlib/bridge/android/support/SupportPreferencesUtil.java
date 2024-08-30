@@ -66,7 +66,7 @@ public class SupportPreferencesUtil {
 
     @NonNull
     private static Object instantiateClass(@NonNull LayoutlibCallback callback,
-            @NonNull String className, @Nullable Class<?>[] constructorSignature,
+            @NonNull String className, @Nullable Class[] constructorSignature,
             @Nullable Object[] constructorArgs) throws ReflectionException {
         try {
             Object instance = callback.loadClass(className, constructorSignature, constructorArgs);
@@ -229,6 +229,7 @@ public class SupportPreferencesUtil {
             }
         }
 
+        assert preferencePackageName != null;
         String preferenceGroupClassName = preferencePackageName + ".PreferenceGroup";
         String preferenceGroupAdapterClassName = preferencePackageName + ".PreferenceGroupAdapter";
         String preferenceInflaterClassName = preferencePackageName + ".PreferenceInflater";

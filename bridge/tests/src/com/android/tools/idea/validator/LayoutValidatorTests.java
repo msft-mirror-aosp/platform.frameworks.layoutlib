@@ -78,7 +78,7 @@ public class LayoutValidatorTests extends RenderTestBase {
         renderAndVerify(params, "a11y_test1.png");
         Object connectionCache = ReflectionUtils.getFieldValue(AccessibilityInteractionClient.class,
                 null, "sConnectionCache");
-        assertEquals(0, ((SparseArray<?>)connectionCache).size());
+        assertEquals(0, ((SparseArray)connectionCache).size());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class LayoutValidatorTests extends RenderTestBase {
             assertEquals("https://support.google.com/accessibility/android/answer/7101858",
                          second.mHelpfulUrl);
             assertEquals("TouchTargetSizeCheck", second.mSourceClass);
-            assertEquals(2, compoundFix.mFixes.size());
+            assertTrue(compoundFix.mFixes.size() == 2);
             assertEquals(
                     "Set this item's android:layout_width to 48dp.",
                     compoundFix.mFixes.get(0).getDescription());

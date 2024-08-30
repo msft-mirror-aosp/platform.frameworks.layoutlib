@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.layoutlib.bridge.intensive.util;
+package android.graphics;
 
-import java.lang.ref.WeakReference;
-
-public class TestUtils {
-    public static void gc() {
-        // See RuntimeUtil#gc in jlibs (http://jlibs.in/)
-        Object obj = new Object();
-        WeakReference ref = new WeakReference<>(obj);
-        //noinspection UnusedAssignment
-        obj = null;
-        while (ref.get() != null) {
-            System.gc();
-            System.runFinalization();
-        }
-
-        System.gc();
-        System.runFinalization();
+public class HardwareRenderer_ProcessInitializer_Delegate {
+    public static void initSched(long renderProxy) {
+        /*
+         * This is done in order to prevent NullPointerException when creating HardwareRenderer in
+         * layoutlib
+         */
     }
 }

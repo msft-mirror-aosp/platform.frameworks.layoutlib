@@ -21,6 +21,7 @@ import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.layoutlib.bridge.impl.RenderSessionImpl;
+import com.android.resources.ResourceType;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.annotation.Nullable;
@@ -42,7 +43,7 @@ public class Resources_Theme_Delegate {
     // ---- delegate manager ----
 
     private static final DelegateManager<Resources_Theme_Delegate> sManager =
-            new DelegateManager<>(Resources_Theme_Delegate.class);
+            new DelegateManager<Resources_Theme_Delegate>(Resources_Theme_Delegate.class);
 
     public static DelegateManager<Resources_Theme_Delegate> getDelegateManager() {
         return sManager;

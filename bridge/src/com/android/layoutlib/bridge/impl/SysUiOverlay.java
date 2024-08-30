@@ -120,7 +120,7 @@ class SysUiOverlay extends View {
     }
 
     private void paintNotch(Canvas canvas) {
-        canvas.translate(getWidth() / 2f - mNotchTopWidth / 2f, 0);
+        canvas.translate(getWidth() / 2 - mNotchTopWidth / 2, 0);
         canvas.drawPath(mNotchPath, mNotchPaint);
     }
 

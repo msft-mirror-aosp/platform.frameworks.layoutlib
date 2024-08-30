@@ -61,9 +61,7 @@ public class AttachInfo_Accessor {
         ViewRootImpl_Accessor.setChild(root, view);
         view.assignParent(root);
         if (view instanceof Layout) {
-            InsetsController insetsController = root.getInsetsController();
-            wm.createOrUpdateDisplayFrames(insetsController.getState());
-            InsetUtil.setupSysUiInsets(context, insetsController,
+            InsetUtil.setupSysUiInsets(context, root.getInsetsController(),
                     ((Layout)view).getInsetsFrameProviders());
         }
         view.dispatchAttachedToWindow(info, 0);

@@ -33,11 +33,11 @@ class StubCallMethodAdapter extends MethodVisitor {
     private static final String CLASS_INIT = "<clinit>";
 
     /** The parent method writer */
-    private final MethodVisitor mParentVisitor;
+    private MethodVisitor mParentVisitor;
     /** The method return type. Can be null. */
-    private final Type mReturnType;
+    private Type mReturnType;
     /** Message to be printed by stub methods. */
-    private final String mInvokeSignature;
+    private String mInvokeSignature;
     /** Flag to output the first line number. */
     private boolean mOutputFirstLineNumber = true;
     /** Flag that is true when implementing a constructor, to accept all original

@@ -42,7 +42,7 @@ final class AdapterItem {
 
     void addChild(AdapterItem child) {
         if (mChildren == null) {
-            mChildren = new ArrayList<>();
+            mChildren = new ArrayList<AdapterItem>();
         }
 
         mChildren.add(child);

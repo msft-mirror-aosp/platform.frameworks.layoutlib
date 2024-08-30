@@ -130,7 +130,7 @@ public class ValidatorResult {
         public long mImageMemoryBytes = 0;
 
         /** Debugging purpose only. Use it with {@link LayoutValidator#shouldSaveCroppedImages()} */
-        public final List<ImageSize> mImageSizes = new ArrayList<>();
+        public List<ImageSize> mImageSizes = new ArrayList<>();
 
         private long mHierarchyCreationTimeStart;
 

@@ -28,7 +28,7 @@ import libcore.io.Streams;
  */
 public class ModuleClassLoader extends ClassLoader {
     private final Map<String, Class<?>> mClasses = new HashMap<>();
-    private final String myModuleRoot;
+    private String myModuleRoot;
 
     /**
      * @param moduleRoot The path to the module root

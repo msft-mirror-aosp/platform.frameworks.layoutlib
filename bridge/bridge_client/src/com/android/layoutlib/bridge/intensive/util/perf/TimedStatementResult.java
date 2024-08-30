@@ -45,15 +45,12 @@ public class TimedStatementResult {
 
     @Override
     public String toString() {
-        return String.format("""
-                        Warm up %d. Runs %d
-                        Time:             %s ms (min: %s, max %s)
-                        Calibration Time: %f ms
-                        Calibrated Time:  %s units (min: %s, max %s)
-                        Sampled %d times
-                           Memory used:  %d bytes (max %d)
-
-                        """,
+        return String.format(
+                "Warm up %d. Runs %d\n" + "Time:             %s ms (min: %s, max %s)\n" +
+                        "Calibration Time: %f ms\n" +
+                        "Calibrated Time:  %s units (min: %s, max %s)\n" +
+                        "Sampled %d times\n" +
+                        "   Memory used:  %d bytes (max %d)\n\n",
                 mWarmUpIterations, mRuns,
                 mTimeStats.getMedian(), mTimeStats.getMin(), mTimeStats.getMax(),
                 mCalibrationTimeMs,

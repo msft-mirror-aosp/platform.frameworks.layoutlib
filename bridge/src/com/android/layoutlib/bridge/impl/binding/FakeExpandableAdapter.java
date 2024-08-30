@@ -37,11 +37,11 @@ public class FakeExpandableAdapter implements ExpandableListAdapter, Heterogeneo
     private final ResourceReference mAdapterRef;
     private boolean mSkipCallbackParser = false;
 
-    private final List<AdapterItem> mItems = new ArrayList<>();
+    protected final List<AdapterItem> mItems = new ArrayList<AdapterItem>();
 
     // don't use a set because the order is important.
-    private final List<ResourceReference> mGroupTypes = new ArrayList<>();
-    private final List<ResourceReference> mChildrenTypes = new ArrayList<>();
+    private final List<ResourceReference> mGroupTypes = new ArrayList<ResourceReference>();
+    private final List<ResourceReference> mChildrenTypes = new ArrayList<ResourceReference>();
 
     public FakeExpandableAdapter(ResourceReference adapterRef, AdapterBinding binding,
             LayoutlibCallback callback) {
@@ -72,7 +72,7 @@ public class FakeExpandableAdapter implements ExpandableListAdapter, Heterogeneo
                 int count = dataBindingItem.getCount();
 
                 // if there are children, we use the count as a repeat count for the children.
-                if (!children.isEmpty()) {
+                if (children.size() > 0) {
                     count = 1;
                 }
 
@@ -84,7 +84,7 @@ public class FakeExpandableAdapter implements ExpandableListAdapter, Heterogeneo
                             index++);
                     mItems.add(item);
 
-                    if (!children.isEmpty()) {
+                    if (children.size() > 0) {
                         createItems(dataBindingItem, depth + 1);
                     }
                 }

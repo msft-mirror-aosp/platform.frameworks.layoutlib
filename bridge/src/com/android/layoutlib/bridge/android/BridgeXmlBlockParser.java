@@ -61,7 +61,7 @@ public class BridgeXmlBlockParser implements XmlResourceParser, ResolvingAttribu
             @Nullable BridgeContext context,
             @NonNull ResourceNamespace fileNamespace) {
         if (ParserFactory.LOG_PARSER) {
-            System.out.println("CRTE " + parser);
+            System.out.println("CRTE " + parser.toString());
         }
 
         mParser = parser;
@@ -296,7 +296,7 @@ public class BridgeXmlBlockParser implements XmlResourceParser, ResolvingAttribu
             mStarted = true;
 
             if (ParserFactory.LOG_PARSER) {
-                System.out.println("STRT " + mParser);
+                System.out.println("STRT " + mParser.toString());
             }
 
             return START_DOCUMENT;
@@ -312,7 +312,7 @@ public class BridgeXmlBlockParser implements XmlResourceParser, ResolvingAttribu
         }
 
         if (ParserFactory.LOG_PARSER) {
-            System.out.println("NEXT " + mParser + " " +
+            System.out.println("NEXT " + mParser.toString() + " " +
                     eventTypeToString(mEventType) + " -> " + eventTypeToString(ev));
         }
 
@@ -326,21 +326,32 @@ public class BridgeXmlBlockParser implements XmlResourceParser, ResolvingAttribu
     }
 
     private static String eventTypeToString(int eventType) {
-        return switch (eventType) {
-            case START_DOCUMENT -> "START_DOC";
-            case END_DOCUMENT -> "END_DOC";
-            case START_TAG -> "START_TAG";
-            case END_TAG -> "END_TAG";
-            case TEXT -> "TEXT";
-            case CDSECT -> "CDSECT";
-            case ENTITY_REF -> "ENTITY_REF";
-            case IGNORABLE_WHITESPACE -> "IGNORABLE_WHITESPACE";
-            case PROCESSING_INSTRUCTION -> "PROCESSING_INSTRUCTION";
-            case COMMENT -> "COMMENT";
-            case DOCDECL -> "DOCDECL";
-            default -> "????";
-        };
+        switch (eventType) {
+            case START_DOCUMENT:
+                return "START_DOC";
+            case END_DOCUMENT:
+                return "END_DOC";
+            case START_TAG:
+                return "START_TAG";
+            case END_TAG:
+                return "END_TAG";
+            case TEXT:
+                return "TEXT";
+            case CDSECT:
+                return "CDSECT";
+            case ENTITY_REF:
+                return "ENTITY_REF";
+            case IGNORABLE_WHITESPACE:
+                return "IGNORABLE_WHITESPACE";
+            case PROCESSING_INSTRUCTION:
+                return "PROCESSING_INSTRUCTION";
+            case COMMENT:
+                return "COMMENT";
+            case DOCDECL:
+                return "DOCDECL";
+        }
 
+        return "????";
     }
 
     @Override

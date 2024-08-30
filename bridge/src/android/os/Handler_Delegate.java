@@ -104,7 +104,8 @@ public class Handler_Delegate {
         void sendMessageAtTime(Handler handler, Message msg, long uptimeMillis);
     }
 
-    private final static ThreadLocal<IHandlerCallback> sCallbacks = new ThreadLocal<>();
+    private final static ThreadLocal<IHandlerCallback> sCallbacks =
+        new ThreadLocal<IHandlerCallback>();
 
     public static void setCallback(IHandlerCallback callback) {
         sCallbacks.set(callback);

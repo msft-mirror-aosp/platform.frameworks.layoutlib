@@ -41,7 +41,7 @@ public class NavigationBar extends CustomBar {
     private static final int WIDTH_DEFAULT = 36;
     private static final int WIDTH_SW360 = 40;
     private static final int WIDTH_SW600 = 48;
-    private static final String LAYOUT_XML = "navigation_bar.xml";
+    protected static final String LAYOUT_XML = "navigation_bar.xml";
     private static final String LAYOUT_600DP_XML = "navigation_bar600dp.xml";
 
     public NavigationBar(BridgeContext context, Density density, int orientation, boolean isRtl,
@@ -52,7 +52,7 @@ public class NavigationBar extends CustomBar {
                 getShortestWidth(context) >= 600 ? LAYOUT_600DP_XML : LAYOUT_XML, quickStepEnabled);
     }
 
-    private NavigationBar(BridgeContext context, Density density, int orientation, boolean isRtl,
+    protected NavigationBar(BridgeContext context, Density density, int orientation, boolean isRtl,
             boolean rtlEnabled, boolean isEdgeToEdge, int simulatedPlatformVersion,
             String layoutPath, boolean quickStepEnabled) {
         super(context, orientation, layoutPath, simulatedPlatformVersion);
@@ -112,7 +112,7 @@ public class NavigationBar extends CustomBar {
     }
 
     private static void setSize(BridgeContext context, View view, int orientation, int size) {
-        size = (int) (size * context.getMetrics().density);
+        size *= context.getMetrics().density;
         LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
         if (orientation == HORIZONTAL) {
             layoutParams.width = size;
@@ -122,7 +122,7 @@ public class NavigationBar extends CustomBar {
         view.setLayoutParams(layoutParams);
     }
 
-    private int getSidePadding(float sw) {
+    protected int getSidePadding(float sw) {
         if (sw >= 400) {
             return PADDING_WIDTH_SW400;
         }
@@ -144,7 +144,8 @@ public class NavigationBar extends CustomBar {
 
     private static float getShortestWidth(BridgeContext context) {
         DisplayMetrics metrics = context.getMetrics();
-        float sw = Math.min(metrics.widthPixels, metrics.heightPixels);
+        float sw = metrics.widthPixels < metrics.heightPixels ?
+                metrics.widthPixels : metrics.heightPixels;
         sw /= metrics.density;
         return sw;
     }
