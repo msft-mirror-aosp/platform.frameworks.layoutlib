@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 
 import static android.graphics.Color.WHITE;
 import static android.os._Original_Build.VERSION_CODES.M;
+import static android.view.Surface.ROTATION_0;
 import static android.view.WindowInsets.Type.mandatorySystemGestures;
 import static android.view.WindowInsets.Type.statusBars;
 import static android.view.WindowInsets.Type.tappableElement;
@@ -145,11 +146,7 @@ public class StatusBar extends CustomBar {
 
     // Copied/adapted from packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
     public WindowManager.LayoutParams getBarLayoutParams() {
-        int rotation = Surface.ROTATION_0;
-        if (getOrientation() == LinearLayout.VERTICAL) {
-            rotation = Surface.ROTATION_90;
-        }
-        return getBarLayoutParamsForRotation(rotation);
+        return getBarLayoutParamsForRotation(mContext.getDisplay().getRotation());
     }
 
     // Copied/adapted from packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
@@ -176,7 +173,6 @@ public class StatusBar extends CustomBar {
     private static int getStatusBarHeightForRotation(Context context,
             @Surface.Rotation int targetRot) {
         final Display display = context.getDisplay();
-        final int rotation = display.getRotation();
         final DisplayCutout cutout = display.getCutout();
         DisplayInfo info = new DisplayInfo();
         display.getDisplayInfo(info);
@@ -187,7 +183,7 @@ public class StatusBar extends CustomBar {
             waterfallInsets = Insets.NONE;
         } else {
             DisplayCutout rotated =
-                    cutout.getRotated(info.logicalWidth, info.logicalHeight, rotation, targetRot);
+                    cutout.getRotated(info.logicalWidth, info.logicalHeight, ROTATION_0, targetRot);
             insets = Insets.of(rotated.getSafeInsets());
             waterfallInsets = rotated.getWaterfallInsets();
         }
@@ -224,7 +220,10 @@ public class StatusBar extends CustomBar {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mDisplayCutout = getRootWindowInsets().getDisplayCutout();
+        final Display display = getDisplay();
+        DisplayInfo info = new DisplayInfo();
+        display.getDisplayInfo(info);
+        mDisplayCutout = info.displayCutout;
         if (mDisplayCutout != null) {
             updateStatusBarHeight();
             updateSafeInsets();
@@ -241,11 +240,7 @@ public class StatusBar extends CustomBar {
         final int waterfallTopInset =
                 mDisplayCutout == null ? 0 : mDisplayCutout.getWaterfallInsets().top;
         ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        int rotation = Surface.ROTATION_0;
-        if (getOrientation() == LinearLayout.VERTICAL) {
-            rotation = Surface.ROTATION_90;
-        }
-        mStatusBarHeight = getStatusBarHeightForRotation(mContext, rotation);
+        mStatusBarHeight = getStatusBarHeightForRotation(mContext, mContext.getDisplay().getRotation());
         layoutParams.height = mStatusBarHeight - waterfallTopInset;
         setLayoutParams(layoutParams);
     }
