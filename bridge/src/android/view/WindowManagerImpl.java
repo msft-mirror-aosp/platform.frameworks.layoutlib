@@ -35,6 +35,7 @@ import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.internal.R;
 import com.android.internal.policy.DecorView;
 import com.android.layoutlib.bridge.Bridge;
+import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.server.wm.DisplayFrames;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class WindowManagerImpl implements WindowManager {
     private final Context mContext;
     private final DisplayMetrics mMetrics;
     private final DisplayInfo mDisplayInfo;
-    private final Display mDisplay;
+    private Display mDisplay;
     /**
      * Root view of the base window, new windows will be added on top of this.
      */
@@ -57,7 +58,7 @@ public class WindowManagerImpl implements WindowManager {
     private ViewGroup mCurrentRootView;
     private DisplayFrames mDisplayFrames;
 
-    public WindowManagerImpl(Context context, DisplayMetrics metrics) {
+    public WindowManagerImpl(BridgeContext context, DisplayMetrics metrics) {
         mContext = context;
         mMetrics = metrics;
 
@@ -69,8 +70,6 @@ public class WindowManagerImpl implements WindowManager {
         };
         mDisplayInfo.logicalDensityDpi = mMetrics.densityDpi;
         mDisplayInfo.displayCutout = DisplayCutout.NO_CUTOUT;
-        mDisplay = new Display(null, Display.DEFAULT_DISPLAY, mDisplayInfo,
-                DisplayAdjustments.DEFAULT_DISPLAY_ADJUSTMENTS);
     }
 
     public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
@@ -96,6 +95,10 @@ public class WindowManagerImpl implements WindowManager {
 
     @Override
     public Display getDefaultDisplay() {
+        if (mDisplay == null) {
+            mDisplay = new Display(null, Display.DEFAULT_DISPLAY, mDisplayInfo,
+                    mContext.getResources());
+        }
         return mDisplay;
     }
 
@@ -275,7 +278,7 @@ public class WindowManagerImpl implements WindowManager {
 
     private Rect getMaximumBounds() {
         final Point displaySize = new Point();
-        mDisplay.getRealSize(displaySize);
+        getDefaultDisplay().getRealSize(displaySize);
         return new Rect(0, 0, displaySize.x, displaySize.y);
     }
 
@@ -333,7 +336,9 @@ public class WindowManagerImpl implements WindowManager {
                         mMetrics.widthPixels, mMetrics.heightPixels, mMetrics.widthPixels,
                         mMetrics.heightPixels);
         if (displayCutout != null) {
-            mDisplayInfo.displayCutout = displayCutout;
+            mDisplayInfo.displayCutout = displayCutout.getRotated(mDisplayInfo.logicalWidth,
+                    mDisplayInfo.logicalHeight, mDisplayInfo.rotation,
+                    getDefaultDisplay().getRotation());
         }
     }
 }
