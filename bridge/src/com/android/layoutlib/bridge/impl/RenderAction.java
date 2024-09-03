@@ -58,6 +58,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static android.os._Original_Build.VERSION.SDK_INT;
+import static android.view.Surface.ROTATION_0;
+import static android.view.Surface.ROTATION_90;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_LOCK_INTERRUPTED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_TIMEOUT;
 import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
@@ -81,6 +83,7 @@ public abstract class RenderAction<T extends RenderParams> {
      * This is to be accessed when wanting to know the simulated SDK version instead
      * of Build.VERSION.SDK_INT.
      */
+    @SuppressWarnings("WeakerAccess") // Field accessed from Studio
     public static int sSimulatedSdk;
 
     private static final Set<String> COMPOSE_CLASS_FQNS =
@@ -149,8 +152,13 @@ public abstract class RenderAction<T extends RenderParams> {
 
         metrics.scaledDensity = metrics.noncompatScaledDensity = metrics.density;
 
-        metrics.widthPixels = metrics.noncompatWidthPixels = hardwareConfig.getScreenWidth();
-        metrics.heightPixels = metrics.noncompatHeightPixels = hardwareConfig.getScreenHeight();
+        if (hardwareConfig.getOrientation() == ScreenOrientation.PORTRAIT) {
+            metrics.widthPixels = metrics.noncompatWidthPixels = hardwareConfig.getScreenWidth();
+            metrics.heightPixels = metrics.noncompatHeightPixels = hardwareConfig.getScreenHeight();
+        } else {
+            metrics.widthPixels = metrics.noncompatWidthPixels = hardwareConfig.getScreenHeight();
+            metrics.heightPixels = metrics.noncompatHeightPixels = hardwareConfig.getScreenWidth();
+        }
         metrics.xdpi = metrics.noncompatXdpi = hardwareConfig.getXdpi();
         metrics.ydpi = metrics.noncompatYdpi = hardwareConfig.getYdpi();
 
@@ -285,9 +293,8 @@ public abstract class RenderAction<T extends RenderParams> {
         // Set-up WindowManager
         // FIXME: find those out, and possibly add them to the render params
         boolean hasNavigationBar = true;
-        //noinspection ConstantConditions
         IWindowManager iwm = new IWindowManagerImpl(getContext().getConfiguration(),
-                getContext().getMetrics(), Surface.ROTATION_0, hasNavigationBar);
+                getContext().getMetrics(), ROTATION_0, hasNavigationBar);
         WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
         if (Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_SHOW_CUTOUT))) {
             ((WindowManagerImpl) mContext.getSystemService(Context.WINDOW_SERVICE))
@@ -400,12 +407,7 @@ public abstract class RenderAction<T extends RenderParams> {
 
         config.screenWidthDp = hardwareConfig.getScreenWidth() * 160 / density.getDpiValue();
         config.screenHeightDp = hardwareConfig.getScreenHeight() * 160 / density.getDpiValue();
-        if (config.screenHeightDp < config.screenWidthDp) {
-            //noinspection SuspiciousNameCombination
-            config.smallestScreenWidthDp = config.screenHeightDp;
-        } else {
-            config.smallestScreenWidthDp = config.screenWidthDp;
-        }
+        config.smallestScreenWidthDp = Math.min(config.screenHeightDp, config.screenWidthDp);
         config.densityDpi = density.getDpiValue();
 
         // never run in compat mode:
@@ -417,13 +419,16 @@ public abstract class RenderAction<T extends RenderParams> {
             switch (orientation) {
             case PORTRAIT:
                 config.orientation = Configuration.ORIENTATION_PORTRAIT;
+                config.windowConfiguration.setDisplayRotation(ROTATION_0);
                 break;
             case LANDSCAPE:
                 config.orientation = Configuration.ORIENTATION_LANDSCAPE;
+                config.windowConfiguration.setDisplayRotation(ROTATION_90);
                 break;
             case SQUARE:
                 //noinspection deprecation
                 config.orientation = Configuration.ORIENTATION_SQUARE;
+                config.windowConfiguration.setDisplayRotation(ROTATION_0);
                 break;
             }
         } else {
