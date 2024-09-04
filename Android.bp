@@ -94,4 +94,5 @@ cc_library_host_shared {
         "libultrahdr",
         "libutils",
     ],
+    stl: "libc++_static",
 }
