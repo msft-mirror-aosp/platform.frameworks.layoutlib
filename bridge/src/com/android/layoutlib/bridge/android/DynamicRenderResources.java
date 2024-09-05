@@ -27,12 +27,18 @@ import com.android.resources.ResourceType;
 import com.android.systemui.monet.ColorScheme;
 import com.android.systemui.monet.Style;
 import com.android.systemui.monet.TonalPalette;
+import com.android.systemui.monet.dynamiccolor.DynamicColor;
+import com.android.systemui.monet.dynamiccolor.MaterialDynamicColors;
+import com.android.systemui.monet.hct.Hct;
+import com.android.systemui.monet.scheme.DynamicScheme;
+import com.android.systemui.monet.scheme.SchemeTonalSpot;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.app.WallpaperColors;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,6 +178,16 @@ public class DynamicRenderResources extends RenderResources {
             extractPalette("accent3", dynamicColorMap, scheme.getAccent3());
             extractPalette("neutral1", dynamicColorMap, scheme.getNeutral1());
             extractPalette("neutral2", dynamicColorMap, scheme.getNeutral2());
+
+            Hct sourceColorHct = Hct.fromInt(seed);
+            DynamicScheme lightScheme = new SchemeTonalSpot(sourceColorHct, false, 0.0);
+            DynamicScheme darkScheme = new SchemeTonalSpot(sourceColorHct, true, 0.0);
+            //Themed Colors
+
+            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme, true /* isDark */);
+            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme, false /* isDark */);
+            extractFixedColors(dynamicColorMap, lightScheme);
+
             return dynamicColorMap;
         } catch (IllegalArgumentException | IOException ignore) {
             return null;
@@ -193,15 +209,112 @@ public class DynamicRenderResources extends RenderResources {
         colorMap.put(resourcePrefix + "_0", Color.WHITE);
     }
 
-    private static boolean isDynamicColor(ResourceValue resourceValue) {
+    /**
+     * Builds the dynamic theme corresponding to the Material colors, copying what is done
+     * in {@link ThemeOverlayController#assignDynamicPaletteToOverlay}
+     */
+    private static void extractDynamicColors(Map<String, Integer> colorMap,
+            DynamicScheme lightScheme, DynamicScheme darkScheme, boolean isDark) {
+        String suffix = isDark ? "dark" : "light";
+        DynamicScheme scheme = isDark ? darkScheme : lightScheme;
+        DynamicColors.ALL_DYNAMIC_COLORS_MAPPED.forEach(p -> {
+            String resourceName = "system_" + p.first + "_" + suffix;
+            int colorValue = p.second.getArgb(scheme);
+            colorMap.put(resourceName, colorValue);
+        });
+    }
+
+    /**
+     * Builds the dynamic theme corresponding to the Material colors, copying what is done
+     * in {@link ThemeOverlayController#assignFixedColorsToOverlay}
+     */
+    private static void extractFixedColors(Map<String, Integer> colorMap,
+            DynamicScheme lightScheme) {
+        DynamicColors.FIXED_COLORS_MAPPED.forEach(p -> {
+            String resourceName = "system_" + p.first;
+            int colorValue = p.second.getArgb(lightScheme);
+            colorMap.put(resourceName, colorValue);
+        });
+    }
+
+    private boolean isDynamicColor(ResourceValue resourceValue) {
         if (!resourceValue.isFramework() || resourceValue.getResourceType() != ResourceType.COLOR) {
             return false;
         }
-        return resourceValue.getName().startsWith("system_accent")
-                || resourceValue.getName().startsWith("system_neutral");
+        return mDynamicColorMap.containsKey(resourceValue.getName());
     }
 
     public boolean hasDynamicColors() {
         return mDynamicColorMap != null;
+    }
+
+    // Copied from frameworks/base/packages/SystemUI/src/com/android/systemui/theme/DynamicColors.kt
+    private static class DynamicColors {
+        private static final MaterialDynamicColors MDC = new MaterialDynamicColors();
+        private static final List<Pair<String, DynamicColor>> ALL_DYNAMIC_COLORS_MAPPED = List.of(
+            Pair.create("primary_container", MDC.primaryContainer()),
+            Pair.create("on_primary_container", MDC.onPrimaryContainer()),
+            Pair.create("primary", MDC.primary()),
+            Pair.create("on_primary", MDC.onPrimary()),
+            Pair.create("secondary_container", MDC.secondaryContainer()),
+            Pair.create("on_secondary_container", MDC.onSecondaryContainer()),
+            Pair.create("secondary", MDC.secondary()),
+            Pair.create("on_secondary", MDC.onSecondary()),
+            Pair.create("tertiary_container", MDC.tertiaryContainer()),
+            Pair.create("on_tertiary_container", MDC.onTertiaryContainer()),
+            Pair.create("tertiary", MDC.tertiary()),
+            Pair.create("on_tertiary", MDC.onTertiary()),
+            Pair.create("background", MDC.background()),
+            Pair.create("on_background", MDC.onBackground()),
+            Pair.create("surface", MDC.surface()),
+            Pair.create("on_surface", MDC.onSurface()),
+            Pair.create("surface_container_low", MDC.surfaceContainerLow()),
+            Pair.create("surface_container_lowest", MDC.surfaceContainerLowest()),
+            Pair.create("surface_container", MDC.surfaceContainer()),
+            Pair.create("surface_container_high", MDC.surfaceContainerHigh()),
+            Pair.create("surface_container_highest", MDC.surfaceContainerHighest()),
+            Pair.create("surface_bright", MDC.surfaceBright()),
+            Pair.create("surface_dim", MDC.surfaceDim()),
+            Pair.create("surface_variant", MDC.surfaceVariant()),
+            Pair.create("on_surface_variant", MDC.onSurfaceVariant()),
+            Pair.create("outline", MDC.outline()),
+            Pair.create("outline_variant", MDC.outlineVariant()),
+            Pair.create("error", MDC.error()),
+            Pair.create("on_error", MDC.onError()),
+            Pair.create("error_container", MDC.errorContainer()),
+            Pair.create("on_error_container", MDC.onErrorContainer()),
+            Pair.create("control_activated", MDC.controlActivated()),
+            Pair.create("control_normal", MDC.controlNormal()),
+            Pair.create("control_highlight", MDC.controlHighlight()),
+            Pair.create("text_primary_inverse", MDC.textPrimaryInverse()),
+            Pair.create("text_secondary_and_tertiary_inverse",
+                    MDC.textSecondaryAndTertiaryInverse()),
+            Pair.create("text_primary_inverse_disable_only",
+                    MDC.textPrimaryInverseDisableOnly()),
+            Pair.create("text_secondary_and_tertiary_inverse_disabled",
+                    MDC.textSecondaryAndTertiaryInverseDisabled()),
+            Pair.create("text_hint_inverse", MDC.textHintInverse()),
+            Pair.create("palette_key_color_primary", MDC.primaryPaletteKeyColor()),
+            Pair.create("palette_key_color_secondary", MDC.secondaryPaletteKeyColor()),
+            Pair.create("palette_key_color_tertiary", MDC.tertiaryPaletteKeyColor()),
+            Pair.create("palette_key_color_neutral", MDC.neutralPaletteKeyColor()),
+            Pair.create("palette_key_color_neutral_variant",
+                    MDC.neutralVariantPaletteKeyColor())
+        );
+
+        private static final List<Pair<String, DynamicColor>> FIXED_COLORS_MAPPED = List.of(
+            Pair.create("primary_fixed", MDC.primaryFixed()),
+            Pair.create("primary_fixed_dim", MDC.primaryFixedDim()),
+            Pair.create("on_primary_fixed", MDC.onPrimaryFixed()),
+            Pair.create("on_primary_fixed_variant", MDC.onPrimaryFixedVariant()),
+            Pair.create("secondary_fixed", MDC.secondaryFixed()),
+            Pair.create("secondary_fixed_dim", MDC.secondaryFixedDim()),
+            Pair.create("on_secondary_fixed", MDC.onSecondaryFixed()),
+            Pair.create("on_secondary_fixed_variant", MDC.onSecondaryFixedVariant()),
+            Pair.create("tertiary_fixed", MDC.tertiaryFixed()),
+            Pair.create("tertiary_fixed_dim", MDC.tertiaryFixedDim()),
+            Pair.create("on_tertiary_fixed", MDC.onTertiaryFixed()),
+            Pair.create("on_tertiary_fixed_variant", MDC.onTertiaryFixedVariant())
+        );
     }
 }

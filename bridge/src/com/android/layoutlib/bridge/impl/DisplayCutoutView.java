@@ -22,61 +22,76 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.Region;
 import android.view.DisplayCutout;
+import android.view.DisplayCutout.BoundsPosition;
 import android.view.DisplayInfo;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.view.DisplayCutout.BOUNDS_POSITION_BOTTOM;
+import static android.view.DisplayCutout.BOUNDS_POSITION_LEFT;
+import static android.view.DisplayCutout.BOUNDS_POSITION_RIGHT;
+import static android.view.DisplayCutout.BOUNDS_POSITION_TOP;
 
 class DisplayCutoutView extends View {
-
     private final DisplayInfo mInfo = new DisplayInfo();
     private final Paint mPaint = new Paint();
-    private final Region mBounds = new Region();
+    private final List<Rect> mBounds = new ArrayList<>();
     private final Rect mBoundingRect = new Rect();
-    private final Path mBoundingPath = new Path();
+    private final Path cutoutPath = new Path();
     private final int[] mLocation = new int[2];
-    private final boolean mStart;
+    private final int mRotation;
 
-    public DisplayCutoutView(Context context, boolean start) {
+    private int mColor = Color.BLACK;
+    @BoundsPosition
+    private final int mInitialPosition;
+    private int mPosition;
+
+    public DisplayCutoutView(Context context, @BoundsPosition int pos) {
         super(context);
-        mStart = start;
+        mInitialPosition = pos;
+        mPaint.setColor(mColor);
+        mPaint.setStyle(Paint.Style.FILL);
+        mRotation = mInfo.rotation;
+    }
+
+    public void setColor(int color) {
+        if (color == mColor) {
+            return;
+        }
+        mColor = color;
+        mPaint.setColor(mColor);
+        invalidate();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        update();
+        updateCutout();
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        getLocationOnScreen(mLocation);
-        canvas.translate(-mLocation[0], -mLocation[1]);
-        if (!mBoundingPath.isEmpty()) {
-            mPaint.setColor(Color.BLACK);
-            mPaint.setStyle(Paint.Style.FILL);
-            canvas.drawPath(mInfo.displayCutout.getCutoutPath(), mPaint);
+    private void updateCutout() {
+        if (!isAttachedToWindow()) {
+            return;
         }
-    }
-
-    private void update() {
+        mPosition = getBoundPositionFromRotation(mInitialPosition, mRotation);
         requestLayout();
         getDisplay().getDisplayInfo(mInfo);
-        mBounds.setEmpty();
+        mBounds.clear();
         mBoundingRect.setEmpty();
-        mBoundingPath.reset();
+        cutoutPath.reset();
         int newVisible;
         if (hasCutout()) {
-            mBounds.set(mInfo.displayCutout.getBoundingRectTop());
+            mBounds.addAll(mInfo.displayCutout.getBoundingRects());
             localBounds(mBoundingRect);
-            mBounds.getBoundaryPath(mBoundingPath);
+            updateGravity();
+            updateBoundingPath();
+            invalidate();
             newVisible = VISIBLE;
         } else {
             newVisible = GONE;
@@ -86,18 +101,49 @@ class DisplayCutoutView extends View {
         }
     }
 
+    private static int getBoundPositionFromRotation(@BoundsPosition int pos, int rotation) {
+        return (pos - rotation) < 0
+                ? pos - rotation + DisplayCutout.BOUNDS_POSITION_LENGTH
+                : pos - rotation;
+    }
+
+    private void updateBoundingPath() {
+        final Path path = mInfo.displayCutout.getCutoutPath();
+        if (path != null) {
+            cutoutPath.set(path);
+        } else {
+            cutoutPath.reset();
+        }
+    }
+
+    private void updateGravity() {
+        LayoutParams lp = getLayoutParams();
+        if (lp instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) lp;
+            int newGravity = getGravity(mInfo.displayCutout);
+            if (flp.gravity != newGravity) {
+                flp.gravity = newGravity;
+                setLayoutParams(flp);
+            }
+        }
+    }
+
     private boolean hasCutout() {
         final DisplayCutout displayCutout = mInfo.displayCutout;
         if (displayCutout == null) {
             return false;
         }
-        if (mStart) {
-            return displayCutout.getSafeInsetLeft() > 0
-                    || displayCutout.getSafeInsetTop() > 0;
-        } else {
-            return displayCutout.getSafeInsetRight() > 0
-                    || displayCutout.getSafeInsetBottom() > 0;
+
+        if (mPosition == BOUNDS_POSITION_LEFT) {
+            return !displayCutout.getBoundingRectLeft().isEmpty();
+        } else if (mPosition == BOUNDS_POSITION_TOP) {
+            return !displayCutout.getBoundingRectTop().isEmpty();
+        } else if (mPosition == BOUNDS_POSITION_BOTTOM) {
+            return !displayCutout.getBoundingRectBottom().isEmpty();
+        } else if (mPosition == BOUNDS_POSITION_RIGHT) {
+            return !displayCutout.getBoundingRectRight().isEmpty();
         }
+        return false;
     }
 
     @Override
@@ -111,48 +157,57 @@ class DisplayCutoutView extends View {
                 resolveSizeAndState(mBoundingRect.height(), heightMeasureSpec, 0));
     }
 
-    public static void boundsFromDirection(DisplayCutout displayCutout, int gravity, Rect out) {
-        Region bounds = new Region(displayCutout.getBoundingRectTop());
+    private static void boundsFromDirection(DisplayCutout displayCutout, int gravity, Rect out) {
         switch (gravity) {
             case Gravity.TOP:
-                bounds.op(0, 0, Integer.MAX_VALUE, displayCutout.getSafeInsetTop(),
-                        Region.Op.INTERSECT);
-                out.set(bounds.getBounds());
+                out.set(displayCutout.getBoundingRectTop());
                 break;
             case Gravity.LEFT:
-                bounds.op(0, 0, displayCutout.getSafeInsetLeft(), Integer.MAX_VALUE,
-                        Region.Op.INTERSECT);
-                out.set(bounds.getBounds());
+                out.set(displayCutout.getBoundingRectLeft());
                 break;
             case Gravity.BOTTOM:
-                bounds.op(0, displayCutout.getSafeInsetTop() + 1, Integer.MAX_VALUE,
-                        Integer.MAX_VALUE, Region.Op.INTERSECT);
-                out.set(bounds.getBounds());
+                out.set(displayCutout.getBoundingRectBottom());
                 break;
             case Gravity.RIGHT:
-                bounds.op(displayCutout.getSafeInsetLeft() + 1, 0, Integer.MAX_VALUE,
-                        Integer.MAX_VALUE, Region.Op.INTERSECT);
-                out.set(bounds.getBounds());
+                out.set(displayCutout.getBoundingRectRight());
                 break;
+            default:
+                out.setEmpty();
         }
-        bounds.recycle();
     }
 
     private void localBounds(Rect out) {
-        final DisplayCutout displayCutout = mInfo.displayCutout;
+        DisplayCutout displayCutout = mInfo.displayCutout;
+        boundsFromDirection(displayCutout, getGravity(displayCutout), out);
+    }
 
-        if (mStart) {
-            if (displayCutout.getSafeInsetLeft() > 0) {
-                boundsFromDirection(displayCutout, Gravity.LEFT, out);
-            } else if (displayCutout.getSafeInsetTop() > 0) {
-                boundsFromDirection(displayCutout, Gravity.TOP, out);
+    private int getGravity(DisplayCutout displayCutout) {
+        if (mPosition == BOUNDS_POSITION_LEFT) {
+            if (!displayCutout.getBoundingRectLeft().isEmpty()) {
+                return Gravity.LEFT;
             }
-        } else {
-            if (displayCutout.getSafeInsetRight() > 0) {
-                boundsFromDirection(displayCutout, Gravity.RIGHT, out);
-            } else if (displayCutout.getSafeInsetBottom() > 0) {
-                boundsFromDirection(displayCutout, Gravity.BOTTOM, out);
+        } else if (mPosition == BOUNDS_POSITION_TOP) {
+            if (!displayCutout.getBoundingRectTop().isEmpty()) {
+                return Gravity.TOP;
+            }
+        } else if (mPosition == BOUNDS_POSITION_BOTTOM) {
+            if (!displayCutout.getBoundingRectBottom().isEmpty()) {
+                return Gravity.BOTTOM;
+            }
+        } else if (mPosition == BOUNDS_POSITION_RIGHT) {
+            if (!displayCutout.getBoundingRectRight().isEmpty()) {
+                return Gravity.RIGHT;
             }
         }
+        return Gravity.NO_GRAVITY;
+    }
+
+    public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.save();
+        getLocationOnScreen(mLocation);
+        canvas.translate(-mLocation[0], -mLocation[1]);
+        canvas.drawPath(cutoutPath, mPaint);
+        canvas.restore();
     }
 }
