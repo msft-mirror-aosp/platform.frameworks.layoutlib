@@ -147,6 +147,7 @@ public class NativeConfig {
             "libcore.io.MemoryMappedFile#bigEndianIterator",
             "libcore.io.MemoryMappedFile#close",
             "libcore.io.MemoryMappedFile#mmapRO",
+            "libcore.util.NativeAllocationRegistry#createMalloced",
     };
 
     public final static String[] DELEGATE_CLASS_NATIVES = new String[] {
