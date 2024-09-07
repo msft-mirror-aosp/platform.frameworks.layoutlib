@@ -2300,5 +2300,17 @@ public class RenderTests extends RenderTestBase {
         params.setFlag(FLAG_KEY_SHOW_CUTOUT, true);
 
         renderAndVerify(params, "hole_cutout.png", TimeUnit.SECONDS.toNanos(2));
+
+        params = getSessionParamsBuilder()
+                .setConfigGenerator(ConfigGenerator.NEXUS_5_LAND)
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .setFrameworkOverlayResources(frameworkOverlay)
+                .build();
+        params.setFlag(FLAG_KEY_SHOW_CUTOUT, true);
+
+        renderAndVerify(params, "hole_cutout_landscape.png", TimeUnit.SECONDS.toNanos(2));
     }
 }

@@ -61,8 +61,10 @@ public class SystemFonts_Delegate {
             long lastModifiedDate,
             int configVersion) {
         sIsTypefaceInitialized = true;
+        int lastSeparator = fontsXml.lastIndexOf('/');
+        String fileName = fontsXml.substring(lastSeparator + 1);
         return SystemFonts.getSystemFontConfigInternal_Original(
-            sFontLocation + "fonts.xml", sFontLocation, null, null, updatableFontMap,
+            sFontLocation + fileName, sFontLocation, null, null, updatableFontMap,
             lastModifiedDate, configVersion);
     }
 
