@@ -16,7 +16,6 @@
 
 #include <android-base/logging.h>
 #include <android-base/properties.h>
-#include <android/graphics/jni_runtime.h>
 #include <android_runtime/AndroidRuntime.h>
 #include <android_view_InputDevice.h>
 #include <jni_wrappers.h>
