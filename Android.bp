@@ -66,19 +66,15 @@ cc_library_host_shared {
         "-Wno-unused-parameter",
     ],
     header_libs: [
+        "libbase_headers",
+        "libbinderstub_headers",
+        "libhostgraphics_headers",
         "libnativebase_headers",
         "libnativedisplay_headers",
         "libnativewindow_headers",
     ],
     shared_libs: [
         "libandroid_runtime",
-    ],
-    static_libs: [
-        "libbase",
-        "libhostgraphics",
-        "libhwui",
-        "libinput",
-        "libnativehelper_jvm",
     ],
     stl: "libc++_static",
     target: {
