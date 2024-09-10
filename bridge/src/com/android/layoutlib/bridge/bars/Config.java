@@ -34,7 +34,8 @@ public class Config {
     private static final String JELLYBEAN_DIR        = "/bars/v18/";
     private static final String KITKAT_DIR           = "/bars/v19/";
     private static final String LOLLIPOP_DIR         = "/bars/v21/";
-    private static final String PI_DIR = "/bars/v28/";
+    private static final String PI_DIR               = "/bars/v28/";
+    private static final String QT_DIR               = "/bars/v29/";
 
 
     private static final List<String> sDefaultResourceDir;
@@ -44,6 +45,7 @@ public class Config {
 
     static {
         sDefaultResourceDir = new ArrayList<>(6);
+        sDefaultResourceDir.add(QT_DIR);
         sDefaultResourceDir.add(PI_DIR);
         sDefaultResourceDir.add("/bars/");
         // If something is not found in the default directories, we fall back to search in the
@@ -68,7 +70,7 @@ public class Config {
         if (platformVersion == 0) {
             return sDefaultResourceDir;
         }
-        List<String> list = new ArrayList<String>(10);
+        List<String> list = new ArrayList<>(10);
         // Gingerbread - uses custom battery and wifi icons.
         if (platformVersion <= GINGERBREAD) {
             list.add(GINGERBREAD_DIR);
@@ -92,8 +94,8 @@ public class Config {
     }
 
     public static String getTime(int platformVersion) {
-        if (isGreaterOrEqual(platformVersion, UPSIDE_DOWN_CAKE)) {
-            return "14:00";
+        if (isGreaterOrEqual(platformVersion, VANILLA_ICE_CREAM)) {
+            return "15:00";
         }
         if (platformVersion < GINGERBREAD) {
             return "2:20";
@@ -146,6 +148,9 @@ public class Config {
         if (platformVersion < UPSIDE_DOWN_CAKE) {
             return "13:00";
         }
+        if (platformVersion < VANILLA_ICE_CREAM) {
+            return "14:00";
+        }
         // Should never happen.
         return "4:04";
     }
@@ -169,6 +174,10 @@ public class Config {
 
     public static String getWifiIconType(int platformVersion) {
         return isGreaterOrEqual(platformVersion, LOLLIPOP) ? "xml" : "png";
+    }
+
+    public static String getNavIconType(int platformVersion) {
+        return isGreaterOrEqual(platformVersion, Q) ? "xml" : "png";
     }
 
     /**

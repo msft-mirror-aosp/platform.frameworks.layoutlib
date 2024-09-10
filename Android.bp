@@ -55,3 +55,44 @@ java_device_for_host {
         "monet",
     ],
 }
+
+cc_library_host_shared {
+    name: "layoutlib_jni",
+    srcs: [
+        "jni/android_view_LayoutlibRenderer.cpp",
+        "jni/LayoutlibLoader.cpp",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    header_libs: [
+        "libnativebase_headers",
+        "libnativedisplay_headers",
+        "libnativewindow_headers",
+    ],
+    shared_libs: [
+        "libandroid_runtime",
+    ],
+    static_libs: [
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "libharfbuzz_ng",
+        "libhostgraphics",
+        "libhwui",
+        "libicui18n",
+        "libicuuc",
+        "libicuuc_stubdata",
+        "libimage_io",
+        "libinput",
+        "liblog",
+        "libjpegdecoder",
+        "libjpegencoder",
+        "libminikin",
+        "libnativehelper_jvm",
+        "libui-types",
+        "libultrahdr",
+        "libutils",
+    ],
+    stl: "libc++_static",
+}

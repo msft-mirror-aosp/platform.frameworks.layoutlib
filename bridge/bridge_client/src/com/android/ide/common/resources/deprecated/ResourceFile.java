@@ -47,18 +47,18 @@ public abstract class ResourceFile implements Configurable {
     /**
      * Returns the IFile associated with the ResourceFile.
      */
-    public final TestFileWrapper getFile() {
+    protected final TestFileWrapper getFile() {
         return mFile;
     }
 
-    public final ResourceRepository getRepository() {
+    protected final ResourceRepository getRepository() {
         return mFolder.getRepository();
     }
 
     /**
      * Returns whether the resource is a framework resource.
      */
-    public final boolean isFramework() {
+    protected final boolean isFramework() {
         return mFolder.getRepository().isFrameworkRepository();
     }
 

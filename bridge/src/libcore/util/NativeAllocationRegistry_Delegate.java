@@ -51,6 +51,34 @@ public class NativeAllocationRegistry_Delegate {
     }
 
     @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(ClassLoader classLoader,
+            long freeFunction, long size) {
+        if (classLoader == null) {
+            classLoader = NativeAllocationRegistry_Delegate.class.getClassLoader();
+        }
+        return NativeAllocationRegistry.createMalloced_Original(classLoader, freeFunction, size);
+    }
+
+    @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(ClassLoader classLoader,
+            long freeFunction) {
+        if (classLoader == null) {
+            classLoader = NativeAllocationRegistry_Delegate.class.getClassLoader();
+        }
+        return NativeAllocationRegistry.createMalloced_Original(classLoader, freeFunction);
+    }
+
+    @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(Class clazz, long freeFunction,
+            long size) {
+        return NativeAllocationRegistry.createMalloced_Original(clazz, freeFunction, size);
+    }
+
+    @LayoutlibDelegate
+    public static NativeAllocationRegistry createMalloced(Class clazz, long freeFunction) {
+        return NativeAllocationRegistry.createMalloced_Original(clazz, freeFunction);
+    }
+
     /*package*/ static void applyFreeFunction(long freeFunction, long nativePtr) {
         // This method MIGHT run in the context of the finalizer thread. If the delegate method
         // crashes, it could bring down the VM. That's why we catch all the exceptions and ignore
@@ -60,7 +88,8 @@ public class NativeAllocationRegistry_Delegate {
             if (delegate != null) {
                 delegate.mFinalizer.free(nativePtr);
             } else if (freeFunction != 0) {
-                nativeApplyFreeFunction(freeFunction, nativePtr);
+               // Call the real method
+                NativeAllocationRegistry.applyFreeFunction(freeFunction, nativePtr);
             }
         } catch (Throwable ignore) {
         }
@@ -69,6 +98,4 @@ public class NativeAllocationRegistry_Delegate {
     public interface FreeFunction {
         void free(long nativePtr);
     }
-
-    private static native void nativeApplyFreeFunction(long freeFunction, long nativePtr);
 }

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="ow2-asm-commons">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../out/soong/.intermediates/external/ow2-asm/ow2-asm-commons/linux_glibc_common/javac/ow2-asm-commons.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../external/ow2-asm/asm-commons/src/main/java" />
+      <root url="file://$PROJECT_DIR$/../../external/ow2-asm/asm-commons/src/resources/java" />
+    </SOURCES>
+  </library>
+</component>

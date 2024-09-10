@@ -115,9 +115,7 @@ import android.view.textservice.TextServicesManager;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -215,6 +213,7 @@ public class BridgeContext extends Context {
 
     private final SessionInteractiveData mSessionInteractiveData;
     private final ThreadLocal<AnimationHandler> mAnimationHandlerThreadLocal = new ThreadLocal<>();
+    private Display mDisplay;
 
     /**
      * Some applications that target both pre API 17 and post API 17, set the newer attrs to
@@ -223,7 +222,7 @@ public class BridgeContext extends Context {
      * This a map from value to attribute name. Warning for missing references shouldn't be logged
      * if value and attr name pair is the same as an entry in this map.
      */
-    private static Map<String, String> RTL_ATTRS = new HashMap<>(10);
+    private static final Map<String, String> RTL_ATTRS = new HashMap<>(10);
 
     static {
         RTL_ATTRS.put("?android:attr/paddingLeft", "paddingStart");
@@ -394,9 +393,10 @@ public class BridgeContext extends Context {
      * Removes the parser at the top of the stack
      */
     public void popParser() {
-        BridgeXmlBlockParser parser = mParserStack.pop();
-        if (ParserFactory.LOG_PARSER) {
-            System.out.println("POPD " + parser.getParser().toString());
+        try (BridgeXmlBlockParser parser = mParserStack.pop()) {
+            if (ParserFactory.LOG_PARSER) {
+                System.out.println("POPD " + parser.getParser().toString());
+            }
         }
     }
 
@@ -508,11 +508,7 @@ public class BridgeContext extends Context {
 
         // didn't find a match in the framework? look in the project.
         if (mLayoutlibCallback != null) {
-            resourceInfo = mLayoutlibCallback.resolveResourceId(id);
-
-            if (resourceInfo != null) {
-                return resourceInfo;
-            }
+            return mLayoutlibCallback.resolveResourceId(id);
         }
 
         return null;
@@ -944,124 +940,111 @@ public class BridgeContext extends Context {
             }
         }
 
-        if (attributeList != null) {
-            for (int index = 0 ; index < attributeList.size() ; index++) {
-                AttributeHolder attributeHolder = attributeList.get(index);
+        for (int index = 0; index < attributeList.size(); index++) {
+            AttributeHolder attributeHolder = attributeList.get(index);
 
-                if (attributeHolder == null) {
-                    continue;
+            if (attributeHolder == null) {
+                continue;
+            }
+
+            String attrName = attributeHolder.getName();
+            String value = null;
+            if (set != null) {
+                value = set.getAttributeValue(attributeHolder.getNamespace().getXmlNamespaceUri(),
+                        attrName);
+
+                // if this is an app attribute, and the first get fails, try with the
+                // new res-auto namespace as well
+                if (attributeHolder.getNamespace() != ResourceNamespace.ANDROID && value == null) {
+                    value = set.getAttributeValue(BridgeConstants.NS_APP_RES_AUTO, attrName);
+                }
+            }
+
+            // Calculate the default value from the Theme in two cases:
+            //   - If defaultPropMap is not null, get the default value to add it to the list
+            //   of default values of properties.
+            //   - If value is null, it means that the attribute is not directly set as an
+            //   attribute in the XML so try to get the default value.
+            ResourceValue defaultValue = null;
+            if (defaultPropMap != null || value == null) {
+                // look for the value in the custom style first (and its parent if needed)
+                ResourceReference attrRef = attributeHolder.asReference();
+                if (customStyleValues != null) {
+                    defaultValue = mRenderResources.findItemInStyle(customStyleValues, attrRef);
                 }
 
-                String attrName = attributeHolder.getName();
-                String value = null;
-                if (set != null) {
-                    value = set.getAttributeValue(
-                            attributeHolder.getNamespace().getXmlNamespaceUri(), attrName);
+                // then look for the value in the default Style (and its parent if needed)
+                if (defaultValue == null && defStyleValues != null) {
+                    defaultValue = mRenderResources.findItemInStyle(defStyleValues, attrRef);
+                }
 
-                    // if this is an app attribute, and the first get fails, try with the
-                    // new res-auto namespace as well
-                    if (attributeHolder.getNamespace() != ResourceNamespace.ANDROID && value == null) {
-                        value = set.getAttributeValue(BridgeConstants.NS_APP_RES_AUTO, attrName);
+                // if the item is not present in the defStyle, we look in the main theme (and
+                // its parent themes)
+                if (defaultValue == null) {
+                    defaultValue = mRenderResources.findItemInTheme(attrRef);
+                }
+
+                // if we found a value, we make sure this doesn't reference another value.
+                // So we resolve it.
+                if (defaultValue != null) {
+                    if (defaultPropMap != null) {
+                        defaultPropMap.put(attrRef, defaultValue);
+                    }
+
+                    defaultValue = mRenderResources.resolveResValue(defaultValue);
+                }
+            }
+            // Done calculating the defaultValue.
+
+            // If there's no direct value for this attribute in the XML, we look for default
+            // values in the widget defStyle, and then in the theme.
+            if (value == null) {
+                if (attributeHolder.getNamespace() == ResourceNamespace.ANDROID) {
+                    // For some framework values, layoutlib patches the actual value in the
+                    // theme when it helps to improve the final preview. In most cases
+                    // we just disable animations.
+                    ResourceValue patchedValue = FRAMEWORK_PATCHED_VALUES.get(attrName);
+                    if (patchedValue != null) {
+                        defaultValue = patchedValue;
                     }
                 }
 
-                // Calculate the default value from the Theme in two cases:
-                //   - If defaultPropMap is not null, get the default value to add it to the list
-                //   of default values of properties.
-                //   - If value is null, it means that the attribute is not directly set as an
-                //   attribute in the XML so try to get the default value.
-                ResourceValue defaultValue = null;
-                if (defaultPropMap != null || value == null) {
-                    // look for the value in the custom style first (and its parent if needed)
-                    ResourceReference attrRef = attributeHolder.asReference();
-                    if (customStyleValues != null) {
-                        defaultValue =
-                                mRenderResources.findItemInStyle(customStyleValues, attrRef);
-                    }
+                // If we found a value, we make sure this doesn't reference another value.
+                // So we resolve it.
+                if (defaultValue != null) {
+                    // If the value is a reference to another theme attribute that doesn't
+                    // exist, we should log a warning and omit it.
+                    String val = defaultValue.getValue();
+                    if (val != null && val.startsWith(AndroidConstants.PREFIX_THEME_REF)) {
+                        // Because we always use the latest framework code, some resources might
+                        // fail to resolve when using old themes (they haven't been backported).
+                        // Since this is an artifact caused by us using always the latest
+                        // code, we check for some of those values and replace them here.
+                        ResourceReference reference = defaultValue.getReference();
+                        defaultValue = FRAMEWORK_REPLACE_VALUES.get(attrName);
 
-                    // then look for the value in the default Style (and its parent if needed)
-                    if (defaultValue == null && defStyleValues != null) {
-                        defaultValue =
-                                mRenderResources.findItemInStyle(defStyleValues, attrRef);
-                    }
-
-                    // if the item is not present in the defStyle, we look in the main theme (and
-                    // its parent themes)
-                    if (defaultValue == null) {
-                        defaultValue =
-                                mRenderResources.findItemInTheme(attrRef);
-                    }
-
-                    // if we found a value, we make sure this doesn't reference another value.
-                    // So we resolve it.
-                    if (defaultValue != null) {
-                        if (defaultPropMap != null) {
-                            defaultPropMap.put(attrRef, defaultValue);
-                        }
-
-                        defaultValue = mRenderResources.resolveResValue(defaultValue);
-                    }
-                }
-                // Done calculating the defaultValue.
-
-                // If there's no direct value for this attribute in the XML, we look for default
-                // values in the widget defStyle, and then in the theme.
-                if (value == null) {
-                    if (attributeHolder.getNamespace() == ResourceNamespace.ANDROID) {
-                        // For some framework values, layoutlib patches the actual value in the
-                        // theme when it helps to improve the final preview. In most cases
-                        // we just disable animations.
-                        ResourceValue patchedValue = FRAMEWORK_PATCHED_VALUES.get(attrName);
-                        if (patchedValue != null) {
-                            defaultValue = patchedValue;
-                        }
-                    }
-
-                    // If we found a value, we make sure this doesn't reference another value.
-                    // So we resolve it.
-                    if (defaultValue != null) {
-                        // If the value is a reference to another theme attribute that doesn't
-                        // exist, we should log a warning and omit it.
-                        String val = defaultValue.getValue();
-                        if (val != null && val.startsWith(AndroidConstants.PREFIX_THEME_REF)) {
-                            // Because we always use the latest framework code, some resources might
-                            // fail to resolve when using old themes (they haven't been backported).
-                            // Since this is an artifact caused by us using always the latest
-                            // code, we check for some of those values and replace them here.
-                            ResourceReference reference = defaultValue.getReference();
-                            defaultValue = FRAMEWORK_REPLACE_VALUES.get(attrName);
-
-                            // Only log a warning if the referenced value isn't one of the RTL
-                            // attributes, or the app targets old API.
-                            if (defaultValue == null &&
-                                    (getApplicationInfo().targetSdkVersion < JELLY_BEAN_MR1 ||
-                                    !attrName.equals(RTL_ATTRS.get(val)))) {
-                                if (reference != null) {
-                                    val = reference.getResourceUrl().toString();
-                                }
-                                Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_RESOLVE_THEME_ATTR,
-                                        String.format("Failed to find '%s' in current theme.", val),
-                                        null, val);
+                        // Only log a warning if the referenced value isn't one of the RTL
+                        // attributes, or the app targets old API.
+                        if (defaultValue == null &&
+                                (getApplicationInfo().targetSdkVersion < JELLY_BEAN_MR1 || !attrName.equals(RTL_ATTRS.get(val)))) {
+                            if (reference != null) {
+                                val = reference.getResourceUrl().toString();
                             }
+                            Bridge.getLog().warning(ILayoutLog.TAG_RESOURCES_RESOLVE_THEME_ATTR,
+                                    String.format("Failed to find '%s' in current theme.", val),
+                                    null, val);
                         }
                     }
-
-                    ta.bridgeSetValue(
-                            index,
-                            attrName, attributeHolder.getNamespace(),
-                            attributeHolder.getResourceId(),
-                            defaultValue);
-                } else {
-                    // There is a value in the XML, but we need to resolve it in case it's
-                    // referencing another resource or a theme value.
-                    ta.bridgeSetValue(
-                            index,
-                            attrName, attributeHolder.getNamespace(),
-                            attributeHolder.getResourceId(),
-                            mRenderResources.resolveResValue(
-                                    new UnresolvedResourceValue(
-                                            value, currentFileNamespace, resolver)));
                 }
+
+                ta.bridgeSetValue(index, attrName, attributeHolder.getNamespace(), attributeHolder.getResourceId(),
+                        defaultValue);
+            } else {
+                // There is a value in the XML, but we need to resolve it in case it's
+                // referencing another resource or a theme value.
+                ta.bridgeSetValue(index, attrName, attributeHolder.getNamespace(), attributeHolder.getResourceId(),
+                        mRenderResources.resolveResValue(
+                                new UnresolvedResourceValue(value, currentFileNamespace, resolver)));
             }
         }
 
@@ -1153,6 +1136,7 @@ public class BridgeContext extends Context {
      * @param attributeIds An attribute array reference given to obtainStyledAttributes.
      * @return List of attribute information.
      */
+    @NotNull
     private List<AttributeHolder> searchAttrs(int[] attributeIds) {
         List<AttributeHolder> results = new ArrayList<>(attributeIds.length);
 
@@ -1255,7 +1239,7 @@ public class BridgeContext extends Context {
      * Returns the Framework resource reference with the given type and name.
      */
     @NonNull
-    public static ResourceReference createFrameworkResourceReference(@NonNull ResourceType type,
+    private static ResourceReference createFrameworkResourceReference(@NonNull ResourceType type,
             @NonNull String name) {
         return new ResourceReference(ResourceNamespace.ANDROID, type, name);
     }
@@ -1704,13 +1688,13 @@ public class BridgeContext extends Context {
     }
 
     @Override
-    public FileInputStream openFileInput(String arg0) throws FileNotFoundException {
+    public FileInputStream openFileInput(String arg0) {
         // pass
         return null;
     }
 
     @Override
-    public FileOutputStream openFileOutput(String arg0, int arg1) throws FileNotFoundException {
+    public FileOutputStream openFileOutput(String arg0, int arg1) {
         // pass
         return null;
     }
@@ -1952,13 +1936,13 @@ public class BridgeContext extends Context {
     }
 
     @Override
-    public void setWallpaper(Bitmap arg0) throws IOException {
+    public void setWallpaper(Bitmap arg0) {
         // pass
 
     }
 
     @Override
-    public void setWallpaper(InputStream arg0) throws IOException {
+    public void setWallpaper(InputStream arg0) {
         // pass
 
     }
@@ -2069,11 +2053,6 @@ public class BridgeContext extends Context {
     }
 
     @Override
-    public boolean isRestricted() {
-        return false;
-    }
-
-    @Override
     public File getObbDir() {
         Bridge.getLog().error(ILayoutLog.TAG_UNSUPPORTED, "OBB not supported", null, null);
         return null;
@@ -2087,8 +2066,10 @@ public class BridgeContext extends Context {
 
     @Override
     public Display getDisplay() {
-        // pass
-        return null;
+        if (mDisplay == null) {
+            mDisplay = mWindowManager.getDefaultDisplay();
+        }
+        return mDisplay;
     }
 
     @Override
@@ -2226,7 +2207,7 @@ public class BridgeContext extends Context {
 
         @NonNull
         public static <T> Key<T> create(@NonNull String name) {
-            return new Key<T>(name);
+            return new Key<>(name);
         }
 
         private Key(@NonNull String name) {
@@ -2240,7 +2221,7 @@ public class BridgeContext extends Context {
         }
     }
 
-    private class AttributeHolder {
+    private static class AttributeHolder {
         private final int resourceId;
         @NonNull private final ResourceReference reference;
 
@@ -2285,7 +2266,7 @@ public class BridgeContext extends Context {
      */
     private static class TypedArrayCache {
 
-        private Map<int[],
+        private final Map<int[],
                 Map<List<StyleResourceValue>,
                         Map<Integer, Pair<BridgeTypedArray,
                                 Map<ResourceReference, ResourceValue>>>>> mCache;
@@ -2294,7 +2275,7 @@ public class BridgeContext extends Context {
             mCache = new IdentityHashMap<>();
         }
 
-        public Pair<BridgeTypedArray, Map<ResourceReference, ResourceValue>> get(int[] attrs,
+        private Pair<BridgeTypedArray, Map<ResourceReference, ResourceValue>> get(int[] attrs,
                 List<StyleResourceValue> themes, int resId) {
             Map<List<StyleResourceValue>, Map<Integer, Pair<BridgeTypedArray, Map<ResourceReference,
                     ResourceValue>>>>
@@ -2309,7 +2290,7 @@ public class BridgeContext extends Context {
             return null;
         }
 
-        public void put(int[] attrs, List<StyleResourceValue> themes, int resId,
+        private void put(int[] attrs, List<StyleResourceValue> themes, int resId,
                 Pair<BridgeTypedArray, Map<ResourceReference, ResourceValue>> value) {
             Map<List<StyleResourceValue>, Map<Integer, Pair<BridgeTypedArray, Map<ResourceReference,
                     ResourceValue>>>>

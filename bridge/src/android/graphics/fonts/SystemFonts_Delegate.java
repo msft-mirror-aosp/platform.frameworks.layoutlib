@@ -19,7 +19,6 @@ package android.graphics.fonts;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.text.FontConfig;
 import android.util.Log;
 
@@ -62,8 +61,10 @@ public class SystemFonts_Delegate {
             long lastModifiedDate,
             int configVersion) {
         sIsTypefaceInitialized = true;
+        int lastSeparator = fontsXml.lastIndexOf('/');
+        String fileName = fontsXml.substring(lastSeparator + 1);
         return SystemFonts.getSystemFontConfigInternal_Original(
-            sFontLocation + "fonts.xml", sFontLocation, null, null, updatableFontMap,
+            sFontLocation + fileName, sFontLocation, null, null, updatableFontMap,
             lastModifiedDate, configVersion);
     }
 
