@@ -413,6 +413,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
         // now do the layout.
         viewRoot.layout(0, 0, width, height);
+        AttachInfo_Accessor.dispatchOnGlobalLayout(viewRoot);
         handleScrolling(context, viewRoot);
     }
 
@@ -507,8 +508,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             float scaleY = 1.0f;
             if (onlyMeasure) {
                 // delete the canvas and image to reset them on the next full rendering
-                mImage = null;
-                disposeImageSurface();
+                releaseRender();
                 doLayout(getContext(), mViewRoot, mMeasuredScreenWidth, mMeasuredScreenHeight);
             } else {
                 // When disableBitmapCaching is true, we do not reuse mImage and
@@ -1228,11 +1228,16 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         }
     }
 
+    public void releaseRender() {
+        disposeImageSurface();
+        mImage = null;
+        mNewRenderSize = true;
+    }
+
     @Override
     public void dispose() {
         try {
-            disposeImageSurface();
-            mImage = null;
+            releaseRender();
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
             getContext().getSessionInteractiveData().dispose();

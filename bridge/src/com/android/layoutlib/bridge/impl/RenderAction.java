@@ -35,6 +35,7 @@ import com.android.tools.layoutlib.annotations.VisibleForTesting;
 import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
 import android.util.DisplayMetrics;
@@ -437,6 +438,11 @@ public abstract class RenderAction<T extends RenderParams> {
         config.fontScale = params.getFontScale();
         config.uiMode = params.getUiMode();
 
+        Rect bounds = new Rect(0, 0, hardwareConfig.getScreenWidth(),
+                hardwareConfig.getScreenHeight());
+        config.windowConfiguration.setBounds(bounds);
+        config.windowConfiguration.setAppBounds(bounds);
+        config.windowConfiguration.setMaxBounds(bounds);
         // TODO: fill in more config info.
 
         return config;
