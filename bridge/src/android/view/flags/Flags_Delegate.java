@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package android.media;
+package android.view.flags;
 
-public class ImageReader_Delegate {
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-    static void nativeClassInit() {
-        // Call ImageReader.nativeClassInit(); in layoutlib implicitly before using ImageReader
+public class Flags_Delegate {
+    @LayoutlibDelegate
+    public static boolean sensitiveContentAppProtection() {
+        return false;
     }
 }

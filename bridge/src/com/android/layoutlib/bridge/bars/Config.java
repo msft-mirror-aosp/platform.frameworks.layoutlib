@@ -70,7 +70,7 @@ public class Config {
         if (platformVersion == 0) {
             return sDefaultResourceDir;
         }
-        List<String> list = new ArrayList<String>(10);
+        List<String> list = new ArrayList<>(10);
         // Gingerbread - uses custom battery and wifi icons.
         if (platformVersion <= GINGERBREAD) {
             list.add(GINGERBREAD_DIR);
@@ -94,8 +94,8 @@ public class Config {
     }
 
     public static String getTime(int platformVersion) {
-        if (isGreaterOrEqual(platformVersion, UPSIDE_DOWN_CAKE)) {
-            return "14:00";
+        if (isGreaterOrEqual(platformVersion, VANILLA_ICE_CREAM)) {
+            return "15:00";
         }
         if (platformVersion < GINGERBREAD) {
             return "2:20";
@@ -147,6 +147,9 @@ public class Config {
         }
         if (platformVersion < UPSIDE_DOWN_CAKE) {
             return "13:00";
+        }
+        if (platformVersion < VANILLA_ICE_CREAM) {
+            return "14:00";
         }
         // Should never happen.
         return "4:04";

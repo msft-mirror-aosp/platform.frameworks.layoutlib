@@ -34,7 +34,6 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityInteractionClient;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +48,7 @@ public class AccessibilityTest extends RenderTestBase {
     }
 
     @Test
-    public void accessibilityNodeInfoCreation() throws FileNotFoundException,
-            ClassNotFoundException {
+    public void accessibilityNodeInfoCreation() throws ClassNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -75,7 +73,7 @@ public class AccessibilityTest extends RenderTestBase {
                 AccessibilityNodeInfo child = rootNode.getChild(0);
                 assertNotNull(child);
                 assertEquals(147, child.getBoundsInScreen().right);
-                assertEquals(346, child.getBoundsInScreen().bottom);
+                assertEquals(274, child.getBoundsInScreen().bottom);
             });
         } finally {
             session.dispose();
@@ -83,8 +81,7 @@ public class AccessibilityTest extends RenderTestBase {
     }
 
     @Test
-    public void customHierarchyParserTest() throws FileNotFoundException,
-            ClassNotFoundException {
+    public void customHierarchyParserTest() throws ClassNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -96,8 +93,7 @@ public class AccessibilityTest extends RenderTestBase {
                 .build();
         params.setCustomContentHierarchyParser(viewObject -> {
             List<ViewInfo> result = new ArrayList<>();
-            if (viewObject instanceof ViewGroup) {
-                ViewGroup view = (ViewGroup)viewObject;
+            if (viewObject instanceof ViewGroup view) {
                 for (int i = 0; i < view.getChildCount(); i++) {
                     View child = view.getChildAt(i);
                     ViewInfo childInfo =
@@ -127,16 +123,17 @@ public class AccessibilityTest extends RenderTestBase {
 
     @Test
     public void testDialogAccessibility() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.DialogView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <com.android.layoutlib.test.myapplication.widgets.DialogView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =

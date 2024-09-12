@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    default_team: "trendy_team_android_developer_tools",
     // See: http://go/android-license-faq
     default_applicable_licenses: [
         "Android-Apache-2.0",
@@ -32,14 +33,12 @@ java_test_host {
     // Only compile source java files in this lib.
     srcs: ["src/**/*.java"],
 
-    java_resource_dirs: ["res"],
-
-    libs: [
+    static_libs: [
         "layoutlib_create",
         "junit",
         "hamcrest",
+        "ow2-asm",
     ],
-    static_libs: ["ow2-asm"],
 
     // Copy the jar to DIST_DIR for sdk builds
     dist: {

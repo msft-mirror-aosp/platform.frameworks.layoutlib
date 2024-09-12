@@ -39,6 +39,7 @@ import android.view.WindowManager;
 import java.util.List;
 
 import static android.app.WindowConfiguration.ROTATION_UNDEFINED;
+import static android.inputmethodservice.InputMethodService.ENABLE_HIDE_IME_CAPTION_BAR;
 import static android.view.InsetsSource.FLAG_SUPPRESS_SCRIM;
 import static android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD;
@@ -76,6 +77,7 @@ public class InsetUtil {
             if (provider.getMinimalInsetsSizeInDisplayCutoutSafe() != null) {
                 tmpRect.set(sourceFrame);
             }
+            source.updateSideHint(currentBounds);
             calculateInsetsFrame(sourceFrame, insets);
 
             if (provider.getMinimalInsetsSizeInDisplayCutoutSafe() != null) {
@@ -173,10 +175,11 @@ public class InsetUtil {
     private static InsetsFrameProvider[] getInsetsFrameProvider(View navBar, int insetsHeight,
             Context userContext) {
         final InsetsFrameProvider navBarProvider =
-                new InsetsFrameProvider(navBar, 0, WindowInsets.Type.navigationBars())
-                        .setInsetsSizeOverrides(new InsetsFrameProvider.InsetsSizeOverride[] {
-                                new InsetsFrameProvider.InsetsSizeOverride(
-                                        TYPE_INPUT_METHOD, null)});
+                new InsetsFrameProvider(navBar, 0, WindowInsets.Type.navigationBars());
+        if (!ENABLE_HIDE_IME_CAPTION_BAR) {
+            navBarProvider.setInsetsSizeOverrides(new InsetsFrameProvider.InsetsSizeOverride[]{
+                    new InsetsFrameProvider.InsetsSizeOverride(TYPE_INPUT_METHOD, null)});
+        }
         if (insetsHeight != -1) {
             navBarProvider.setInsetsSize(Insets.of(0, 0, 0, insetsHeight));
         }

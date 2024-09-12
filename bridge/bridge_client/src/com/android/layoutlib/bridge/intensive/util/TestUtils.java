@@ -22,7 +22,7 @@ public class TestUtils {
     public static void gc() {
         // See RuntimeUtil#gc in jlibs (http://jlibs.in/)
         Object obj = new Object();
-        WeakReference ref = new WeakReference<>(obj);
+        WeakReference<Object> ref = new WeakReference<>(obj);
         //noinspection UnusedAssignment
         obj = null;
         while (ref.get() != null) {

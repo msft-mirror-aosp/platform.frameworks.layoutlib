@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.os._Original_Build.VERSION_CODES.VANILLA_ICE_CREAM;
 import static android.view.DisplayCutout.BOUNDS_POSITION_LEFT;
 import static android.view.DisplayCutout.BOUNDS_POSITION_TOP;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -70,6 +71,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_EDGE_TO_EDGE;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_USE_GESTURE_NAV;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_SHOW_CUTOUT;
+import static com.android.layoutlib.bridge.bars.Config.isGreaterOrEqual;
 import static com.android.layoutlib.bridge.impl.ResourceHelper.getBooleanThemeFrameworkAttrValue;
 import static com.android.layoutlib.bridge.impl.ResourceHelper.getBooleanThemeValue;
 import static com.android.layoutlib.bridge.util.InsetUtil.getNavBarLayoutParamsForRotation;
@@ -517,7 +519,9 @@ public class Layout extends FrameLayout {
             findBackground();
 
             if (!mParams.isForceNoDecor()) {
-                mIsEdgeToEdge = Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_EDGE_TO_EDGE));
+                mIsEdgeToEdge = isGreaterOrEqual(mParams.getSimulatedPlatformVersion(),
+                        VANILLA_ICE_CREAM) ||
+                        Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_EDGE_TO_EDGE));
                 mShowCutout = Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_SHOW_CUTOUT));
                 findStatusBar();
                 findFrameworkBar();

@@ -66,14 +66,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static android.os._Original_Build.VERSION.SDK_INT;
-import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_EDGE_TO_EDGE;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_SHOW_CUTOUT;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_USE_GESTURE_NAV;
 import static org.junit.Assert.assertArrayEquals;
@@ -98,33 +96,26 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testActivityOnOldTheme() throws ClassNotFoundException, FileNotFoundException {
+    public void testActivityOnOldTheme() throws ClassNotFoundException {
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
 
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<RelativeLayout xmlns:android=\"http://schemas" +
-                        ".android.com/apk/res/android\"\n" +
-                        "                android:layout_width=\"match_parent\"\n" +
-                        "                android:layout_height=\"match_parent\"\n" +
-                        "                android:paddingLeft=\"@dimen/activity_horizontal_margin"
-                        + "\"\n"
-                        +
-                        "                android:paddingRight=\"@dimen/activity_horizontal_margin"
-                        + "\"\n"
-                        +
-                        "                android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
-                        "                android:paddingBottom=\"@dimen/activity_vertical_margin"
-                        + "\">\n"
-                        +
-                        "    <TextView\n" +
-                        "        android:text=\"@string/hello_world\"\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"200dp\"\n" +
-                        "        android:background=\"#FF0000\"\n" +
-                        "        android:id=\"@+id/text1\"/>\n" +
-                        "</RelativeLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:paddingLeft="@dimen/activity_horizontal_margin"
+                                android:paddingRight="@dimen/activity_horizontal_margin"
+                                android:paddingTop="@dimen/activity_vertical_margin"
+                                android:paddingBottom="@dimen/activity_vertical_margin">
+                    <TextView
+                        android:text="@string/hello_world"
+                        android:layout_width="wrap_content"
+                        android:layout_height="200dp"
+                        android:background="#FF0000"
+                        android:id="@+id/text1"/>
+                </RelativeLayout>""");
         SessionParams params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
@@ -135,7 +126,7 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testTranslucentBars() throws ClassNotFoundException, FileNotFoundException {
+    public void testTranslucentBars() throws ClassNotFoundException {
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
@@ -167,7 +158,7 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testAllWidgets() throws ClassNotFoundException, FileNotFoundException {
+    public void testAllWidgets() throws ClassNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -187,7 +178,7 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testAllWidgetsTablet() throws ClassNotFoundException, FileNotFoundException {
+    public void testAllWidgetsTablet() throws ClassNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -202,27 +193,21 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testActivityActionBar() throws ClassNotFoundException {
-        String simpleActivity =
-                "<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "                android:layout_width=\"match_parent\"\n" +
-                        "                android:layout_height=\"match_parent\"\n" +
-                        "                android:paddingLeft=\"@dimen/activity_horizontal_margin"
-                        + "\"\n"
-                        +
-                        "                android:paddingRight=\"@dimen/activity_horizontal_margin"
-                        + "\"\n"
-                        +
-                        "                android:paddingTop=\"@dimen/activity_vertical_margin\"\n" +
-                        "                android:paddingBottom=\"@dimen/activity_vertical_margin"
-                        + "\">\n"
-                        +
-                        "    <TextView\n" +
-                        "        android:text=\"@string/hello_world\"\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"200dp\"\n" +
-                        "        android:background=\"#FF0000\"\n" +
-                        "        android:id=\"@+id/text1\"/>\n" +
-                        "</RelativeLayout>";
+        String simpleActivity = """
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:paddingLeft="@dimen/activity_horizontal_margin"
+                                android:paddingRight="@dimen/activity_horizontal_margin"
+                                android:paddingTop="@dimen/activity_vertical_margin"
+                                android:paddingBottom="@dimen/activity_vertical_margin">
+                    <TextView
+                        android:text="@string/hello_world"
+                        android:layout_width="wrap_content"
+                        android:layout_height="200dp"
+                        android:background="#FF0000"
+                        android:id="@+id/text1"/>
+                </RelativeLayout>""";
 
         LayoutPullParser parser = LayoutPullParser.createFromString(simpleActivity);
         LayoutLibTestCallback layoutLibCallback =
@@ -266,22 +251,25 @@ public class RenderTests extends RenderTestBase {
             throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         // We get the widget via reflection to avoid IntelliJ complaining about the class being
         // located in the wrong package. (From the Bridge tests point of view, it is)
-        Class insetsWidgetClass = Class.forName("com.android.layoutlib.test.myapplication.widgets" +
-                ".InsetsWidget");
+        Class<?> insetsWidgetClass = Class.forName(
+                "com.android.layoutlib.test.myapplication.widgets.InsetsWidget");
         Field field = insetsWidgetClass.getDeclaredField("sApplyInsetsCalled");
         assertFalse((Boolean) field.get(null));
 
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"wrap_content\"\n" +
-                        "              android:layout_height=\"wrap_content\">\n" + "\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.InsetsWidget\n" +
-                        "        android:text=\"Hello world\"\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:id=\"@+id/text1\"/>\n" + "</LinearLayout>\n");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content">
+
+                    <com.android.layoutlib.test.myapplication.widgets.InsetsWidget
+                        android:text="Hello world"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text1"/>
+                </LinearLayout>
+                """);
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
@@ -299,7 +287,7 @@ public class RenderTests extends RenderTestBase {
 
     /** Test expand_layout.xml */
     @Test
-    public void testExpand() throws ClassNotFoundException, FileNotFoundException {
+    public void testExpand() throws ClassNotFoundException {
         // Create the layout pull parser.
         LayoutPullParser parser = createParserFromPath("expand_vert_layout.xml");
         // Create LayoutLibCallback.
@@ -341,7 +329,7 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testShrink() throws ClassNotFoundException, FileNotFoundException {
+    public void testShrink() throws ClassNotFoundException {
         // Create the layout pull parser.
         LayoutPullParser parser = createParserFromPath("expand_vert_layout.xml");
         // Create LayoutLibCallback.
@@ -387,15 +375,19 @@ public class RenderTests extends RenderTestBase {
     /** Test indeterminate_progressbar.xml */
     @Test
     public void testVectorAnimation() throws ClassNotFoundException {
-        String layout = "\n" +
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "              android:padding=\"16dp\"\n" +
-                "              android:orientation=\"horizontal\"\n" +
-                "              android:layout_width=\"fill_parent\"\n" +
-                "              android:layout_height=\"fill_parent\">\n" + "\n" +
-                "    <ProgressBar\n" + "             android:layout_height=\"fill_parent\"\n" +
-                "             android:layout_width=\"fill_parent\" />\n" + "\n" +
-                "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+
+                    <ProgressBar
+                             android:layout_height="fill_parent"
+                             android:layout_width="fill_parent" />
+
+                </LinearLayout>
+                """;
 
         // Create the layout pull parser.
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
@@ -430,17 +422,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testVectorDrawable() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"fill_parent\"\n" +
-                        "             android:layout_width=\"fill_parent\"\n" +
-                        "             android:src=\"@drawable/multi_path\" />\n" + "\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <ImageView
+                             android:layout_height="fill_parent"
+                             android:layout_width="fill_parent"
+                             android:src="@drawable/multi_path" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -463,25 +456,25 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testVectorDrawable91383() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"vertical\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <ImageView\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:src=\"@drawable/android\"/>\n" +
-                        "    <ImageView\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:src=\"@drawable/headset\"/>\n" +
-                        "    <ImageView\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:src=\"@drawable/clipped_even_odd\"/>\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="vertical"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <ImageView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:src="@drawable/android"/>
+                    <ImageView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:src="@drawable/headset"/>
+                    <ImageView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:src="@drawable/clipped_even_odd"/>
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -503,12 +496,12 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testVectorDrawableWithTintInImageView() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<ImageView xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_height=\"match_parent\"\n" +
-                        "    android:layout_width=\"match_parent\"\n" +
-                        "    android:src=\"@drawable/vector_drawable_without_tint\"\n" +
-                        "    android:tint=\"#FF00FF00\" />");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:src="@drawable/vector_drawable_without_tint"
+                    android:tint="#FF00FF00" />""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -531,11 +524,11 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testVectorDrawableWithTintInItself() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<ImageView xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_height=\"match_parent\"\n" +
-                        "    android:layout_width=\"match_parent\"\n" +
-                        "    android:src=\"@drawable/vector_drawable_with_tint\" />");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:src="@drawable/vector_drawable_with_tint" />""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -558,11 +551,11 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testTransparentDrawable() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<ImageView xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_height=\"fill_parent\"\n" +
-                        "    android:layout_width=\"fill_parent\"\n" +
-                        "    android:src=\"@drawable/transparent_drawable\" />");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_height="fill_parent"
+                    android:layout_width="fill_parent"
+                    android:src="@drawable/transparent_drawable" />""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -589,17 +582,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testVectorDrawableHasMultipleLineInPathData() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"match_parent\"\n" +
-                        "             android:layout_width=\"match_parent\"\n" +
-                        "             android:src=\"@drawable/multi_line_of_path_data\" />\n\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <ImageView
+                             android:layout_height="match_parent"
+                             android:layout_width="match_parent"
+                             android:src="@drawable/multi_line_of_path_data" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -627,17 +621,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testVectorDrawableGradient() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"match_parent\"\n" +
-                        "             android:layout_width=\"match_parent\"\n" +
-                        "             android:src=\"@drawable/shadow\" />\n\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <ImageView
+                             android:layout_height="match_parent"
+                             android:layout_width="match_parent"
+                             android:src="@drawable/shadow" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -663,17 +658,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testVectorDrawableRadialGradient() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"match_parent\"\n" +
-                        "             android:layout_width=\"match_parent\"\n" +
-                        "             android:src=\"@drawable/radial_gradient\" />\n\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <ImageView
+                             android:layout_height="match_parent"
+                             android:layout_width="match_parent"
+                             android:src="@drawable/radial_gradient" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -699,17 +695,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testGradientColors() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"match_parent\"\n" +
-                        "             android:layout_width=\"match_parent\"\n" +
-                        "             android:src=\"@drawable/gradient\" />\n\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <ImageView
+                             android:layout_height="match_parent"
+                             android:layout_width="match_parent"
+                             android:src="@drawable/gradient" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -735,17 +732,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testGradientAlphaDrawable() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"match_parent\"\n" +
-                        "             android:layout_width=\"match_parent\"\n" +
-                        "             android:src=\"@drawable/vector_gradient_alpha\" />\n\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <ImageView
+                             android:layout_height="match_parent"
+                             android:layout_width="match_parent"
+                             android:src="@drawable/vector_gradient_alpha" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -765,7 +763,7 @@ public class RenderTests extends RenderTestBase {
 
     /** Test activity.xml */
     @Test
-    public void testScrollingAndMeasure() throws ClassNotFoundException, FileNotFoundException {
+    public void testScrollingAndMeasure() throws ClassNotFoundException {
         // Create the layout pull parser.
         LayoutPullParser parser = createParserFromPath("scrolled.xml");
         // Create LayoutLibCallback.
@@ -852,9 +850,8 @@ public class RenderTests extends RenderTestBase {
         assertEquals("android", resources.getResourcePackageName(android.R.style.ButtonBar));
         assertEquals("ButtonBar", resources.getResourceEntryName(android.R.style.ButtonBar));
         assertEquals("style", resources.getResourceTypeName(android.R.style.ButtonBar));
-        Integer id = Resources_Delegate.getLayoutlibCallback(resources).getOrGenerateResourceId(
+        int id = Resources_Delegate.getLayoutlibCallback(resources).getOrGenerateResourceId(
                 new ResourceReference(ResourceNamespace.RES_AUTO, ResourceType.STRING, "app_name"));
-        assertNotNull(id);
         assertEquals("com.android.layoutlib.test.myapplication:string/app_name",
                 resources.getResourceName(id));
         assertEquals("com.android.layoutlib.test.myapplication",
@@ -890,14 +887,9 @@ public class RenderTests extends RenderTestBase {
         Resources resources = Resources_Delegate.initSystem(context, assetManager, metrics,
                 configuration, params.getLayoutlibCallback());
 
-        Integer id =
-                Resources_Delegate.getLayoutlibCallback(resources)
-                        .getOrGenerateResourceId(
-                                new ResourceReference(
-                                        ResourceNamespace.RES_AUTO,
-                                        ResourceType.ARRAY,
-                                        "string_array"));
-        assertNotNull(id);
+        int id = Resources_Delegate.getLayoutlibCallback(resources).getOrGenerateResourceId(
+                new ResourceReference(ResourceNamespace.RES_AUTO, ResourceType.ARRAY,
+                        "string_array"));
         String[] strings = resources.getStringArray(id);
         assertArrayEquals(
                 new String[]{"mystring", "Hello world!", "candidates", "Unknown", "?EC"},
@@ -914,19 +906,20 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testAdaptiveIcon() throws ClassNotFoundException, FileNotFoundException {
+    public void testAdaptiveIcon() throws ClassNotFoundException {
         // Create the layout pull parser.
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\"\n" +
-                        "             android:src=\"@drawable/adaptive\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <ImageView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content"
+                             android:src="@drawable/adaptive" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -978,13 +971,14 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testColorStateList() throws Exception {
-        final String STATE_LIST =
-                "<selector xmlns:android=\"http://schemas.android.com/apk/res/android\">\n" +
-                        "    <item android:state_pressed=\"true\"\n" +
-                        "          android:color=\"?android:attr/colorForeground\"/> \n" +
-                        "    <item android:state_focused=\"true\"\n" +
-                        "          android:color=\"?android:attr/colorBackground\"/> \n" +
-                        "    <item android:color=\"#a000\"/> <!-- default -->\n" + "</selector>";
+        final String STATE_LIST = """
+                <selector xmlns:android="http://schemas.android.com/apk/res/android">
+                    <item android:state_pressed="true"
+                          android:color="?android:attr/colorForeground"/>\s
+                    <item android:state_focused="true"
+                          android:color="?android:attr/colorBackground"/>\s
+                    <item android:color="#a000"/> <!-- default -->
+                </selector>""";
 
         File tmpColorList = File.createTempFile("statelist", "xml");
         try (PrintWriter output = new PrintWriter(new FileOutputStream(tmpColorList))) {
@@ -1149,22 +1143,24 @@ public class RenderTests extends RenderTestBase {
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
 
-        String layoutCompiled =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_width=\"match_parent\"\n" +
-                        "    android:layout_height=\"match_parent\"\n" +
-                        "    android:background=\"@drawable/ninepatch\"\n" +
-                        "    android:layout_margin=\"20dp\"\n" +
-                        "    android:orientation=\"vertical\">\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n"
-                        + "</LinearLayout>";
+        String layoutCompiled = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ninepatch"
+                    android:layout_margin="20dp"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button" />
+                </LinearLayout>""";
 
         LayoutPullParser parser = LayoutPullParser.createFromString(layoutCompiled);
         SessionParams params = getSessionParamsBuilder()
@@ -1176,22 +1172,24 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "ninepatch_background.png");
 
-        String layoutNonCompiled =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_width=\"match_parent\"\n" +
-                        "    android:layout_height=\"match_parent\"\n" +
-                        "    android:background=\"@drawable/uncompiled_ninepatch\"\n" +
-                        "    android:layout_margin=\"20dp\"\n" +
-                        "    android:orientation=\"vertical\">\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n"
-                        + "</LinearLayout>";
+        String layoutNonCompiled = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/uncompiled_ninepatch"
+                    android:layout_margin="20dp"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button" />
+                </LinearLayout>""";
 
         parser = LayoutPullParser.createFromString(layoutNonCompiled);
         params = getSessionParamsBuilder()
@@ -1206,16 +1204,17 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testAssetManager() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.AssetView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <com.android.layoutlib.test.myapplication.widgets.AssetView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -1240,11 +1239,12 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testContextThemeWrapper() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<com.android.layoutlib.test.myapplication.ThemableWidget " +
-                        "xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"wrap_content\"\n" +
-                        "              android:layout_height=\"wrap_content\" />\n");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <com.android.layoutlib.test.myapplication.ThemableWidget
+                     xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content" />
+                """);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -1267,19 +1267,18 @@ public class RenderTests extends RenderTestBase {
      */
     @Test
     public void testCrashes() throws ClassNotFoundException {
-        final String layout =
-                "<LinearLayout " +
-                        "xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "<com.android.layoutlib.bridge.test.widgets.HookWidget " +
-                        "              android:layout_width=\"100dp\"\n" +
-                        "              android:layout_height=\"200dp\" />\n" +
-                        "<LinearLayout " +
-                        "              android:background=\"#CBBAF0\"\n" +
-                        "              android:layout_width=\"100dp\"\n" +
-                        "              android:layout_height=\"200dp\" />\n" +
-                        "</LinearLayout>";
+        final String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                <com.android.layoutlib.bridge.test.widgets.HookWidget
+                              android:layout_width="100dp"
+                              android:layout_height="200dp" />
+                <LinearLayout
+                              android:background="#CBBAF0"
+                              android:layout_width="100dp"
+                              android:layout_height="200dp" />
+                </LinearLayout>""";
         {
             com.android.layoutlib.bridge.test.widgets.HookWidget.setOnPreDrawHook(() -> {
                 throw new NullPointerException();
@@ -1354,41 +1353,42 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testViewBoundariesReporting() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\"\n" +
-                        "              android:background=\"@drawable/ninepatch\"\n" +
-                        "              android:layout_margin=\"20dp\"\n" +
-                        "              android:orientation=\"vertical\">\n" + "\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"150dp\"\n" +
-                        "        android:layout_height=\"50dp\"\n" +
-                        "        android:background=\"#FF0\"/>\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"150dp\"\n" +
-                        "        android:layout_height=\"50dp\"\n" +
-                        "        android:background=\"#F00\"/>\n" +
-                        "    <LinearLayout\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:paddingLeft=\"10dp\">\n" +
-                        "        <TextView\n" +
-                        "            android:layout_width=\"150dp\"\n" +
-                        "            android:layout_height=\"50dp\"\n" +
-                        "            android:background=\"#00F\"/>\n" +
-                        "    </LinearLayout>\n" +
-                        "    <LinearLayout\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:layout_marginLeft=\"30dp\"\n" +
-                        "        android:layout_marginTop=\"15dp\">\n" +
-                        "        <TextView\n" +
-                        "            android:layout_width=\"150dp\"\n" +
-                        "            android:layout_height=\"50dp\"\n" +
-                        "            android:background=\"#F0F\"/>\n" +
-                        "    </LinearLayout>\n" +
-                        "</LinearLayout>";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:background="@drawable/ninepatch"
+                              android:layout_margin="20dp"
+                              android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="150dp"
+                        android:layout_height="50dp"
+                        android:background="#FF0"/>
+                    <TextView
+                        android:layout_width="150dp"
+                        android:layout_height="50dp"
+                        android:background="#F00"/>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp">
+                        <TextView
+                            android:layout_width="150dp"
+                            android:layout_height="50dp"
+                            android:background="#00F"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginTop="15dp">
+                        <TextView
+                            android:layout_width="150dp"
+                            android:layout_height="50dp"
+                            android:background="#F0F"/>
+                    </LinearLayout>
+                </LinearLayout>""";
 
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
@@ -1424,30 +1424,31 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testMixedRtlLtrRendering() throws Exception {
         //
-        final String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\"\n" +
-                        "              android:orientation=\"vertical\">\n" + "\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:textSize=\"30sp\"\n" +
-                        "        android:background=\"#55FF0000\"\n" +
-                        "        android:text=\"این یک رشته ایرانی است\"/>\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:textSize=\"30sp\"\n" +
-                        "        android:background=\"#55FF00FF\"\n" +
-                        "        android:text=\"این یک رشته ایرانی است(\"/>\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:textSize=\"30sp\"\n" +
-                        "        android:background=\"#55FAF012\"\n" +
-                        "        android:text=\")(این یک رشته ایرانی است(\"/>\n" +
-                        "</LinearLayout>";
+        final String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="30sp"
+                        android:background="#55FF0000"
+                        android:text="این یک رشته ایرانی است"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="30sp"
+                        android:background="#55FF00FF"
+                        android:text="این یک رشته ایرانی است("/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="30sp"
+                        android:background="#55FAF012"
+                        android:text=")(این یک رشته ایرانی است("/>
+                </LinearLayout>""";
 
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
@@ -1469,18 +1470,19 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testViewStub() throws Exception {
         //
-        final String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\"\n" +
-                        "              android:orientation=\"vertical\">\n" + "\n" +
-                        "      <ViewStub\n" +
-                        "        xmlns:tools=\"http://schemas.android.com/tools\"\n" +
-                        "        android:layout_width=\"match_parent\"\n" +
-                        "        android:layout_height=\"match_parent\"\n" +
-                        "        android:layout=\"@layout/four_corners\"\n" +
-                        "        tools:visibility=\"visible\" />" +
-                        "</LinearLayout>";
+        final String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:orientation="vertical">
+
+                      <ViewStub
+                        xmlns:tools="http://schemas.android.com/tools"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout="@layout/four_corners"
+                        tools:visibility="visible" />
+                </LinearLayout>""";
 
         // Create the layout pull parser.
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
@@ -1507,22 +1509,24 @@ public class RenderTests extends RenderTestBase {
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
         layoutLibCallback.initResources();
 
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "    android:layout_width=\"match_parent\"\n" +
-                        "    android:layout_height=\"match_parent\"\n" +
-                        "    android:background=\"@drawable/ninepatch\"\n" +
-                        "    android:layout_margin=\"20dp\"\n" +
-                        "    android:orientation=\"vertical\">\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n\n" +
-                        "    <Button\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Button\" />\n"
-                        + "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ninepatch"
+                    android:layout_margin="20dp"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button" />
+                </LinearLayout>""");
 
         // Ask for an image that it's 1/10th the size of the actual device image
         SessionParams params = getSessionParamsBuilder()
@@ -1552,17 +1556,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testCanvas() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.CanvasTestView\n" +
-                        "             android:layout_height=\"fill_parent\"\n" +
-                        "             android:layout_width=\"fill_parent\"\n" +
-                        "             android:src=\"@drawable/android\" />\n" + "\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <com.android.layoutlib.test.myapplication.widgets.CanvasTestView
+                             android:layout_height="fill_parent"
+                             android:layout_width="fill_parent"
+                             android:src="@drawable/android" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -1593,17 +1598,18 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testAnimatedVectorDrawableWithColorInterpolator() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"match_parent\"\n" +
-                        "             android:layout_width=\"match_parent\"\n" +
-                        "             android:src=\"@drawable/avd_color_interpolator\" />\n\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <ImageView
+                             android:layout_height="match_parent"
+                             android:layout_width="match_parent"
+                             android:src="@drawable/avd_color_interpolator" />
+
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -1629,28 +1635,29 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testManyLineBreaks() throws Exception {
-        String layout =
-                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" + "\n" +
-                        "    <EditText\n" +
-                        "        android:layout_width=\"match_parent\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:fallbackLineSpacing=\"true\"\n" +
-                        "        android:text=\"A very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very very very very very very very very " +
-                        "very very very very very very very long text\"/>\n" +
-                        "</FrameLayout>";
+        String layout = """
+                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fallbackLineSpacing="true"
+                        android:text="A very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very very very very very very very very \
+                very very very very very very very long text"/>
+                </FrameLayout>""";
 
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
@@ -1672,17 +1679,18 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testNinePatchDrawable() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"fill_parent\"\n" +
-                        "             android:layout_width=\"fill_parent\"\n" +
-                        "             android:src=\"@drawable/ninepatch_drawable\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <ImageView
+                             android:layout_height="fill_parent"
+                             android:layout_width="fill_parent"
+                             android:src="@drawable/ninepatch_drawable" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -1699,14 +1707,15 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testContentId() throws ClassNotFoundException {
-        final String layout =
-                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" + "\n" +
-                        "    <com.android.layoutlib.bridge.test.widgets.ContentWidget\n" +
-                        "        android:layout_width=\"match_parent\"\n" +
-                        "        android:layout_height=\"wrap_content\"/>\n" +
-                        "</FrameLayout>";
+        final String layout = """
+                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <com.android.layoutlib.bridge.test.widgets.ContentWidget
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </FrameLayout>""";
 
         {
             // Create the layout pull parser.
@@ -1753,18 +1762,19 @@ public class RenderTests extends RenderTestBase {
      */
     @Test
     public void testTextClock() throws ClassNotFoundException {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <TextClock\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\"\n" +
-                        "             android:text=\"12:34\"" +
-                        "             android:textSize=\"18sp\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <TextClock
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content"
+                             android:text="12:34"\
+                             android:textSize="18sp" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -1781,16 +1791,17 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testChangeSize() throws ClassNotFoundException {
-        final String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:orientation=\"vertical\"\n" +
-                        "              android:layout_width=\"wrap_content\"\n" +
-                        "              android:layout_height=\"wrap_content\">\n" +
-                        "    <Button\n" +
-                        "             android:layout_height=\"50dp\"\n" +
-                        "             android:layout_width=\"100dp\"\n" +
-                        "             android:text=\"Hello\" />\n" +
-                        "</LinearLayout>\n";
+        final String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:orientation="vertical"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content">
+                    <Button
+                             android:layout_height="50dp"
+                             android:layout_width="100dp"
+                             android:text="Hello" />
+                </LinearLayout>
+                """;
 
         // Create the layout pull parser.
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
@@ -1859,17 +1870,17 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testNonStyledResources() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:background=\"#999\"" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <com.android.layoutlib.bridge.test.widgets.CustomImageView\n" +
-                        "        android:layout_width=\"100dp\"\n" +
-                        "        android:layout_height=\"100dp\"/>\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:background="#999"\
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <com.android.layoutlib.bridge.test.widgets.CustomImageView
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"/>
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -1890,17 +1901,17 @@ public class RenderTests extends RenderTestBase {
     @Test
     public void testRenderEffect() throws ClassNotFoundException {
         // Create the layout pull parser.
-        LayoutPullParser parser = LayoutPullParser.createFromString(
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:background=\"#999\"" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" +
-                        "    <com.android.layoutlib.bridge.test.widgets.BlurryImageView\n" +
-                        "        android:layout_width=\"100dp\"\n" +
-                        "        android:layout_height=\"100dp\"/>\n" +
-                        "</LinearLayout>");
+        LayoutPullParser parser = LayoutPullParser.createFromString("""
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:background="#999"\
+                              android:orientation="horizontal"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+                    <com.android.layoutlib.bridge.test.widgets.BlurryImageView
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"/>
+                </LinearLayout>""");
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -1920,16 +1931,17 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testDialog() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.DialogView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <com.android.layoutlib.test.myapplication.widgets.DialogView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -1950,17 +1962,18 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testWindowBackgroundWithThemeAttribute() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <TextView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\"\n" +
-                        "             android:text=\"Hello World!\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <TextView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content"
+                             android:text="Hello World!" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -1980,19 +1993,20 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testThemedAdaptiveIcon() throws ClassNotFoundException, IOException {
+    public void testThemedAdaptiveIcon() throws ClassNotFoundException {
         // Create the layout pull parser.
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <ImageView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\"\n" +
-                        "             android:src=\"@drawable/adaptive\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <ImageView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content"
+                             android:src="@drawable/adaptive" />
+                </LinearLayout>
+                """;
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -2053,15 +2067,16 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testHtmlText() throws ClassNotFoundException {
-        final String layout =
-                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" + "\n" +
-                        "    <com.android.layoutlib.bridge.test.widgets.HtmlTextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:textSize=\"30sp\"/>\n" +
-                        "</FrameLayout>";
+        final String layout = """
+                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <com.android.layoutlib.bridge.test.widgets.HtmlTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="30sp"/>
+                </FrameLayout>""";
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -2081,16 +2096,17 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testStatusBar() throws ClassNotFoundException {
-        final String layout =
-                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" + "\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Test status bar colour\"\n" +
-                        "        android:textSize=\"30sp\"/>\n" +
-                        "</FrameLayout>";
+        final String layout = """
+                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Test status bar colour"
+                        android:textSize="30sp"/>
+                </FrameLayout>""";
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -2117,16 +2133,17 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testSoftwareLayer() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <com.android.layoutlib.test.myapplication.widgets.SoftwareTextView\n" +
-                        "             android:layout_height=\"200dp\"\n" +
-                        "             android:layout_width=\"wrap_content\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <com.android.layoutlib.test.myapplication.widgets.SoftwareTextView
+                             android:layout_height="200dp"
+                             android:layout_width="wrap_content" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -2147,17 +2164,18 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testHighSimulatedSdk() throws Exception {
-        String layout =
-                "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:padding=\"16dp\"\n" +
-                        "              android:orientation=\"horizontal\"\n" +
-                        "              android:layout_width=\"fill_parent\"\n" +
-                        "              android:layout_height=\"fill_parent\">\n" +
-                        "    <TextView\n" +
-                        "             android:layout_height=\"wrap_content\"\n" +
-                        "             android:layout_width=\"wrap_content\"\n" +
-                        "             android:text=\"This is a TextView\" />\n" +
-                        "</LinearLayout>\n";
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <TextView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content"
+                             android:text="This is a TextView" />
+                </LinearLayout>
+                """;
         LayoutPullParser parser = LayoutPullParser.createFromString(layout);
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
@@ -2183,16 +2201,17 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testGestureNavBar() throws ClassNotFoundException {
-        final String layout =
-                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" + "\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Test gesture nav bar\"\n" +
-                        "        android:textSize=\"30sp\"/>\n" +
-                        "</FrameLayout>";
+        final String layout = """
+                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Test gesture nav bar"
+                        android:textSize="30sp"/>
+                </FrameLayout>""";
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -2232,16 +2251,17 @@ public class RenderTests extends RenderTestBase {
 
     @Test
     public void testCutouts() throws ClassNotFoundException {
-        final String layout =
-                "<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                        "              android:layout_width=\"match_parent\"\n" +
-                        "              android:layout_height=\"match_parent\">\n" + "\n" +
-                        "    <TextView\n" +
-                        "        android:layout_width=\"wrap_content\"\n" +
-                        "        android:layout_height=\"wrap_content\"\n" +
-                        "        android:text=\"Test cutouts\"\n" +
-                        "        android:textSize=\"30sp\"/>\n" +
-                        "</FrameLayout>";
+        final String layout = """
+                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Test cutouts"
+                        android:textSize="30sp"/>
+                </FrameLayout>""";
         // Create LayoutLibCallback.
         LayoutLibTestCallback layoutLibCallback =
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
@@ -2282,18 +2302,6 @@ public class RenderTests extends RenderTestBase {
         renderAndVerify(params, "hole_cutout.png", TimeUnit.SECONDS.toNanos(2));
 
         params = getSessionParamsBuilder()
-                .setParser(LayoutPullParser.createFromString(layout))
-                .setCallback(layoutLibCallback)
-                .setTheme("Theme.Material.Light", false)
-                .setRenderingMode(RenderingMode.V_SCROLL)
-                .setFrameworkOverlayResources(frameworkOverlay)
-                .build();
-        params.setFlag(FLAG_KEY_SHOW_CUTOUT, true);
-        params.setFlag(FLAG_KEY_EDGE_TO_EDGE, true);
-
-        renderAndVerify(params, "hole_cutout_edge.png", TimeUnit.SECONDS.toNanos(2));
-
-        params = getSessionParamsBuilder()
                 .setConfigGenerator(ConfigGenerator.NEXUS_5_LAND)
                 .setParser(LayoutPullParser.createFromString(layout))
                 .setCallback(layoutLibCallback)
@@ -2302,8 +2310,7 @@ public class RenderTests extends RenderTestBase {
                 .setFrameworkOverlayResources(frameworkOverlay)
                 .build();
         params.setFlag(FLAG_KEY_SHOW_CUTOUT, true);
-        params.setFlag(FLAG_KEY_EDGE_TO_EDGE, true);
 
-        renderAndVerify(params, "hole_cutout_edge_landscape.png", TimeUnit.SECONDS.toNanos(2));
+        renderAndVerify(params, "hole_cutout_landscape.png", TimeUnit.SECONDS.toNanos(2));
     }
 }

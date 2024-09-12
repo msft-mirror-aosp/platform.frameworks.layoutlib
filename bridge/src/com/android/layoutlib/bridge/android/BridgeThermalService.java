@@ -23,9 +23,6 @@ import android.os.IThermalStatusListener;
 import android.os.IThermalService;
 import android.os.Temperature;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Fake implementation of IThermalService
  */
@@ -89,5 +86,10 @@ public class BridgeThermalService implements IThermalService {
     @Override
     public float getThermalHeadroom(int forecastSeconds) {
         return Float.NaN;
+    }
+
+    @Override
+    public float[] getThermalHeadroomThresholds() {
+        return new float[]{};
     }
 }

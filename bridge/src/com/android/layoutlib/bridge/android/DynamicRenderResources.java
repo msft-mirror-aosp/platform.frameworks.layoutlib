@@ -25,13 +25,9 @@ import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.internal.graphics.ColorUtils;
 import com.android.resources.ResourceType;
 import com.android.systemui.monet.ColorScheme;
+import com.android.systemui.monet.DynamicColors;
 import com.android.systemui.monet.Style;
 import com.android.systemui.monet.TonalPalette;
-import com.android.systemui.monet.dynamiccolor.DynamicColor;
-import com.android.systemui.monet.dynamiccolor.MaterialDynamicColors;
-import com.android.systemui.monet.hct.Hct;
-import com.android.systemui.monet.scheme.DynamicScheme;
-import com.android.systemui.monet.scheme.SchemeTonalSpot;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.app.WallpaperColors;
@@ -45,6 +41,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.ux.material.libmonet.dynamiccolor.DynamicColor;
 
 /**
  * Wrapper for RenderResources that allows overriding default system colors
@@ -171,23 +169,25 @@ public class DynamicRenderResources extends RenderResources {
             }
             WallpaperColors wallpaperColors = WallpaperColors.fromBitmap(wallpaper);
             int seed = ColorScheme.getSeedColor(wallpaperColors);
-            ColorScheme scheme = new ColorScheme(seed, isNightMode);
+            ColorScheme lightScheme = new ColorScheme(seed, false);
+            ColorScheme darkScheme = new ColorScheme(seed, true);
+            ColorScheme currentScheme = isNightMode ? darkScheme : lightScheme;
             Map<String, Integer> dynamicColorMap = new HashMap<>();
-            extractPalette("accent1", dynamicColorMap, scheme.getAccent1());
-            extractPalette("accent2", dynamicColorMap, scheme.getAccent2());
-            extractPalette("accent3", dynamicColorMap, scheme.getAccent3());
-            extractPalette("neutral1", dynamicColorMap, scheme.getNeutral1());
-            extractPalette("neutral2", dynamicColorMap, scheme.getNeutral2());
+            extractPalette("accent1", dynamicColorMap, currentScheme.getAccent1());
+            extractPalette("accent2", dynamicColorMap, currentScheme.getAccent2());
+            extractPalette("accent3", dynamicColorMap, currentScheme.getAccent3());
+            extractPalette("neutral1", dynamicColorMap, currentScheme.getNeutral1());
+            extractPalette("neutral2", dynamicColorMap, currentScheme.getNeutral2());
 
-            Hct sourceColorHct = Hct.fromInt(seed);
-            DynamicScheme lightScheme = new SchemeTonalSpot(sourceColorHct, false, 0.0);
-            DynamicScheme darkScheme = new SchemeTonalSpot(sourceColorHct, true, 0.0);
             //Themed Colors
-
-            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme, true /* isDark */);
-            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme, false /* isDark */);
-            extractFixedColors(dynamicColorMap, lightScheme);
-
+            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
+                    DynamicColors.getAllDynamicColorsMapped(false), false);
+            // Fixed Colors
+            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
+                    DynamicColors.getFixedColorsMapped(false), true);
+            //Custom Colors
+            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
+                    DynamicColors.getCustomColorsMapped(false), false);
             return dynamicColorMap;
         } catch (IllegalArgumentException | IOException ignore) {
             return null;
@@ -201,7 +201,7 @@ public class DynamicRenderResources extends RenderResources {
     private static void extractPalette(String name,
             Map<String, Integer> colorMap, TonalPalette tonalPalette) {
         String resourcePrefix = "system_" + name;
-        tonalPalette.getAllShadesMapped().forEach((key, value) -> {
+        tonalPalette.allShadesMapped.forEach((key, value) -> {
             String resourceName = resourcePrefix + "_" + key;
             int colorValue = ColorUtils.setAlphaComponent(value, 0xFF);
             colorMap.put(resourceName, colorValue);
@@ -209,112 +209,30 @@ public class DynamicRenderResources extends RenderResources {
         colorMap.put(resourcePrefix + "_0", Color.WHITE);
     }
 
-    /**
-     * Builds the dynamic theme corresponding to the Material colors, copying what is done
-     * in {@link ThemeOverlayController#assignDynamicPaletteToOverlay}
-     */
-    private static void extractDynamicColors(Map<String, Integer> colorMap,
-            DynamicScheme lightScheme, DynamicScheme darkScheme, boolean isDark) {
-        String suffix = isDark ? "dark" : "light";
-        DynamicScheme scheme = isDark ? darkScheme : lightScheme;
-        DynamicColors.ALL_DYNAMIC_COLORS_MAPPED.forEach(p -> {
-            String resourceName = "system_" + p.first + "_" + suffix;
-            int colorValue = p.second.getArgb(scheme);
-            colorMap.put(resourceName, colorValue);
+    private static void extractDynamicColors(Map<String, Integer> colorMap, ColorScheme lightScheme,
+            ColorScheme darkScheme, List<Pair<String, DynamicColor>> colors, Boolean isFixed) {
+        colors.forEach(p -> {
+            String prefix = "system_" + p.first;
+
+            if (isFixed) {
+                colorMap.put(prefix, p.second.getArgb(lightScheme.getMaterialScheme()));
+                return;
+            }
+
+            colorMap.put(prefix + "_light", p.second.getArgb(lightScheme.getMaterialScheme()));
+            colorMap.put(prefix + "_dark", p.second.getArgb(darkScheme.getMaterialScheme()));
         });
     }
 
-    /**
-     * Builds the dynamic theme corresponding to the Material colors, copying what is done
-     * in {@link ThemeOverlayController#assignFixedColorsToOverlay}
-     */
-    private static void extractFixedColors(Map<String, Integer> colorMap,
-            DynamicScheme lightScheme) {
-        DynamicColors.FIXED_COLORS_MAPPED.forEach(p -> {
-            String resourceName = "system_" + p.first;
-            int colorValue = p.second.getArgb(lightScheme);
-            colorMap.put(resourceName, colorValue);
-        });
-    }
-
-    private boolean isDynamicColor(ResourceValue resourceValue) {
+    private static boolean isDynamicColor(ResourceValue resourceValue) {
         if (!resourceValue.isFramework() || resourceValue.getResourceType() != ResourceType.COLOR) {
             return false;
         }
-        return mDynamicColorMap.containsKey(resourceValue.getName());
+        return resourceValue.getName().startsWith("system_accent")
+                || resourceValue.getName().startsWith("system_neutral");
     }
 
     public boolean hasDynamicColors() {
         return mDynamicColorMap != null;
-    }
-
-    // Copied from frameworks/base/packages/SystemUI/src/com/android/systemui/theme/DynamicColors.kt
-    private static class DynamicColors {
-        private static final MaterialDynamicColors MDC = new MaterialDynamicColors();
-        private static final List<Pair<String, DynamicColor>> ALL_DYNAMIC_COLORS_MAPPED = List.of(
-            Pair.create("primary_container", MDC.primaryContainer()),
-            Pair.create("on_primary_container", MDC.onPrimaryContainer()),
-            Pair.create("primary", MDC.primary()),
-            Pair.create("on_primary", MDC.onPrimary()),
-            Pair.create("secondary_container", MDC.secondaryContainer()),
-            Pair.create("on_secondary_container", MDC.onSecondaryContainer()),
-            Pair.create("secondary", MDC.secondary()),
-            Pair.create("on_secondary", MDC.onSecondary()),
-            Pair.create("tertiary_container", MDC.tertiaryContainer()),
-            Pair.create("on_tertiary_container", MDC.onTertiaryContainer()),
-            Pair.create("tertiary", MDC.tertiary()),
-            Pair.create("on_tertiary", MDC.onTertiary()),
-            Pair.create("background", MDC.background()),
-            Pair.create("on_background", MDC.onBackground()),
-            Pair.create("surface", MDC.surface()),
-            Pair.create("on_surface", MDC.onSurface()),
-            Pair.create("surface_container_low", MDC.surfaceContainerLow()),
-            Pair.create("surface_container_lowest", MDC.surfaceContainerLowest()),
-            Pair.create("surface_container", MDC.surfaceContainer()),
-            Pair.create("surface_container_high", MDC.surfaceContainerHigh()),
-            Pair.create("surface_container_highest", MDC.surfaceContainerHighest()),
-            Pair.create("surface_bright", MDC.surfaceBright()),
-            Pair.create("surface_dim", MDC.surfaceDim()),
-            Pair.create("surface_variant", MDC.surfaceVariant()),
-            Pair.create("on_surface_variant", MDC.onSurfaceVariant()),
-            Pair.create("outline", MDC.outline()),
-            Pair.create("outline_variant", MDC.outlineVariant()),
-            Pair.create("error", MDC.error()),
-            Pair.create("on_error", MDC.onError()),
-            Pair.create("error_container", MDC.errorContainer()),
-            Pair.create("on_error_container", MDC.onErrorContainer()),
-            Pair.create("control_activated", MDC.controlActivated()),
-            Pair.create("control_normal", MDC.controlNormal()),
-            Pair.create("control_highlight", MDC.controlHighlight()),
-            Pair.create("text_primary_inverse", MDC.textPrimaryInverse()),
-            Pair.create("text_secondary_and_tertiary_inverse",
-                    MDC.textSecondaryAndTertiaryInverse()),
-            Pair.create("text_primary_inverse_disable_only",
-                    MDC.textPrimaryInverseDisableOnly()),
-            Pair.create("text_secondary_and_tertiary_inverse_disabled",
-                    MDC.textSecondaryAndTertiaryInverseDisabled()),
-            Pair.create("text_hint_inverse", MDC.textHintInverse()),
-            Pair.create("palette_key_color_primary", MDC.primaryPaletteKeyColor()),
-            Pair.create("palette_key_color_secondary", MDC.secondaryPaletteKeyColor()),
-            Pair.create("palette_key_color_tertiary", MDC.tertiaryPaletteKeyColor()),
-            Pair.create("palette_key_color_neutral", MDC.neutralPaletteKeyColor()),
-            Pair.create("palette_key_color_neutral_variant",
-                    MDC.neutralVariantPaletteKeyColor())
-        );
-
-        private static final List<Pair<String, DynamicColor>> FIXED_COLORS_MAPPED = List.of(
-            Pair.create("primary_fixed", MDC.primaryFixed()),
-            Pair.create("primary_fixed_dim", MDC.primaryFixedDim()),
-            Pair.create("on_primary_fixed", MDC.onPrimaryFixed()),
-            Pair.create("on_primary_fixed_variant", MDC.onPrimaryFixedVariant()),
-            Pair.create("secondary_fixed", MDC.secondaryFixed()),
-            Pair.create("secondary_fixed_dim", MDC.secondaryFixedDim()),
-            Pair.create("on_secondary_fixed", MDC.onSecondaryFixed()),
-            Pair.create("on_secondary_fixed_variant", MDC.onSecondaryFixedVariant()),
-            Pair.create("tertiary_fixed", MDC.tertiaryFixed()),
-            Pair.create("tertiary_fixed_dim", MDC.tertiaryFixedDim()),
-            Pair.create("on_tertiary_fixed", MDC.onTertiaryFixed()),
-            Pair.create("on_tertiary_fixed_variant", MDC.onTertiaryFixedVariant())
-        );
     }
 }

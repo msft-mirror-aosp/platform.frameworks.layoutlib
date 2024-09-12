@@ -16,10 +16,17 @@
 
 package android.app;
 
+import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
+
+import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
 
 public class Application_Delegate {
     public static Resources getResources(Application app) {
         return Resources.getSystem();
+    }
+
+    public static ApplicationInfo getApplicationInfo(Application app) {
+        return getCurrentContext().getApplicationInfo();
     }
 }

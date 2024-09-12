@@ -95,7 +95,7 @@ public class AppCompatActionBar extends BridgeActionBar {
             setContentRoot(contentRoot);
         }
         try {
-            Class[] constructorParams = {View.class};
+            Class<?>[] constructorParams = {View.class};
             Object[] constructorArgs = {getDecorContent()};
             LayoutlibCallback callback = params.getLayoutlibCallback();
 
@@ -272,14 +272,14 @@ public class AppCompatActionBar extends BridgeActionBar {
         Class<?> instanceClass = instance.getClass();
         try {
             Field field = instanceClass.getDeclaredField(name);
-            boolean accesible = field.isAccessible();
-            if (!accesible) {
+            boolean accessible = field.isAccessible();
+            if (!accessible) {
                 field.setAccessible(true);
             }
             try {
                 return field.get(instance);
             } finally {
-                field.setAccessible(accesible);
+                field.setAccessible(accessible);
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
