@@ -16,9 +16,9 @@
 
 package android.graphics.drawable;
 
+import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-import android.content.res.Resources_Delegate;
 import android.util.LruCache;
 import android.view.InflateException;
 
@@ -41,32 +41,21 @@ public class DrawableInflater_Delegate {
                 constructor = CONSTRUCTOR_MAP.get(className);
                 if (constructor == null) {
                     final Class<? extends Drawable> clazz =
-                            Resources_Delegate.getLayoutlibCallback(thisInflater.mRes)
+                            RenderAction.getCurrentContext().getLayoutlibCallback()
                                     .findClass(className).asSubclass(Drawable.class);
                     constructor = clazz.getConstructor();
                     CONSTRUCTOR_MAP.put(className, constructor);
                 }
             }
             return constructor.newInstance();
-        } catch (NoSuchMethodException e) {
-            final InflateException ie = new InflateException("Error inflating class " + className);
-            ie.initCause(e);
-            throw ie;
         } catch (ClassCastException e) {
             // If loaded class is not a Drawable subclass.
-            final InflateException ie =
-                    new InflateException("Class is not a Drawable " + className);
-            ie.initCause(e);
-            throw ie;
+            throw new InflateException("Class is not a Drawable " + className, e);
         } catch (ClassNotFoundException e) {
             // If loadClass fails, we should propagate the exception.
-            final InflateException ie = new InflateException("Class not found " + className);
-            ie.initCause(e);
-            throw ie;
+            throw new InflateException("Class not found " + className, e);
         } catch (Exception e) {
-            final InflateException ie = new InflateException("Error inflating class " + className);
-            ie.initCause(e);
-            throw ie;
+            throw new InflateException("Error inflating class " + className, e);
         }
     }
 

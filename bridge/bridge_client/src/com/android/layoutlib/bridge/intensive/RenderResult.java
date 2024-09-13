@@ -32,7 +32,7 @@ public class RenderResult {
     private final List<ViewInfo> mRootViews;
     private final List<ViewInfo> mSystemViews;
     private final Result mRenderResult;
-    private BufferedImage mImage;
+    private final BufferedImage mImage;
 
     private RenderResult(@Nullable Result result, @Nullable List<ViewInfo> systemViewInfoList,
             @Nullable List<ViewInfo> rootViewInfoList, @Nullable BufferedImage image) {
