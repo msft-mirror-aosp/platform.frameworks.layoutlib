@@ -224,12 +224,11 @@ public class DynamicRenderResources extends RenderResources {
         });
     }
 
-    private static boolean isDynamicColor(ResourceValue resourceValue) {
+    private boolean isDynamicColor(ResourceValue resourceValue) {
         if (!resourceValue.isFramework() || resourceValue.getResourceType() != ResourceType.COLOR) {
             return false;
         }
-        return resourceValue.getName().startsWith("system_accent")
-                || resourceValue.getName().startsWith("system_neutral");
+        return mDynamicColorMap.containsKey(resourceValue.getName());
     }
 
     public boolean hasDynamicColors() {
