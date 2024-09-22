@@ -551,6 +551,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 }
 
                 mRenderer.draw(mViewRoot);
+                // Wait for render thread to finish rendering
+                mRenderer.fence();
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
                 IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
