@@ -175,8 +175,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     private static final String[] LINUX_NATIVE_LIBRARIES = {"layoutlib_jni.so"};
     private static final String[] MAC_NATIVE_LIBRARIES = {"layoutlib_jni.dylib"};
     private static final String[] WINDOWS_NATIVE_LIBRARIES =
-            {"libicuuc_stubdata.dll", "libicuuc-host.dll", "libandroid_runtime.dll",
-                    "layoutlib_jni.dll"};
+            {"libandroid_runtime.dll", "layoutlib_jni.dll"};
 
     @Override
     public boolean init(Map<String, String> platformProperties,
