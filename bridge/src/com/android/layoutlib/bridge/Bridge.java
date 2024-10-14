@@ -799,6 +799,9 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                     NativeConfig.GRAPHICS_CLASS_NATIVES));
             System.setProperty("use_bridge_for_logging", "true");
             System.setProperty("register_properties_during_load", "true");
+            // This is needed on Windows to avoid creating HostRuntime when loading
+            // libandroid_runtime.dll.
+            System.setProperty("use_base_native_hostruntime", "false");
             for (String library : getNativeLibraries()) {
                 String path = new File(nativeLibDir, library).getAbsolutePath();
                 System.load(path);
