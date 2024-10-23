@@ -30,13 +30,15 @@ java_genrule_host {
     tools: ["layoutlib_create"],
     out: ["temp_layoutlib.jar"],
     srcs: [
-        ":atf-prebuilt-557133692{.jar}",
+        ":atf-prebuilt-557133692{.jar}", // HOST
+        ":icu4j-icudata-jarjar{.jar}", // HOST
+        ":icu4j-icutzdata-jarjar{.jar}", // HOST
+    ],
+    device_common_srcs: [
         ":core-icu4j-for-host{.jar}",
         ":core-libart-for-host{.jar}",
         ":framework-all{.jar}",
         ":ext{.jar}",
-        ":icu4j-icudata-jarjar{.jar}", // HOST
-        ":icu4j-icutzdata-jarjar{.jar}", // HOST
         ":monet{.jar}",
     ],
     cmd: "rm -f $(out) && $(location layoutlib_create) --create-stub $(out) $(in)",
