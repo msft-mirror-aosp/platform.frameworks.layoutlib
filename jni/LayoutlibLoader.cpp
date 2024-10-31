@@ -16,7 +16,6 @@
 
 #include <android-base/logging.h>
 #include <android-base/properties.h>
-#include <android/graphics/jni_runtime.h>
 #include <android_runtime/AndroidRuntime.h>
 #include <android_view_InputDevice.h>
 #include <jni_wrappers.h>
@@ -76,7 +75,7 @@ static void init_keyboard(const vector<string>& keyboardPaths) {
     int keyboardId = 1;
 
     for (const string& path : keyboardPaths) {
-        base::Result<std::shared_ptr<KeyCharacterMap>> charMap =
+        base::Result<std::unique_ptr<KeyCharacterMap>> charMap =
                 KeyCharacterMap::load(path, KeyCharacterMap::Format::BASE);
 
         InputDeviceInfo info = InputDeviceInfo();
@@ -84,7 +83,7 @@ static void init_keyboard(const vector<string>& keyboardPaths) {
                         "keyboard " + std::to_string(keyboardId), true, false,
                         ui::LogicalDisplayId::DEFAULT);
         info.setKeyboardType(AINPUT_KEYBOARD_TYPE_ALPHABETIC);
-        info.setKeyCharacterMap(*charMap);
+        info.setKeyCharacterMap(std::move(*charMap));
 
         jobject inputDeviceObj = android_view_InputDevice_create(env, info);
         if (inputDeviceObj) {
