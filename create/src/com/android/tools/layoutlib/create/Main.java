@@ -117,6 +117,7 @@ public class Main {
                         "android.graphics.*",
                         "android.graphics.drawable.**",
                         "android.icu.**",                   // needed by LayoutLib
+                        "android.media.MediaCryptoException",    // needed by ExoPlayer
                         "android.os.*",  // for android.os.Handler
                         "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
                         "android.pim.*", // for datepicker
