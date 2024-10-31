@@ -730,6 +730,9 @@ public class BridgeContext extends Context {
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
             case ALARM_SERVICE:
+            case CAPTIONING_SERVICE:
+            case TELEPHONY_SERVICE:
+            case WIFI_SERVICE:
                 return null;
             default:
                 // Only throw exception if the required service is unsupported but recognized as
