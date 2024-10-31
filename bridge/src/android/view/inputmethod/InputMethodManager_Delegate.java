@@ -77,7 +77,8 @@ public class InputMethodManager_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static boolean hideSoftInputFromWindow(InputMethodManager thisManager,
-            IBinder windowToken, int flags, ResultReceiver resultReceiver, int reason) {
+            IBinder windowToken, int flags, ResultReceiver resultReceiver, int reason,
+            ImeTracker.Token statsToken) {
         return false;
     }
 }
