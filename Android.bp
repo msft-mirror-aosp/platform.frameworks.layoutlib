@@ -68,6 +68,8 @@ cc_library_host_shared {
         "-Wno-unused-parameter",
     ],
     header_libs: [
+        "libbase_headers",
+        "libhostgraphics_headers",
         "libnativebase_headers",
         "libnativedisplay_headers",
         "libnativewindow_headers",
@@ -76,25 +78,17 @@ cc_library_host_shared {
         "libandroid_runtime",
     ],
     static_libs: [
-        "libbase",
-        "libbinder",
-        "libcutils",
-        "libharfbuzz_ng",
         "libhostgraphics",
-        "libhwui",
-        "libicui18n",
-        "libicuuc",
-        "libicuuc_stubdata",
-        "libimage_io",
         "libinput",
-        "liblog",
-        "libjpegdecoder",
-        "libjpegencoder",
-        "libminikin",
-        "libnativehelper_jvm",
-        "libui-types",
-        "libultrahdr",
-        "libutils",
     ],
     stl: "libc++_static",
+    target: {
+        linux_glibc_x86_64: {
+            dist: {
+                targets: ["layoutlib"],
+                dir: "layoutlib_native/linux",
+                tag: "stripped_all",
+            },
+        },
+    },
 }
