@@ -246,6 +246,13 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
+    public boolean isWakeLockLevelSupportedWithDisplayId(int level, int displayId)
+            throws RemoteException {
+        // pass for now.
+        return true;
+    }
+
+    @Override
     public void userActivity(int displayId, long time, int event, int flags)
             throws RemoteException {
         // pass for now.
@@ -254,6 +261,12 @@ public class BridgePowerManager implements IPowerManager {
     @Override
     public void wakeUp(long time, @WakeReason int reason, String details , String opPackageName)
             throws RemoteException {
+        // pass for now.
+    }
+
+    @Override
+    public void wakeUpWithDisplayId(long time, @WakeReason int reason,
+        String details , String opPackageName, int displayId) throws RemoteException {
         // pass for now.
     }
 
