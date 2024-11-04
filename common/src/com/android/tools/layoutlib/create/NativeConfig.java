@@ -164,7 +164,6 @@ public class NativeConfig {
             "android.content.res.StringBlock",
             "android.content.res.XmlBlock",
             "android.os.SystemProperties",
-            "android.os.Trace",
             "android.text.AndroidCharacter",
             "android.util.EventLog",
             "android.util.Log",
