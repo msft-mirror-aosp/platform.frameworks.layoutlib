@@ -87,6 +87,7 @@ static jobject android_view_LayoutlibRenderer_createBuffer(JNIEnv* env, jobject 
     auto* bufferItem = new BufferItem();
     bufferConsumer->acquireBuffer(bufferItem, 0);
     sp<GraphicBuffer> buffer = bufferItem->mGraphicBuffer;
+    delete bufferItem;
 
     int bytesPerPixel = 4;
     uint32_t dataSize = buffer->getStride() * buffer->getHeight() * bytesPerPixel;
