@@ -78,10 +78,14 @@ cc_library_host_shared {
     ],
     stl: "libc++_static",
     target: {
+        linux: {
+            version_script: "jni/linux/layoutlib_jni.map.txt",
+        },
         windows: {
             enabled: true,
         },
         darwin: {
+            ldflags: ["-Wl,-exported_symbols_list,frameworks/layoutlib/jni/darwin/layoutlib_jni_export.exp"],
             dist: {
                 targets: ["layoutlib_jni"],
                 dir: "layoutlib_native/darwin",
