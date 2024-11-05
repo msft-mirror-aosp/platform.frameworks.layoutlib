@@ -269,7 +269,6 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.text.MeasuredText$Builder",
         "android.graphics.text.TextRunShaper",
         "android.os.SystemProperties",
-        "android.os.Trace",
         "android.text.AndroidCharacter",
         "android.util.EventLog",
         "android.util.Log",
