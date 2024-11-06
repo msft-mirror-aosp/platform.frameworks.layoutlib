@@ -75,6 +75,6 @@ public class Preference_Delegate {
                 (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(mLayoutResId, root, true);
 
-        return (ListView) root.findViewById(android.R.id.list);
+        return root.findViewById(android.R.id.list);
     }
 }
