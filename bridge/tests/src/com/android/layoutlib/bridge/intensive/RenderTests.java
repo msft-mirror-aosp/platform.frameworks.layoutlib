@@ -2313,4 +2313,36 @@ public class RenderTests extends RenderTestBase {
 
         renderAndVerify(params, "hole_cutout_landscape.png", TimeUnit.SECONDS.toNanos(2));
     }
+
+    @Test
+    public void testHyphenation() throws ClassNotFoundException {
+        final String layout = """
+                <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hyphenationFrequency="full"
+                            android:breakStrategy="balanced"
+                            android:text="A material metaphor is the unifying theory of a rationalized space hyperextended hyperextended hyperextended and a system of motion."
+                            android:textSize="20sp" />
+                </FrameLayout>""";
+        LayoutPullParser parser = LayoutPullParser.createFromString(layout);
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.Light.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .disableDecoration()
+                .build();
+
+        renderAndVerify(params, "hyphenation.png", TimeUnit.SECONDS.toNanos(2));
+    }
 }
