@@ -165,6 +165,7 @@ public class NativeConfig {
             "android.content.res.XmlBlock",
             "android.os.SystemProperties",
             "android.text.AndroidCharacter",
+            "android.text.Hyphenator",
             "android.util.EventLog",
             "android.util.Log",
             "android.view.MotionEvent",
