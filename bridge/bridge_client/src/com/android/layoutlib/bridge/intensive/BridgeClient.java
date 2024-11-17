@@ -91,12 +91,14 @@ public abstract class BridgeClient {
     private static final String NATIVE_LIB_PATH_PROPERTY = "native.lib.path";
     private static final String FONT_DIR_PROPERTY = "font.dir";
     private static final String ICU_DATA_PATH_PROPERTY = "icu.data.path";
+    private static final String HYPHEN_DATA_DIR_PROPERTY = "hyphen.data.dir";
     private static final String KEYBOARD_DIR_PROPERTY = "keyboard.dir";
     private static final String PLATFORM_DIR_PROPERTY = "platform.dir";
 
     private static final String NATIVE_LIB_DIR_PATH;
     private static final String FONT_DIR;
     private static final String ICU_DATA_PATH;
+    private static final String HYPHEN_DATA_DIR;
     private static final String KEYBOARD_DIR;
     private static final String EMPTY_FRAME =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?> <FrameLayout "
@@ -122,6 +124,7 @@ public abstract class BridgeClient {
         NATIVE_LIB_DIR_PATH = getNativeLibDirPath();
         FONT_DIR = getFontDir();
         ICU_DATA_PATH = getIcuDataPath();
+        HYPHEN_DATA_DIR = getHyphenDataDir();
         KEYBOARD_DIR = getKeyboardDir();
     }
 
@@ -193,6 +196,15 @@ public abstract class BridgeClient {
             icuDataPath = PLATFORM_DIR + "/../../../../../com.android.i18n/etc/icu/icudt75l.dat";
         }
         return icuDataPath;
+    }
+
+    private static String getHyphenDataDir() {
+        String hyphenDataDir = System.getProperty(HYPHEN_DATA_DIR_PROPERTY);
+        if (hyphenDataDir == null) {
+            hyphenDataDir = PLATFORM_DIR +
+                    "/../../../../../../common/obj/PACKAGING/hyphen_intermediates";
+        }
+        return hyphenDataDir;
     }
 
     private static String getKeyboardDir() {
@@ -373,7 +385,8 @@ public abstract class BridgeClient {
         String[] keyboardPaths = new String[0];
         sBridge = new Bridge();
         sBridge.init(ConfigGenerator.loadProperties(buildProp), fontLocation, NATIVE_LIB_DIR_PATH,
-                ICU_DATA_PATH, keyboardPaths, ConfigGenerator.getEnumMap(attrs), getLayoutLog());
+                ICU_DATA_PATH, HYPHEN_DATA_DIR, keyboardPaths, ConfigGenerator.getEnumMap(attrs),
+                getLayoutLog());
         Bridge.getLock().lock();
         try {
             Bridge.setLog(getLayoutLog());

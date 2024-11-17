@@ -270,6 +270,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.text.TextRunShaper",
         "android.os.SystemProperties",
         "android.text.AndroidCharacter",
+        "android.text.Hyphenator",
         "android.util.EventLog",
         "android.util.Log",
         "android.util.PathParser",
