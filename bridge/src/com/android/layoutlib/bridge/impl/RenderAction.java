@@ -508,6 +508,8 @@ public abstract class RenderAction<T extends RenderParams> {
                 animationHandler.mAnimationCallbacks.clear();
                 animationHandler.mCommitCallbacks.clear();
             }
+            // Clear the ThreadLocal to avoid memory leaks
+            sCurrentContext.getAnimationHandlerThreadLocal().remove();
         }
 
         sCurrentContext = null;
