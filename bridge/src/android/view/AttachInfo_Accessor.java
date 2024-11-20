@@ -67,6 +67,7 @@ public class AttachInfo_Accessor {
                     ((Layout)view).getInsetsFrameProviders());
         }
         view.dispatchAttachedToWindow(info, 0);
+        root.mTmpFrames.displayFrame.set(wm.getCurrentWindowMetrics().getBounds());
         return renderer;
     }
 
