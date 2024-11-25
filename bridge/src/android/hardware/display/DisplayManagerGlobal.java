@@ -36,12 +36,18 @@ import android.view.DisplayInfo;
 import android.view.Surface;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public final class DisplayManagerGlobal {
     public static final int EVENT_DISPLAY_ADDED = 1;
     public static final int EVENT_DISPLAY_CHANGED = 2;
     public static final int EVENT_DISPLAY_REMOVED = 3;
     public static final int EVENT_DISPLAY_BRIGHTNESS_CHANGED = 4;
+    public static final int EVENT_DISPLAY_HDR_SDR_RATIO_CHANGED = 5;
+    public static final int EVENT_DISPLAY_CONNECTED = 6;
+    public static final int EVENT_DISPLAY_DISCONNECTED = 7;
+    public static final int EVENT_DISPLAY_REFRESH_RATE_CHANGED = 8;
+    public static final int EVENT_DISPLAY_STATE_CHANGED = 9;
 
     private static DisplayManagerGlobal sInstance;
 
@@ -82,7 +88,10 @@ public final class DisplayManagerGlobal {
     }
 
     public void registerDisplayListener(@NonNull DisplayListener listener,
-            @Nullable Handler handler, long eventsMask) {}
+            @Nullable Handler handler, long internalEventFlagsMask, String packageName) {}
+
+    public void registerDisplayListener(@NonNull DisplayListener listener,
+            @NonNull Executor executor, long internalEventFlagsMask, String packageName) {}
 
     public void unregisterDisplayListener(DisplayListener listener) {}
 
