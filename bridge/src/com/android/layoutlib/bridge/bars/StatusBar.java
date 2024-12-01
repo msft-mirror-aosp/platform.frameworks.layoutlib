@@ -103,8 +103,15 @@ public class StatusBar extends CustomBar {
             return;
         }
 
-        int foregroundColor =
-                isEdgeToEdge ? DARK_ICON_COLOR : getForegroundColor(simulatedPlatformVersion);
+        int foregroundColor;
+        if (isEdgeToEdge) {
+            boolean isLightTheme =
+                    ResourceHelper.getBooleanThemeFrameworkAttrValue(context.getRenderResources(),
+                            "isLightTheme", false);
+            foregroundColor = isLightTheme ? DARK_ICON_COLOR : LIGHT_ICON_COLOR;
+        } else {
+            foregroundColor = getForegroundColor(simulatedPlatformVersion);
+        }
         // Cannot access the inside items through id because no R.id values have been
         // created for them.
         // We do know the order though.
