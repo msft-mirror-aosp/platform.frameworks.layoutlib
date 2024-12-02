@@ -81,7 +81,7 @@ cc_library_host_shared {
     stl: "libc++_static",
     target: {
         linux: {
-            version_script: "jni/linux/layoutlib_jni.map.txt",
+            version_script: "jni/linux/layoutlib_jni_export.txt",
         },
         windows: {
             enabled: true,
