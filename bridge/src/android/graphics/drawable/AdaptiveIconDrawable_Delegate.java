@@ -17,6 +17,7 @@
 package android.graphics.drawable;
 
 import com.android.internal.R;
+import com.android.launcher3.icons.MonochromeIconFactory_Accessor;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
@@ -42,11 +43,22 @@ public class AdaptiveIconDrawable_Delegate {
 
     @LayoutlibDelegate
     public static void draw(AdaptiveIconDrawable thisDrawable, Canvas canvas) {
-        Resources res = Resources.getSystem();
         BridgeContext context = RenderAction.getCurrentContext();
-        if (context.useThemedIcon() && thisDrawable.getMonochrome() != null) {
+        if (context.useThemedIcon()) {
+            Drawable mono = thisDrawable.getMonochrome();
+            if (mono == null && !context.forceMonochromeIcon()) {
+                thisDrawable.draw_Original(canvas);
+                return;
+            }
+            int[] colors = getColors();
+            if (mono != null) {
+                mono.mutate();
+                mono.setTint(colors[1]);
+            } else {
+                mono = MonochromeIconFactory_Accessor.getMonochromeIcon(thisDrawable, colors[1]);
+            }
             AdaptiveIconDrawable themedIcon =
-                    createThemedVersionFromMonochrome(thisDrawable.getMonochrome(), res);
+                    new AdaptiveIconDrawable(new ColorDrawable(colors[0]), mono);
             themedIcon.onBoundsChange(thisDrawable.getBounds());
             themedIcon.draw_Original(canvas);
         } else {
@@ -54,26 +66,16 @@ public class AdaptiveIconDrawable_Delegate {
         }
     }
 
-    /**
-     * This builds the themed version of {@link AdaptiveIconDrawable}, copying what the
-     * framework does in {@link com.android.launcher3.Utilities#getFullDrawable}
-     */
-    private static AdaptiveIconDrawable createThemedVersionFromMonochrome(Drawable mono,
-            Resources resources) {
-        mono = mono.mutate();
-        int[] colors = getColors(resources);
-        mono.setTint(colors[1]);
-        return new AdaptiveIconDrawable(new ColorDrawable(colors[0]), mono);
-    }
-
-    private static int[] getColors(Resources resources) {
+    // Adapted from com.android.launcher3.icons.ThemedIconDrawable
+    private static int[] getColors() {
+        Resources resources = Resources.getSystem();
         int[] colors = new int[2];
         if (resources.getConfiguration().isNightModeActive()) {
-            colors[0] = resources.getColor(android.R.color.system_neutral1_800, null);
-            colors[1] = resources.getColor(android.R.color.system_accent1_100, null);
+            colors[0] = resources.getColor(android.R.color.system_accent2_800, null);
+            colors[1] = resources.getColor(android.R.color.system_accent1_200, null);
         } else {
             colors[0] = resources.getColor(android.R.color.system_accent1_100, null);
-            colors[1] = resources.getColor(android.R.color.system_neutral2_700, null);
+            colors[1] = resources.getColor(android.R.color.system_accent1_700, null);
         }
         return colors;
     }
