@@ -165,6 +165,7 @@ public class NativeConfig {
             "android.os.SystemProperties",
             "android.os.Trace",
             "android.text.AndroidCharacter",
+            "android.text.Hyphenator",
             "android.util.EventLog",
             "android.util.Log",
             "android.view.KeyCharacterMap",
