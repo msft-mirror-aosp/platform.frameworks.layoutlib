@@ -180,7 +180,7 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
-    public float getBrightnessConstraint(int constraint) {
+    public float getBrightnessConstraint(int displayId, int constraint) {
         return PowerManager.BRIGHTNESS_MAX;
     }
 

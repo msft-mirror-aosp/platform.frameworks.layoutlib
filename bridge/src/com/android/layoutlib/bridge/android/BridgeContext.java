@@ -206,6 +206,7 @@ public class BridgeContext extends Context {
     private PackageManager mPackageManager;
     private Boolean mIsThemeAppCompat;
     private boolean mUseThemedIcon;
+    private boolean mForceMonochromeIcon;
     private Context mApplicationContext;
     private AccessibilityManager mAccessibilityManager;
     private final ResourceNamespace mAppCompatNamespace;
@@ -2316,6 +2317,14 @@ public class BridgeContext extends Context {
 
     public void setUseThemedIcon(boolean useThemedIcon) {
         mUseThemedIcon = useThemedIcon;
+    }
+
+    public boolean forceMonochromeIcon() {
+        return mForceMonochromeIcon;
+    }
+
+    public void setForceMonochromeIcon(boolean forceMonochromeIcon) {
+        mForceMonochromeIcon = forceMonochromeIcon;
     }
 
     public void applyWallpaper(String wallpaperPath) {
