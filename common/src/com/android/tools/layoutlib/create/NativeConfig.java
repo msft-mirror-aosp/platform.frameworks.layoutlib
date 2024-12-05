@@ -27,7 +27,6 @@ public class NativeConfig {
     public final static String[] DEFERRED_STATIC_INITIALIZER_CLASSES = new String [] {
             "android.graphics.PathIterator",
             "android.graphics.Typeface",
-            "android.graphics.text.PositionedGlyphs",
     };
 
     public static final String[] DELEGATE_METHODS = new String[] {
@@ -165,8 +164,8 @@ public class NativeConfig {
             "android.content.res.StringBlock",
             "android.content.res.XmlBlock",
             "android.os.SystemProperties",
-            "android.os.Trace",
             "android.text.AndroidCharacter",
+            "android.text.Hyphenator",
             "android.util.EventLog",
             "android.util.Log",
             "android.view.MotionEvent",

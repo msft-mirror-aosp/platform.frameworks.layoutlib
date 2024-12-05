@@ -117,6 +117,7 @@ public class Main {
                         "android.graphics.*",
                         "android.graphics.drawable.**",
                         "android.icu.**",                   // needed by LayoutLib
+                        "android.media.MediaCryptoException",    // needed by ExoPlayer
                         "android.os.*",  // for android.os.Handler
                         "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
                         "android.pim.*", // for datepicker
@@ -133,6 +134,7 @@ public class Main {
                         "com.android.internal.util.*",
                         "com.android.internal.view.menu.ActionMenu",
                         "com.android.internal.widget.*",
+                        "com.android.launcher3.icons.*",
                         "com.android.systemui.monet.**",     // needed for dynamic theming
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
