@@ -64,7 +64,7 @@
     <orderEntry type="module-library" scope="RUNTIME">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/atf/atf-prebuilt-jars-557133692/linux_glibc_common/combined/atf-prebuilt-jars-557133692.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/prebuilts/misc/common/atf/atf-prebuilt-jars-557133692/linux_glibc_common/local-combined/atf-prebuilt-jars-557133692.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
