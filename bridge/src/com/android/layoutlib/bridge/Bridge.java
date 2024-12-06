@@ -52,6 +52,7 @@ import android.icu.util.ULocale;
 import android.os.Looper;
 import android.os.Looper_Accessor;
 import android.os.SystemProperties;
+import android.text.Hyphenator;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -170,25 +171,27 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
     private static ILayoutLog sCurrentLog = sDefaultLog;
 
     private static String sIcuDataPath;
+    private static String sHyphenDataDir;
     private static String[] sKeyboardPaths;
 
     private static final String[] LINUX_NATIVE_LIBRARIES = {"layoutlib_jni.so"};
     private static final String[] MAC_NATIVE_LIBRARIES = {"layoutlib_jni.dylib"};
     private static final String[] WINDOWS_NATIVE_LIBRARIES =
-            {"libicuuc_stubdata.dll", "libicuuc-host.dll", "libandroid_runtime.dll",
-                    "layoutlib_jni.dll"};
+            {"libandroid_runtime.dll", "layoutlib_jni.dll"};
 
     @Override
     public boolean init(Map<String, String> platformProperties,
             File fontLocation,
             String nativeLibPath,
             String icuDataPath,
+            String hyphenDataDir,
             String[] keyboardPaths,
             Map<String, Map<String, Integer>> enumValueMap,
             ILayoutLog log) {
         sPlatformProperties = platformProperties;
         sEnumValueMap = enumValueMap;
         sIcuDataPath = icuDataPath;
+        sHyphenDataDir = hyphenDataDir;
         sKeyboardPaths = keyboardPaths;
         sCurrentLog = log;
 
@@ -258,6 +261,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             // Load system fonts now that Typeface has been initialized
             Typeface.loadPreinstalledSystemFontMap();
             ParserFactory.setParserFactory(null);
+            Hyphenator.init();
         } catch (Throwable t) {
             if (log != null) {
                 log.error(ILayoutLog.TAG_BROKEN, "Layoutlib Bridge initialization failed", t,
@@ -336,6 +340,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             SystemProperties.set(property.getKey(), property.getValue());
         }
         SystemProperties.set("ro.icu.data.path", Bridge.getIcuDataPath());
+        SystemProperties.set("ro.hyphen.data.dir", sHyphenDataDir);
         SystemProperties.set("ro.keyboard.paths", String.join(",", sKeyboardPaths));
     }
 
@@ -798,8 +803,9 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
                     NativeConfig.CORE_CLASS_NATIVES));
             System.setProperty("graphics_native_classes", String.join(",",
                     NativeConfig.GRAPHICS_CLASS_NATIVES));
-            System.setProperty("use_bridge_for_logging", "true");
-            System.setProperty("register_properties_during_load", "true");
+            // This is needed on Windows to avoid creating HostRuntime when loading
+            // libandroid_runtime.dll.
+            System.setProperty("use_base_native_hostruntime", "false");
             for (String library : getNativeLibraries()) {
                 String path = new File(nativeLibDir, library).getAbsolutePath();
                 System.load(path);
