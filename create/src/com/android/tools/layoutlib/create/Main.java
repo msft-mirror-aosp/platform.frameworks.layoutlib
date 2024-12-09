@@ -104,6 +104,9 @@ public class Main {
                         "android.app.Fragment",
                         "android.view.View",
                     },
+                    new String[] {                          // exclude from derived
+                        "androidx.**",
+                    },
                     new String[] {                          // include classes
                         "android.*", // for android.R
                         "android.annotation.NonNull",       // annotations
@@ -134,6 +137,7 @@ public class Main {
                         "com.android.internal.util.*",
                         "com.android.internal.view.menu.ActionMenu",
                         "com.android.internal.widget.*",
+                        "com.android.launcher3.icons.MonochromeIconFactory",
                         "com.android.systemui.monet.**",     // needed for dynamic theming
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
