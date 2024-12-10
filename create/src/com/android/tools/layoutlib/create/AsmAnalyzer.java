@@ -96,6 +96,8 @@ public class AsmAnalyzer {
     private final List<String> mOsSourceJar;
     /** Keep all classes that derive from these one (these included). */
     private final String[] mDeriveFrom;
+    /** Glob patterns of classes to not consider when deriving classes from {@link #mDeriveFrom}. */
+    private final String[] mExcludeFromDerivedGlobs;
     /** Glob patterns of classes to keep, e.g. "com.foo.*" */
     private final String[] mIncludeGlobs;
     /** Glob patterns of classes to exclude.*/
@@ -112,16 +114,21 @@ public class AsmAnalyzer {
      * @param log The log output.
      * @param osJarPath The input source JARs to parse.
      * @param deriveFrom Keep all classes that derive from these one (these included).
+     * @param excludeFromDerivedGlobs Glob patterns of classes to not consider when deriving
+     *        classes.
      * @param includeGlobs Glob patterns of classes to keep, e.g. "com.foo.*"
-*        ("*" does not matches dots whilst "**" does, "." and "$" are interpreted as-is)
+     *        ("*" does not matches dots whilst "**" does, "." and "$" are interpreted as-is)
      * @param includeFileGlobs Glob patterns of files which are kept as is. This is only for files
      * @param methodReplacers names of method calls that need to be rewritten
      */
-    public AsmAnalyzer(Log log, List<String> osJarPath, String[] deriveFrom, String[] includeGlobs,
-            String[] excludedGlobs, String[] includeFileGlobs, MethodReplacer[] methodReplacers) {
+    public AsmAnalyzer(Log log, List<String> osJarPath, String[] deriveFrom,
+            String[] excludeFromDerivedGlobs, String[] includeGlobs, String[] excludedGlobs,
+            String[] includeFileGlobs, MethodReplacer[] methodReplacers) {
         mLog = log;
         mOsSourceJar = osJarPath != null ? osJarPath : new ArrayList<>();
         mDeriveFrom = deriveFrom != null ? deriveFrom : new String[0];
+        mExcludeFromDerivedGlobs = excludeFromDerivedGlobs != null ? excludeFromDerivedGlobs :
+                new String[0];
         mIncludeGlobs = includeGlobs != null ? includeGlobs : new String[0];
         mExcludedGlobs = excludedGlobs != null ? excludedGlobs : new String[0];
         mIncludeFileGlobs = includeFileGlobs != null ? includeFileGlobs : new String[0];
@@ -149,7 +156,8 @@ public class AsmAnalyzer {
 
 
         Map<String, ClassReader> found = new HashMap<>();
-        findIncludes(mLog, includePatterns, mDeriveFrom, zipClasses, entry -> {
+        findIncludes(mLog, includePatterns, mDeriveFrom, mExcludeFromDerivedGlobs, zipClasses,
+                entry -> {
             if (!matchesAny(entry.getKey(), excludePatterns)) {
                 found.put(entry.getKey(), entry.getValue());
             }
@@ -273,7 +281,8 @@ public class AsmAnalyzer {
      * This updates the in_out_found map.
      */
     private static void findIncludes(@NotNull Log log, @NotNull Pattern[] includePatterns,
-            @NotNull String[] deriveFrom, @NotNull Map<String, ClassReader> zipClasses,
+            @NotNull String[] deriveFrom, @NotNull String[] excludeFromDerivedGlobs,
+            @NotNull Map<String, ClassReader> zipClasses,
             @NotNull Consumer<Entry<String, ClassReader>> newInclude) throws FileNotFoundException {
         TreeMap<String, ClassReader> found = new TreeMap<>();
 
@@ -284,7 +293,7 @@ public class AsmAnalyzer {
                 .forEach(entry -> found.put(entry.getKey(), entry.getValue()));
 
         for (String entry : deriveFrom) {
-            findClassesDerivingFrom(entry, zipClasses, found);
+            findClassesDerivingFrom(entry, zipClasses, excludeFromDerivedGlobs, found);
         }
 
         found.entrySet().forEach(newInclude);
@@ -332,12 +341,16 @@ public class AsmAnalyzer {
      * Inserts the super class and all the class objects found in the map.
      */
     static void findClassesDerivingFrom(String super_name, Map<String, ClassReader> zipClasses,
-            Map<String, ClassReader> inOutFound) throws FileNotFoundException {
+            String[] excludeFromDerivedGlobs, Map<String, ClassReader> inOutFound)
+            throws FileNotFoundException {
         findClass(super_name, zipClasses, inOutFound);
 
+        Pattern[] excludeFromDerivedPatterns = Arrays.stream(excludeFromDerivedGlobs).parallel()
+                .map(AsmAnalyzer::getPatternFromGlob)
+                .toArray(Pattern[]::new);
         for (Entry<String, ClassReader> entry : zipClasses.entrySet()) {
             String className = entry.getKey();
-            if (super_name.equals(className)) {
+            if (super_name.equals(className) || matchesAny(className, excludeFromDerivedPatterns)) {
                 continue;
             }
             ClassReader classReader = entry.getValue();

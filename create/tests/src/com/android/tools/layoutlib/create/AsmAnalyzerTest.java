@@ -55,7 +55,7 @@ public class AsmAnalyzerTest {
 
     private static AsmAnalyzer getDefaultAnalyzer() {
         MockLog log = new MockLog();
-        return new AsmAnalyzer(log, MOCK_ANDROID_JAR, null ,
+        return new AsmAnalyzer(log, MOCK_ANDROID_JAR, null , null,
                 null /* includeGlobs */, DEFAULT_EXCLUDES, DEFAULT_INCLUDE_FILES,
                 new MethodReplacer[] {});
     }
@@ -122,7 +122,7 @@ public class AsmAnalyzerTest {
 
     @Test
     public void testInclude() throws IOException {
-        AsmAnalyzer analyzer = new AsmAnalyzer(new MockLog(), MOCK_ANDROID_JAR, null,
+        AsmAnalyzer analyzer = new AsmAnalyzer(new MockLog(), MOCK_ANDROID_JAR, null, null,
                 new String[] {
                     "mock_android.util.EmptyArray", // Single class select
                     "mock_android.fake.**", // Multi package select
@@ -161,13 +161,12 @@ public class AsmAnalyzerTest {
         getDefaultAnalyzer().parseZip(MOCK_ANDROID_JAR, zipClasses, filesFound);
         TreeMap<String, ClassReader> found = new TreeMap<>();
 
-        AsmAnalyzer.findClassesDerivingFrom("mock_android.view.View", zipClasses, found);
+        AsmAnalyzer.findClassesDerivingFrom("mock_android.view.View", zipClasses,
+                new String[] { "mock_android.widget.*" }, found);
 
         assertArrayEquals(new String[] {
                 "mock_android.view.View",
                 "mock_android.view.ViewGroup",
-                "mock_android.widget.LinearLayout",
-                "mock_android.widget.TableLayout",
             },
             found.keySet().toArray());
 

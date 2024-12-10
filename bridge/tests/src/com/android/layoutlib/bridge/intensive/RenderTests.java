@@ -2066,6 +2066,98 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
+    public void testThemedAdaptiveIconNoMonochrome() throws ClassNotFoundException {
+        // Create the layout pull parser.
+        String layout = """
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                              android:padding="16dp"
+                              android:orientation="horizontal"
+                              android:layout_width="fill_parent"
+                              android:layout_height="fill_parent">
+                    <ImageView
+                             android:layout_height="wrap_content"
+                             android:layout_width="wrap_content"
+                             android:src="@drawable/adaptive_no_monochrome" />
+                </LinearLayout>
+                """;
+        // Create LayoutLibCallback.
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_FORCE_MONOCHROME_ICON, true);
+        renderAndVerify(params, "adaptive_icon_circle.png");
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH,
+                "/com/android/layoutlib/testdata/wallpaper1.webp");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, true);
+        params.setFlag(RenderParamsFlags.FLAG_KEY_FORCE_MONOCHROME_ICON, true);
+        renderAndVerify(params, "adaptive_no_monochrome_orange.png");
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH,
+                "/com/android/layoutlib/testdata/wallpaper2.webp");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, true);
+        params.setFlag(RenderParamsFlags.FLAG_KEY_FORCE_MONOCHROME_ICON, true);
+        renderAndVerify(params, "adaptive_no_monochrome_green.png");
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH,
+                "/com/android/layoutlib/testdata/wallpaper2.webp");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, false);
+        params.setFlag(RenderParamsFlags.FLAG_KEY_FORCE_MONOCHROME_ICON, true);
+        renderAndVerify(params, "adaptive_icon_circle.png");
+
+        params = getSessionParamsBuilder()
+                .setParser(LayoutPullParser.createFromString(layout))
+                .setCallback(layoutLibCallback)
+                .setTheme("Theme.Material.NoActionBar.Fullscreen", false)
+                .setRenderingMode(RenderingMode.V_SCROLL)
+                .build();
+        params.setFlag(RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH,
+                "M50 0C77.6 0 100 22.4 100 50C100 77.6 77.6 100 50 100C22.4 100 0 77.6 0 50C0 " +
+                        "22.4 22.4 0 50 0Z");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH,
+                "/com/android/layoutlib/testdata/wallpaper2.webp");
+        params.setFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON, true);
+        params.setFlag(RenderParamsFlags.FLAG_KEY_FORCE_MONOCHROME_ICON, false);
+        renderAndVerify(params, "adaptive_icon_circle.png");
+    }
+
+    @Test
     public void testHtmlText() throws ClassNotFoundException {
         final String layout = """
                 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
