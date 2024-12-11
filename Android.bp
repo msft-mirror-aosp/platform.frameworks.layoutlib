@@ -71,6 +71,7 @@ cc_library_host_shared {
     ],
     header_libs: [
         "libbase_headers",
+        "libbinderstub_headers",
         "libhostgraphics_headers",
         "libnativebase_headers",
         "libnativedisplay_headers",
@@ -79,14 +80,13 @@ cc_library_host_shared {
     shared_libs: [
         "libandroid_runtime",
     ],
-    static_libs: [
-        "libhostgraphics",
-        "libinput",
-    ],
     stl: "libc++_static",
     target: {
         linux: {
             version_script: "jni/linux/layoutlib_jni_export.txt",
+        },
+        windows: {
+            enabled: true,
         },
         darwin: {
             ldflags: ["-Wl,-exported_symbols_list,frameworks/layoutlib/jni/darwin/layoutlib_jni_export.exp"],
@@ -99,6 +99,13 @@ cc_library_host_shared {
             dist: {
                 targets: ["layoutlib"],
                 dir: "layoutlib_native/linux",
+                tag: "stripped_all",
+            },
+        },
+        windows_x86_64: {
+            dist: {
+                targets: ["layoutlib"],
+                dir: "layoutlib_native/windows",
                 tag: "stripped_all",
             },
         },

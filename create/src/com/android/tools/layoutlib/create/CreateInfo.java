@@ -274,6 +274,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.util.EventLog",
         "android.util.Log",
         "android.util.PathParser",
+        "android.view.KeyCharacterMap",
+        "android.view.KeyEvent",
         "android.view.MotionEvent",
         "android.view.Surface",
         "android.view.VelocityTracker",
