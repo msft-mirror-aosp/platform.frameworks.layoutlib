@@ -35,6 +35,7 @@ java_genrule_host {
         ":core-libart-for-host{.jar}",
         ":framework-all{.jar}",
         ":ext{.jar}",
+        ":iconloader_base{.jar}",
         ":icu4j-icudata-jarjar{.jar}", // HOST
         ":icu4j-icutzdata-jarjar{.jar}", // HOST
         ":monet{.jar}",
@@ -50,6 +51,7 @@ java_device_for_host {
         "core-libart-for-host",
         "ext",
         "framework-all",
+        "iconloader_base",
         "icu4j-icudata-jarjar",
         "icu4j-icutzdata-jarjar",
         "monet",

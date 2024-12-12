@@ -240,6 +240,11 @@ public class WindowManagerImpl implements WindowManager {
     }
 
     @Override
+    public KeyboardShortcutGroup getApplicationLaunchKeyboardShortcuts(int deviceId) {
+        return new KeyboardShortcutGroup("", new ArrayList<>());
+    }
+
+    @Override
     public void requestAppKeyboardShortcuts(
             KeyboardShortcutsReceiver receiver, int deviceId) {
     }
