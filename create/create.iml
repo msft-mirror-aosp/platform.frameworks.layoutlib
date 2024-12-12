@@ -80,5 +80,32 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library" scope="RUNTIME">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/external/icu/icu4j/icu4j-icudata-jarjar/linux_glibc_common/jarjar/icu4j-icudata-jarjar.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="RUNTIME">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/external/icu/icu4j/icu4j-icutzdata-jarjar/linux_glibc_common/jarjar/icu4j-icutzdata-jarjar.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../out/soong/.intermediates/frameworks/libs/systemui/iconloaderlib/iconloader_base/android_common/withres/iconloader_base.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
