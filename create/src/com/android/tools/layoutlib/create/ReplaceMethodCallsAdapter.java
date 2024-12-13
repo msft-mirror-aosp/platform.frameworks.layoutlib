@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public class ReplaceMethodCallsAdapter extends ClassVisitor {
 
-    private Set<MethodReplacer> mMethodReplacers;
+    private final Set<MethodReplacer> mMethodReplacers;
     private final String mOriginalClassName;
 
     public ReplaceMethodCallsAdapter(Set<MethodReplacer> methodReplacers, ClassVisitor cv, String originalClassName) {
@@ -47,7 +47,7 @@ public class ReplaceMethodCallsAdapter extends ClassVisitor {
 
     private class MyMethodVisitor extends MethodVisitor {
 
-        public MyMethodVisitor(MethodVisitor mv) {
+        private MyMethodVisitor(MethodVisitor mv) {
             super(Main.ASM_VERSION, mv);
         }
 

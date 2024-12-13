@@ -30,7 +30,6 @@ import com.android.resources.ResourceType;
 
 import android.annotation.NonNull;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -52,6 +51,16 @@ import static android.os._Original_Build.VERSION_CODES.LOLLIPOP;
  * It also provides a few utility methods to configure the content of the layout.
  */
 abstract class CustomBar extends LinearLayout {
+    /**
+     * Color corresponding to light_mode_icon_color_single_tone
+     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
+     */
+    protected static final int LIGHT_ICON_COLOR = 0xffffffff;
+    /**
+     * Color corresponding to dark_mode_icon_color_single_tone
+     * from frameworks/base/packages/SettingsLib/res/values/colors.xml
+     */
+    protected static final int DARK_ICON_COLOR = 0x99000000;
     private final int mSimulatedPlatformVersion;
 
     protected CustomBar(BridgeContext context, int orientation, String layoutName,
@@ -76,7 +85,7 @@ abstract class CustomBar extends LinearLayout {
 
     protected abstract TextView getStyleableTextView();
 
-    protected BridgeXmlBlockParser loadXml(String layoutName) {
+    private BridgeXmlBlockParser loadXml(String layoutName) {
         return SysUiResources.loadXml((BridgeContext) mContext, mSimulatedPlatformVersion,
                 layoutName);
     }
@@ -86,12 +95,12 @@ abstract class CustomBar extends LinearLayout {
                 density, false, color);
     }
 
-    protected ImageView loadIcon(int index, String iconName, Density density, boolean isRtl) {
+    protected ImageView loadIcon(int index, String iconName, Density density, boolean isRtl,
+            int color) {
         View child = getChildAt(index);
-        if (child instanceof ImageView) {
-            ImageView imageView = (ImageView) child;
+        if (child instanceof ImageView imageView) {
             return SysUiResources.loadIcon(mContext, mSimulatedPlatformVersion, imageView, iconName,
-                    density, isRtl, Color.WHITE);
+                    density, isRtl, color);
         }
 
         return null;
@@ -99,8 +108,7 @@ abstract class CustomBar extends LinearLayout {
 
     protected TextView setText(int index, String string) {
         View child = getChildAt(index);
-        if (child instanceof TextView) {
-            TextView textView = (TextView) child;
+        if (child instanceof TextView textView) {
             textView.setText(string);
             return textView;
         }
@@ -116,11 +124,9 @@ abstract class CustomBar extends LinearLayout {
                 res.findItemInTheme(BridgeContext.createFrameworkAttrReference(themeEntryName));
         value = res.resolveResValue(value);
 
-        if (!(value instanceof StyleResourceValue)) {
+        if (!(value instanceof StyleResourceValue style)) {
             return;
         }
-
-        StyleResourceValue style = (StyleResourceValue) value;
 
         // get the background
         ResourceValue backgroundValue = res.findItemInStyle(style,
@@ -139,8 +145,7 @@ abstract class CustomBar extends LinearLayout {
             ResourceValue textStyleValue = res.findItemInStyle(style,
                     BridgeContext.createFrameworkAttrReference("titleTextStyle"));
             textStyleValue = res.resolveResValue(textStyleValue);
-            if (textStyleValue instanceof StyleResourceValue) {
-                StyleResourceValue textStyle = (StyleResourceValue) textStyleValue;
+            if (textStyleValue instanceof StyleResourceValue textStyle) {
 
                 ResourceValue textSize = res.findItemInStyle(textStyle,
                         BridgeContext.createFrameworkAttrReference("textSize"));
