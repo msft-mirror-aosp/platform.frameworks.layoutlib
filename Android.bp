@@ -80,8 +80,13 @@ cc_library_host_shared {
         "libandroid_runtime",
     ],
     static_libs: [
+        "libbase",
+        "libbinder",
+        "libcutils",
         "libhostgraphics",
         "libinput",
+        "libui-types",
+        "libutils",
     ],
     stl: "libc++_static",
     target: {
