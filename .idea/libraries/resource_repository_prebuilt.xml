@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="resource-repository-prebuilt">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../prebuilts/misc/common/resource-repository/resource-repository-prebuilt.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
