@@ -30,13 +30,15 @@ java_genrule_host {
     tools: ["layoutlib_create"],
     out: ["temp_layoutlib.jar"],
     srcs: [
-        ":atf-prebuilt-557133692{.jar}",
+        ":atf-prebuilt-557133692{.jar}", // HOST
+        ":icu4j-icudata-jarjar{.jar}", // HOST
+        ":icu4j-icutzdata-jarjar{.jar}", // HOST
+    ],
+    device_common_srcs: [
         ":core-icu4j-for-host{.jar}",
         ":core-libart-for-host{.jar}",
         ":framework-all{.jar}",
         ":ext{.jar}",
-        ":icu4j-icudata-jarjar{.jar}", // HOST
-        ":icu4j-icutzdata-jarjar{.jar}", // HOST
         ":monet{.jar}",
     ],
     cmd: "rm -f $(out) && $(location layoutlib_create) --create-stub $(out) $(in)",
@@ -54,4 +56,45 @@ java_device_for_host {
         "icu4j-icutzdata-jarjar",
         "monet",
     ],
+}
+
+cc_library_host_shared {
+    name: "layoutlib_jni",
+    srcs: [
+        "jni/android_view_LayoutlibRenderer.cpp",
+        "jni/LayoutlibLoader.cpp",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    header_libs: [
+        "libnativebase_headers",
+        "libnativedisplay_headers",
+        "libnativewindow_headers",
+    ],
+    shared_libs: [
+        "libandroid_runtime",
+    ],
+    static_libs: [
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "libharfbuzz_ng",
+        "libhostgraphics",
+        "libhwui",
+        "libicui18n",
+        "libicuuc",
+        "libicuuc_stubdata",
+        "libimage_io",
+        "libinput",
+        "liblog",
+        "libjpegdecoder",
+        "libjpegencoder",
+        "libminikin",
+        "libnativehelper_jvm",
+        "libui-types",
+        "libultrahdr",
+        "libutils",
+    ],
+    stl: "libc++_static",
 }

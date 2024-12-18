@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package android.view;
+package android.app;
 
-import com.android.tools.layoutlib.annotations.NotNull;
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-import android.view.DisplayEventReceiver.VsyncEventData;
+import android.os.IBinder;
 
-public class DisplayEventReceiver_VsyncEventData_Accessor {
-    private static VsyncEventData sVsyncEventData;
+public class IUiModeManager_Stub_Delegate {
+    private static final IUiModeManager sStubManager = new IUiModeManager.Default();
 
-    @NotNull
-    public static VsyncEventData getVsyncEventDataInstance() {
-        if (sVsyncEventData == null) {
-            sVsyncEventData = new VsyncEventData();
-        }
-        return sVsyncEventData;
+    @LayoutlibDelegate
+    public static IUiModeManager asInterface(IBinder obj) {
+        return sStubManager;
     }
 }

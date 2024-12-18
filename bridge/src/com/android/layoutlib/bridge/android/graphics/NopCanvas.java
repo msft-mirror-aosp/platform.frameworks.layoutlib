@@ -17,6 +17,7 @@
 package com.android.layoutlib.bridge.android.graphics;
 
 import android.graphics.Bitmap;
+import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.NinePatch;
@@ -26,16 +27,17 @@ import android.graphics.Picture;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.RenderNode;
+import android.graphics.fonts.Font;
+import android.graphics.text.MeasuredText;
 
 /**
  * Canvas implementation that does not do any rendering
  */
 public class NopCanvas extends Canvas {
-    private boolean mIsInitialized = false;
 
     public NopCanvas() {
         super();
-        mIsInitialized = true;
     }
 
     @Override
@@ -308,5 +310,41 @@ public class NopCanvas extends Canvas {
     @Override
     public boolean quickReject(float left, float top, float right, float bottom) {
         return false;
+    }
+
+    @Override
+    public void drawColor(long color) {
+    }
+
+    @Override
+    public void drawColor(int color, BlendMode mode) {
+    }
+
+    @Override
+    public void drawColor(long color, BlendMode mode) {
+    }
+
+    @Override
+    public void drawDoubleRoundRect(RectF outer, float outerRx, float outerRy,
+            RectF inner, float innerRx, float innerRy, Paint paint) {
+    }
+
+    @Override
+    public void drawDoubleRoundRect(RectF outer, float[] outerRadii,
+            RectF inner, float[] innerRadii, Paint paint) {
+    }
+
+    @Override
+    public void drawGlyphs(int[] glyphIds, int glyphIdOffset, float[] positions,
+            int positionOffset, int glyphCount, Font font, Paint paint) {
+    }
+
+    @Override
+    public void drawTextRun(MeasuredText text, int start, int end, int contextStart,
+            int contextEnd, float x, float y, boolean isRtl, Paint paint) {
+    }
+
+    @Override
+    public void drawRenderNode(RenderNode renderNode) {
     }
 }

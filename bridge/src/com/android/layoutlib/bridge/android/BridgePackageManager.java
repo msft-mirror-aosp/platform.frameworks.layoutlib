@@ -19,6 +19,7 @@ package com.android.layoutlib.bridge.android;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -55,6 +56,7 @@ import android.os.PersistableBundle;
 import android.os.UserHandle;
 import android.os.storage.VolumeInfo;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,6 +65,12 @@ import java.util.List;
  */
 @SuppressWarnings("deprecation")
 public class BridgePackageManager extends PackageManager {
+    private final WeakReference<Context> mContextRef;
+
+    public BridgePackageManager(Context context) {
+        mContextRef = new WeakReference<>(context);
+    }
+
     @Override
     public PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException {
         return null;
@@ -82,13 +90,13 @@ public class BridgePackageManager extends PackageManager {
 
     @Override
     public List<SharedLibraryInfo> getSharedLibraries(@InstallFlags int flags) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<SharedLibraryInfo> getSharedLibrariesAsUser(@InstallFlags int flags,
             int userId) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -176,12 +184,42 @@ public class BridgePackageManager extends PackageManager {
     @Override
     public ApplicationInfo getApplicationInfo(String packageName, int flags)
             throws NameNotFoundException {
+        Context context = mContextRef.get();
+        if (context != null) {
+            return context.getApplicationInfo();
+        }
+        throw new NameNotFoundException("PackageManager features are not supported");
+    }
+
+    @NonNull
+    @Override
+    public ApplicationInfo getApplicationInfo(@NonNull String packageName,
+            @NonNull ApplicationInfoFlags flags) throws NameNotFoundException {
+        Context context = mContextRef.get();
+        if (context != null) {
+            return context.getApplicationInfo();
+        }
         throw new NameNotFoundException("PackageManager features are not supported");
     }
 
     @Override
     public ApplicationInfo getApplicationInfoAsUser(String packageName, int flags, int userId)
             throws NameNotFoundException {
+        Context context = mContextRef.get();
+        if (context != null) {
+            return context.getApplicationInfo();
+        }
+        throw new NameNotFoundException("PackageManager features are not supported");
+    }
+
+    @NonNull
+    @Override
+    public ApplicationInfo getApplicationInfoAsUser(@NonNull String packageName,
+            @NonNull ApplicationInfoFlags flags, int userId) throws NameNotFoundException {
+        Context context = mContextRef.get();
+        if (context != null) {
+            return context.getApplicationInfo();
+        }
         throw new NameNotFoundException("PackageManager features are not supported");
     }
 
@@ -354,7 +392,7 @@ public class BridgePackageManager extends PackageManager {
     }
 
     @Override
-    public void clearInstantAppCookie() {;
+    public void clearInstantAppCookie() {
 
     }
 

@@ -32,10 +32,16 @@ import android.R.style;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.os.PowerManager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.IWindowManager;
+import android.view.IWindowManagerImpl;
+import android.view.Surface;
+import android.view.WindowManager;
+import android.view.WindowManagerGlobal_Delegate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -173,7 +179,7 @@ public class BridgeContextTest extends RenderTestBase {
                 params.getTargetSdkVersion(), params.isRtlSupported());
         context.initResources(params.getAssets());
         try {
-            assertEquals(-13749965, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+            assertEquals(-13684682, context.getResources().getColor(android.R.color.system_neutral1_800, null));
 
             ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
                     "/com/android/layoutlib/testdata/wallpaper1.webp",
@@ -266,5 +272,35 @@ public class BridgeContextTest extends RenderTestBase {
         mContext.resolveThemeAttribute(android.R.attr.actionBarSize, outValue, true);
         assertEquals(TypedValue.TYPE_DIMENSION, outValue.type);
         assertEquals(14337, outValue.data);
+    }
+
+    @Test
+    public void testWindowMetrics() throws ClassNotFoundException {
+        LayoutPullParser parser = LayoutPullParser.createFromPath("/empty.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder().setParser(parser).setCallback(layoutLibCallback).setTheme(
+                "Theme.Material", false).build();
+        DisplayMetrics metrics = new DisplayMetrics();
+        Configuration configuration = RenderAction.getConfiguration(params);
+        Rect deviceBounds = new Rect(0, 0, 1080, 1920);
+        assertEquals(deviceBounds, configuration.windowConfiguration.getBounds());
+        assertEquals(deviceBounds, configuration.windowConfiguration.getAppBounds());
+        assertEquals(deviceBounds, configuration.windowConfiguration.getMaxBounds());
+        BridgeContext context =
+                new BridgeContext(params.getProjectKey(), metrics, params.getResources(), params.getAssets(), params.getLayoutlibCallback(), configuration,
+                        params.getTargetSdkVersion(), params.isRtlSupported());
+        context.initResources(params.getAssets());
+
+        try {
+            IWindowManager iwm = new IWindowManagerImpl(context.getConfiguration(),
+                    context.getMetrics(), Surface.ROTATION_0, false);
+            WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
+            WindowManager windowManager = context.getSystemService(WindowManager.class);
+            assertEquals(deviceBounds, windowManager.getCurrentWindowMetrics().getBounds());
+        } finally {
+            context.disposeResources();
+        }
     }
 }

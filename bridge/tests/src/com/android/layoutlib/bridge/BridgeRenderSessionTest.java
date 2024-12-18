@@ -34,4 +34,12 @@ public class BridgeRenderSessionTest {
         assertNotNull(renderSession.getDefaultNamespacedProperties());
         assertNotNull(renderSession.getDefaultNamespacedStyles());
     }
+
+    @Test
+    public void testReleaseImageMovesStatusToNotInflated() {
+        BridgeRenderSession renderSession = new BridgeRenderSession(null, Status.SUCCESS.createResult());
+
+        renderSession.releaseRender();
+        assertEquals(Status.ERROR_NOT_INFLATED, renderSession.getResult().getStatus());
+    }
 }
