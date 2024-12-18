@@ -15,15 +15,11 @@
  */
 package android.view;
 
-import static android.view.View.SYSTEM_UI_FLAG_VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
-import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
+import static com.android.layoutlib.bridge.util.InsetUtil.getCurrentBounds;
 
-import android.app.ResourcesManager;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -31,7 +27,6 @@ import android.graphics.Region;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.view.Display.Mode;
 import android.widget.FrameLayout;
@@ -40,14 +35,18 @@ import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.internal.R;
 import com.android.internal.policy.DecorView;
 import com.android.layoutlib.bridge.Bridge;
+import com.android.layoutlib.bridge.android.BridgeContext;
+import com.android.server.wm.DisplayFrames;
 
 import java.util.ArrayList;
 
 public class WindowManagerImpl implements WindowManager {
-
+    private static final PrivacyIndicatorBounds sPrivacyIndicatorBounds =
+            new PrivacyIndicatorBounds();
     private final Context mContext;
     private final DisplayMetrics mMetrics;
-    private final Display mDisplay;
+    private final DisplayInfo mDisplayInfo;
+    private Display mDisplay;
     /**
      * Root view of the base window, new windows will be added on top of this.
      */
@@ -57,20 +56,20 @@ public class WindowManagerImpl implements WindowManager {
      * null if there is only the base window present.
      */
     private ViewGroup mCurrentRootView;
+    private DisplayFrames mDisplayFrames;
 
-    public WindowManagerImpl(Context context, DisplayMetrics metrics) {
+    public WindowManagerImpl(BridgeContext context, DisplayMetrics metrics) {
         mContext = context;
         mMetrics = metrics;
 
-        DisplayInfo info = new DisplayInfo();
-        info.logicalHeight = mMetrics.heightPixels;
-        info.logicalWidth = mMetrics.widthPixels;
-        info.supportedModes = new Mode[] {
+        mDisplayInfo = new DisplayInfo();
+        mDisplayInfo.logicalHeight = mMetrics.heightPixels;
+        mDisplayInfo.logicalWidth = mMetrics.widthPixels;
+        mDisplayInfo.supportedModes = new Mode[] {
                 new Mode(0, mMetrics.widthPixels, mMetrics.heightPixels, 60f)
         };
-        info.logicalDensityDpi = mMetrics.densityDpi;
-        mDisplay = new Display(null, Display.DEFAULT_DISPLAY, info,
-                DisplayAdjustments.DEFAULT_DISPLAY_ADJUSTMENTS);
+        mDisplayInfo.logicalDensityDpi = mMetrics.densityDpi;
+        mDisplayInfo.displayCutout = DisplayCutout.NO_CUTOUT;
     }
 
     public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
@@ -96,6 +95,10 @@ public class WindowManagerImpl implements WindowManager {
 
     @Override
     public Display getDefaultDisplay() {
+        if (mDisplay == null) {
+            mDisplay = new Display(null, Display.DEFAULT_DISPLAY, mDisplayInfo,
+                    mContext.getResources());
+        }
         return mDisplay;
     }
 
@@ -163,8 +166,7 @@ public class WindowManagerImpl implements WindowManager {
         }
 
         FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(arg1);
-        if (arg1 instanceof WindowManager.LayoutParams) {
-            LayoutParams params = (LayoutParams) arg1;
+        if (arg1 instanceof LayoutParams params) {
             frameLayoutParams.gravity = params.gravity;
             if ((params.flags & LayoutParams.FLAG_DIM_BEHIND) != 0) {
                 mCurrentRootView.setBackgroundColor(Color.argb(params.dimAmount, 0, 0, 0));
@@ -215,11 +217,10 @@ public class WindowManagerImpl implements WindowManager {
         if (view == null) {
             throw new IllegalArgumentException("view must not be null");
         }
-        if (!(params instanceof WindowManager.LayoutParams)) {
+        if (!(params instanceof LayoutParams wparams)) {
             throw new IllegalArgumentException("Params must be WindowManager.LayoutParams");
         }
 
-        WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
         FrameLayout.LayoutParams lparams = new FrameLayout.LayoutParams(params);
         lparams.gravity = wparams.gravity;
         view.setLayoutParams(lparams);
@@ -236,6 +237,11 @@ public class WindowManagerImpl implements WindowManager {
     @Override
     public void removeViewImmediate(View arg0) {
         removeView(arg0);
+    }
+
+    @Override
+    public KeyboardShortcutGroup getApplicationLaunchKeyboardShortcuts(int deviceId) {
+        return new KeyboardShortcutGroup("", new ArrayList<>());
     }
 
     @Override
@@ -270,12 +276,6 @@ public class WindowManagerImpl implements WindowManager {
         return new WindowMetrics(bound, computeWindowInsets());
     }
 
-    private static Rect getCurrentBounds(Context context) {
-        synchronized (ResourcesManager.getInstance()) {
-            return context.getResources().getConfiguration().windowConfiguration.getBounds();
-        }
-    }
-
     @Override
     public WindowMetrics getMaximumWindowMetrics() {
         return new WindowMetrics(getMaximumBounds(), computeWindowInsets());
@@ -283,25 +283,15 @@ public class WindowManagerImpl implements WindowManager {
 
     private Rect getMaximumBounds() {
         final Point displaySize = new Point();
-        mDisplay.getRealSize(displaySize);
+        getDefaultDisplay().getRealSize(displaySize);
         return new Rect(0, 0, displaySize.x, displaySize.y);
     }
 
     private WindowInsets computeWindowInsets() {
-        try {
-            final InsetsState insetsState = new InsetsState();
-            WindowManagerGlobal.getWindowManagerService().getWindowInsets(mContext.getDisplayId(),
-                    null /* token */, insetsState);
-            final Configuration config = mContext.getResources().getConfiguration();
-            final boolean isScreenRound = config.isScreenRound();
-            final int activityType = config.windowConfiguration.getActivityType();
-            return insetsState.calculateInsets(getCurrentBounds(mContext),
-                    null /* ignoringVisibilityState */, isScreenRound, SOFT_INPUT_ADJUST_NOTHING,
-                    0 /* legacySystemUiFlags */, SYSTEM_UI_FLAG_VISIBLE, TYPE_APPLICATION,
-                    activityType, null /* typeSideMap */);
-        } catch (RemoteException ignore) {
+        if (mBaseRootView == null) {
+            return null;
         }
-        return null;
+        return mBaseRootView.getViewRootImpl().getWindowInsets(true);
     }
 
     // ---- Extra methods for layoutlib ----
@@ -331,5 +321,29 @@ public class WindowManagerImpl implements WindowManager {
 
     public ViewGroup getCurrentRootView() {
         return mCurrentRootView;
+    }
+
+    public void createOrUpdateDisplayFrames(InsetsState insetsState) {
+        if (mDisplayFrames == null) {
+            mDisplayFrames = new DisplayFrames(insetsState, mDisplayInfo,
+                    mDisplayInfo.displayCutout, RoundedCorners.NO_ROUNDED_CORNERS,
+                    sPrivacyIndicatorBounds, DisplayShape.NONE);
+        } else {
+            mDisplayFrames.update(mDisplayInfo.rotation, mDisplayInfo.logicalWidth,
+                    mDisplayInfo.logicalHeight, mDisplayInfo.displayCutout,
+                    RoundedCorners.NO_ROUNDED_CORNERS, sPrivacyIndicatorBounds, DisplayShape.NONE);
+        }
+    }
+
+    public void setupDisplayCutout() {
+        DisplayCutout displayCutout =
+                DisplayCutout.fromResourcesRectApproximation(mContext.getResources(), null,
+                        mMetrics.widthPixels, mMetrics.heightPixels, mMetrics.widthPixels,
+                        mMetrics.heightPixels);
+        if (displayCutout != null) {
+            mDisplayInfo.displayCutout = displayCutout.getRotated(mDisplayInfo.logicalWidth,
+                    mDisplayInfo.logicalHeight, mDisplayInfo.rotation,
+                    getDefaultDisplay().getRotation());
+        }
     }
 }

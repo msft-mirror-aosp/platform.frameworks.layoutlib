@@ -133,7 +133,7 @@ public class Main {
                         "com.android.internal.util.*",
                         "com.android.internal.view.menu.ActionMenu",
                         "com.android.internal.widget.*",
-                        "com.android.systemui.monet.*",     // needed for dynamic theming
+                        "com.android.systemui.monet.**",     // needed for dynamic theming
                         "com.google.android.apps.common.testing.accessibility.**",
                         "com.google.android.libraries.accessibility.**",
                         "libcore.icu.ICU",                  // needed by ICU_Delegate in LayoutLib
@@ -173,13 +173,13 @@ public class Main {
             // it means the renameClasses[] array in AsmGenerator needs to be updated: some
             // class should have been renamed but it was not found in the input JAR files.
             Set<String> notRenamed = agen.getClassesNotRenamed();
-            if (notRenamed.size() > 0) {
+            if (!notRenamed.isEmpty()) {
                 // (80-column guide below for error formatting)
                 // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
-                log.error(
-                  "ERROR when running layoutlib_create: the following classes are referenced\n" +
-                  "by tools/layoutlib/create but were not actually found in the input JAR files.\n" +
-                  "This may be due to some platform classes having been renamed.");
+                log.error("""
+                        ERROR when running layoutlib_create: the following classes are referenced
+                        by tools/layoutlib/create but were not actually found in the input JAR files.
+                        This may be due to some platform classes having been renamed.""");
                 for (String fqcn : notRenamed) {
                     log.error("- Class not found: %s", fqcn.replace('/', '.'));
                 }
