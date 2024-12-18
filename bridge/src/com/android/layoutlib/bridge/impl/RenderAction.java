@@ -289,6 +289,8 @@ public abstract class RenderAction<T extends RenderParams> {
         mContext.applyWallpaper(mParams.getFlag(RenderParamsFlags.FLAG_KEY_WALLPAPER_PATH));
         mContext.setUseThemedIcon(
                 Boolean.TRUE.equals(mParams.getFlag(RenderParamsFlags.FLAG_KEY_USE_THEMED_ICON)));
+        mContext.setForceMonochromeIcon(Boolean.TRUE.equals(
+                mParams.getFlag(RenderParamsFlags.FLAG_KEY_FORCE_MONOCHROME_ICON)));
 
         // Set-up WindowManager
         // FIXME: find those out, and possibly add them to the render params
@@ -508,6 +510,8 @@ public abstract class RenderAction<T extends RenderParams> {
                 animationHandler.mAnimationCallbacks.clear();
                 animationHandler.mCommitCallbacks.clear();
             }
+            // Clear the ThreadLocal to avoid memory leaks
+            sCurrentContext.getAnimationHandlerThreadLocal().remove();
         }
 
         sCurrentContext = null;

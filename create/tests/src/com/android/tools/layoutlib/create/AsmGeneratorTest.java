@@ -107,6 +107,7 @@ public class AsmGeneratorTest {
 
         AsmAnalyzer aa = new AsmAnalyzer(mLog, mOsJarPath,
                 null,                 // derived from
+                null,                 // exclude from derived
                 new String[] {        // include classes
                     "**"
                 },
@@ -150,6 +151,7 @@ public class AsmGeneratorTest {
 
         AsmAnalyzer aa = new AsmAnalyzer(mLog, mOsJarPath,
                 null,                 // derived from
+                null,                 // exclude from derived
                 new String[] {        // include classes
                     "**"
                 },
@@ -198,6 +200,7 @@ public class AsmGeneratorTest {
 
         AsmAnalyzer aa = new AsmAnalyzer(mLog, mOsJarPath,
                 null,                 // derived from
+                null,                 // exclude from derived
                 new String[] {        // include classes
                         "**"
                 },
@@ -234,6 +237,7 @@ public class AsmGeneratorTest {
         AsmGenerator agen = new AsmGenerator(mLog, ci);
         AsmAnalyzer aa = new AsmAnalyzer(mLog, mOsJarPath,
                 null,                 // derived from
+                null,                 // exclude from derived
                 new String[] {        // include classes
                         "**"
                 },
@@ -279,6 +283,7 @@ public class AsmGeneratorTest {
         AsmGenerator agen = new AsmGenerator(mLog, ci);
         AsmAnalyzer aa = new AsmAnalyzer(mLog, mOsJarPath,
                 null,                 // derived from
+                null,                 // exclude from derived
                 new String[] {        // include classes
                         "**"
                 },
@@ -350,6 +355,7 @@ public class AsmGeneratorTest {
         AsmGenerator agen = new AsmGenerator(mLog, ci);
         AsmAnalyzer aa = new AsmAnalyzer(mLog, mOsJarPath,
                 null,                 // derived from
+                null,                 // exclude from derived
                 new String[] {        // include classes
                         "**"
                 },

@@ -206,6 +206,7 @@ public class BridgeContext extends Context {
     private PackageManager mPackageManager;
     private Boolean mIsThemeAppCompat;
     private boolean mUseThemedIcon;
+    private boolean mForceMonochromeIcon;
     private Context mApplicationContext;
     private AccessibilityManager mAccessibilityManager;
     private final ResourceNamespace mAppCompatNamespace;
@@ -730,6 +731,9 @@ public class BridgeContext extends Context {
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
             case ALARM_SERVICE:
+            case CAPTIONING_SERVICE:
+            case TELEPHONY_SERVICE:
+            case WIFI_SERVICE:
                 return null;
             default:
                 // Only throw exception if the required service is unsupported but recognized as
@@ -2313,6 +2317,14 @@ public class BridgeContext extends Context {
 
     public void setUseThemedIcon(boolean useThemedIcon) {
         mUseThemedIcon = useThemedIcon;
+    }
+
+    public boolean forceMonochromeIcon() {
+        return mForceMonochromeIcon;
+    }
+
+    public void setForceMonochromeIcon(boolean forceMonochromeIcon) {
+        mForceMonochromeIcon = forceMonochromeIcon;
     }
 
     public void applyWallpaper(String wallpaperPath) {
