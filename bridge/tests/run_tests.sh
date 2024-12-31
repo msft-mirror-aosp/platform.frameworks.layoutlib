@@ -24,7 +24,7 @@ SDK_REPO="${BASE_DIR}/out/host/linux-x86/sdk-repo"
 FONT_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/fonts_intermediates"
 HYPHEN_DATA_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/hyphen_intermediates"
 KEYBOARD_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/keyboards_intermediates"
-ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt75l.dat"
+ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt76l.dat"
 TMP_DIR=${OUT_DIR}"/layoutlib_tmp"
 
 PLATFORM=${TMP_DIR}/"android"
