@@ -20,6 +20,7 @@ import android.os.BatterySaverPolicyConfig;
 import android.os.ParcelDuration;
 import android.os.IBinder;
 import android.os.IPowerManager;
+import android.os.IScreenTimeoutPolicyListener;
 import android.os.IWakeLockCallback;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeReason;
@@ -180,7 +181,7 @@ public class BridgePowerManager implements IPowerManager {
     }
 
     @Override
-    public float getBrightnessConstraint(int constraint) {
+    public float getBrightnessConstraint(int displayId, int constraint) {
         return PowerManager.BRIGHTNESS_MAX;
     }
 
@@ -244,6 +245,17 @@ public class BridgePowerManager implements IPowerManager {
         // pass for now.
         return true;
     }
+
+    public void addScreenTimeoutPolicyListener(int displayId,
+            IScreenTimeoutPolicyListener listener) {
+        // pass for now.
+    }
+
+    public void removeScreenTimeoutPolicyListener(int displayId,
+            IScreenTimeoutPolicyListener listener) {
+        // pass for now.
+    }
+
 
     @Override
     public boolean isWakeLockLevelSupportedWithDisplayId(int level, int displayId)
