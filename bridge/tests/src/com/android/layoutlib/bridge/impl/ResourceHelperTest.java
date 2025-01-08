@@ -16,6 +16,10 @@
 
 package com.android.layoutlib.bridge.impl;
 
+import com.android.ide.common.rendering.api.ResourceNamespace;
+import com.android.ide.common.rendering.api.ResourceValue;
+import com.android.ide.common.rendering.api.TextResourceValueImpl;
+
 import org.junit.Test;
 
 import android.content.res.StringBlock;
@@ -104,5 +108,53 @@ public class ResourceHelperTest {
     public void testParsePlainHtml() {
         String plainText = "This text has no html tags";
         assertEquals(plainText, ResourceHelper.parseHtml(plainText));
+    }
+
+    @Test
+    public void testParseHtmlFromResource() {
+        ResourceValue resourceValue =
+                new TextResourceValueImpl(ResourceNamespace.RES_AUTO, "html_string",
+                        "           Normal   Bold      Italic     Normal   This                  " +
+                                "       is bold html    More normal\n         ",
+                        "\"           Normal<b>   Bold   </b>  <i>   Italic</i>     Normal   " +
+                                "<html><body>This                         is <b>bold</b> " +
+                                "html</body></html>    More normal\n         \"",
+                        "");
+        CharSequence text = ResourceHelper.getText(resourceValue);
+        assertTrue(text instanceof SpannedString);
+        assertEquals("           Normal Bold   Italic Normal This is bold html More normal ",
+                text.toString());
+        SpannedString spannedString = (SpannedString)text;
+        Object[] spans = spannedString.getSpans(0, spannedString.length(), Object.class);
+        Class<?>[] classes = {StyleSpan.class, StyleSpan.class, StyleSpan.class};
+        int[] starts = {17, 24, 47};
+        int[] ends = {23, 31, 51};
+        for (int i =0; i < spans.length; i++) {
+            assertEquals(classes[i], spans[i].getClass());
+            assertEquals(starts[i], spannedString.getSpanStart(spans[i]));
+            assertEquals(ends[i], spannedString.getSpanEnd(spans[i]));
+        }
+
+        resourceValue =
+                new TextResourceValueImpl(ResourceNamespace.RES_AUTO, "html_string",
+                        "       This    is bold html    Normal   Bold      Italic     Normal\n   " +
+                                "      ",
+                        "\"       <html><body>This    is <b>bold</b> html</body></html>    " +
+                                "Normal<b>   Bold   </b><i>   Italic</i>     Normal\n         \"",
+                        "");
+        text = ResourceHelper.getText(resourceValue);
+        assertTrue(text instanceof SpannedString);
+        assertEquals("       This is bold html Normal Bold  Italic Normal ",
+                text.toString());
+        spannedString = (SpannedString)text;
+        spans = spannedString.getSpans(0, spannedString.length(), Object.class);
+        classes = new Class[]{StyleSpan.class, StyleSpan.class, StyleSpan.class};
+        starts = new int[]{15, 31, 37};
+        ends = new int[]{19, 37, 44};
+        for (int i =0; i < spans.length; i++) {
+            assertEquals(classes[i], spans[i].getClass());
+            assertEquals(starts[i], spannedString.getSpanStart(spans[i]));
+            assertEquals(ends[i], spannedString.getSpanEnd(spans[i]));
+        }
     }
 }
