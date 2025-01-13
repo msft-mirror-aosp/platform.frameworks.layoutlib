@@ -1,0 +1,2 @@
+rule androidx.** com.android.layoutlib.androidx.@1
+rule org.jetbrains.** com.android.layoutlib.jetbrains.@1
