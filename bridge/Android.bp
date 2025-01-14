@@ -33,12 +33,10 @@ java_library_host {
     ],
 
     static_libs: [
-        "temp_layoutlib",
+        "layoutlib-framework",
         "layoutlib-common",
         "layoutlib-validator",
     ],
-
-    jarjar_rules: "jarjar-rules.txt",
 
     dist: {
         targets: ["layoutlib"],
