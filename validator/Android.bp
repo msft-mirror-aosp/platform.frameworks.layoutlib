@@ -25,7 +25,7 @@ java_library_host {
     java_resource_dirs: ["resources"],
 
     libs: [
-        "temp_layoutlib",
+        "layoutlib-framework",
         "layoutlib_api-prebuilt",
         "layoutlib-common",
         "guava",
@@ -36,4 +36,6 @@ java_library_host {
         "jsoup-1.6.3",
         "libprotobuf-java-lite",
     ],
+
+    jarjar_rules: "jarjar-rules.txt",
 }
