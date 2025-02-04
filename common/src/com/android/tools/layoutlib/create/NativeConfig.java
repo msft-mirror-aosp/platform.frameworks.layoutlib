@@ -93,6 +93,8 @@ public class NativeConfig {
             "android.os.Handler#sendMessageAtFrontOfQueue",
             "android.os.Handler#sendMessageAtTime",
             "android.os.HandlerThread#run",
+            "android.os.PerfettoTrace$Category#native_delete",
+            "android.os.PerfettoTrace$Category#native_init",
             "android.os.SystemProperties#find",
             "android.permission.PermissionManager#checkPermission",
             "android.preference.Preference#getView",
