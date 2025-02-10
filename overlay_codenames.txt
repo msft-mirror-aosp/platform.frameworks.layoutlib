@@ -1,0 +1,15 @@
+oriole:pixel_6
+raven:pixel_6_pro
+bluejay:pixel_6a
+panther:pixel_7
+cheetah:pixel_7_pro
+lynx:pixel_7a
+felix:pixel_fold
+shiba:pixel_8
+husky:pixel_8_pro
+akita:pixel_8a
+tokay:pixel_9
+caiman:pixel_9_pro
+komodo:pixel_9_pro_xl
+comet:pixel_9_pro_fold
+tangorpro:pixel_tablet
