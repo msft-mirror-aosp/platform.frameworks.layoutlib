@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="mockito">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../out/soong/.intermediates/external/mockito/mockito/linux_glibc_common/combined/mockito.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../out/soong/.intermediates/external/mockito/mockito/linux_glibc_common/javac/mockito.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

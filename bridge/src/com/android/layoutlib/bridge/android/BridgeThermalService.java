@@ -19,6 +19,7 @@ package com.android.layoutlib.bridge.android;
 import android.os.CoolingDevice;
 import android.os.IBinder;
 import android.os.IThermalEventListener;
+import android.os.IThermalHeadroomListener;
 import android.os.IThermalStatusListener;
 import android.os.IThermalService;
 import android.os.Temperature;
@@ -91,5 +92,15 @@ public class BridgeThermalService implements IThermalService {
     @Override
     public float[] getThermalHeadroomThresholds() {
         return new float[]{};
+    }
+
+    @Override
+    public boolean registerThermalHeadroomListener(IThermalHeadroomListener listener) {
+        return false;
+    }
+
+    @Override
+    public boolean unregisterThermalHeadroomListener(IThermalHeadroomListener listener) {
+        return false;
     }
 }
