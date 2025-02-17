@@ -17,5 +17,7 @@
     <orderEntry type="library" name="framework.jar" level="project" />
     <orderEntry type="module" module-name="bridge" />
     <orderEntry type="module" module-name="common" />
+    <orderEntry type="library" name="resource-repository-prebuilt" level="project" />
+    <orderEntry type="library" name="environment-services-prebuilt" level="project" />
   </component>
 </module>

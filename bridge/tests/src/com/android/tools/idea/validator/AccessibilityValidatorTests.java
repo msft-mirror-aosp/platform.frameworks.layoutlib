@@ -208,26 +208,6 @@ public class AccessibilityValidatorTests extends RenderTestBase {
     }
 
     @Test
-    public void testTextContrastCheckNoImage() throws Exception {
-        render("a11y_test_text_contrast.xml", session -> {
-            ValidatorResult result = getRenderResult(session);
-            List<Issue> textContrast = filter(result.getIssues(), "TextContrastCheck");
-
-            // ATF doesn't count alpha values unless image is passed.
-            ExpectedLevels expectedLevels = new ExpectedLevels();
-            expectedLevels.expectedErrors = 4;
-            expectedLevels.expectedVerboses = 1;
-            expectedLevels.expectedFixes = 4;
-            expectedLevels.check(textContrast);
-
-            // Make sure no other errors in the system.
-            textContrast = filter(textContrast, EnumSet.of(Level.ERROR));
-            List<Issue> filtered = filter(result.getIssues(), EnumSet.of(Level.ERROR));
-            checkEquals(filtered, textContrast);
-        }, false);
-    }
-
-    @Test
     public void testImageContrastCheck() throws Exception {
         render("a11y_test_image_contrast.xml", session -> {
             ValidatorResult result = getRenderResult(session);
@@ -282,27 +262,10 @@ public class AccessibilityValidatorTests extends RenderTestBase {
 
                 // Ensure that the check went thru the overridden class loader.
                 assertTrue(overriddenClassLoaderCalled[0]);
-            }, true, testCallback);
+            }, testCallback);
         } finally {
             ValidatorUtil.sDefaultCustomViewBuilderAndroid = new DefaultCustomViewBuilderAndroid();
         }
-    }
-
-    @Test
-    public void testImageContrastCheckNoImage() throws Exception {
-        render("a11y_test_image_contrast.xml", session -> {
-            ValidatorResult result = getRenderResult(session);
-            List<Issue> imageContrast = filter(result.getIssues(), "ImageContrastCheck");
-
-            ExpectedLevels expectedLevels = new ExpectedLevels();
-            expectedLevels.expectedVerboses = 3;
-            expectedLevels.check(imageContrast);
-
-            // Make sure no other errors in the system.
-            imageContrast = filter(imageContrast, EnumSet.of(Level.ERROR, Level.WARNING));
-            List<Issue> filtered = filter(result.getIssues(), EnumSet.of(Level.ERROR, Level.WARNING));
-            checkEquals(filtered, imageContrast);
-        }, false);
     }
 
     @Test
@@ -357,25 +320,17 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         return ValidatorUtil.generateResults(LayoutValidator.DEFAULT_POLICY,
                 (ValidatorHierarchy) validationData);
     }
-    private void render(String fileName, RenderSessionListener verifier) throws Exception {
-        render(fileName, verifier, true);
-    }
 
-    private void render(
-            String fileName,
-            RenderSessionListener verifier,
-            boolean enableImageCheck) throws Exception {
+    private void render(String fileName, RenderSessionListener verifier) throws Exception {
         render(
                 fileName,
                 verifier,
-                enableImageCheck,
                 new LayoutLibTestCallback(getLogger(), mDefaultClassLoader));
     }
 
     private void render(
             String fileName,
             RenderSessionListener verifier,
-            boolean enableImageCheck,
             LayoutLibTestCallback layoutLibCallback) throws Exception {
         LayoutValidator.updatePolicy(new Policy(
                 EnumSet.of(Type.ACCESSIBILITY, Type.RENDER),
@@ -390,10 +345,6 @@ public class AccessibilityValidatorTests extends RenderTestBase {
                 .setCallback(layoutLibCallback)
                 .disableDecoration()
                 .enableLayoutValidation();
-
-        if (enableImageCheck) {
-            params.enableLayoutValidationImageCheck();
-        }
 
         render(sBridge, params.build(), -1, verifier);
     }

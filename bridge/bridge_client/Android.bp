@@ -25,23 +25,17 @@ java_library_host {
     ],
 
     static_libs: [
-        "tools-common-prebuilt",
-        "sdk-common",
-        "kxml2-2.3.0",
-        "layoutlib_api-prebuilt",
-        "trove-prebuilt",
-        "junit",
         "guava",
+        "junit",
+        "kxml2-2.3.0",
         "layoutlib",
+        "layoutlib_api-prebuilt",
+        "sdk-common",
+        "tools-common-prebuilt",
+        "tools-environment-services",
+        "tools-resource-repository",
+        "trove-prebuilt",
     ],
-
-    // Copy the jar to DIST_DIR for sdk builds
-    dist: {
-        targets: [
-            "sdk",
-            "win_sdk",
-        ],
-    },
 }
 
 java_host_for_device {
