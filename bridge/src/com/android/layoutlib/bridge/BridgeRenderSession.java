@@ -16,6 +16,7 @@
 
 package com.android.layoutlib.bridge;
 
+import com.android.ide.common.rendering.api.HardwareConfig;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.RenderParams;
 import com.android.ide.common.rendering.api.RenderSession;
@@ -231,5 +232,12 @@ public class BridgeRenderSession extends RenderSession {
             return mSession.getValidatorHierarchy();
         }
         return null;
+    }
+
+    @Override
+    public void updateHardwareConfiguration(HardwareConfig hardwareConfig) {
+        if (mSession != null) {
+            mSession.updateHardwareConfiguration(hardwareConfig);
+        }
     }
 }

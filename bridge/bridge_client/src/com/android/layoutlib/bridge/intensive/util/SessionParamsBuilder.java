@@ -25,11 +25,11 @@ import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
+import com.android.ide.common.resources.ResourceRepository;
+import com.android.ide.common.resources.ResourceRepositoryUtil;
 import com.android.ide.common.resources.ResourceResolver;
 import com.android.ide.common.resources.ResourceValueMap;
 import com.android.ide.common.resources.configuration.FolderConfiguration;
-import com.android.ide.common.resources.deprecated.ResourceRepository;
-import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.resources.ResourceType;
@@ -39,7 +39,7 @@ import android.annotation.NonNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Table;
 
 /**
  * Builder to help setting up {@link SessionParams} objects.
@@ -63,7 +63,6 @@ public class SessionParamsBuilder {
     private boolean mDecor = true;
     private IImageFactory mImageFactory = null;
     private boolean enableLayoutValidator = false;
-    private boolean enableLayoutValidatorImageCheck = false;
     private boolean transparentBackground = false;
     private Map<ResourceType, ResourceValueMap> mFrameworkOverlayResources;
 
@@ -179,12 +178,6 @@ public class SessionParamsBuilder {
     }
 
     @NonNull
-    public SessionParamsBuilder enableLayoutValidationImageCheck() {
-        this.enableLayoutValidatorImageCheck = true;
-        return this;
-    }
-
-    @NonNull
     public SessionParamsBuilder setTransparentBackground() {
         this.transparentBackground = true;
         return this;
@@ -207,15 +200,24 @@ public class SessionParamsBuilder {
 
         FolderConfiguration config = mConfigGenerator.getFolderConfig();
         Map<ResourceType, ResourceValueMap> frameworkConfigResources =
-                mFrameworkResources.getConfiguredResources(config);
+                ResourceRepositoryUtil.getConfiguredResources(mFrameworkResources, config).row(
+                        ResourceNamespace.ANDROID);
+        Table<ResourceNamespace, ResourceType, ResourceValueMap> projectConfigResources =
+                ResourceRepositoryUtil.getConfiguredResources(mProjectResources, config);
         if (mFrameworkOverlayResources != null) {
-            mFrameworkOverlayResources.keySet().forEach(type ->
-                    frameworkConfigResources.get(type).putAll(mFrameworkOverlayResources.get(type)));
+            mFrameworkOverlayResources.keySet().forEach(
+                    type -> mFrameworkOverlayResources.get(type).values().forEach(
+                            resourceValue -> frameworkConfigResources.get(type).put(
+                                    resourceValue)));
+        }
+        Map<ResourceNamespace, Map<ResourceType, ResourceValueMap>> allResourcesMap =
+                new HashMap<>();
+        allResourcesMap.put(ResourceNamespace.ANDROID, frameworkConfigResources);
+        for (ResourceNamespace namespace : projectConfigResources.rowKeySet()) {
+            allResourcesMap.put(namespace, projectConfigResources.row(namespace));
         }
         ResourceResolver resourceResolver = ResourceResolver.create(
-                ImmutableMap.of(
-                        ResourceNamespace.ANDROID, frameworkConfigResources,
-                        ResourceNamespace.TODO(), mProjectResources.getConfiguredResources(config)),
+                allResourcesMap,
                 new ResourceReference(
                         ResourceNamespace.fromBoolean(!isProjectTheme),
                         ResourceType.STYLE,
@@ -224,10 +226,7 @@ public class SessionParamsBuilder {
         SessionParams params = new SessionParams(mLayoutParser, mRenderingMode, null /* for
         caching */, mConfigGenerator.getHardwareConfig(), resourceResolver, mLayoutlibCallback,
                 mMinSdk, mTargetSdk, mLayoutLog, mSimulatedSdk);
-        params.setFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR, enableLayoutValidator);
-        params.setFlag(
-                RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK,
-                enableLayoutValidatorImageCheck);
+        params.setLayoutValidationChecker(() -> enableLayoutValidator);
         if (mImageFactory != null) {
             params.setImageFactory(mImageFactory);
         }
