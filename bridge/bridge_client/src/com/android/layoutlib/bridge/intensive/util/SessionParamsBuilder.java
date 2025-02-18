@@ -30,7 +30,6 @@ import com.android.ide.common.resources.ResourceRepositoryUtil;
 import com.android.ide.common.resources.ResourceResolver;
 import com.android.ide.common.resources.ResourceValueMap;
 import com.android.ide.common.resources.configuration.FolderConfiguration;
-import com.android.layoutlib.bridge.android.RenderParamsFlags;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.resources.ResourceType;
@@ -40,7 +39,6 @@ import android.annotation.NonNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 
 /**
@@ -65,7 +63,6 @@ public class SessionParamsBuilder {
     private boolean mDecor = true;
     private IImageFactory mImageFactory = null;
     private boolean enableLayoutValidator = false;
-    private boolean enableLayoutValidatorImageCheck = false;
     private boolean transparentBackground = false;
     private Map<ResourceType, ResourceValueMap> mFrameworkOverlayResources;
 
@@ -181,12 +178,6 @@ public class SessionParamsBuilder {
     }
 
     @NonNull
-    public SessionParamsBuilder enableLayoutValidationImageCheck() {
-        this.enableLayoutValidatorImageCheck = true;
-        return this;
-    }
-
-    @NonNull
     public SessionParamsBuilder setTransparentBackground() {
         this.transparentBackground = true;
         return this;
@@ -235,10 +226,7 @@ public class SessionParamsBuilder {
         SessionParams params = new SessionParams(mLayoutParser, mRenderingMode, null /* for
         caching */, mConfigGenerator.getHardwareConfig(), resourceResolver, mLayoutlibCallback,
                 mMinSdk, mTargetSdk, mLayoutLog, mSimulatedSdk);
-        params.setFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR, enableLayoutValidator);
-        params.setFlag(
-                RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK,
-                enableLayoutValidatorImageCheck);
+        params.setLayoutValidationChecker(() -> enableLayoutValidator);
         if (mImageFactory != null) {
             params.setImageFactory(mImageFactory);
         }
