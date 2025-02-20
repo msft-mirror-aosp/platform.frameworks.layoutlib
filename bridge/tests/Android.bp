@@ -35,13 +35,9 @@ java_test_host {
         "objenesis",
     ],
 
-    required: ["libandroid_runtime"],
+    required: ["layoutlib_jni"],
 
-    // Copy the jar to DIST_DIR for sdk builds
     dist: {
-        targets: [
-            "sdk",
-            "win_sdk",
-        ],
+        targets: ["layoutlib-tests"],
     },
 }

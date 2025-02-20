@@ -181,6 +181,10 @@ public abstract class RenderAction<T extends RenderParams> {
         return SUCCESS.createResult();
     }
 
+    public void updateHardwareConfiguration(HardwareConfig hardwareConfig) {
+        mParams.setHardwareConfig(hardwareConfig);
+    }
+
     /**
      * Prepares the scene for action.
      * <p>
