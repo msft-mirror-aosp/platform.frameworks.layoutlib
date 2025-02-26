@@ -29,6 +29,8 @@ import android.hardware.OverlayProperties;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.media.projection.MediaProjection;
 import android.os.Handler;
+import android.os.HandlerExecutor;
+import android.os.Looper;
 import android.util.Pair;
 import android.view.Display;
 import android.view.DisplayAdjustments;
@@ -88,10 +90,15 @@ public final class DisplayManagerGlobal {
     }
 
     public void registerDisplayListener(@NonNull DisplayListener listener,
+            @Nullable Handler handler, long internalEventFlagsMask, String packageName,
+            boolean isEventFilterExplicit) {}
+
+    public void registerDisplayListener(@NonNull DisplayListener listener,
             @Nullable Handler handler, long internalEventFlagsMask, String packageName) {}
 
     public void registerDisplayListener(@NonNull DisplayListener listener,
-            @NonNull Executor executor, long internalEventFlagsMask, String packageName) {}
+            @NonNull Executor executor, long internalEventFlagsMask, String packageName,
+            boolean isEventFilterExplicit) {}
 
     public void unregisterDisplayListener(DisplayListener listener) {}
 
