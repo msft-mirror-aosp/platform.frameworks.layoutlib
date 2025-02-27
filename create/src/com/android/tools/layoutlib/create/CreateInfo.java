@@ -386,6 +386,10 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.ImageDecoder$ResourceSource",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorUI",
         "android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimator",
+        "android.os.PerfettoTrackEventExtra$CounterInt64",
+        "android.os.PerfettoTrackEventExtra$CounterDouble",
+        "android.os.PerfettoTrackEventExtra$Flow",
+        "android.os.PerfettoTrackEventExtra$Proto",
         "android.view.Choreographer$CallbackQueue", // required for tests only
     };
 
