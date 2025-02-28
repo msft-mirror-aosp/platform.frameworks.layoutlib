@@ -18,6 +18,7 @@ package com.android.tools.layoutlib.create;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 import com.android.tools.layoutlib.java.LinkedHashMap_Delegate;
+import com.android.tools.layoutlib.java.NioUtils_Delegate;
 import com.android.tools.layoutlib.java.Reference_Delegate;
 
 import org.objectweb.asm.Opcodes;
@@ -152,6 +153,7 @@ public final class CreateInfo implements ICreateInfo {
         new HtmlApplicationResourceReplacer(),
         new NativeAllocationRegistryApplyFreeFunctionReplacer(),
         new LineBreakConfigApplicationInfoReplacer(),
+        new NioUtilsFreeBufferReplacer(),
     };
 
     /**
@@ -168,6 +170,7 @@ public final class CreateInfo implements ICreateInfo {
             InjectMethodRunnables.class,
             /* Java package classes */
             LinkedHashMap_Delegate.class,
+            NioUtils_Delegate.class,
             Reference_Delegate.class,
         };
 
@@ -268,6 +271,9 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.text.MeasuredText",
         "android.graphics.text.MeasuredText$Builder",
         "android.graphics.text.TextRunShaper",
+        "android.media.ImageReader",
+        "android.media.ImageReader$SurfaceImage",
+        "android.media.PublicFormatUtils",
         "android.os.SystemProperties",
         "android.text.AndroidCharacter",
         "android.text.Hyphenator",
@@ -663,6 +669,18 @@ public final class CreateInfo implements ICreateInfo {
             mi.name = "getApplicationInfo";
             mi.opcode = Opcodes.INVOKESTATIC;
             mi.desc = "(Landroid/app/Application;)Landroid/content/pm/ApplicationInfo;";
+        }
+    }
+
+    public static class NioUtilsFreeBufferReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return "java/nio/NioUtils".equals(owner) && name.equals("freeDirectBuffer");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = Type.getInternalName(NioUtils_Delegate.class);
         }
     }
 }
