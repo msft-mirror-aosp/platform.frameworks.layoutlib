@@ -34,28 +34,6 @@ static jmethodID logMethodId;
 
 namespace android {
 
-extern int register_android_view_LayoutlibRenderer(JNIEnv* env);
-
-#define REG_JNI(name) \
-    { name }
-struct RegJNIRec {
-    int (*mProc)(JNIEnv*);
-};
-
-static const RegJNIRec gRegJNI[] = {
-        REG_JNI(register_android_view_LayoutlibRenderer),
-};
-
-int register_jni_procs(JNIEnv* env) {
-    for (size_t i = 0; i < NELEM(android::gRegJNI); i++) {
-        if (android::gRegJNI[i].mProc(env) < 0) {
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
 static vector<string> parseCsv(const string& csvString) {
     vector<string> result;
     istringstream stream(csvString);
@@ -138,7 +116,6 @@ public:
 
     void onStarted() override {
         JNIEnv* env = AndroidRuntime::getJNIEnv();
-        register_jni_procs(env);
 
         jmethodID setSystemPropertiesMethod =
                 GetStaticMethodIDOrDie(env, bridge, "setSystemProperties", "()V");
