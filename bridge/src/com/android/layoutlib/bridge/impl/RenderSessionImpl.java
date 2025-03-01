@@ -551,8 +551,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 }
 
                 mRenderer.draw(mViewRoot);
-                // Wait for render thread to finish rendering
-                mRenderer.fence();
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
                 IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
@@ -568,21 +566,14 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 imageTransformation.accept(mImage);
             }
 
-            boolean enableLayoutValidation = Boolean.TRUE.equals(params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR));
-            boolean enableLayoutValidationImageCheck = Boolean.TRUE.equals(
-                    params.getFlag(RenderParamsFlags.FLAG_ENABLE_LAYOUT_VALIDATOR_IMAGE_CHECK));
-
             try {
-                if (enableLayoutValidation && !getViewInfos().isEmpty()) {
+                if (params.isLayoutValidationEnabled() && !getViewInfos().isEmpty()) {
                     CustomHierarchyHelper.sLayoutlibCallback =
                             getContext().getLayoutlibCallback();
 
-                    BufferedImage imageToPass =
-                            enableLayoutValidationImageCheck ? getImage() : null;
-
                     ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
                             ((View) getViewInfos().get(0).getViewObject()),
-                            imageToPass,
+                            getImage(),
                             scaleX,
                             scaleY);
                     setValidatorHierarchy(hierarchy);
@@ -1205,10 +1196,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Override
     public void dispose() {
         try {
+            releaseRender();
             if (mRenderer != null) {
                 mRenderer.destroy();
             }
-            releaseRender();
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
             getContext().getSessionInteractiveData().dispose();
