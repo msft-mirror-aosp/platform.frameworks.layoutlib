@@ -551,8 +551,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 }
 
                 mRenderer.draw(mViewRoot);
-                // Wait for render thread to finish rendering
-                mRenderer.fence();
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
                 IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
@@ -1198,10 +1196,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Override
     public void dispose() {
         try {
+            releaseRender();
             if (mRenderer != null) {
                 mRenderer.destroy();
             }
-            releaseRender();
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
             getContext().getSessionInteractiveData().dispose();

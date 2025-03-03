@@ -52,7 +52,7 @@ public class AttachInfo_Accessor {
         root.setOnContentApplyWindowInsetsListener(sDefaultContentInsetsApplier);
         LayoutlibRenderer renderer = new LayoutlibRenderer(context, false, "layoutlib-renderer");
         AttachInfo info = root.mAttachInfo;
-        info.mThreadedRenderer = renderer;
+        info.mThreadedRenderer = renderer.getThreadedRenderer();
         info.mHasWindowFocus = true;
         info.mWindowVisibility = View.VISIBLE;
         info.mInTouchMode = false; // this is so that we can display selections.
