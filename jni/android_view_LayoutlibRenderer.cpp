@@ -99,11 +99,23 @@ static jobject android_view_LayoutlibRenderer_createBuffer(JNIEnv* env, jobject 
     return byteBuffer;
 }
 
+static void android_view_LayoutlibRenderer_destroy(JNIEnv* env, jobject thiz) {
+    auto* const currentCtx = reinterpret_cast<JNILayoutlibRendererContext*>(
+            env->GetLongField(thiz, gNativeContextFieldId));
+    if (currentCtx != nullptr) {
+        IGraphicBufferConsumer* bufferConsumer = currentCtx->getBufferConsumer();
+        bufferConsumer->detachBuffer(0);
+        currentCtx->decStrong((void*)android_view_LayoutlibRenderer_createSurface);
+    }
+    env->SetLongField(thiz, gNativeContextFieldId, 0);
+}
+
 static const JNINativeMethod gMethods[] = {
         {"nativeCreateSurface", "()Landroid/view/Surface;",
          (void*)android_view_LayoutlibRenderer_createSurface},
         {"nativeCreateBuffer", "(II)Ljava/nio/ByteBuffer;",
          (void*)android_view_LayoutlibRenderer_createBuffer},
+        {"nativeDestroy", "()V", (void*)android_view_LayoutlibRenderer_destroy},
 };
 
 int register_android_view_LayoutlibRenderer(JNIEnv* env) {
