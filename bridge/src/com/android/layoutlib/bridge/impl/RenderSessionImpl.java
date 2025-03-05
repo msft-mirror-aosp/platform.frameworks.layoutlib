@@ -1198,10 +1198,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Override
     public void dispose() {
         try {
+            releaseRender();
             if (mRenderer != null) {
                 mRenderer.destroy();
             }
-            releaseRender();
             // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
             AttachInfo_Accessor.detachFromWindow(mViewRoot);
             getContext().getSessionInteractiveData().dispose();
