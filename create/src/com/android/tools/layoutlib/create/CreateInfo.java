@@ -349,6 +349,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.animation.PropertyValuesHolder$FloatPropertyValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiFloatValuesHolder#sJNISetterPropertyMap",
         "android.animation.PropertyValuesHolder$MultiIntValuesHolder#sJNISetterPropertyMap",
+        "android.graphics.Bitmap#sAllBitmaps",
         "android.graphics.ImageDecoder$InputStreamSource#mInputStream",
         "android.graphics.Typeface#DEFAULT_FAMILY",
         "android.graphics.Typeface#sDynamicTypefaceCache",
