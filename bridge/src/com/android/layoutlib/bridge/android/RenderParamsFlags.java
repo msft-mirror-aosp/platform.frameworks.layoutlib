@@ -94,6 +94,12 @@ public final class RenderParamsFlags {
     public static final Key<Boolean> FLAG_KEY_SHOW_CUTOUT =
             new Key<>("showCutout", Boolean.class);
 
+    /**
+     * To tell Layoutlib whether to cache bitmaps.
+     */
+    public static final Key<Boolean> FLAG_KEY_CACHE_BITMAPS =
+            new Key<>("cacheBitmaps", Boolean.class);
+
     // Disallow instances.
     private RenderParamsFlags() {}
 }

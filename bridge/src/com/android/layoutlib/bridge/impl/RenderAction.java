@@ -36,6 +36,7 @@ import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
@@ -43,7 +44,6 @@ import android.os.SystemProperties;
 import android.util.DisplayMetrics;
 import android.view.IWindowManager;
 import android.view.IWindowManagerImpl;
-import android.view.Surface;
 import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
 import android.view.WindowManagerImpl;
@@ -63,6 +63,7 @@ import static android.view.Surface.ROTATION_90;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_LOCK_INTERRUPTED;
 import static com.android.ide.common.rendering.api.Result.Status.ERROR_TIMEOUT;
 import static com.android.ide.common.rendering.api.Result.Status.SUCCESS;
+import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_CACHE_BITMAPS;
 import static com.android.layoutlib.bridge.android.RenderParamsFlags.FLAG_KEY_SHOW_CUTOUT;
 
 /**
@@ -339,6 +340,11 @@ public abstract class RenderAction<T extends RenderParams> {
 
         PropertyValuesHolder_Accessor.clearClassCaches();
         AccessibilityInteractionClient_Accessor.clearCaches();
+        if (!Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_CACHE_BITMAPS))) {
+            // Clear caches except if the flag is explicitly set to true.
+            Bitmap.sAllBitmaps.clear();
+            Bridge.clearBitmapCaches(mParams.getProjectKey());
+        }
     }
 
     public static BridgeContext getCurrentContext() {

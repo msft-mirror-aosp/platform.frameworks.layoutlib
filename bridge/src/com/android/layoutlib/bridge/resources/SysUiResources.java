@@ -97,12 +97,12 @@ public class SysUiResources {
                 density = iconLoader.getDensity();
                 String path = iconLoader.getPath();
                 // look for a cached bitmap
-                Bitmap bitmap = Bridge.getCachedBitmap(path, Boolean.TRUE /*isFramework*/);
+                Bitmap bitmap = Bridge.getCachedBitmap(path, null);
                 if (bitmap == null) {
                     Options options = new Options();
                     options.inDensity = density.getDpiValue();
                     bitmap = BitmapFactory.decodeStream(stream, null, options);
-                    Bridge.setCachedBitmap(path, bitmap, Boolean.TRUE /*isFramework*/);
+                    Bridge.setCachedBitmap(path, bitmap, null);
                 }
 
                 if (bitmap != null) {
