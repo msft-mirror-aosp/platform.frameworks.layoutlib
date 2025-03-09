@@ -847,4 +847,18 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         mockView.setGravity(Gravity.CENTER);
         return mockView;
     }
+
+    public static void clearBitmapCaches(Object projectKey) {
+        sFrameworkBitmapCache.clear();
+        sFrameworkBitmapPaddingCache.clear();
+        Map<String, SoftReference<Bitmap>> bitmapCache = sProjectBitmapCache.get(projectKey);
+        if (bitmapCache != null) {
+            bitmapCache.clear();
+        }
+        Map<String, SoftReference<Rect>> paddingCache =
+                sProjectBitmapPaddingCache.get(projectKey);
+        if (paddingCache != null) {
+            paddingCache.clear();
+        }
+    }
 }
