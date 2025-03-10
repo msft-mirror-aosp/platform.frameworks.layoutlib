@@ -806,6 +806,7 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
             // This is needed on Windows to avoid creating HostRuntime when loading
             // libandroid_runtime.dll.
             System.setProperty("use_base_native_hostruntime", "false");
+            System.setProperty("icu.locale.default", "en-US");
             for (String library : getNativeLibraries()) {
                 String path = new File(nativeLibDir, library).getAbsolutePath();
                 System.load(path);
@@ -846,5 +847,19 @@ public final class Bridge extends com.android.ide.common.rendering.api.Bridge {
         mockView.setText(label);
         mockView.setGravity(Gravity.CENTER);
         return mockView;
+    }
+
+    public static void clearBitmapCaches(Object projectKey) {
+        sFrameworkBitmapCache.clear();
+        sFrameworkBitmapPaddingCache.clear();
+        Map<String, SoftReference<Bitmap>> bitmapCache = sProjectBitmapCache.get(projectKey);
+        if (bitmapCache != null) {
+            bitmapCache.clear();
+        }
+        Map<String, SoftReference<Rect>> paddingCache =
+                sProjectBitmapPaddingCache.get(projectKey);
+        if (paddingCache != null) {
+            paddingCache.clear();
+        }
     }
 }
