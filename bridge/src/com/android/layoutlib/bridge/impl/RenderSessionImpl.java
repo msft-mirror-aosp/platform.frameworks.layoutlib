@@ -1221,6 +1221,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mValidatorHierarchy = null;
             mViewRoot = null;
             mContentRoot = null;
+            mBlockParser = null;
         } catch (Throwable t) {
             getContext().error("Error while disposing a RenderSession", t);
         }
