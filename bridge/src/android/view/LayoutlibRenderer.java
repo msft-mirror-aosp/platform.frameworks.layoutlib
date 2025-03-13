@@ -101,7 +101,15 @@ public class LayoutlibRenderer extends ThreadedRenderer {
         mBuffer = null;
     }
 
+    @Override
+    public void destroy() {
+        nativeDestroy();
+        super.destroy();
+    }
+
     private native Surface nativeCreateSurface();
 
     private native ByteBuffer nativeCreateBuffer(int width, int height);
+
+    private native void nativeDestroy();
 }
