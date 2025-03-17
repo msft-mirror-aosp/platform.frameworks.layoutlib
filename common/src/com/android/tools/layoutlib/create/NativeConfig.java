@@ -104,6 +104,8 @@ public class NativeConfig {
             "android.provider.DeviceConfig#getString",
             "android.provider.Settings$Config#getContentResolver",
             "android.text.format.DateFormat#is24HourFormat",
+            "android.util.Pools$SimplePool#acquire",
+            "android.util.Pools$SimplePool#release",
             "android.util.Xml#newPullParser",
             "android.view.Choreographer#doCallbacks",
             "android.view.Choreographer#getRefreshRate",

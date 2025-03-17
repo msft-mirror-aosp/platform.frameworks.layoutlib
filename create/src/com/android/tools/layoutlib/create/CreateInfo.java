@@ -352,6 +352,8 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.drawable.AnimatedVectorDrawable#mAnimatorSet",
         "android.graphics.drawable.DrawableInflater#mRes",
         "android.hardware.input.InputManagerGlobal#sInstance",
+        "android.util.Pools$SimplePool#mPool",
+        "android.util.Pools$SimplePool#mPoolSize",
         "android.view.Choreographer#mCallbackQueues", // required for tests only
         "android.view.Choreographer#mCallbacksRunning",
         "android.view.Choreographer#mFrameScheduled",
