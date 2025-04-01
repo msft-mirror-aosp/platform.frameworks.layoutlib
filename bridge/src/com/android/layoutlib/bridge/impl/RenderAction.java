@@ -153,13 +153,10 @@ public abstract class RenderAction<T extends RenderParams> {
 
         metrics.scaledDensity = metrics.noncompatScaledDensity = metrics.density;
 
-        if (hardwareConfig.getOrientation() == ScreenOrientation.PORTRAIT) {
-            metrics.widthPixels = metrics.noncompatWidthPixels = hardwareConfig.getScreenWidth();
-            metrics.heightPixels = metrics.noncompatHeightPixels = hardwareConfig.getScreenHeight();
-        } else {
-            metrics.widthPixels = metrics.noncompatWidthPixels = hardwareConfig.getScreenHeight();
-            metrics.heightPixels = metrics.noncompatHeightPixels = hardwareConfig.getScreenWidth();
-        }
+        // Display metrics width and height are for the current orientation
+        metrics.widthPixels = metrics.noncompatWidthPixels = hardwareConfig.getScreenWidth();
+        metrics.heightPixels = metrics.noncompatHeightPixels = hardwareConfig.getScreenHeight();
+
         metrics.xdpi = metrics.noncompatXdpi = hardwareConfig.getXdpi();
         metrics.ydpi = metrics.noncompatYdpi = hardwareConfig.getYdpi();
 
@@ -431,15 +428,18 @@ public abstract class RenderAction<T extends RenderParams> {
             switch (orientation) {
             case PORTRAIT:
                 config.orientation = Configuration.ORIENTATION_PORTRAIT;
+                config.windowConfiguration.setRotation(ROTATION_0);
                 config.windowConfiguration.setDisplayRotation(ROTATION_0);
                 break;
             case LANDSCAPE:
                 config.orientation = Configuration.ORIENTATION_LANDSCAPE;
+                config.windowConfiguration.setRotation(ROTATION_90);
                 config.windowConfiguration.setDisplayRotation(ROTATION_90);
                 break;
             case SQUARE:
                 //noinspection deprecation
                 config.orientation = Configuration.ORIENTATION_SQUARE;
+                config.windowConfiguration.setRotation(ROTATION_0);
                 config.windowConfiguration.setDisplayRotation(ROTATION_0);
                 break;
             }
