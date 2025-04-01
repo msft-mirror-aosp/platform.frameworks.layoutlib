@@ -20,6 +20,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.android.layoutlib.bridge.util.InsetUtil.getCurrentBounds;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -70,6 +71,11 @@ public class WindowManagerImpl implements WindowManager {
         };
         mDisplayInfo.logicalDensityDpi = mMetrics.densityDpi;
         mDisplayInfo.displayCutout = DisplayCutout.NO_CUTOUT;
+        if (context.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mDisplayInfo.rotation = Surface.ROTATION_90;
+        } else {
+            mDisplayInfo.rotation = Surface.ROTATION_0;
+        }
     }
 
     public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
@@ -335,15 +341,24 @@ public class WindowManagerImpl implements WindowManager {
         }
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     public void setupDisplayCutout() {
+        int displayWidth;
+        int displayHeight;
+        if (mDisplayInfo.rotation == Surface.ROTATION_90) {
+            displayWidth = mMetrics.heightPixels;
+            displayHeight = mMetrics.widthPixels;
+        } else {
+            displayWidth = mMetrics.widthPixels;
+            displayHeight = mMetrics.heightPixels;
+        }
+        // Get cutout for default orientation
         DisplayCutout displayCutout =
                 DisplayCutout.fromResourcesRectApproximation(mContext.getResources(), null,
-                        mMetrics.widthPixels, mMetrics.heightPixels, mMetrics.widthPixels,
-                        mMetrics.heightPixels);
+                        displayWidth, displayHeight, displayWidth, displayHeight);
         if (displayCutout != null) {
-            mDisplayInfo.displayCutout = displayCutout.getRotated(mDisplayInfo.logicalWidth,
-                    mDisplayInfo.logicalHeight, mDisplayInfo.rotation,
-                    getDefaultDisplay().getRotation());
+            mDisplayInfo.displayCutout = displayCutout.getRotated(displayWidth, displayHeight,
+                    Surface.ROTATION_0, mDisplayInfo.rotation);
         }
     }
 }
