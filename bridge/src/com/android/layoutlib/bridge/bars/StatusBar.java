@@ -24,6 +24,7 @@ import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.resources.Density;
 
+import android.app.WindowConfiguration;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Insets;
@@ -48,7 +49,6 @@ import java.util.stream.Stream;
 
 import static android.graphics.Color.WHITE;
 import static android.os._Original_Build.VERSION_CODES.M;
-import static android.view.Surface.ROTATION_0;
 import static android.view.WindowInsets.Type.mandatorySystemGestures;
 import static android.view.WindowInsets.Type.statusBars;
 import static android.view.WindowInsets.Type.tappableElement;
@@ -189,8 +189,8 @@ public class StatusBar extends CustomBar {
             insets = Insets.NONE;
             waterfallInsets = Insets.NONE;
         } else {
-            DisplayCutout rotated =
-                    cutout.getRotated(info.logicalWidth, info.logicalHeight, ROTATION_0, targetRot);
+            DisplayCutout rotated = cutout.getRotated(info.logicalWidth, info.logicalHeight,
+                    info.rotation, targetRot);
             insets = Insets.of(rotated.getSafeInsets());
             waterfallInsets = rotated.getWaterfallInsets();
         }
@@ -262,9 +262,9 @@ public class StatusBar extends CustomBar {
     }
 
     private Insets getStatusBarContentInsets() {
-        Rect screenBounds =
-                getContext().getResources().getConfiguration().windowConfiguration.getMaxBounds();
-        int width = screenBounds.width();
+        WindowConfiguration windowConfiguration =
+                getContext().getResources().getConfiguration().windowConfiguration;
+        Rect screenBounds = windowConfiguration.getMaxBounds();
         List<Rect> cutoutRects = Stream.of(mDisplayCutout.getBoundingRectLeft(),
                 mDisplayCutout.getBoundingRectRight(),
                 mDisplayCutout.getBoundingRectTop()).filter(rect -> !rect.isEmpty()).toList();
@@ -274,9 +274,16 @@ public class StatusBar extends CustomBar {
 
         int leftMargin = 0;
         int rightMargin = 0;
+        int width = screenBounds.width();
         Rect sbRect = new Rect(0, 0, width, mStatusBarHeight);
         for (Rect cutoutRect : cutoutRects) {
-            if (!sbRect.intersects(0, cutoutRect.top, width, cutoutRect.bottom)) {
+            Rect shortEdge;
+            if (windowConfiguration.getRotation() == Surface.ROTATION_90) {
+                shortEdge = new Rect(cutoutRect.left, 0, cutoutRect.right, screenBounds.height());
+            } else {
+                shortEdge = new Rect(0, cutoutRect.top, width, cutoutRect.bottom);
+            }
+            if (!sbRect.intersect(shortEdge)) {
                 continue;
             }
             if (cutoutRect.left == 0) {
