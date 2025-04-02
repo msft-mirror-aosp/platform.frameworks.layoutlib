@@ -75,8 +75,8 @@ public class InsetUtil {
             if (provider.getMinimalInsetsSizeInDisplayCutoutSafe() != null) {
                 tmpRect.set(sourceFrame);
             }
-            source.updateSideHint(currentBounds);
             calculateInsetsFrame(sourceFrame, insets);
+            source.updateSideHint(currentBounds);
 
             if (provider.getMinimalInsetsSizeInDisplayCutoutSafe() != null) {
                 // The insets is at least with the given size within the display cutout safe area.
@@ -161,7 +161,7 @@ public class InsetUtil {
                         WindowManager.LayoutParams.FLAG_SPLIT_TOUCH |
                         WindowManager.LayoutParams.FLAG_SLIPPERY, PixelFormat.TRANSLUCENT);
         lp.gravity = gravity;
-        lp.providedInsets = getInsetsFrameProvider(navBar, insetsHeight, context);
+        lp.providedInsets = getInsetsFrameProvider(navBar, insetsHeight, width, context);
 
         lp.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_COLOR_SPACE_AGNOSTIC |
                 WindowManager.LayoutParams.PRIVATE_FLAG_LAYOUT_SIZE_EXTENDED_BY_CUTOUT;
@@ -171,11 +171,13 @@ public class InsetUtil {
 
     // Copied/adapted from packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBar.java
     private static InsetsFrameProvider[] getInsetsFrameProvider(View navBar, int insetsHeight,
-            Context userContext) {
+            int insetWidth, Context userContext) {
         final InsetsFrameProvider navBarProvider =
                 new InsetsFrameProvider(navBar, 0, WindowInsets.Type.navigationBars());
         if (insetsHeight != -1) {
             navBarProvider.setInsetsSize(Insets.of(0, 0, 0, insetsHeight));
+        } else if (insetWidth != -1) {
+            navBarProvider.setInsetsSize(Insets.of(0, 0, insetWidth, 0));
         }
         final boolean needsScrim = userContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_navBarNeedsScrim);
