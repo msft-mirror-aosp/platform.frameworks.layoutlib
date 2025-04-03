@@ -54,7 +54,8 @@ public final class DisplayManagerGlobal {
     private static DisplayManagerGlobal sInstance;
 
     @VisibleForTesting
-    public DisplayManagerGlobal(IDisplayManager dm) {}
+    public DisplayManagerGlobal(IDisplayManager dm) {
+    }
 
     public static DisplayManagerGlobal getInstance() {
         synchronized (DisplayManagerGlobal.class) {
@@ -94,37 +95,50 @@ public final class DisplayManagerGlobal {
             boolean isEventFilterExplicit) {}
 
     public void registerDisplayListener(@NonNull DisplayListener listener,
-            @Nullable Handler handler, long internalEventFlagsMask, String packageName) {}
+            @Nullable Handler handler, long internalEventFlagsMask, String packageName) {
+    }
 
     public void registerDisplayListener(@NonNull DisplayListener listener,
             @NonNull Executor executor, long internalEventFlagsMask, String packageName,
-            boolean isEventFilterExplicit) {}
+            boolean isEventFilterExplicit) {
+    }
 
-    public void unregisterDisplayListener(DisplayListener listener) {}
+    public void unregisterDisplayListener(DisplayListener listener) {
+    }
 
-    public void startWifiDisplayScan() {}
+    public void startWifiDisplayScan() {
+    }
 
-    public void stopWifiDisplayScan() {}
+    public void stopWifiDisplayScan() {
+    }
 
-    public void connectWifiDisplay(String deviceAddress) {}
+    public void connectWifiDisplay(String deviceAddress) {
+    }
 
-    public void pauseWifiDisplay() {}
+    public void pauseWifiDisplay() {
+    }
 
-    public void resumeWifiDisplay() {}
+    public void resumeWifiDisplay() {
+    }
 
-    public void disconnectWifiDisplay() {}
+    public void disconnectWifiDisplay() {
+    }
 
-    public void renameWifiDisplay(String deviceAddress, String alias) {}
+    public void renameWifiDisplay(String deviceAddress, String alias) {
+    }
 
-    public void forgetWifiDisplay(String deviceAddress) {}
+    public void forgetWifiDisplay(String deviceAddress) {
+    }
 
     public WifiDisplayStatus getWifiDisplayStatus() {
         return null;
     }
 
-    public void setUserDisabledHdrTypes(int[] userDisabledHdrTypes) {}
+    public void setUserDisabledHdrTypes(int[] userDisabledHdrTypes) {
+    }
 
-    public void setAreUserDisabledHdrTypesAllowed(boolean areUserDisabledHdrTypesAllowed) {}
+    public void setAreUserDisabledHdrTypesAllowed(boolean areUserDisabledHdrTypesAllowed) {
+    }
 
     public boolean areUserDisabledHdrTypesAllowed() {
         return false;
@@ -134,7 +148,8 @@ public final class DisplayManagerGlobal {
         return null;
     }
 
-    public void requestColorMode(int displayId, int colorMode) {}
+    public void requestColorMode(int displayId, int colorMode) {
+    }
 
     public VirtualDisplay createVirtualDisplay(@NonNull Context context, MediaProjection projection,
             @NonNull VirtualDisplayConfig virtualDisplayConfig, VirtualDisplay.Callback callback,
@@ -142,14 +157,18 @@ public final class DisplayManagerGlobal {
         return null;
     }
 
-    public void setVirtualDisplaySurface(IVirtualDisplayCallback token, Surface surface) {}
+    public void setVirtualDisplaySurface(IVirtualDisplayCallback token, Surface surface) {
+    }
 
-    public void resizeVirtualDisplay(IVirtualDisplayCallback token,
-            int width, int height, int densityDpi) {}
+    public void resizeVirtualDisplay(IVirtualDisplayCallback token, int width, int height,
+            int densityDpi) {
+    }
 
-    public void releaseVirtualDisplay(IVirtualDisplayCallback token) {}
+    public void releaseVirtualDisplay(IVirtualDisplayCallback token) {
+    }
 
-    void setVirtualDisplayState(IVirtualDisplayCallback token, boolean isOn) {}
+    void setVirtualDisplayState(IVirtualDisplayCallback token, boolean isOn) {
+    }
 
     public Point getStableDisplaySize() {
         return null;
@@ -167,10 +186,13 @@ public final class DisplayManagerGlobal {
         return null;
     }
 
-    public OverlayProperties getOverlaySupport() { return null; }
+    public OverlayProperties getOverlaySupport() {
+        return null;
+    }
 
     public void setBrightnessConfigurationForUser(BrightnessConfiguration c, int userId,
-            String packageName) {}
+            String packageName) {
+    }
 
     public BrightnessConfiguration getBrightnessConfigurationForUser(int userId) {
         return null;
@@ -184,15 +206,18 @@ public final class DisplayManagerGlobal {
         return false;
     }
 
-    public void setTemporaryBrightness(int displayId, float brightness) {}
+    public void setTemporaryBrightness(int displayId, float brightness) {
+    }
 
-    public void setBrightness(int displayId, float brightness) {}
+    public void setBrightness(int displayId, float brightness) {
+    }
 
     public float getBrightness(int displayId) {
         return 0.0f;
     }
 
-    public void setTemporaryAutoBrightnessAdjustment(float adjustment) {}
+    public void setTemporaryAutoBrightnessAdjustment(float adjustment) {
+    }
 
     public Pair<float[], float[]> getMinimumBrightnessCurve() {
         return null;
@@ -202,22 +227,29 @@ public final class DisplayManagerGlobal {
         return null;
     }
 
-    public void setShouldAlwaysRespectAppRequestedMode(boolean enabled) {}
+    public void setShouldAlwaysRespectAppRequestedMode(boolean enabled) {
+    }
 
     public boolean shouldAlwaysRespectAppRequestedMode() {
         return false;
     }
 
-    public void setRefreshRateSwitchingType(int newValue) {}
+    public void setRefreshRateSwitchingType(int newValue) {
+    }
 
     public int getRefreshRateSwitchingType() {
         return 0;
     }
 
-    public static final String CACHE_KEY_DISPLAY_INFO_PROPERTY =
-            "cache_key.display_info";
+    public static final String CACHE_KEY_DISPLAY_INFO_PROPERTY = "cache_key.display_info";
 
-    public static void invalidateLocalDisplayInfoCaches() {}
+    public static void invalidateLocalDisplayInfoCaches() {
+    }
 
-    public void disableLocalDisplayInfoCaches() {}
+    public void disableLocalDisplayInfoCaches() {
+    }
+
+    public static long mapFiltersToInternalEventFlag(long val1, long val2) {
+        return val1;
+    }
 }
