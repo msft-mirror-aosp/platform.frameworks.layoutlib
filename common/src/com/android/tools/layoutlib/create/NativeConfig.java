@@ -174,6 +174,7 @@ public class NativeConfig {
             "libcore.io.MemoryMappedFile#bigEndianIterator",
             "libcore.io.MemoryMappedFile#close",
             "libcore.io.MemoryMappedFile#mmapRO",
+            "libcore.io.BlockGuardOs#close",
             "libcore.util.NativeAllocationRegistry#createMalloced",
     };
 
