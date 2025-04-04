@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.view.KeyEvent;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -550,6 +551,10 @@ public class AudioManager {
     public void addOnCommunicationDeviceChangedListener(Executor executor, AudioManager.OnCommunicationDeviceChangedListener listener) { }
 
     public void removeOnCommunicationDeviceChangedListener(AudioManager.OnCommunicationDeviceChangedListener listener) { }
+
+    public List<AudioDeviceInfo> getAudioDevicesForAttributes(AudioAttributes attributes) {
+        return Collections.emptyList();
+    }
 
     public interface OnCommunicationDeviceChangedListener {
         void onCommunicationDeviceChanged(AudioDeviceInfo var1);
