@@ -954,6 +954,12 @@ public class Resources_Delegate {
     @LayoutlibDelegate
     static XmlResourceParser loadXmlResourceParser(Resources resources, String file, int id,
             int assetCookie, String type) throws NotFoundException {
+        return resources.loadXmlResourceParser_Original(file, id, assetCookie, type);
+    }
+
+    @LayoutlibDelegate
+    public static XmlResourceParser loadXmlResourceParser(Resources resources, String file, int id,
+            int assetCookie, String type, boolean usesFeatureFlags) throws NotFoundException {
         // even though we know the XML file to load directly, we still need to resolve the
         // id so that we can know if it's a platform or project resource.
         // (mPlatformResourceFlag will get the result and will be used later).
