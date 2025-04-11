@@ -40,6 +40,7 @@ import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Action to render a given {@link Drawable} provided through {@link DrawableParams#getDrawable()}.
@@ -82,7 +83,7 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
         }
 
         Boolean allStates = params.getFlag(RenderParamsFlags.FLAG_KEY_RENDER_ALL_DRAWABLE_STATES);
-        if (allStates == Boolean.TRUE) {
+        if (Objects.equals(allStates, Boolean.TRUE)) {
             List<BufferedImage> result;
 
             if (d instanceof StateListDrawable stateList) {
