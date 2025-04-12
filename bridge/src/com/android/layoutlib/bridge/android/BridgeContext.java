@@ -1085,6 +1085,11 @@ public class BridgeContext extends Context {
     @Override
     public void unregisterComponentCallbacks(ComponentCallbacks callback) {}
 
+    @Override
+    public int getDeviceId() {
+        return DEVICE_ID_DEFAULT;
+    }
+
     // ------------- private new methods
 
     /**

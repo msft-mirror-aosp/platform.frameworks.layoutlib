@@ -23,6 +23,9 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A mock content resolver for the LayoutLib Bridge.
  * <p/>
@@ -31,6 +34,7 @@ import android.os.Bundle;
  * {@link BridgeContext#getContentResolver()}.
  */
 public class BridgeContentResolver extends ContentResolver {
+    public Map<String,String> settingsUserMap = new HashMap<>();
 
     private BridgeContentProvider mProvider = null;
 
