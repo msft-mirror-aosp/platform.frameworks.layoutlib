@@ -62,7 +62,16 @@ public class Trace_Delegate {
     }
 
     @LayoutlibDelegate
+    public static void asyncTraceForTrackBegin(String trackName, @NonNull String methodName,
+            int cookie) {
+    }
+
+    @LayoutlibDelegate
     public static void asyncTraceForTrackEnd(long traceTag, @NonNull String trackName, int cookie) {
+    }
+
+    @LayoutlibDelegate
+    public static void asyncTraceForTrackEnd(@NonNull String trackName, int cookie) {
     }
 
     @LayoutlibDelegate
