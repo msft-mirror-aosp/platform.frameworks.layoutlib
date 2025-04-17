@@ -184,12 +184,12 @@ public class BridgeContextTest extends RenderTestBase {
             ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
                     "/com/android/layoutlib/testdata/wallpaper1.webp",
                     configuration.isNightModeActive());
-            assertEquals(-13029845, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+            assertEquals(-13160916, context.getResources().getColor(android.R.color.system_neutral1_800, null));
 
             ((DynamicRenderResources) context.getRenderResources()).setWallpaper(
                     "/com/android/layoutlib/testdata/wallpaper2.webp",
                     configuration.isNightModeActive());
-            assertEquals(-13946321, context.getResources().getColor(android.R.color.system_neutral1_800, null));
+            assertEquals(-13815505, context.getResources().getColor(android.R.color.system_neutral1_800, null));
         } finally {
             context.disposeResources();
         }
