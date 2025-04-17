@@ -213,6 +213,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         if (mMeasuredScreenWidth == -1) {
             mMeasuredScreenWidth = hardwareConfig.getScreenWidth();
             mMeasuredScreenHeight = hardwareConfig.getScreenHeight();
+            mContentRoot.forceLayout();
         }
 
         RenderingMode renderingMode = params.getRenderingMode();

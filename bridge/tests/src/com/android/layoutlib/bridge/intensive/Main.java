@@ -37,20 +37,22 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import android.content.res.BridgeTypedArrayTest;
 import android.content.res.Resources_DelegateTest;
+import android.provider.Settings_Secure_DelegateTest;
+import android.provider.Settings_Global_DelegateTest;
+import android.provider.Settings_System_DelegateTest;
 import android.util.BridgeXmlPullAttributesTest;
 
 /**
  * Suite used by the layoutlib build system
  */
 @RunWith(Suite.class)
-@SuiteClasses({
-        RenderTests.class, LayoutParserWrapperTest.class,
-        BridgeXmlBlockParserTest.class, BridgeXmlPullAttributesTest.class,
-        TestDelegates.class, BridgeRenderSessionTest.class, ResourceHelperTest.class,
-        BridgeContextTest.class, Resources_DelegateTest.class, ShadowsRenderTests.class,
-        LayoutValidatorTests.class, AccessibilityValidatorTests.class, BridgeTypedArrayTest.class,
-        ValidatorResultTests.class, BitmapTest.class, DynamicRenderResourcesTest.class,
-        AccessibilityTest.class, ChoreographerCallbacksTest.class, HandlerMessageQueueTest.class
-})
+@SuiteClasses({RenderTests.class, LayoutParserWrapperTest.class, Settings_Secure_DelegateTest.class,
+        Settings_System_DelegateTest.class, Settings_Global_DelegateTest.class,
+        BridgeXmlBlockParserTest.class, BridgeXmlPullAttributesTest.class, TestDelegates.class,
+        BridgeRenderSessionTest.class, ResourceHelperTest.class, BridgeContextTest.class,
+        Resources_DelegateTest.class, ShadowsRenderTests.class, LayoutValidatorTests.class,
+        AccessibilityValidatorTests.class, BridgeTypedArrayTest.class, ValidatorResultTests.class,
+        BitmapTest.class, DynamicRenderResourcesTest.class, AccessibilityTest.class,
+        ChoreographerCallbacksTest.class, HandlerMessageQueueTest.class})
 public class Main {
 }
