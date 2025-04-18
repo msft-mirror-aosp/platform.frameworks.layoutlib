@@ -181,13 +181,13 @@ public class DynamicRenderResources extends RenderResources {
 
             //Themed Colors
             extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
-                    DynamicColors.getAllDynamicColorsMapped(false), false);
+                    DynamicColors.getAllDynamicColorsMapped(), false);
             // Fixed Colors
             extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
-                    DynamicColors.getFixedColorsMapped(false), true);
+                    DynamicColors.getFixedColorsMapped(), true);
             //Custom Colors
             extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
-                    DynamicColors.getCustomColorsMapped(false), false);
+                    DynamicColors.getCustomColorsMapped(), false);
             return dynamicColorMap;
         } catch (IllegalArgumentException | IOException ignore) {
             return null;
