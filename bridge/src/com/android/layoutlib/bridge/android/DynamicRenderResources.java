@@ -22,18 +22,15 @@ import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
 import com.android.ide.common.rendering.api.ResourceValueImpl;
 import com.android.ide.common.rendering.api.StyleResourceValue;
-import com.android.internal.graphics.ColorUtils;
 import com.android.resources.ResourceType;
 import com.android.systemui.monet.ColorScheme;
 import com.android.systemui.monet.DynamicColors;
 import com.android.systemui.monet.Style;
-import com.android.systemui.monet.TonalPalette;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.app.WallpaperColors;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -143,12 +140,12 @@ public class DynamicRenderResources extends RenderResources {
         return baseValue;
     }
 
-    public void setWallpaper(String wallpaperPath, boolean isNightMode) {
+    public void setWallpaper(String wallpaperPath) {
         if (wallpaperPath == null) {
             mDynamicColorMap = null;
             return;
         }
-        mDynamicColorMap = createDynamicColorMap(wallpaperPath, isNightMode);
+        mDynamicColorMap = createDynamicColorMap(wallpaperPath);
     }
 
     /**
@@ -156,12 +153,11 @@ public class DynamicRenderResources extends RenderResources {
      * It uses the main wallpaper color and the {@link Style#TONAL_SPOT} style.
      *
      * @param wallpaperPath path of the wallpaper resource to use
-     * @param isNightMode whether to use night mode or not
      *
      * @return map of system color names to their dynamic values
      */
     @VisibleForTesting
-    static Map<String, Integer> createDynamicColorMap(String wallpaperPath, boolean isNightMode) {
+    static Map<String, Integer> createDynamicColorMap(String wallpaperPath) {
         try (InputStream stream = DynamicRenderResources.class.getResourceAsStream(wallpaperPath)) {
             Bitmap wallpaper = BitmapFactory.decodeStream(stream);
             if (wallpaper == null) {
@@ -171,21 +167,21 @@ public class DynamicRenderResources extends RenderResources {
             int seed = ColorScheme.getSeedColor(wallpaperColors);
             ColorScheme lightScheme = new ColorScheme(seed, false);
             ColorScheme darkScheme = new ColorScheme(seed, true);
-            ColorScheme currentScheme = isNightMode ? darkScheme : lightScheme;
             Map<String, Integer> dynamicColorMap = new HashMap<>();
-            extractPalette("accent1", dynamicColorMap, currentScheme.getAccent1());
-            extractPalette("accent2", dynamicColorMap, currentScheme.getAccent2());
-            extractPalette("accent3", dynamicColorMap, currentScheme.getAccent3());
-            extractPalette("neutral1", dynamicColorMap, currentScheme.getNeutral1());
-            extractPalette("neutral2", dynamicColorMap, currentScheme.getNeutral2());
 
-            //Themed Colors
+            // Accent Colors
+            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
+                    DynamicColors.getAllAccentPalette(), false);
+            // Neutral Colors
+            extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
+                    DynamicColors.getAllNeutralPalette(), false);
+            // Themed Colors
             extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
                     DynamicColors.getAllDynamicColorsMapped(), false);
             // Fixed Colors
             extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
                     DynamicColors.getFixedColorsMapped(), true);
-            //Custom Colors
+            // Custom Colors
             extractDynamicColors(dynamicColorMap, lightScheme, darkScheme,
                     DynamicColors.getCustomColorsMapped(), false);
             return dynamicColorMap;
@@ -198,17 +194,6 @@ public class DynamicRenderResources extends RenderResources {
      * Builds the dynamic theme from the {@link ColorScheme} copying what is done
      * in {@link ThemeOverlayController#getOverlay}
      */
-    private static void extractPalette(String name,
-            Map<String, Integer> colorMap, TonalPalette tonalPalette) {
-        String resourcePrefix = "system_" + name;
-        tonalPalette.allShadesMapped.forEach((key, value) -> {
-            String resourceName = resourcePrefix + "_" + key;
-            int colorValue = ColorUtils.setAlphaComponent(value, 0xFF);
-            colorMap.put(resourceName, colorValue);
-        });
-        colorMap.put(resourcePrefix + "_0", Color.WHITE);
-    }
-
     private static void extractDynamicColors(Map<String, Integer> colorMap, ColorScheme lightScheme,
             ColorScheme darkScheme, List<Pair<String, DynamicColor>> colors, Boolean isFixed) {
         colors.forEach(p -> {
