@@ -2333,7 +2333,7 @@ public class BridgeContext extends Context {
     }
 
     public void applyWallpaper(String wallpaperPath) {
-        mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
+        mRenderResources.setWallpaper(wallpaperPath);
     }
 
     @NotNull
