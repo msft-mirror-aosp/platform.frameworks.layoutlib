@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package android.tracing;
+package com.android.internal.hidden_from_bootclasspath.android.view.flags;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 public class Flags_Delegate {
     @LayoutlibDelegate
-    public static boolean perfettoProtologTracing() {
+    public static boolean sensitiveContentAppProtection() {
         return false;
     }
 }
