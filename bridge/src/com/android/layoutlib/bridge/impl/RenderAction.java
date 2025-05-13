@@ -181,6 +181,7 @@ public abstract class RenderAction<T extends RenderParams> {
 
     public void updateHardwareConfiguration(HardwareConfig hardwareConfig) {
         mParams.setHardwareConfig(hardwareConfig);
+        mContext.getConfiguration().setTo(getConfiguration(mParams));
     }
 
     /**
