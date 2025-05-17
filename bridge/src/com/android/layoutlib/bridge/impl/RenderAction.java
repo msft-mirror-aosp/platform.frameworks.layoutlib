@@ -41,6 +41,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
 import android.os.SystemProperties;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.IWindowManager;
 import android.view.IWindowManagerImpl;
@@ -170,6 +171,10 @@ public abstract class RenderAction<T extends RenderParams> {
         mContext = new BridgeContext(mParams.getProjectKey(), metrics, resources,
                 mParams.getAssets(), mParams.getLayoutlibCallback(), getConfiguration(mParams),
                 mParams.getTargetSdkVersion(), mParams.isRtlSupported());
+        Settings.Global.putFloat(
+                mContext.getContentResolver(),
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                mParams.getAnimatorDurationScale());
 
         synchronized (sContextLock) {
             sContexts.add(mContext);
@@ -181,6 +186,7 @@ public abstract class RenderAction<T extends RenderParams> {
 
     public void updateHardwareConfiguration(HardwareConfig hardwareConfig) {
         mParams.setHardwareConfig(hardwareConfig);
+        mContext.getConfiguration().setTo(getConfiguration(mParams));
     }
 
     /**
