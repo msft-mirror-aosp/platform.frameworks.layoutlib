@@ -172,8 +172,8 @@ public class NativeConfig {
             "android.widget.RemoteViews#getApplicationInfo",
             // Android framework build jarjars Flag classes,
             // adding com.android.internal.hidden_from_bootclasspath to the package
-            "com.android.internal.hidden_from_bootclasspath.android.tracing.Flags#perfettoProtologTracing",
             "com.android.internal.hidden_from_bootclasspath.android.view.flags.Flags#sensitiveContentAppProtection",
+            "com.android.internal.protolog.ProtoLog#logOnlyToLogcat",
             "com.android.internal.util.XmlUtils#convertValueToInt",
             "com.android.internal.view.menu.MenuBuilder#createNewMenuItem",
             "dalvik.system.VMRuntime#getNotifyNativeInterval",
