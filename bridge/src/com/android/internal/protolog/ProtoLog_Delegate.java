@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.internal.hidden_from_bootclasspath.android.tracing;
+package com.android.internal.protolog;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-public class Flags_Delegate {
+public class ProtoLog_Delegate {
     @LayoutlibDelegate
-    public static boolean perfettoProtologTracing() {
-        return false;
+    /*package*/ static boolean logOnlyToLogcat() {
+        return true;
     }
 }
