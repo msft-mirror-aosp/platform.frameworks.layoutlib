@@ -22,7 +22,6 @@ import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ShadowsRenderTests extends RenderTestBase {
@@ -47,7 +46,6 @@ public class ShadowsRenderTests extends RenderTestBase {
         renderAndVerify(params, "shadows_test.png");
     }
 
-    @Ignore("b/416286651")
     @Test
     public void testRoundedEdgeRectangle() throws Exception {
         LayoutPullParser parser = createParserFromPath("shadows_rounded_edge_test.xml");
@@ -94,7 +92,6 @@ public class ShadowsRenderTests extends RenderTestBase {
         renderAndVerify(params, "shadow_sizes_test.png");
     }
 
-    @Ignore("b/416286651")
     @Test
     public void testWidgetWithScroll() throws Exception {
         LayoutPullParser parser = createParserFromPath("shadows_scrollview.xml");
