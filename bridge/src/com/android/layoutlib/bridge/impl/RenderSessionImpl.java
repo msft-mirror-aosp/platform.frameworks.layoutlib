@@ -483,6 +483,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 return ERROR_NOT_INFLATED.createResult();
             }
 
+            if (mConfigurationUpdated) {
+                mViewRoot.dispatchConfigurationChanged(getContext().getConfiguration());
+                mConfigurationUpdated = false;
+            }
+
             measureLayout(params);
 
             float scaleX = 1.0f;
