@@ -101,6 +101,8 @@ public abstract class RenderAction<T extends RenderParams> {
 
     private final T mParams;
 
+    protected boolean mConfigurationUpdated;
+
     private BridgeContext mContext;
 
     private static final Object sContextLock = new Object();
@@ -187,6 +189,7 @@ public abstract class RenderAction<T extends RenderParams> {
     public void updateHardwareConfiguration(HardwareConfig hardwareConfig) {
         mParams.setHardwareConfig(hardwareConfig);
         mContext.getConfiguration().setTo(getConfiguration(mParams));
+        mConfigurationUpdated = true;
     }
 
     /**
