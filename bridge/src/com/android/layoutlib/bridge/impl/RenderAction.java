@@ -469,7 +469,7 @@ public abstract class RenderAction<T extends RenderParams> {
             config.screenLayout |= Configuration.SCREENLAYOUT_ROUND_UNDEFINED;
         }
         String locale = params.getLocale();
-        if (locale != null && !locale.isEmpty()) config.locale = new Locale(locale);
+        if (locale != null && !locale.isEmpty()) config.locale =  Locale.forLanguageTag(locale);
 
         config.fontScale = params.getFontScale();
         config.uiMode = params.getUiMode();
