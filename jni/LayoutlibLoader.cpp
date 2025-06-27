@@ -55,10 +55,10 @@ static void init_keyboard(const vector<string>& keyboardPaths) {
     for (const string& path : keyboardPaths) {
         base::Result<std::unique_ptr<KeyCharacterMap>> charMap =
                 KeyCharacterMap::load(path, KeyCharacterMap::Format::BASE);
-
         InputDeviceInfo info = InputDeviceInfo();
-        info.initialize(keyboardId, 0, 0, InputDeviceIdentifier(),
-                        "keyboard " + std::to_string(keyboardId), true, false,
+        info.initialize(keyboardId, /*generation=*/0, /*controllerNumber=*/0,
+                        InputDeviceIdentifier(), "keyboard " + std::to_string(keyboardId),
+                        /*isExternal=*/true, /*isVirtualDevice=*/false, /*hasMic=*/false,
                         ui::LogicalDisplayId::DEFAULT);
         info.setKeyboardType(AINPUT_KEYBOARD_TYPE_ALPHABETIC);
         info.setKeyCharacterMap(std::move(*charMap));
