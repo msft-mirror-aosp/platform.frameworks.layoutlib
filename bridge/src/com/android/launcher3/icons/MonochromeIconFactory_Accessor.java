@@ -30,7 +30,7 @@ public class MonochromeIconFactory_Accessor {
             int foregroundColor) {
         MonochromeIconFactory monoFactory = new MonochromeIconFactory(adaptiveIcon.getBounds().width());
         monoFactory.setColorFilter(new BlendModeColorFilter(foregroundColor, BlendMode.SRC_IN));
-        Drawable mono = monoFactory.wrap(adaptiveIcon, adaptiveIcon.getIconMask());
+        Drawable mono = monoFactory.wrap(adaptiveIcon);
         float inset = getExtraInsetFraction() / (1 + 2 * getExtraInsetFraction());
         return new InsetDrawable(mono, inset);
     }
