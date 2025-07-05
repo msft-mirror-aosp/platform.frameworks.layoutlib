@@ -249,7 +249,7 @@ public final class DisplayManagerGlobal {
     public void disableLocalDisplayInfoCaches() {
     }
 
-    public static long mapFiltersToInternalEventFlag(long val1, long val2) {
+    public long mapFiltersToInternalEventFlag(long val1, long val2) {
         return val1;
     }
 }
