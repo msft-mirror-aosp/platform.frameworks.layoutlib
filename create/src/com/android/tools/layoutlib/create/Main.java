@@ -121,6 +121,7 @@ public class Main {
                         "android.graphics.drawable.**",
                         "android.icu.**",                   // needed by LayoutLib
                         "android.media.MediaCryptoException",    // needed by ExoPlayer
+                        "android.media.MediaRouter2",   // needed by PlayerSurface
                         "android.os.*",  // for android.os.Handler
                         "android.os.ext.*", // for android.os.ext.SdkExtensions, needed by Compose
                         "android.pim.*", // for datepicker
@@ -143,7 +144,7 @@ public class Main {
                         "com.google.android.libraries.accessibility.**",
                         "libcore.icu.ICU",                  // needed by ICU_Delegate in LayoutLib
                         "libcore.io.*",                     // needed to load /usr/share/zoneinfo
-                        "org.apache.harmony.xml.*",
+                        "org.apache.harmony.xml.*"
                     },
                     info.getExcludedClasses(),
                     new String[] {
