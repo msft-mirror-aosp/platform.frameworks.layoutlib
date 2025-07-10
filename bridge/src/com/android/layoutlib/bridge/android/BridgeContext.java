@@ -86,6 +86,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
+import android.os.IUserManager;
 import android.os.Looper;
 import android.os.NullVibrator;
 import android.os.NullVibratorManager;
@@ -95,6 +96,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -179,6 +181,7 @@ public class BridgeContext extends Context {
     private final DisplayManager mDisplayManager;
     private AutofillManager mAutofillManager;
     private final ClipboardManager mClipboardManager;
+    private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
     private final ConnectivityManager mConnectivityManager;
     private final AudioManager mAudioManager;
@@ -277,6 +280,7 @@ public class BridgeContext extends Context {
         mWindowManager = new WindowManagerImpl(this, mMetrics);
         mDisplayManager = new DisplayManager(this);
         mClipboardManager = new ClipboardManager(this, null);
+        mUserManager = new UserManager(this, new IUserManager.Default());
         mActivityManager = ActivityManager_Accessor.getActivityManagerInstance(this);
         mConnectivityManager = new ConnectivityManager(this, null);
         mAudioManager = new AudioManager(this);
@@ -695,6 +699,9 @@ public class BridgeContext extends Context {
 
             case CLIPBOARD_SERVICE:
                 return mClipboardManager;
+
+            case USER_SERVICE:
+                return mUserManager;
 
             case ACTIVITY_SERVICE:
                 return mActivityManager;
