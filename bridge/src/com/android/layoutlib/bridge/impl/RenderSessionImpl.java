@@ -524,7 +524,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                                     Boolean.TRUE.equals(params.getFlag(
                                             RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE));
 
-                    if (enableImageResizing || mNewRenderSize) {
+                    if (enableImageResizing || mNewRenderSize || disableBitmapCaching) {
                         disposeImageSurface();
                     }
 
