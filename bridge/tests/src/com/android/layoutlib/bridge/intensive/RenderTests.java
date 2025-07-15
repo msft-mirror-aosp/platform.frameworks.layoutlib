@@ -2476,4 +2476,36 @@ public class RenderTests extends RenderTestBase {
             session.dispose();
         }
     }
+
+    @Test
+    public void testDisableBitmapFlag() throws ClassNotFoundException {
+        LayoutPullParser parser = createParserFromPath("allwidgets.xml");
+        LayoutLibTestCallback layoutLibCallback =
+                new LayoutLibTestCallback(getLogger(), mDefaultClassLoader);
+        layoutLibCallback.initResources();
+        SessionParams params = getSessionParamsBuilder()
+                .setParser(parser)
+                .setConfigGenerator(ConfigGenerator.NEXUS_5)
+                .setCallback(layoutLibCallback)
+                .setFlag(RenderParamsFlags.FLAG_KEY_DISABLE_BITMAP_CACHING, true)
+                .build();
+
+        System_Delegate.setBootTimeNanos(TimeUnit.MILLISECONDS.toNanos(871732800000L));
+        System_Delegate.setNanosTime(TimeUnit.MILLISECONDS.toNanos(871732800000L));
+        RenderSession session = sBridge.createSession(params);
+        session.setElapsedFrameTimeNanos(TimeUnit.SECONDS.toNanos(2));
+
+        try {
+            // Render the session with a timeout of 50s.
+            session.render(50000);
+            RenderResult result = RenderResult.getFromSession(session);
+            verify("allwidgets.png", result.getImage());
+
+            session.render(50000);
+            result = RenderResult.getFromSession(session);
+            verify("allwidgets.png", result.getImage());
+        } finally {
+            session.dispose();
+        }
+    }
 }
