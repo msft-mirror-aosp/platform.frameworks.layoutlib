@@ -39,7 +39,7 @@ public class ClipboardManager extends android.text.ClipboardManager {
         void onPrimaryClipChanged();
     }
 
-    /** {@hide} */
+    /** @hide */
     public ClipboardManager(Context context, Handler handler) { }
 
     /**
