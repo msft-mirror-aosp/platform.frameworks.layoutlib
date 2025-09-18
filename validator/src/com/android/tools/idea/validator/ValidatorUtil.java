@@ -193,6 +193,7 @@ public class ValidatorUtil {
 
             AccessibilityHierarchyAndroid view = hierarchy.mView;
             Parameters parameters = hierarchy.mParameters;
+            hierarchy.mParameters = null;
 
             EnumSet<Level> filter = policy.mLevels;
             ArrayList<AccessibilityHierarchyCheckResult> a11yResults = new ArrayList<>();
