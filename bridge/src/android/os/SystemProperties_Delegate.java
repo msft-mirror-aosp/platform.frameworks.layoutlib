@@ -27,4 +27,11 @@ public class SystemProperties_Delegate {
         // throws a fatal exception for non-bionic devices.
        return null;
     }
+
+    @LayoutlibDelegate
+    public static void addChangeCallback(Runnable callback) {
+        // AndroidComposeView leaks class loaders through this method, and this method
+        // will not have any actual effect as the callbacks are only executed from
+        // native code triggers, so we prefer to ignore all calls to this method.
+    }
 }
