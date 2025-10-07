@@ -117,6 +117,7 @@ public class NativeConfig {
             "android.os.PerfettoTrackEventExtra#getTerminatingFlow",
             "android.os.PerfettoTrackEventExtra#native_delete",
             "android.os.PerfettoTrackEventExtra#native_init",
+            "android.os.SystemProperties#addChangeCallback",
             "android.os.SystemProperties#find",
             "android.permission.PermissionManager#checkPermission",
             "android.preference.Preference#getView",
