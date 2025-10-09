@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.view.flags;
+package com.android.internal.hidden_from_bootclasspath.android.view.flags;
 
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 

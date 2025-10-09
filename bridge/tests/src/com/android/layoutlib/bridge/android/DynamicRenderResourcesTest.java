@@ -35,31 +35,31 @@ public class DynamicRenderResourcesTest extends RenderTestBase {
     @Test
     public void createDynamicTheme() {
         Map<String, Integer> dynamicColorMap = DynamicRenderResources.createDynamicColorMap(
-                "/com/android/layoutlib/testdata/wallpaper1.webp", false);
+                "/com/android/layoutlib/testdata/wallpaper1.webp");
         assertNotNull(dynamicColorMap);
-        assertEquals(-1, (int)dynamicColorMap.get("system_accent1_0"));
-        assertEquals(-4632, (int)dynamicColorMap.get("system_accent1_50"));
-        assertEquals(-1403268, (int)dynamicColorMap.get("system_accent1_300"));
-        assertEquals(-11198451, (int)dynamicColorMap.get("system_accent1_800"));
-        assertEquals(-1, (int)dynamicColorMap.get("system_accent2_0"));
-        assertEquals(-4632, (int)dynamicColorMap.get("system_accent2_50"));
-        assertEquals(-3497321, (int)dynamicColorMap.get("system_accent2_300"));
-        assertEquals(-12309982, (int)dynamicColorMap.get("system_accent2_800"));
-        assertEquals(-1, (int)dynamicColorMap.get("system_accent3_0"));
-        assertEquals(-3900, (int)dynamicColorMap.get("system_accent3_50"));
-        assertEquals(-4478092, (int)dynamicColorMap.get("system_accent3_300"));
-        assertEquals(-12963835, (int)dynamicColorMap.get("system_accent3_800"));
-        assertEquals(-1, (int)dynamicColorMap.get("system_neutral1_0"));
-        assertEquals(-4632, (int)dynamicColorMap.get("system_neutral1_50"));
-        assertEquals(-4675421, (int)dynamicColorMap.get("system_neutral1_300"));
-        assertEquals(-13029845, (int)dynamicColorMap.get("system_neutral1_800"));
-        assertEquals(-1, (int)dynamicColorMap.get("system_neutral2_0"));
-        assertEquals(-4632, (int)dynamicColorMap.get("system_neutral2_50"));
-        assertEquals(-4413535, (int)dynamicColorMap.get("system_neutral2_300"));
-        assertEquals(-12899031, (int)dynamicColorMap.get("system_neutral2_800"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_accent1_0_light"));
+        assertEquals(-4632, (int)dynamicColorMap.get("system_accent1_50_light"));
+        assertEquals(-1795711, (int)dynamicColorMap.get("system_accent1_300_light"));
+        assertEquals(-11394543, (int)dynamicColorMap.get("system_accent1_800_light"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_accent2_0_light"));
+        assertEquals(-4632, (int)dynamicColorMap.get("system_accent2_50_light"));
+        assertEquals(-3497321, (int)dynamicColorMap.get("system_accent2_300_light"));
+        assertEquals(-12309982, (int)dynamicColorMap.get("system_accent2_800_light"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_accent3_0_light"));
+        assertEquals(-4138, (int)dynamicColorMap.get("system_accent3_50_light"));
+        assertEquals(-3692695, (int)dynamicColorMap.get("system_accent3_300_light"));
+        assertEquals(-12571392, (int)dynamicColorMap.get("system_accent3_800_light"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_neutral1_0_light"));
+        assertEquals(-135703, (int)dynamicColorMap.get("system_neutral1_50_light"));
+        assertEquals(-4806492, (int)dynamicColorMap.get("system_neutral1_300_light"));
+        assertEquals(-13160916, (int)dynamicColorMap.get("system_neutral1_800_light"));
+        assertEquals(-1, (int)dynamicColorMap.get("system_neutral2_0_light"));
+        assertEquals(-4632, (int)dynamicColorMap.get("system_neutral2_50_light"));
+        assertEquals(-4413536, (int)dynamicColorMap.get("system_neutral2_300_light"));
+        assertEquals(-12833495, (int)dynamicColorMap.get("system_neutral2_800_light"));
 
-        assertEquals(-8956083, (int)dynamicColorMap.get("system_secondary_light"));
+        assertEquals(-8890290, (int)dynamicColorMap.get("system_secondary_light"));
         assertEquals(-1589839, (int)dynamicColorMap.get("system_secondary_dark"));
-        assertEquals(-12973312, (int)dynamicColorMap.get("system_on_primary_fixed"));
+        assertEquals(-12117750, (int)dynamicColorMap.get("system_on_primary_fixed"));
     }
 }

@@ -1078,6 +1078,11 @@ public class BridgeContext extends Context {
     public void unregisterComponentCallbacks(ComponentCallbacks callback) {
     }
 
+    @Override
+    public int getDeviceId() {
+        return DEVICE_ID_DEFAULT;
+    }
+
     // ------------- private new methods
 
     /**
@@ -2308,7 +2313,7 @@ public class BridgeContext extends Context {
     }
 
     public void applyWallpaper(String wallpaperPath) {
-        mRenderResources.setWallpaper(wallpaperPath, mConfig.isNightModeActive());
+        mRenderResources.setWallpaper(wallpaperPath);
     }
 
     @NotNull
