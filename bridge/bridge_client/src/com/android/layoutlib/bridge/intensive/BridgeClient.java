@@ -52,7 +52,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -63,43 +62,56 @@ import static org.junit.Assert.fail;
 
 /**
  * Base class for render tests. The render tests load all the framework resources and a project
- * checked in this test's resources. The main dependencies
+ * checked in this test's resources.
+ *
+ * <p>The main framework dependencies are:
+ *
+ * <ul>
+ *   <li>Fonts directory
+ *   <li>Framework Resources
+ *   <li>ICU data
+ *   <li>Hyphenation data
+ *   <li>Keyboard files
+ *   <li>build.prop file
+ *   <li>Native library
+ * </ul>
+ *
+ * <p>These are configured by system properties. If the properties are not set, this class will
+ * attempt to find them in the build output directory (e.g. out/host/common/...). The properties
  * are:
- * 1. Fonts directory.
- * 2. Framework Resources.
- * 3. App resources.
- * 4. build.prop file
- * <p>
- * These are configured by two variables set in the system properties.
- * <p>
- * 1. platform.dir: This is the directory for the current platform in the built SDK
- * (.../sdk/platforms/android-<version>).
- * <p>
- * The fonts are platform.dir/data/fonts.
- * The Framework resources are platform.dir/data/res.
- * build.prop is at platform.dir/build.prop.
- * <p>
- * 2. test_res.dir: This is the directory for the resources of the test. If not specified, this
- * falls back to getClass().getProtectionDomain().getCodeSource().getLocation()
- * <p>
- * The app resources are obtained using getAppResources() getAppTestAsset() getAppClassesLocation()
+ *
+ * <ul>
+ *   <li>{@value #PLATFORM_RES_DIR_PROPERTY}: The directory containing the platform resources (res).
+ *   <li>{@value #NATIVE_LIB_PATH_PROPERTY}: The directory containing the native libraries used by
+ *       layoutlib.
+ *   <li>{@value #FONT_DIR_PROPERTY}: The directory with the system fonts.
+ *   <li>{@value #ICU_DATA_PATH_PROPERTY}: The path to the ICU data file.
+ *   <li>{@value #HYPHEN_DATA_DIR_PROPERTY}: The directory with the hyphenation data.
+ *   <li>{@value #KEYBOARD_DIR_PROPERTY}: The directory with the keyboard files (.kcm).
+ *   <li>{@value #BUILD_PROP_DIR_PROPERTY}: The directory with the build.prop file.
+ * </ul>
+ *
+ * <p>The app resources are obtained from subclasses by implementing {@link #getAppResources()},
+ * {@link #getAppTestAsset()}, and {@link #getAppClassesLocation()}.
  */
 public abstract class BridgeClient {
 
-    private static final String PLATFORM_DIR;
     private static final String ANDROID_HOST_OUT_DIR_PROPERTY = "android_host_out.dir";
     private static final String NATIVE_LIB_PATH_PROPERTY = "native.lib.path";
     private static final String FONT_DIR_PROPERTY = "font.dir";
     private static final String ICU_DATA_PATH_PROPERTY = "icu.data.path";
     private static final String HYPHEN_DATA_DIR_PROPERTY = "hyphen.data.dir";
     private static final String KEYBOARD_DIR_PROPERTY = "keyboard.dir";
-    private static final String PLATFORM_DIR_PROPERTY = "platform.dir";
+    private static final String PLATFORM_RES_DIR_PROPERTY = "platform.res.dir";
+    private static final String BUILD_PROP_DIR_PROPERTY = "build.prop.dir";
 
+    private static final String PLATFORM_RES_DIR;
     private static final String NATIVE_LIB_DIR_PATH;
     private static final String FONT_DIR;
     private static final String ICU_DATA_PATH;
     private static final String HYPHEN_DATA_DIR;
     private static final String KEYBOARD_DIR;
+    private static final String BUILD_PROP_DIR;
     private static final String EMPTY_FRAME =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?> <FrameLayout "
                     + "xmlns:android=\"http://schemas.android.com/apk/res/android\" "
@@ -115,10 +127,10 @@ public abstract class BridgeClient {
 
     static {
         // Test that System Properties are properly set.
-        PLATFORM_DIR = getPlatformDir();
-        if (PLATFORM_DIR == null) {
+        PLATFORM_RES_DIR = getPlatformResDir();
+        if (PLATFORM_RES_DIR == null) {
             fail(String.format("System Property %1$s not properly set. The value is %2$s",
-                    PLATFORM_DIR_PROPERTY, System.getProperty(PLATFORM_DIR_PROPERTY)));
+                    PLATFORM_RES_DIR_PROPERTY, System.getProperty(PLATFORM_RES_DIR_PROPERTY)));
         }
 
         NATIVE_LIB_DIR_PATH = getNativeLibDirPath();
@@ -126,6 +138,7 @@ public abstract class BridgeClient {
         ICU_DATA_PATH = getIcuDataPath();
         HYPHEN_DATA_DIR = getHyphenDataDir();
         KEYBOARD_DIR = getKeyboardDir();
+        BUILD_PROP_DIR = getBuildPropDir();
     }
 
     @Rule
@@ -167,57 +180,46 @@ public abstract class BridgeClient {
         if (nativeLibDirPath != null) {
             File nativeLibDir = new File(nativeLibDirPath);
             if (nativeLibDir.isDirectory()) {
-                nativeLibDirPath = nativeLibDir.getAbsolutePath();
-            } else {
-                nativeLibDirPath = null;
+                return nativeLibDir.getAbsolutePath();
             }
         }
-        if (nativeLibDirPath == null) {
-            nativeLibDirPath = PLATFORM_DIR + "/../../../../../lib64/";
-        }
-        return nativeLibDirPath;
+        return PLATFORM_RES_DIR + "/../../../../linux-x86/lib64/";
     }
 
     private static String getFontDir() {
         String fontDir = System.getProperty(FONT_DIR_PROPERTY);
-        if (fontDir == null) {
-            // The fonts are built into out/host/common/obj/PACKAGING/fonts_intermediates
-            // as specified in build/make/core/layoutlib_data.mk, and PLATFORM_DIR is
-            // out/host/[arch]/sdk/sdk*/android-sdk*/platforms/android*
-            fontDir = PLATFORM_DIR +
-                    "/../../../../../../common/obj/PACKAGING/fonts_intermediates";
-        }
-        return fontDir;
+        // The fonts are built into out/host/common/obj/PACKAGING/fonts_intermediates
+        // as specified in build/make/core/layoutlib_data.mk, and PLATFORM_RES_DIR is
+        // out/host/common/obj/PACKAGING/layoutlib-res_intermediates
+        return fontDir != null ? fontDir : PLATFORM_RES_DIR + "/../fonts_intermediates";
     }
 
     private static String getIcuDataPath() {
         String icuDataPath = System.getProperty(ICU_DATA_PATH_PROPERTY);
-        if (icuDataPath == null) {
-            icuDataPath = PLATFORM_DIR + "/../../../../../com.android.i18n/etc/icu/icudt76l.dat";
-        }
-        return icuDataPath;
+        return icuDataPath != null
+                ? icuDataPath
+                : PLATFORM_RES_DIR + "/../../../../linux-x86/com.android.i18n/etc/icu/icudt76l.dat";
     }
 
     private static String getHyphenDataDir() {
         String hyphenDataDir = System.getProperty(HYPHEN_DATA_DIR_PROPERTY);
-        if (hyphenDataDir == null) {
-            hyphenDataDir = PLATFORM_DIR +
-                    "/../../../../../../common/obj/PACKAGING/hyphen_intermediates";
-        }
-        return hyphenDataDir;
+        return hyphenDataDir != null ? hyphenDataDir : PLATFORM_RES_DIR + "/../hyphen_intermediates";
     }
 
     private static String getKeyboardDir() {
         String keyboardDir = System.getProperty(KEYBOARD_DIR_PROPERTY);
-        if (keyboardDir == null) {
-            // The keyboard files are built into
-            // out/host/common/obj/PACKAGING/keyboards_intermediates
-            // as specified in build/make/core/layoutlib_data.mk, and PLATFORM_DIR is
-            // out/host/[arch]/sdk/sdk*/android-sdk*/platforms/android*
-            keyboardDir = PLATFORM_DIR +
-                    "/../../../../../../common/obj/PACKAGING/keyboards_intermediates";
-        }
-        return keyboardDir;
+        // The keyboard files are built into
+        // out/host/common/obj/PACKAGING/keyboards_intermediates
+        // as specified in build/make/core/layoutlib_data.mk, and PLATFORM_RES_DIR is
+        // out/host/common/obj/PACKAGING/layoutlib-res_intermediates
+        return keyboardDir != null ? keyboardDir : PLATFORM_RES_DIR + "/../keyboards_intermediates";
+    }
+
+    private static String getBuildPropDir() {
+        String buildPropDir = System.getProperty(BUILD_PROP_DIR_PROPERTY);
+        return buildPropDir != null
+                ? buildPropDir
+                : PLATFORM_RES_DIR + "/../layoutlib-build-prop_intermediates";
     }
 
     private static String getAndroidHostOutDir() {
@@ -236,8 +238,8 @@ public abstract class BridgeClient {
         return null;
     }
 
-    private static String getPlatformDir() {
-        String platformDir = System.getProperty(PLATFORM_DIR_PROPERTY);
+    private static String getPlatformResDir() {
+        String platformDir = System.getProperty(PLATFORM_RES_DIR_PROPERTY);
         if (platformDir != null && !platformDir.isEmpty() && new File(platformDir).isDirectory()) {
             return platformDir;
         }
@@ -296,76 +298,31 @@ public abstract class BridgeClient {
         if (!host.isDirectory()) {
             return null;
         }
-        File[] hosts = host.listFiles(path -> path.isDirectory() &&
-                (path.getName().startsWith("linux-") ||
-                        path.getName().startsWith("darwin-")));
-        assert hosts != null;
-        for (File hostOut : hosts) {
-            String platformDir = getPlatformDirFromHostOut(hostOut);
-            if (platformDir != null) {
-                return platformDir;
-            }
+        File common = new File(host, "common");
+        if (!common.isDirectory()) {
+            return null;
         }
-
-        return null;
+        File obj = new File(common, "obj");
+        if (!obj.isDirectory()) {
+            return null;
+        }
+        File packaging = new File(obj, "PACKAGING");
+        if (!packaging.isDirectory()) {
+            return null;
+        }
+        return getPlatformDirFromHostOut(packaging);
     }
 
     private static String getPlatformDirFromHostOut(File out) {
         if (!out.isDirectory()) {
             return null;
         }
-        File sdkDir = new File(out, "sdk");
-        if (!sdkDir.isDirectory()) {
+        File resDir = new File(out, "layoutlib-res_intermediates");
+        if (!resDir.isDirectory()) {
             return null;
         }
-        File[] sdkDirs = sdkDir.listFiles(path -> {
-            // We need to search for $TARGET_PRODUCT (usually, sdk_phone_armv7)
-            return path.isDirectory() && path.getName().startsWith("sdk");
-        });
-        assert sdkDirs != null;
-        for (File dir : sdkDirs) {
-            String platformDir = getPlatformDirFromHostOutSdkSdk(dir);
-            if (platformDir != null) {
-                return platformDir;
-            }
-        }
-        return null;
-    }
 
-    private static String getPlatformDirFromHostOutSdkSdk(File sdkDir) {
-        File[] possibleSdks = sdkDir.listFiles(
-                path -> path.isDirectory() && path.getName().contains("android-sdk"));
-        assert possibleSdks != null;
-        for (File possibleSdk : possibleSdks) {
-            File platformsDir = new File(possibleSdk, "platforms");
-            File[] platforms = platformsDir.listFiles(
-                    path -> path.isDirectory() && path.getName().startsWith("android-"));
-            if (platforms == null || platforms.length == 0) {
-                continue;
-            }
-            Arrays.sort(platforms, (o1, o2) -> {
-                final int MAX_VALUE = 1000;
-                String suffix1 = o1.getName().substring("android-".length());
-                String suffix2 = o2.getName().substring("android-".length());
-                int suff1, suff2;
-                try {
-                    suff1 = Integer.parseInt(suffix1);
-                } catch (NumberFormatException e) {
-                    suff1 = MAX_VALUE;
-                }
-                try {
-                    suff2 = Integer.parseInt(suffix2);
-                } catch (NumberFormatException e) {
-                    suff2 = MAX_VALUE;
-                }
-                if (suff1 != MAX_VALUE || suff2 != MAX_VALUE) {
-                    return suff2 - suff1;
-                }
-                return suffix2.compareTo(suffix1);
-            });
-            return platforms[0].getAbsolutePath();
-        }
-        return null;
+        return resDir.getAbsolutePath();
     }
 
     /**
@@ -373,13 +330,13 @@ public abstract class BridgeClient {
      */
     @BeforeClass
     public static void beforeClass() {
-        File data_dir = new File(PLATFORM_DIR, "data");
+        File data_dir = new File(PLATFORM_RES_DIR, "data");
         File res = new File(data_dir, "res");
         sFrameworkRepo = FrameworkResourceRepository.create(res.getAbsoluteFile().toPath(),
-                Collections.emptySet(), null, false);
+                Collections.emptySet(), null, true);
 
         File fontLocation = new File(FONT_DIR);
-        File buildProp = new File(PLATFORM_DIR, "build.prop");
+        File buildProp = new File(BUILD_PROP_DIR, "layoutlib-build.prop");
         File attrs = new File(res, "values" + File.separator + "attrs.xml");
         String[] keyboardPaths = new String[0];
         sBridge = new Bridge();

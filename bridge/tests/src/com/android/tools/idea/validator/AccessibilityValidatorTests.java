@@ -37,6 +37,7 @@ import com.google.android.apps.common.testing.accessibility.framework.uielement.
 
 import static com.android.tools.idea.validator.ValidatorUtil.filter;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -317,8 +318,11 @@ public class AccessibilityValidatorTests extends RenderTestBase {
         Object validationData = session.getValidationData();
         assertTrue(validationData instanceof ValidatorHierarchy);
 
-        return ValidatorUtil.generateResults(LayoutValidator.DEFAULT_POLICY,
+        ValidatorResult result = ValidatorUtil.generateResults(LayoutValidator.DEFAULT_POLICY,
                 (ValidatorHierarchy) validationData);
+        // Check that we do not hold on to unneeded data after validation.
+        assertNull(((ValidatorHierarchy) validationData).mParameters);
+        return result;
     }
 
     private void render(String fileName, RenderSessionListener verifier) throws Exception {
