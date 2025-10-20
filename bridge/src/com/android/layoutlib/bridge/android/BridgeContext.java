@@ -691,7 +691,7 @@ public class BridgeContext extends Context {
             case INPUT_METHOD_SERVICE:  // needed by SearchView and Compose
                 return InputMethodManager.forContext(this);
 
-            case AUTOFILL_MANAGER_SERVICE:
+            case AUTOFILL_SERVICE:
                 if (mAutofillManager == null) {
                     mAutofillManager = new AutofillManager(this, new Default());
                 }
