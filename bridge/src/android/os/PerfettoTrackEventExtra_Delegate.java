@@ -18,7 +18,6 @@ package android.os;
 
 import android.os.PerfettoTrackEventExtra.CounterDouble;
 import android.os.PerfettoTrackEventExtra.CounterInt64;
-import android.os.PerfettoTrackEventExtra.Flow;
 import android.os.PerfettoTrackEventExtra.Proto;
 
 import com.android.layoutlib.bridge.impl.DelegateManager;
@@ -58,16 +57,6 @@ public class PerfettoTrackEventExtra_Delegate {
 
     @LayoutlibDelegate
     /*package*/ static Proto getProto(PerfettoTrackEventExtra thiz) {
-        return null;
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static Flow getFlow(PerfettoTrackEventExtra thiz) {
-        return null;
-    }
-
-    @LayoutlibDelegate
-    /*package*/ static Flow getTerminatingFlow(PerfettoTrackEventExtra thiz) {
         return null;
     }
 }
