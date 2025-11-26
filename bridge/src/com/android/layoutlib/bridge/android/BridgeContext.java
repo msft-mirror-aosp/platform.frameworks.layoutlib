@@ -1617,8 +1617,7 @@ public class BridgeContext extends Context {
 
     @Override
     public String getBasePackageName() {
-        // pass
-        return null;
+        return getPackageName();
     }
 
     @Override
