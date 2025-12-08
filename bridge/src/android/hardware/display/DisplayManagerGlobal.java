@@ -103,6 +103,9 @@ public final class DisplayManagerGlobal {
             boolean isEventFilterExplicit) {
     }
 
+    public void registerForRefreshRateChanges() {
+    }
+
     public void unregisterDisplayListener(DisplayListener listener) {
     }
 
