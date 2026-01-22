@@ -19,37 +19,8 @@ STUDIO_JDK="${BASE_DIR}/prebuilts/jdk/jdk21/linux-x86"
 NATIVE_LIBRARIES="${BASE_DIR}/out/host/linux-x86/lib64/"
 JAVA_LIBRARIES="${BASE_DIR}/out/host/common/obj/JAVA_LIBRARIES/"
 HOST_LIBRARIES="${BASE_DIR}/out/host/linux-x86"
-SDK="${BASE_DIR}/out/host/linux-x86/sdk/sdk*/android-sdk*"
-SDK_REPO="${BASE_DIR}/out/host/linux-x86/sdk-repo"
-FONT_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/fonts_intermediates"
-HYPHEN_DATA_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/hyphen_intermediates"
-KEYBOARD_DIR="${BASE_DIR}/out/host/common/obj/PACKAGING/keyboards_intermediates"
+PACKAGING="${BASE_DIR}/out/host/common/obj/PACKAGING"
 ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt76l.dat"
-TMP_DIR=${OUT_DIR}"/layoutlib_tmp"
-
-PLATFORM=${TMP_DIR}/"android"
-
-if [ ! -d $TMP_DIR ]; then
-    # Copy resources to a temp directory
-    mkdir -p ${TMP_DIR} ${PLATFORM} ${TMP_DIR}/build-tools ${TMP_DIR}/compiled ${TMP_DIR}/manifest
-
-    cp -r ${SDK}/platforms/android*/** ${PLATFORM}
-
-    # Unzip build-tools to access aapt2
-    unzip -q ${SDK_REPO}/sdk-repo-linux-build-tools.zip -d ${TMP_DIR}/build-tools
-
-    # Compile 9-patch files
-    echo \
-'<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.google.android.layoutlib" />' \
-> ${TMP_DIR}/manifest/AndroidManifest.xml
-    find ${SDK}/platforms/android*/data/res -name "*.9.png" -print0 | xargs -0 ${TMP_DIR}/build-tools/android-*/aapt2 compile -o ${TMP_DIR}/compiled/
-    find ${TMP_DIR}/compiled -name "*.flat" -print0 | xargs -0 -s 1000000 ${TMP_DIR}/build-tools/android-*/aapt2 link -o ${TMP_DIR}/compiled.apk --manifest ${TMP_DIR}/manifest/AndroidManifest.xml -R
-    unzip -q ${TMP_DIR}/compiled.apk -d ${TMP_DIR}
-    for f in ${TMP_DIR}/res/*; do mv "$f" "${f/-v4/}";done
-    cp -RL ${TMP_DIR}/res ${PLATFORM}/data
-fi
-
 
 TEST_JARS="${HOST_LIBRARIES}/framework/layoutlib-tests.jar"
 GRADLE_RES="-Dtest_res.dir=${SCRIPT_DIR}/res"
@@ -61,11 +32,12 @@ DEBUGGER=' '
 set -x
 ${STUDIO_JDK}/bin/java -ea $DEBUGGER \
     -Dnative.lib.path=${NATIVE_LIBRARIES} \
-    -Dfont.dir=${FONT_DIR} \
+    -Dfont.dir=${PACKAGING}/fonts_intermediates \
     -Dicu.data.path=${ICU_DATA_PATH} \
-    -Dhyphen.data.dir=${HYPHEN_DATA_DIR} \
-    -Dkeyboard.dir=${KEYBOARD_DIR} \
-    -Dplatform.dir=${PLATFORM} \
+    -Dhyphen.data.dir=${PACKAGING}/hyphen_intermediates \
+    -Dkeyboard.dir=${PACKAGING}/keyboards_intermediates \
+    -Dplatform.res.dir=${PACKAGING}/layoutlib-res_intermediates \
+    -Dbuild.prop.dir=${PACKAGING}/layoutlib-build-prop_intermediates \
     -Dtest_failure.dir=${OUT_DIR}/${FAILURE_DIR} \
     ${GRADLE_RES} \
     -cp ${TEST_JARS} \
@@ -88,7 +60,6 @@ fi
 
 # Clean
 if [[ $CLEAN_TMP_FILES -eq 1 ]]; then
-  rm -rf ${TMP_DIR}
   rm -rf ${OUT_DIR}/${FAILURE_DIR}
 fi
 

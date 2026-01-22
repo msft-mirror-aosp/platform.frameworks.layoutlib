@@ -66,6 +66,7 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class BridgePackageManager extends PackageManager {
     private final WeakReference<Context> mContextRef;
+    private final PackageInfo mPkgInfo = new PackageInfo();
 
     public BridgePackageManager(Context context) {
         mContextRef = new WeakReference<>(context);
@@ -73,19 +74,19 @@ public class BridgePackageManager extends PackageManager {
 
     @Override
     public PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException {
-        return null;
+        return mPkgInfo;
     }
 
     @Override
     public PackageInfo getPackageInfoAsUser(String packageName, int flags, int userId)
             throws NameNotFoundException {
-        return null;
+        return mPkgInfo;
     }
 
     @Override
     public PackageInfo getPackageInfo(VersionedPackage versionedPackage,
             int packageInfoFlags) throws NameNotFoundException {
-        return null;
+        return mPkgInfo;
     }
 
     @Override

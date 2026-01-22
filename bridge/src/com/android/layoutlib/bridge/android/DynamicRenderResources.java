@@ -25,7 +25,7 @@ import com.android.ide.common.rendering.api.StyleResourceValue;
 import com.android.resources.ResourceType;
 import com.android.systemui.monet.ColorScheme;
 import com.android.systemui.monet.DynamicColors;
-import com.android.systemui.monet.Style;
+import android.content.theming.ThemeStyle;
 import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.app.WallpaperColors;
@@ -150,7 +150,7 @@ public class DynamicRenderResources extends RenderResources {
 
     /**
      * Extracts colors from the wallpaper and creates the corresponding dynamic theme.
-     * It uses the main wallpaper color and the {@link Style#TONAL_SPOT} style.
+     * It uses the main wallpaper color and the {@link ThemeStyle#TONAL_SPOT} style.
      *
      * @param wallpaperPath path of the wallpaper resource to use
      *
