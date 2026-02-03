@@ -527,7 +527,6 @@ public abstract class RenderAction<T extends RenderParams> {
             if (animationHandler != null) {
                 animationHandler.mDelayedCallbackStartTime.clear();
                 animationHandler.mAnimationCallbacks.clear();
-                animationHandler.mCommitCallbacks.clear();
             }
             // Clear the ThreadLocal to avoid memory leaks
             sCurrentContext.getAnimationHandlerThreadLocal().remove();
