@@ -105,7 +105,7 @@ public abstract class BridgeClient {
     private static final String PLATFORM_RES_DIR_PROPERTY = "platform.res.dir";
     private static final String BUILD_PROP_DIR_PROPERTY = "build.prop.dir";
 
-    private static final String PLATFORM_RES_DIR;
+    protected static final String PLATFORM_RES_DIR;
     private static final String NATIVE_LIB_DIR_PATH;
     private static final String FONT_DIR;
     private static final String ICU_DATA_PATH;
@@ -198,7 +198,7 @@ public abstract class BridgeClient {
         String icuDataPath = System.getProperty(ICU_DATA_PATH_PROPERTY);
         return icuDataPath != null
                 ? icuDataPath
-                : PLATFORM_RES_DIR + "/../../../../linux-x86/com.android.i18n/etc/icu/icudt76l.dat";
+                : PLATFORM_RES_DIR + "/../../../../linux-x86/com.android.i18n/etc/icu/icudt78l.dat";
     }
 
     private static String getHyphenDataDir() {
@@ -537,6 +537,12 @@ public abstract class BridgeClient {
             return RenderResult.getFromSession(session);
         } finally {
             session.dispose();
+            if (params.getAssets() instanceof TestAssetRepository) {
+                ((TestAssetRepository) params.getAssets()).close();
+            }
+            if (params.getLayoutlibCallback() instanceof LayoutlibBridgeClientCallback) {
+                ((LayoutlibBridgeClientCallback) params.getLayoutlibCallback()).dispose();
+            }
         }
     }
 
