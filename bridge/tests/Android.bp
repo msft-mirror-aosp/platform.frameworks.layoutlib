@@ -17,6 +17,22 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+java_genrule_host {
+    name: "layoutlib-test-res",
+    srcs: ["res/testApp/MyApplication/src/main/res/**/*"],
+    out: ["layoutlib-test-res.jar"],
+    tools: ["soong_zip"],
+    cmd: "$(location soong_zip) -o $(out) -C frameworks/layoutlib/bridge/tests/res/testApp/MyApplication/src/main -D frameworks/layoutlib/bridge/tests/res/testApp/MyApplication/src/main/res",
+}
+
+java_genrule_host {
+    name: "layoutlib-test-asset",
+    srcs: ["res/testApp/MyApplication/src/main/assets/**/*"],
+    out: ["layoutlib-test-asset.jar"],
+    tools: ["soong_zip"],
+    cmd: "$(location soong_zip) -o $(out) -C frameworks/layoutlib/bridge/tests/res/testApp/MyApplication/src/main/assets -D frameworks/layoutlib/bridge/tests/res/testApp/MyApplication/src/main/assets",
+}
+
 java_test_host {
     name: "layoutlib-tests",
 
@@ -25,6 +41,11 @@ java_test_host {
         "src/**/*.java",
         "res/testApp/MyApplication/src/main/myapplication.widgets/**/*.java",
     ],
+
+    exclude_srcs: [
+        "src/com/android/layoutlib/bridge/intensive/PerformanceTests.java",
+    ],
+
     java_resource_dirs: ["res"],
 
     static_libs: [
@@ -33,9 +54,15 @@ java_test_host {
         "mockito",
         "ninepatch-prebuilt",
         "objenesis",
+        "grpc-java-okhttp",
     ],
 
     required: ["layoutlib_jni"],
+
+    data: [
+        ":layoutlib-test-res",
+        ":layoutlib-test-asset",
+    ],
 
     dist: {
         targets: ["layoutlib-tests"],
