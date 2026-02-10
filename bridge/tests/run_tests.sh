@@ -20,7 +20,7 @@ NATIVE_LIBRARIES="${BASE_DIR}/out/host/linux-x86/lib64/"
 JAVA_LIBRARIES="${BASE_DIR}/out/host/common/obj/JAVA_LIBRARIES/"
 HOST_LIBRARIES="${BASE_DIR}/out/host/linux-x86"
 PACKAGING="${BASE_DIR}/out/host/common/obj/PACKAGING"
-ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt77l.dat"
+ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt78l.dat"
 
 TEST_JARS="${HOST_LIBRARIES}/framework/layoutlib-tests.jar"
 GRADLE_RES="-Dtest_res.dir=${SCRIPT_DIR}/res"
