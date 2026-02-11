@@ -33,6 +33,7 @@ public class NativeConfig {
     public static final String[] DELEGATE_METHODS = new String[] {
             "android.app.ActivityManager#getService",
             "android.app.Fragment#instantiate", //(Landroid/content/Context;Ljava/lang/String;Landroid/os/Bundle;)Landroid/app/Fragment;",
+            "android.app.INotificationManager$Stub#asInterface",
             "android.app.IUiModeManager$Stub#asInterface",
             "android.content.res.AssetManager#createSystemAssetsInZygoteLocked",
             "android.content.res.AssetManager#getAssignedPackageIdentifiers",
