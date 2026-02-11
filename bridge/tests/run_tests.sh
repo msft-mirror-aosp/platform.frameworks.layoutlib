@@ -20,10 +20,11 @@ NATIVE_LIBRARIES="${BASE_DIR}/out/host/linux-x86/lib64/"
 JAVA_LIBRARIES="${BASE_DIR}/out/host/common/obj/JAVA_LIBRARIES/"
 HOST_LIBRARIES="${BASE_DIR}/out/host/linux-x86"
 PACKAGING="${BASE_DIR}/out/host/common/obj/PACKAGING"
-ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt77l.dat"
+ICU_DATA_PATH="${BASE_DIR}/out/host/linux-x86/com.android.i18n/etc/icu/icudt78l.dat"
+PROJECT_RES="${BASE_DIR}/out/soong/.intermediates/frameworks/layoutlib/bridge/tests/layoutlib-test-res/linux_glibc_common/gen/layoutlib-test-res.jar"
+PROJECT_ASSET="${BASE_DIR}/out/soong/.intermediates/frameworks/layoutlib/bridge/tests/layoutlib-test-asset/linux_glibc_common/gen/layoutlib-test-asset.jar"
 
 TEST_JARS="${HOST_LIBRARIES}/framework/layoutlib-tests.jar"
-GRADLE_RES="-Dtest_res.dir=${SCRIPT_DIR}/res"
 
 # Run layoutlib tests
 #DEBUGGER=' -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000 '
@@ -39,7 +40,8 @@ ${STUDIO_JDK}/bin/java -ea $DEBUGGER \
     -Dplatform.res.dir=${PACKAGING}/layoutlib-res_intermediates \
     -Dbuild.prop.dir=${PACKAGING}/layoutlib-build-prop_intermediates \
     -Dtest_failure.dir=${OUT_DIR}/${FAILURE_DIR} \
-    ${GRADLE_RES} \
+    -Dtest_res.jar=${PROJECT_RES} \
+    -Dtest_asset.jar=${PROJECT_ASSET} \
     -cp ${TEST_JARS} \
     org.junit.runner.JUnitCore \
     com.android.layoutlib.bridge.intensive.Main

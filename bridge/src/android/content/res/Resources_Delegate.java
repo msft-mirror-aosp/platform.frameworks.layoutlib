@@ -773,10 +773,9 @@ public class Resources_Delegate {
     @LayoutlibDelegate
     static String getString(Resources resources, int id, Object... formatArgs)
             throws NotFoundException {
-        String s = getString(resources, id);
+        CharSequence s = getText(resources, id);
         if (s != null) {
-            return String.format(s, formatArgs);
-
+            return String.format(s.toString(), formatArgs);
         }
 
         // id was not found or not resolved. Throw a NotFoundException.
@@ -788,10 +787,9 @@ public class Resources_Delegate {
 
     @LayoutlibDelegate
     static String getString(Resources resources, int id) throws NotFoundException {
-        Pair<String, ResourceValue> value = getResourceValue(resources, id);
-
-        if (value != null && value.second.getValue() != null) {
-            return value.second.getValue();
+        CharSequence s = getText(resources, id);
+        if (s != null) {
+            return s.toString();
         }
 
         // id was not found or not resolved. Throw a NotFoundException.
