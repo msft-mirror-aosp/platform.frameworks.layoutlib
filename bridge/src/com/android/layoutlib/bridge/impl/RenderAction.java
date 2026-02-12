@@ -40,6 +40,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
+import android.os.LocaleList;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -469,7 +470,10 @@ public abstract class RenderAction<T extends RenderParams> {
             config.screenLayout |= Configuration.SCREENLAYOUT_ROUND_UNDEFINED;
         }
         String locale = params.getLocale();
-        if (locale != null && !locale.isEmpty()) config.locale =  Locale.forLanguageTag(locale);
+        if (locale != null && !locale.isEmpty()) {
+            LocaleList localeList = new LocaleList(Locale.forLanguageTag(locale));
+            config.setLocales(localeList);
+        }
 
         config.fontScale = params.getFontScale();
         config.uiMode = params.getUiMode();
