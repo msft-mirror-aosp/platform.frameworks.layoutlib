@@ -549,7 +549,7 @@ public final class ResourceHelper {
         String value = resourceValue.getValue();
         if (resourceValue instanceof TextResourceValue) {
             String rawValue =
-                    ValueXmlHelper.unescapeResourceString(resourceValue.getRenderingValue(),
+                    ValueXmlHelper.unescapeResourceString(resourceValue.getRawXmlValue(),
                             true, true);
             if (rawValue != null && !rawValue.equals(value)) {
                 return ResourceHelper.parseHtml(rawValue);
