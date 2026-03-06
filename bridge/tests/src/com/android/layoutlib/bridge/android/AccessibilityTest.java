@@ -65,7 +65,7 @@ public class AccessibilityTest extends RenderTestBase {
             assertTrue(renderResult.isSuccess());
             assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
             session.execute(() -> {
-                View rootView = (View) session.getSystemRootViews().get(0).getViewObject();
+                View rootView = (View) session.getRootViews().get(0).getViewObject();
                 AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
                 assertNotNull(rootNode);
                 rootNode.setQueryFromAppProcessEnabled(rootView, true);
@@ -162,7 +162,7 @@ public class AccessibilityTest extends RenderTestBase {
                 traverseAccessibilityTree(rootNode, counter);
             });
             assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
-            assertEquals(17, counter[0]);
+            assertEquals(6, counter[0]);
         } finally {
             session.dispose();
         }
