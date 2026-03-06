@@ -28,6 +28,7 @@ import android.media.ImageReader;
 import android.view.ThreadedRenderer.DrawCallbacks;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 public class LayoutlibRenderer {
 
@@ -41,18 +42,22 @@ public class LayoutlibRenderer {
         mDelegateRenderer = new ThreadedRenderer(context, translucent, name);
     }
 
-    public void draw(ViewGroup viewGroup) {
-        ViewRootImpl rootView = AttachInfo_Accessor.getRootView(viewGroup);
+    public void draw(List<View> views) {
+        if (views.isEmpty()) {
+            return;
+        }
+        View firstView = views.getFirst();
+        ViewRootImpl rootView = firstView.getViewRootImpl();
         if (rootView == null) {
             return;
         }
         // Animations require mDrawingTime to be set to animate
         rootView.mAttachInfo.mDrawingTime = System_Delegate.currentTimeMillis();
-        mDelegateRenderer.draw(viewGroup, rootView.mAttachInfo,
+        mDelegateRenderer.draw(firstView, rootView.mAttachInfo,
                 new DrawCallbacks() {
                     @Override
                     public void onPreDraw(RecordingCanvas canvas) {
-                        AttachInfo_Accessor.dispatchOnPreDraw(viewGroup);
+                        AttachInfo_Accessor.dispatchOnPreDraw(firstView);
                         canvas.scale(scaleX, scaleY);
                         // This way we clear the native image buffer before drawing
                         canvas.drawColor(0, BlendMode.CLEAR);
@@ -60,7 +65,28 @@ public class LayoutlibRenderer {
 
                     @Override
                     public void onPostDraw(RecordingCanvas canvas) {
+                        for (int i = 1; i < views.size(); i++) {
+                            View view = views.get(i);
+                            AttachInfo_Accessor.dispatchOnPreDraw(view, mDelegateRenderer);
 
+                            ViewRootImpl root = view.getViewRootImpl();
+                            if (root != null) {
+                                WindowManager.LayoutParams attrs = root.mWindowAttributes;
+                                if ((attrs.flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0) {
+                                    int argb = android.graphics.Color.toArgb(attrs.dimColor);
+                                    int alpha = (int) (255 * attrs.dimAmount);
+                                    int color = android.graphics.Color.argb(alpha,
+                                            android.graphics.Color.red(argb),
+                                            android.graphics.Color.green(argb),
+                                            android.graphics.Color.blue(argb));
+                                    canvas.drawColor(color);
+                                }
+                            }
+
+                            canvas.enableZ();
+                            canvas.drawRenderNode(view.updateDisplayListIfDirty());
+                            canvas.disableZ();
+                        }
                     }
                 });
         // Wait for render thread to finish rendering
