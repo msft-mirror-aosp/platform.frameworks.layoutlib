@@ -24,4 +24,8 @@ public class ActivityThread_Delegate {
     public static Context getSystemUiContext() {
         return RenderAction.getCurrentContext();
     }
+
+    public static Application getApplication(ActivityThread activityThread) {
+        return null;
+    }
 }

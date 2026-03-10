@@ -39,4 +39,19 @@ public class ViewRootImpl_Accessor {
         viewRoot.mAccessibilityInteractionConnectionManager.ensureNoConnection();
         viewRoot.mAccessibilityInteractionConnectionManager.ensureNoDirectConnection();
     }
+
+    public static void performTraversals(ViewRootImpl viewRoot) {
+        viewRoot.mTraversalScheduled = true;
+        viewRoot.doTraversal();
+    }
+
+    public static void updateFrame(ViewRootImpl viewRoot, int width, int height) {
+        viewRoot.mWinFrame.set(0, 0, width, height);
+        viewRoot.mTmpFrames.frame.set(0, 0, width, height);
+        viewRoot.mTmpFrames.displayFrame.set(0, 0, width, height);
+    }
+
+    public static android.graphics.Rect getWindowFrame(ViewRootImpl viewRoot) {
+        return viewRoot.mWinFrame;
+    }
 }

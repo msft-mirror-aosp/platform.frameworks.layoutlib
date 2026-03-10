@@ -16,6 +16,8 @@
 
 package android.view;
 
+import com.android.layoutlib.bridge.impl.BridgeWindowSession;
+
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 
@@ -56,6 +58,6 @@ public class IWindowManagerImpl extends IWindowManager.Default {
 
     @Override
     public IWindowSession openSession(IWindowSessionCallback callback) throws RemoteException {
-        return new IWindowSession.Default();
+        return new BridgeWindowSession(mMetrics);
     }
 }

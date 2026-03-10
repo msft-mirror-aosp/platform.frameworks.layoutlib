@@ -79,9 +79,14 @@ public class LayoutlibRenderer {
                                 }
                             }
 
+                            canvas.save();
+                            if (root != null) {
+                                canvas.translate(root.mWinFrame.left, root.mWinFrame.top);
+                            }
                             canvas.enableZ();
                             canvas.drawRenderNode(view.updateDisplayListIfDirty());
                             canvas.disableZ();
+                            canvas.restore();
                         }
                     }
                 });

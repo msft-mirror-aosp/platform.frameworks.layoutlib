@@ -379,12 +379,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             setActiveToolbar(view, context, params);
 
             measureLayout(params);
-            measureView(mViewRoot, null /*measuredView*/,
-                    mMeasuredScreenWidth, MeasureSpec.EXACTLY,
-                    mMeasuredScreenHeight, MeasureSpec.EXACTLY);
-            mViewRoot.layout(0, 0, mMeasuredScreenWidth, mMeasuredScreenHeight);
-            mViewRoot.getViewRootImpl().mTmpFrames.displayFrame.set(mViewRoot.getLeft(),
-                    mViewRoot.getTop(), mViewRoot.getRight(), mViewRoot.getBottom());
+            ViewRootImpl_Accessor.updateFrame(mViewRoot.getViewRootImpl(), mMeasuredScreenWidth,
+                    mMeasuredScreenHeight);
+            ViewRootImpl_Accessor.performTraversals(mViewRoot.getViewRootImpl());
 
             List<ViewGroup> viewRoots =
                     getWindowViews().stream().filter(ViewGroup.class::isInstance).map(ViewGroup.class::cast).toList();
@@ -411,59 +408,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      */
     public void setElapsedFrameTimeNanos(long nanos) {
         mElapsedFrameTimeNanos = nanos;
-    }
-
-    /**
-     * Runs a layout pass for the given view root
-     */
-    private static void doLayout(@NonNull BridgeContext context, @NonNull ViewGroup viewRoot,
-            int width, int height) {
-        // measure again with the size we need
-        // This must always be done before the call to layout
-        int measureWidth = width;
-        int measureHeight = height;
-        int widthMode = MeasureSpec.EXACTLY;
-        int heightMode = MeasureSpec.EXACTLY;
-        int layoutX = 0;
-        int layoutY = 0;
-
-        LayoutParams params = viewRoot.getLayoutParams();
-        if (params instanceof WindowManager.LayoutParams wmParams) {
-            if (wmParams.width != WindowManager.LayoutParams.MATCH_PARENT) {
-                widthMode = wmParams.width == WindowManager.LayoutParams.WRAP_CONTENT ? MeasureSpec.AT_MOST : MeasureSpec.EXACTLY;
-                measureWidth = wmParams.width == WindowManager.LayoutParams.WRAP_CONTENT ? width : wmParams.width;
-            }
-            if (wmParams.height != WindowManager.LayoutParams.MATCH_PARENT) {
-                heightMode = wmParams.height == WindowManager.LayoutParams.WRAP_CONTENT ? MeasureSpec.AT_MOST : MeasureSpec.EXACTLY;
-                measureHeight = wmParams.height == WindowManager.LayoutParams.WRAP_CONTENT ? height : wmParams.height;
-            }
-        }
-
-        measureView(viewRoot, null /*measuredView*/,
-                measureWidth, widthMode,
-                measureHeight, heightMode);
-
-        int layoutWidth = width;
-        int layoutHeight = height;
-
-        if (params instanceof WindowManager.LayoutParams wmParams) {
-            layoutWidth = viewRoot.getMeasuredWidth();
-            layoutHeight = viewRoot.getMeasuredHeight();
-            int gravity = wmParams.gravity;
-            if (gravity == 0) {
-                gravity = Gravity.START | Gravity.TOP;
-            }
-            Rect outRect = new Rect();
-            Rect displayRect = new Rect(0, 0, width, height);
-            Gravity.apply(gravity, layoutWidth, layoutHeight, displayRect, wmParams.x, wmParams.y, outRect);
-            layoutX = outRect.left;
-            layoutY = outRect.top;
-        }
-
-        // now do the layout.
-        viewRoot.layout(layoutX, layoutY, layoutX + layoutWidth, layoutY + layoutHeight);
-        AttachInfo_Accessor.dispatchOnGlobalLayout(viewRoot);
-        handleScrolling(context, viewRoot);
     }
 
     /**
@@ -544,7 +488,10 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (onlyMeasure) {
                 // delete the canvas and image to reset them on the next full rendering
                 releaseRender();
-                doLayout(getContext(), mViewRoot, mMeasuredScreenWidth, mMeasuredScreenHeight);
+                ViewRootImpl_Accessor.updateFrame(mViewRoot.getViewRootImpl(), mMeasuredScreenWidth,
+                        mMeasuredScreenHeight);
+                ViewRootImpl_Accessor.performTraversals(mViewRoot.getViewRootImpl());
+                handleScrolling(getContext(), mViewRoot);
             } else {
                 // When disableBitmapCaching is true, we do not reuse mImage and
                 // we create a new one in every render.
@@ -592,8 +539,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 List<View> views = getWindowViews();
                 for (View view : views) {
                     if (view instanceof ViewGroup) {
-                        doLayout(getContext(), (ViewGroup) view, mMeasuredScreenWidth,
-                                mMeasuredScreenHeight);
+                        if (view == mViewRoot) {
+                            ViewRootImpl_Accessor.updateFrame((ViewRootImpl) view.getParent(),
+                                    mMeasuredScreenWidth, mMeasuredScreenHeight);
+                        }
+                        ViewRootImpl_Accessor.performTraversals((ViewRootImpl) view.getParent());
+                        handleScrolling(getContext(), view);
                     }
                 }
 
@@ -947,24 +898,35 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         List<ViewInfo> childrenWithOffset = new ArrayList<>();
 
         for (ViewGroup viewGroup : viewGroupList) {
+            int currentVOffset = vOffset;
+            int currentHOffset = hOffset;
             if (!isContentFrame) {
-                vOffset += viewGroup.getTop();
-                hOffset += viewGroup.getLeft();
+                ViewRootImpl rootImpl = viewGroup.getViewRootImpl();
+                if (rootImpl != null) {
+                    Rect frame = ViewRootImpl_Accessor.getWindowFrame(rootImpl);
+                    currentVOffset += frame.top;
+                    currentHOffset += frame.left;
+                } else {
+                    currentVOffset += viewGroup.getTop();
+                    currentHOffset += viewGroup.getLeft();
+                }
             }
 
             int childCount = viewGroup.getChildCount();
             if (viewGroup == mContentRoot) {
                 for (int i = 0; i < childCount; i++) {
                     ViewInfo[] childViewInfo =
-                            visitContentRoot(viewGroup.getChildAt(i), hOffset, vOffset, params);
+                            visitContentRoot(viewGroup.getChildAt(i), currentHOffset,
+                                    currentVOffset, params);
                     childrenWithoutOffset.add(childViewInfo[0]);
                     childrenWithOffset.add(childViewInfo[1]);
                 }
                 mViewInfoList = childrenWithOffset;
             } else {
                 for (int i = 0; i < childCount; i++) {
-                    childrenWithoutOffset.add(visit(viewGroup.getChildAt(i), hOffset, vOffset, params,
-                            isContentFrame));
+                    childrenWithoutOffset.add(
+                            visit(viewGroup.getChildAt(i), currentHOffset, currentVOffset, params,
+                                    isContentFrame));
                 }
             }
         }
@@ -1198,8 +1160,17 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             boolean isTouchModal = (params.flags & WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL) == 0;
 
-            int left = view.getLeft();
-            int top = view.getTop();
+            int left;
+            int top;
+            ViewRootImpl rootImpl = view.getViewRootImpl();
+            if (rootImpl != null) {
+                Rect frame = ViewRootImpl_Accessor.getWindowFrame(rootImpl);
+                left = frame.left;
+                top = frame.top;
+            } else {
+                left = view.getLeft();
+                top = view.getTop();
+            }
             int right = left + view.getWidth();
             int bottom = top + view.getHeight();
 
@@ -1295,14 +1266,13 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Override
     public void release() {
         super.release();
-        if (mViewRoot == null) {
-            return;
+        List<View> views = getWindowViews();
+        for (View view : views) {
+            ViewRootImpl viewRootImpl = view.getViewRootImpl();
+            if (viewRootImpl != null) {
+                ViewRootImpl_Accessor.detachFromWindow(viewRootImpl);
+            }
         }
-        ViewRootImpl viewRootImpl = mViewRoot.getViewRootImpl();
-        if (viewRootImpl == null) {
-            return;
-        }
-        ViewRootImpl_Accessor.detachFromWindow(viewRootImpl);
     }
 
     private void disposeImageSurface() {
