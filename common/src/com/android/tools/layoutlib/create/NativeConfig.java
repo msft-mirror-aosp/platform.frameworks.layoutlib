@@ -154,6 +154,7 @@ public class NativeConfig {
             "android.view.View#layout",
             "android.view.View#measure",
             "android.view.ViewRootImpl#performHapticFeedback",
+            "android.view.WindowManager#useClientSurface",
             "android.view.WindowManagerGlobal#getWindowManagerService",
             "android.view.accessibility.AccessibilityManager#getInstance",
             "android.view.accessibility.AccessibilityManager#getWindowTransformationSpec",

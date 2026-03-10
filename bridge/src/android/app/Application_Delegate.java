@@ -17,6 +17,7 @@
 package android.app;
 
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 
 import static com.android.layoutlib.bridge.impl.RenderAction.getCurrentContext;
@@ -28,5 +29,9 @@ public class Application_Delegate {
 
     public static ApplicationInfo getApplicationInfo(Application app) {
         return getCurrentContext().getApplicationInfo();
+    }
+
+    public static PackageManager getPackageManager(Application app) {
+        return getCurrentContext().getPackageManager();
     }
 }
