@@ -292,8 +292,7 @@ public class BridgeContextTest extends RenderTestBase {
         context.initResources(params.getAssets());
 
         try {
-            IWindowManager iwm = new IWindowManagerImpl(context.getConfiguration(),
-                    context.getMetrics(), Surface.ROTATION_0, false);
+            IWindowManager iwm = new IWindowManagerImpl(context.getMetrics(), Surface.ROTATION_0, false);
             WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
             WindowManager windowManager = context.getSystemService(WindowManager.class);
             assertEquals(deviceBounds, windowManager.getCurrentWindowMetrics().getBounds());

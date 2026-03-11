@@ -32,7 +32,9 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.view.AttachInfo_Accessor;
+import android.view.LayoutlibRenderer;
 import android.view.View.MeasureSpec;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import java.awt.image.BufferedImage;
@@ -113,7 +115,7 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
         content.setBackground(d);
 
         // Set the AttachInfo on the root view.
-        AttachInfo_Accessor.setAttachInfo(content);
+        LayoutlibRenderer renderer = AttachInfo_Accessor.setAttachInfo(content, null);
 
         // Measure.
         int w = d.getIntrinsicWidth();
@@ -161,7 +163,9 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
                 image.getHeight());
 
         // Detach root from window after draw.
-        AttachInfo_Accessor.detachFromWindow(content);
+        WindowManager wm = context.getSystemService(WindowManager.class);
+        wm.removeViewImmediate(content);
+        renderer.destroy();
 
         return image;
     }

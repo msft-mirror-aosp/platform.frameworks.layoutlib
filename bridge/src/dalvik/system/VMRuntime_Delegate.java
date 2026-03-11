@@ -41,4 +41,14 @@ public class VMRuntime_Delegate {
     public static boolean is64Bit(VMRuntime runtime) {
         return true;
     }
+
+    @LayoutlibDelegate
+    public static boolean setThreadNiceness(VMRuntime runtime, Thread t, int newNiceness) {
+        return true;
+    }
+
+    @LayoutlibDelegate
+    public static int getThreadNiceness(VMRuntime runtime, Thread t) {
+        return 0;
+    }
 }

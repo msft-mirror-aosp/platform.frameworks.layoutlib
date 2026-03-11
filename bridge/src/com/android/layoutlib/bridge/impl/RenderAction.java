@@ -34,7 +34,6 @@ import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -48,7 +47,6 @@ import android.view.IWindowManager;
 import android.view.IWindowManagerImpl;
 import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
-import android.view.WindowManagerImpl;
 import android.view.accessibility.AccessibilityInteractionClient_Accessor;
 import android.view.inputmethod.InputMethodManager_Accessor;
 
@@ -307,12 +305,11 @@ public abstract class RenderAction<T extends RenderParams> {
         // Set-up WindowManager
         // FIXME: find those out, and possibly add them to the render params
         boolean hasNavigationBar = true;
-        IWindowManager iwm = new IWindowManagerImpl(getContext().getConfiguration(),
-                getContext().getMetrics(), ROTATION_0, hasNavigationBar);
+        IWindowManager iwm = new IWindowManagerImpl(getContext().getMetrics(), ROTATION_0,
+                hasNavigationBar);
         WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
         if (Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_SHOW_CUTOUT))) {
-            ((WindowManagerImpl) mContext.getSystemService(Context.WINDOW_SERVICE))
-                    .setupDisplayCutout();
+            mContext.setupDisplayCutout();
         }
 
         ILayoutLog currentLog = mParams.getLog();
