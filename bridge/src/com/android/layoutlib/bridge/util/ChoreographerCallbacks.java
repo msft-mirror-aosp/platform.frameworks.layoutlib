@@ -21,6 +21,7 @@ import com.android.tools.layoutlib.annotations.NotNull;
 
 import android.os.SystemClock_Delegate;
 import android.util.TimeUtils;
+import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
 
 import java.util.ArrayList;
@@ -107,6 +108,9 @@ public class ChoreographerCallbacks {
         try {
             if (action instanceof FrameCallback callback) {
                 callback.doFrame(frameTimeNanos);
+            } else if (action instanceof Choreographer.VsyncCallback vsyncCallback) {
+                Choreographer.FrameData frameData = new Choreographer.FrameData(frameTimeNanos);
+                vsyncCallback.onVsync(frameData);
             } else if (action instanceof Runnable runnable) {
                 runnable.run();
             } else {

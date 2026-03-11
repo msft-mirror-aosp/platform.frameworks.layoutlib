@@ -68,6 +68,8 @@ public class AttachInfo_Accessor {
         }
         view.dispatchAttachedToWindow(info, 0);
         root.mTmpFrames.displayFrame.set(wm.getCurrentWindowMetrics().getBounds());
+        root.mTmpFrames.frame.set(wm.getCurrentWindowMetrics().getBounds());
+        root.mWinFrame.set(wm.getCurrentWindowMetrics().getBounds());
         return renderer;
     }
 
