@@ -62,7 +62,6 @@ import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
-import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.LayoutlibRenderer;
@@ -317,6 +316,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         try {
             BridgeContext context = getContext();
             Window window = new PhoneWindow(context);
+            window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
             window.requestFeature(Window.FEATURE_NO_TITLE);
 
             mViewRoot = (ViewGroup) window.getDecorView();
@@ -551,7 +552,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 if (mElapsedFrameTimeNanos >= 0) {
                     if (!mFirstFrameExecuted) {
                         // We need to run an initial draw call to initialize the animations
-                        AttachInfo_Accessor.dispatchOnPreDraw(mViewRoot);
                         mViewRoot.draw(NOP_CANVAS);
 
                         // The first frame will initialize the animations

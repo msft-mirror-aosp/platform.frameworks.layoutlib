@@ -16,23 +16,14 @@
 
 package android.view;
 
+import com.android.internal.lang.System_Delegate;
+
 /**
  * Accessor to allow layoutlib to call {@link ViewRootImpl} methods directly.
  */
 public class ViewRootImpl_Accessor {
     public static void dispatchApplyInsets(ViewRootImpl viewRoot, View host) {
         viewRoot.dispatchApplyInsets(host);
-    }
-
-    public static void setChild(ViewRootImpl viewRoot, View child) {
-        viewRoot.mView = child;
-        if (child != null) {
-            viewRoot.mWidth = child.getWidth();
-            viewRoot.mHeight = child.getHeight();
-        } else {
-            viewRoot.mWidth = -1;
-            viewRoot.mHeight = -1;
-        }
     }
 
     public static void detachFromWindow(ViewRootImpl viewRoot) {
@@ -42,7 +33,7 @@ public class ViewRootImpl_Accessor {
 
     public static void performTraversals(ViewRootImpl viewRoot) {
         viewRoot.mTraversalScheduled = true;
-        viewRoot.doTraversal(System.nanoTime());
+        viewRoot.doTraversal(System_Delegate.nanoTime());
     }
 
     public static void updateFrame(ViewRootImpl viewRoot, int width, int height) {

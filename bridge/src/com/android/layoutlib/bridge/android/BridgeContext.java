@@ -120,7 +120,6 @@ import android.view.accessibility.AccessibilityManager;
 import android.view.autofill.AutofillManager;
 import android.view.autofill.IAutoFillManager.Default;
 import android.view.inputmethod.InputMethodManager;
-import android.view.textclassifier.TextClassificationManager;
 import android.view.textservice.TextServicesManager;
 
 import java.io.File;
@@ -301,6 +300,7 @@ public class BridgeContext extends Context {
 
         mApplicationInfo = new ApplicationInfo();
         mApplicationInfo.targetSdkVersion = targetSdkVersion;
+        mApplicationInfo.flags = mApplicationInfo.flags | ApplicationInfo.FLAG_HARDWARE_ACCELERATED;
         if (hasRtlSupport) {
             mApplicationInfo.flags = mApplicationInfo.flags | ApplicationInfo.FLAG_SUPPORTS_RTL;
         }
