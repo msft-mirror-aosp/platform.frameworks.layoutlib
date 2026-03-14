@@ -137,9 +137,6 @@ public class RenderDrawable extends RenderAction<DrawableParams> {
         // Now do the layout.
         content.layout(0, 0, w, h);
 
-        // Pre-draw setup.
-        AttachInfo_Accessor.dispatchOnPreDraw(content);
-
         Bitmap bitmap = Bitmap.createBitmap(w, h, Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         canvas.setDensity(hardwareConfig.getDensity().getDpiValue());
