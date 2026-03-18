@@ -94,6 +94,34 @@ public class AsmGenerator {
     private final Set<MethodReplacer> mMethodReplacers;
     private final boolean mKeepAllNativeClasses;
 
+    public static class MethodReplacerWrapper implements MethodReplacer {
+        private final MethodReplacer mDelegate;
+        private boolean mCalled = false;
+
+        public MethodReplacerWrapper(MethodReplacer delegate) {
+            mDelegate = delegate;
+        }
+
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return mDelegate.isNeeded(owner, name, desc, sourceClass);
+        }
+
+        @Override
+        public void replace(ICreateInfo.MethodInformation mi) {
+            mCalled = true;
+            mDelegate.replace(mi);
+        }
+
+        public boolean wasCalled() {
+            return mCalled;
+        }
+
+        public MethodReplacer getDelegate() {
+            return mDelegate;
+        }
+    }
+
     /** A map { FQCN => set { field names } } which should have their final modifier removed */
     private final Map<String, Set<String>> mRemoveFinalModifierFields;
 
@@ -212,7 +240,9 @@ public class AsmGenerator {
         mDelegateAllNative =
                 Arrays.stream(createInfo.getDelegateClassNativesToNatives()).collect(Collectors.toSet());
 
-        mMethodReplacers = Arrays.stream(createInfo.getMethodReplacers()).collect(Collectors.toSet());
+        mMethodReplacers = Arrays.stream(createInfo.getMethodReplacers())
+                .map(MethodReplacerWrapper::new)
+                .collect(Collectors.toSet());
 
         mRenameStaticInitializerClasses =
                 Arrays.stream(createInfo.getDeferredStaticInitializerClasses()).collect(Collectors.toSet());
@@ -246,6 +276,17 @@ public class AsmGenerator {
      */
     public Set<String> getClassesNotRenamed() {
         return mClassesNotRenamed;
+    }
+
+    /**
+     * Returns the list of MethodReplacers that have not been called yet.
+     */
+    public Set<String> getUnusedMethodReplacers() {
+        return mMethodReplacers.stream()
+                .filter(replacer -> replacer instanceof MethodReplacerWrapper
+                        && !((MethodReplacerWrapper) replacer).wasCalled())
+                .map(replacer -> ((MethodReplacerWrapper) replacer).getDelegate().getClass().getName())
+                .collect(Collectors.toSet());
     }
 
     /**
