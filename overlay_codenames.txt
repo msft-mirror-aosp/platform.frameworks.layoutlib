@@ -12,4 +12,9 @@ tokay:pixel_9
 caiman:pixel_9_pro
 komodo:pixel_9_pro_xl
 comet:pixel_9_pro_fold
+tegu:pixel_9a
+frankel:pixel_10
+blazer:pixel_10_pro
+mustang:pixel_10_pro_xl
+rango:pixel_10_pro_fold
 tangorpro:pixel_tablet
