@@ -195,6 +195,18 @@ public class Main {
                 return 1;
             }
 
+            Set<String> unusedReplacers = agen.getUnusedMethodReplacers();
+            if (!unusedReplacers.isEmpty()) {
+                log.error("""
+                        ERROR when running layoutlib_create: the following MethodReplacers were
+                        not used. This may be due to platform classes having been renamed or
+                        modified.""");
+                for (String name : unusedReplacers) {
+                    log.error("- Unused MethodReplacer: %s", name);
+                }
+                return 1;
+            }
+
             return 0;
         } catch (IOException e) {
             log.exception(e, "Failed to load jar");

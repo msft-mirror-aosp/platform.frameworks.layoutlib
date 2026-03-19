@@ -139,7 +139,6 @@ public final class CreateInfo implements ICreateInfo {
 
     private static final MethodReplacer[] METHOD_REPLACERS = new MethodReplacer[] {
         new SystemLoadLibraryReplacer(),
-        new SystemArrayCopyReplacer(),
         new LocaleGetDefaultReplacer(),
         new SystemLogReplacer(),
         new SystemNanoTimeReplacer(),
@@ -148,11 +147,9 @@ public final class CreateInfo implements ICreateInfo {
         new ContextGetClassLoaderReplacer(),
         new NativeInitPathReplacer(),
         new AdaptiveIconMaskReplacer(),
-        new ActivityThreadInAnimationReplacer(),
         new ReferenceRefersToReplacer(),
         new HtmlApplicationResourceReplacer(),
         new NativeAllocationRegistryApplyFreeFunctionReplacer(),
-        new LineBreakConfigApplicationInfoReplacer(),
         new NioUtilsFreeBufferReplacer(),
         new ViewRootImplPackageManagerReplacer(),
         new ViewRootImplApplicationReplacer(),
@@ -543,27 +540,6 @@ public final class CreateInfo implements ICreateInfo {
         }
     }
 
-    private static class SystemArrayCopyReplacer implements MethodReplacer {
-        /**
-         * Descriptors for specialized versions {@link System#arraycopy} that are not present on the
-         * Desktop VM.
-         */
-        private static final Set<String> ARRAYCOPY_DESCRIPTORS = new HashSet<>(Arrays.asList(
-                "([CI[CII)V", "([BI[BII)V", "([SI[SII)V", "([II[III)V",
-                "([JI[JII)V", "([FI[FII)V", "([DI[DII)V", "([ZI[ZII)V"));
-
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return Type.getInternalName(System.class).equals(owner) && "arraycopy".equals(name) &&
-                    ARRAYCOPY_DESCRIPTORS.contains(desc);
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.desc = "(Ljava/lang/Object;ILjava/lang/Object;II)V";
-        }
-    }
-
     public static class NativeInitPathReplacer implements MethodReplacer {
         @Override
         public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
@@ -592,22 +568,6 @@ public final class CreateInfo implements ICreateInfo {
             mi.name = "getResourceString";
             mi.opcode = Opcodes.INVOKESTATIC;
             mi.desc = "(Landroid/content/res/Resources;I)Ljava/lang/String;";
-        }
-    }
-
-    public static class ActivityThreadInAnimationReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return ("android/app/ActivityThread").equals(owner) &&
-                    name.equals("getSystemUiContext") &&
-                    sourceClass.equals("android/view/animation/Animation");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "android/app/ActivityThread_Delegate";
-            mi.opcode = Opcodes.INVOKESTATIC;
-            mi.desc = "()Landroid/content/Context;";
         }
     }
 
@@ -657,23 +617,6 @@ public final class CreateInfo implements ICreateInfo {
         public void replace(MethodInformation mi) {
             mi.owner = "libcore/util/NativeAllocationRegistry_Delegate";
             mi.opcode = Opcodes.INVOKESTATIC;
-        }
-    }
-
-    public static class LineBreakConfigApplicationInfoReplacer implements MethodReplacer {
-        @Override
-        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
-            return "android/graphics/text/LineBreakConfig".equals(sourceClass) &&
-                    "android/app/Application".equals(owner) &&
-                    name.equals("getApplicationInfo");
-        }
-
-        @Override
-        public void replace(MethodInformation mi) {
-            mi.owner = "android/app/Application_Delegate";
-            mi.name = "getApplicationInfo";
-            mi.opcode = Opcodes.INVOKESTATIC;
-            mi.desc = "(Landroid/app/Application;)Landroid/content/pm/ApplicationInfo;";
         }
     }
 
