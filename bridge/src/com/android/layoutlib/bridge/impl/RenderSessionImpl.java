@@ -1306,6 +1306,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (mSystemViewInfoList != null) {
                 mSystemViewInfoList.clear();
             }
+            AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate.sFrameTime = 0;
             mValidatorHierarchy = null;
             mViewRoot = null;
             mContentRoot = null;
