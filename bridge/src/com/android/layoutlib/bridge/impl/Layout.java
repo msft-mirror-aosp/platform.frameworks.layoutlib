@@ -250,9 +250,9 @@ public class Layout extends FrameLayout {
                 sysUiRoot.addView(statusBar);
                 sysUiRoot.addView(navBar);
             }
-        } else if (navBar == null) {
+        } else if (statusBar != null) {
             sysUiRoot.addView(statusBar);
-        } else {
+        } else if (navBar != null) {
             sysUiRoot.addView(navBar);
         }
 
