@@ -618,21 +618,23 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     /**
-     * Returns the list of all window root views, sorted by their window type.
+     * Returns the list of all window root views relevant to this session,
+     * sorted by their window type.
      * <p>
      * This is used to determine which window should receive events or be rendered on top.
      */
     @NonNull
     private List<View> getWindowViews() {
-        return WindowManagerGlobal.getInstance().getRootViews(
-                getContext().getBinder()).stream().map(ViewRootImpl::getView).sorted(
-                (v1, v2) -> {
+        return WindowManagerGlobal.getInstance().getWindowViews().stream()
+                .filter(v -> BridgeContext.getBaseContext(v.getContext()) == getContext())
+                .sorted((v1, v2) -> {
                     WindowManager.LayoutParams p1 =
                             (WindowManager.LayoutParams) v1.getLayoutParams();
                     WindowManager.LayoutParams p2 =
                             (WindowManager.LayoutParams) v2.getLayoutParams();
                     return Integer.compare(p1.type, p2.type);
-                }).toList();
+                })
+                .toList();
     }
 
     /**
