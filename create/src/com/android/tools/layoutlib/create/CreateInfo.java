@@ -154,6 +154,8 @@ public final class CreateInfo implements ICreateInfo {
         new NativeAllocationRegistryApplyFreeFunctionReplacer(),
         new LineBreakConfigApplicationInfoReplacer(),
         new NioUtilsFreeBufferReplacer(),
+        new ViewRootImplPackageManagerReplacer(),
+        new ViewRootImplApplicationReplacer(),
     };
 
     /**
@@ -384,6 +386,7 @@ public final class CreateInfo implements ICreateInfo {
         "android.graphics.Path#nInit",
         "android.graphics.Typeface$Builder#createAssetUid",
         "android.hardware.input.InputManagerGlobal#<init>",
+        "android.view.Choreographer$FrameData#<init>",
         "android.view.ViewRootImpl#getRootMeasureSpec",
     };
 
@@ -690,6 +693,40 @@ public final class CreateInfo implements ICreateInfo {
         @Override
         public void replace(MethodInformation mi) {
             mi.owner = Type.getInternalName(NioUtils_Delegate.class);
+        }
+    }
+
+    public static class ViewRootImplPackageManagerReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return "android/view/ViewRootImpl$NoPreloadHolder".equals(sourceClass) &&
+                    "android/app/Application".equals(owner) &&
+                    name.equals("getPackageManager");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "android/app/Application_Delegate";
+            mi.name = "getPackageManager";
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.desc = "(Landroid/app/Application;)Landroid/content/pm/PackageManager;";
+        }
+    }
+
+    public static class ViewRootImplApplicationReplacer implements MethodReplacer {
+        @Override
+        public boolean isNeeded(String owner, String name, String desc, String sourceClass) {
+            return "android/view/ViewRootImpl$NoPreloadHolder".equals(sourceClass) &&
+                    "android/app/ActivityThread".equals(owner) &&
+                    name.equals("getApplication");
+        }
+
+        @Override
+        public void replace(MethodInformation mi) {
+            mi.owner = "android/app/ActivityThread_Delegate";
+            mi.name = "getApplication";
+            mi.opcode = Opcodes.INVOKESTATIC;
+            mi.desc = "(Landroid/app/ActivityThread;)Landroid/app/Application;";
         }
     }
 }
