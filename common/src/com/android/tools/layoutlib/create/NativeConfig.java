@@ -80,6 +80,7 @@ public class NativeConfig {
             "android.content.res.TypedArray#getValueAt",
             "android.content.res.TypedArray#obtain",
             "android.graphics.Canvas#getClipBounds",
+            "android.graphics.HardwareRenderer#addObserver",
             "android.graphics.ImageDecoder#decodeBitmapImpl",
             "android.graphics.Typeface#create",
             "android.graphics.drawable.AdaptiveIconDrawable#draw",

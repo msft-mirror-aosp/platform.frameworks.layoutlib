@@ -62,7 +62,6 @@ import android.util.Pair;
 import android.util.TimeUtils;
 import android.view.AttachInfo_Accessor;
 import android.view.BridgeInflater;
-import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.LayoutlibRenderer;
@@ -317,6 +316,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         try {
             BridgeContext context = getContext();
             Window window = new PhoneWindow(context);
+            window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
             window.requestFeature(Window.FEATURE_NO_TITLE);
 
             mViewRoot = (ViewGroup) window.getDecorView();
@@ -551,7 +552,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 if (mElapsedFrameTimeNanos >= 0) {
                     if (!mFirstFrameExecuted) {
                         // We need to run an initial draw call to initialize the animations
-                        AttachInfo_Accessor.dispatchOnPreDraw(mViewRoot);
                         mViewRoot.draw(NOP_CANVAS);
 
                         // The first frame will initialize the animations
@@ -618,21 +618,23 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     /**
-     * Returns the list of all window root views, sorted by their window type.
+     * Returns the list of all window root views relevant to this session,
+     * sorted by their window type.
      * <p>
      * This is used to determine which window should receive events or be rendered on top.
      */
     @NonNull
     private List<View> getWindowViews() {
-        return WindowManagerGlobal.getInstance().getRootViews(
-                getContext().getBinder()).stream().map(ViewRootImpl::getView).sorted(
-                (v1, v2) -> {
+        return WindowManagerGlobal.getInstance().getWindowViews().stream()
+                .filter(v -> BridgeContext.getBaseContext(v.getContext()) == getContext())
+                .sorted((v1, v2) -> {
                     WindowManager.LayoutParams p1 =
                             (WindowManager.LayoutParams) v1.getLayoutParams();
                     WindowManager.LayoutParams p2 =
                             (WindowManager.LayoutParams) v2.getLayoutParams();
                     return Integer.compare(p1.type, p2.type);
-                }).toList();
+                })
+                .toList();
     }
 
     /**

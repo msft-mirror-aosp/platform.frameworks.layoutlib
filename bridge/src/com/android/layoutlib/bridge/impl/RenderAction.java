@@ -304,8 +304,7 @@ public abstract class RenderAction<T extends RenderParams> {
         // Set-up WindowManager
         // FIXME: find those out, and possibly add them to the render params
         boolean hasNavigationBar = true;
-        IWindowManager iwm = new IWindowManagerImpl(getContext().getMetrics(), ROTATION_0,
-                hasNavigationBar);
+        IWindowManager iwm = new IWindowManagerImpl(ROTATION_0, hasNavigationBar);
         WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
         if (Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_SHOW_CUTOUT))) {
             mContext.setupDisplayCutout();

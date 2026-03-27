@@ -29,20 +29,14 @@ import android.view.WindowManagerGlobal;
 import android.view.WindowRelayoutResult;
 
 public class BridgeWindowSession extends IWindowSession.Default {
-
-    private final DisplayMetrics mMetrics;
-
-    public BridgeWindowSession(DisplayMetrics metrics) {
-        mMetrics = metrics;
-    }
-
-    private void populateRelayoutResult(@NonNull WindowRelayoutResult result) {
+    private void populateRelayoutResult(@NonNull DisplayMetrics metrics,
+            @NonNull WindowRelayoutResult result) {
         result.frames.compatScale = 1.0f;
         Configuration config = new Configuration();
         config.windowConfiguration.setBounds(
-                new Rect(0, 0, mMetrics.widthPixels, mMetrics.heightPixels));
+                new Rect(0, 0, metrics.widthPixels, metrics.heightPixels));
         config.windowConfiguration.setMaxBounds(
-                new Rect(0, 0, mMetrics.widthPixels, mMetrics.heightPixels));
+                new Rect(0, 0, metrics.widthPixels, metrics.heightPixels));
         result.mergedConfiguration.setConfiguration(config, config);
     }
 
@@ -51,7 +45,8 @@ public class BridgeWindowSession extends IWindowSession.Default {
             int viewVisibility, int displayId, int userId, int requestedVisibleTypes,
             android.view.InputChannel outInputChannel, WindowRelayoutResult outRelayoutResult) {
         if (outRelayoutResult != null) {
-            populateRelayoutResult(outRelayoutResult);
+            DisplayMetrics metrics = RenderAction.getCurrentContext().getMetrics();
+            populateRelayoutResult(metrics, outRelayoutResult);
         }
         return WindowManagerGlobal.ADD_OKAY | WindowManagerGlobal.ADD_FLAG_APP_VISIBLE;
     }
@@ -63,7 +58,8 @@ public class BridgeWindowSession extends IWindowSession.Default {
         if (outRelayoutResult == null) {
             return WindowManagerGlobal.RELAYOUT_RES_SURFACE_CHANGED;
         }
-        populateRelayoutResult(outRelayoutResult);
+        DisplayMetrics metrics = RenderAction.getCurrentContext().getMetrics();
+        populateRelayoutResult(metrics, outRelayoutResult);
         int layoutX = 0;
         int layoutY = 0;
         if (attrs != null) {
@@ -72,7 +68,7 @@ public class BridgeWindowSession extends IWindowSession.Default {
                 gravity = Gravity.START | Gravity.TOP;
             }
             Rect outRect = new Rect();
-            Rect displayRect = new Rect(0, 0, mMetrics.widthPixels, mMetrics.heightPixels);
+            Rect displayRect = new Rect(0, 0, metrics.widthPixels, metrics.heightPixels);
             Gravity.apply(gravity, requestedWidth, requestedHeight, displayRect, attrs.x,
                     attrs.y, outRect);
             layoutX = outRect.left;
@@ -80,8 +76,8 @@ public class BridgeWindowSession extends IWindowSession.Default {
         }
         outRelayoutResult.frames.frame.set(layoutX, layoutY, layoutX + requestedWidth,
                 layoutY + requestedHeight);
-        outRelayoutResult.frames.displayFrame.set(0, 0, mMetrics.widthPixels,
-                mMetrics.heightPixels);
+        outRelayoutResult.frames.displayFrame.set(0, 0, metrics.widthPixels,
+                metrics.heightPixels);
         outRelayoutResult.frames.compatScale = 1.0f;
         return WindowManagerGlobal.RELAYOUT_RES_SURFACE_CHANGED;
     }
