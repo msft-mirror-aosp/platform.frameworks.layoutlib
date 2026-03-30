@@ -33,6 +33,7 @@ public class ViewRootImpl_Accessor {
 
     public static void performTraversals(ViewRootImpl viewRoot) {
         viewRoot.mTraversalScheduled = true;
+        viewRoot.postTraversalBarrier();
         viewRoot.doTraversal(System_Delegate.nanoTime());
     }
 
