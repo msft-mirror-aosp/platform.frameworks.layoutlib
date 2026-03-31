@@ -31,6 +31,7 @@ public class ViewRootImpl_Accessor {
 
     public static void performTraversals(ViewRootImpl viewRoot) {
         viewRoot.mTraversalScheduled = true;
+        viewRoot.mTraversalBarrier = viewRoot.mQueue.postSyncBarrier();
         viewRoot.doTraversal();
     }
 
