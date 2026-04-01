@@ -32,6 +32,7 @@ import com.android.layoutlib.bridge.impl.RenderSessionImpl;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Handler_Delegate;
+import android.os.Looper_Accessor;
 import android.view.Choreographer_Delegate;
 import android.view.MotionEvent;
 
@@ -92,7 +93,7 @@ public class BridgeRenderSession extends RenderSession {
     public Result measure(long timeout) {
         if (mSession != null) {
             try {
-                Bridge.prepareThread();
+                Looper_Accessor.setupThread(mSession);
                 mLastResult = mSession.acquire(timeout);
                 if (mLastResult.isSuccess()) {
                     mSession.invalidateRenderingSize();
@@ -100,7 +101,7 @@ public class BridgeRenderSession extends RenderSession {
                 }
             } finally {
                 mSession.release();
-                Bridge.cleanupThread();
+                Looper_Accessor.cleanupThread();
             }
         }
 
@@ -111,7 +112,7 @@ public class BridgeRenderSession extends RenderSession {
     public Result render(long timeout, boolean forceMeasure) {
         if (mSession != null) {
             try {
-                Bridge.prepareThread();
+                Looper_Accessor.setupThread(mSession);
                 mLastResult = mSession.acquire(timeout);
                 if (mLastResult.isSuccess()) {
                     if (forceMeasure) {
@@ -121,7 +122,7 @@ public class BridgeRenderSession extends RenderSession {
                 }
             } finally {
                 mSession.release();
-                Bridge.cleanupThread();
+                Looper_Accessor.cleanupThread();
             }
         }
 
@@ -154,7 +155,7 @@ public class BridgeRenderSession extends RenderSession {
             return false;
         }
         try {
-            Bridge.prepareThread();
+            Looper_Accessor.setupThread(mSession);
             mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
             long currentTimeNanos = System_Delegate.nanoTime();
             boolean hasMoreCallbacks = Handler_Delegate.executeCallbacks(currentTimeNanos);
@@ -166,7 +167,7 @@ public class BridgeRenderSession extends RenderSession {
             return false;
         } finally {
             mSession.release();
-            Bridge.cleanupThread();
+            Looper_Accessor.cleanupThread();
         }
     }
 
@@ -194,12 +195,12 @@ public class BridgeRenderSession extends RenderSession {
     public void execute(Runnable r) {
         if (mSession != null) {
             try {
-                Bridge.prepareThread();
+                Looper_Accessor.setupThread(mSession);
                 mLastResult = mSession.acquire(RenderParams.DEFAULT_TIMEOUT);
                 r.run();
             } finally {
                 mSession.release();
-                Bridge.cleanupThread();
+                Looper_Accessor.cleanupThread();
             }
         }
     }
