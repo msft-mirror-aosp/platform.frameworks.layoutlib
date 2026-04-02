@@ -15,7 +15,7 @@
  */
 package android.os;
 
-import java.lang.reflect.Field;
+import com.android.layoutlib.bridge.impl.RenderAction;
 
 /**
  * Class allowing access to package-protected methods/fields.
@@ -25,18 +25,11 @@ public class Looper_Accessor {
     public static void cleanupThread() {
         // clean up the looper
         Looper.sThreadLocal.remove();
-        try {
-            Field sMainLooper = Looper.class.getDeclaredField("sMainLooper");
-            sMainLooper.setAccessible(true);
-            sMainLooper.set(null, null);
-        } catch (SecurityException | IllegalAccessException | NoSuchFieldException |
-                 IllegalArgumentException e) {
-            catchReflectionException();
-        }
-
+        Looper.clearMainLooperForTest();
     }
 
-    private static void catchReflectionException() {
-        assert(false);
+    public static void setupThread(RenderAction<?> session) {
+        Looper.sThreadLocal.set(session.getLooper());
+        Looper.setMainLooperForTest(session.getLooper());
     }
 }

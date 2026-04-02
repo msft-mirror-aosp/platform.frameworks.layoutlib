@@ -17,13 +17,13 @@
 package com.android.layoutlib.bridge.android;
 
 import com.android.ide.common.rendering.api.SessionParams;
-import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.impl.RenderActionTestUtil;
 import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 import com.android.ninepatch.NinePatch;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,6 +34,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.graphics.ImageDecoder.Source;
+import android.os.Looper;
+import android.os.Looper_Accessor;
 import android.util.DisplayMetrics;
 
 import java.awt.image.BufferedImage;
@@ -48,7 +50,12 @@ import static org.junit.Assert.assertNotNull;
 public class BitmapTest extends RenderTestBase {
     @BeforeClass
     public static void setUp() {
-        Bridge.prepareThread();
+        Looper.prepareMainLooper();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        Looper_Accessor.cleanupThread();
     }
 
     @Test

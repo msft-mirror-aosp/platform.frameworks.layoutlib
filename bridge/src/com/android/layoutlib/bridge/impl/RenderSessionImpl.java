@@ -1160,8 +1160,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 continue;
             }
 
-            boolean isTouchModal = (params.flags & WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL) == 0;
-
             int left;
             int top;
             ViewRootImpl rootImpl = view.getViewRootImpl();
@@ -1178,7 +1176,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             boolean isInside = x >= left && x <= right && y >= top && y <= bottom;
 
-            if (isTouchModal || isInside) {
+            if (isInside || params.isModal()) {
                 root = (ViewGroup) view;
                 x -= left;
                 y -= top;
