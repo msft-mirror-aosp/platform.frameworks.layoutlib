@@ -39,6 +39,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
+import android.os.Looper;
 import android.os.LocaleList;
 import android.os.SystemProperties;
 import android.provider.Settings;
@@ -99,6 +100,7 @@ public abstract class RenderAction<T extends RenderParams> {
     static BridgeContext sCurrentContext = null;
 
     private final T mParams;
+    private final Looper mLooper;
 
     protected boolean mConfigurationUpdated;
 
@@ -120,6 +122,19 @@ public abstract class RenderAction<T extends RenderParams> {
     protected RenderAction(T params) {
         mParams = params;
         sSimulatedSdk = SDK_INT;
+        if (Looper.myLooper() == null) {
+            synchronized (Looper.class) {
+                // Check if the main looper has been prepared already.
+                if (Looper.getMainLooper() == null) {
+                    Looper.prepareMainLooper();
+                }
+            }
+        }
+        mLooper = Looper.myLooper();
+    }
+
+    public Looper getLooper() {
+        return mLooper;
     }
 
     /**

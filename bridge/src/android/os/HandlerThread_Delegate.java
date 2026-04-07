@@ -58,17 +58,6 @@ public class HandlerThread_Delegate {
         List<HandlerThread> list = sThreads.computeIfAbsent(context, k -> new ArrayList<>());
         list.add(theThread);
 
-        // ---- START DEFAULT IMPLEMENTATION.
-
-        theThread.mTid = Process.myTid();
-        Looper.prepare();
-        synchronized (theThread) {
-            theThread.mLooper = Looper.myLooper();
-            theThread.notifyAll();
-        }
-        Process.setThreadPriority(theThread.mPriority);
-        theThread.onLooperPrepared();
-        Looper.loop();
-        theThread.mTid = -1;
+        theThread.run_Original();
     }
 }
