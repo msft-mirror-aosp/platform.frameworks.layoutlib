@@ -16,9 +16,9 @@
 
 package android.view;
 
-import android.content.res.Configuration;
+import com.android.layoutlib.bridge.impl.BridgeWindowSession;
+
 import android.os.RemoteException;
-import android.util.DisplayMetrics;
 
 /**
  * Basic implementation of {@link IWindowManager} so that {@link Display} (and
@@ -26,21 +26,12 @@ import android.util.DisplayMetrics;
  */
 public class IWindowManagerImpl extends IWindowManager.Default {
 
-    private final DisplayMetrics mMetrics;
     private final int mRotation;
     private final boolean mHasNavigationBar;
 
-    public IWindowManagerImpl(Configuration config, DisplayMetrics metrics, int rotation,
-            boolean hasNavigationBar) {
-        mMetrics = metrics;
+    public IWindowManagerImpl(int rotation, boolean hasNavigationBar) {
         mRotation = rotation;
         mHasNavigationBar = hasNavigationBar;
-    }
-
-    // custom API.
-
-    public DisplayMetrics getMetrics() {
-        return mMetrics;
     }
 
     // ---- implementation of IWindowManager that we care about ----
@@ -54,5 +45,10 @@ public class IWindowManagerImpl extends IWindowManager.Default {
     public boolean hasNavigationBar(int displayId) {
         // TODO(multi-display): Change it once we need it per display.
         return mHasNavigationBar;
+    }
+
+    @Override
+    public IWindowSession openSession(IWindowSessionCallback callback) throws RemoteException {
+        return new BridgeWindowSession();
     }
 }
