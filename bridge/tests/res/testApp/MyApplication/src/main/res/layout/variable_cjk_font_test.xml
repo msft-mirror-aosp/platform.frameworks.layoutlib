@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Variable Font - Weight 100"
+        android:textSize="20sp"
+        android:fontFamily="sans-serif"
+        android:fontVariationSettings="'wght' 100" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Variable Font - Weight 900"
+        android:textSize="20sp"
+        android:fontFamily="sans-serif"
+        android:fontVariationSettings="'wght' 900" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CJK Font - Chinese: 你好"
+        android:textSize="20sp"
+        android:textLocale="zh-Hans" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CJK Font - Japanese: こんにちは"
+        android:textSize="20sp"
+        android:textLocale="ja-JP" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CJK Font - Korean: 안녕하세요"
+        android:textSize="20sp"
+        android:textLocale="ko-KR" />
+
+    <!-- Test bold selection via textStyle -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CJK Bold (textStyle) - 你好"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textLocale="zh-Hans" />
+
+    <!-- Test bold selection via weight axis -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CJK Bold (wght 700) - 你好"
+        android:textSize="20sp"
+        android:fontVariationSettings="'wght' 700"
+        android:textLocale="zh-Hans" />
+
+    <!-- Test heavy weight via weight axis -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CJK Heavy (wght 900) - 你好"
+        android:textSize="20sp"
+        android:fontVariationSettings="'wght' 900"
+        android:textLocale="zh-Hans" />
+
+</LinearLayout>
