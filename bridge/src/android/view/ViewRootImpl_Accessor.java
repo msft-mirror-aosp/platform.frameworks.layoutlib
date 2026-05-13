@@ -24,19 +24,24 @@ public class ViewRootImpl_Accessor {
         viewRoot.dispatchApplyInsets(host);
     }
 
-    public static void setChild(ViewRootImpl viewRoot, View child) {
-        viewRoot.mView = child;
-        if (child != null) {
-            viewRoot.mWidth = child.getWidth();
-            viewRoot.mHeight = child.getHeight();
-        } else {
-            viewRoot.mWidth = -1;
-            viewRoot.mHeight = -1;
-        }
-    }
-
     public static void detachFromWindow(ViewRootImpl viewRoot) {
         viewRoot.mAccessibilityInteractionConnectionManager.ensureNoConnection();
         viewRoot.mAccessibilityInteractionConnectionManager.ensureNoDirectConnection();
+    }
+
+    public static void performTraversals(ViewRootImpl viewRoot) {
+        viewRoot.mTraversalScheduled = true;
+        viewRoot.mTraversalBarrier = viewRoot.mQueue.postSyncBarrier();
+        viewRoot.doTraversal();
+    }
+
+    public static void updateFrame(ViewRootImpl viewRoot, int width, int height) {
+        viewRoot.mWinFrame.set(0, 0, width, height);
+        viewRoot.mTmpFrames.frame.set(0, 0, width, height);
+        viewRoot.mTmpFrames.displayFrame.set(0, 0, width, height);
+    }
+
+    public static android.graphics.Rect getWindowFrame(ViewRootImpl viewRoot) {
+        return viewRoot.mWinFrame;
     }
 }

@@ -21,12 +21,10 @@ import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.SessionParams;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.ViewInfo;
-import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import android.view.View;
@@ -42,11 +40,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class AccessibilityTest extends RenderTestBase {
-    @BeforeClass
-    public static void setUp() {
-        Bridge.prepareThread();
-    }
-
     @Test
     public void accessibilityNodeInfoCreation() throws ClassNotFoundException {
         LayoutPullParser parser = createParserFromPath("allwidgets.xml");
@@ -65,7 +58,7 @@ public class AccessibilityTest extends RenderTestBase {
             assertTrue(renderResult.isSuccess());
             assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
             session.execute(() -> {
-                View rootView = (View) session.getSystemRootViews().get(0).getViewObject();
+                View rootView = (View) session.getRootViews().get(0).getViewObject();
                 AccessibilityNodeInfo rootNode = rootView.createAccessibilityNodeInfo();
                 assertNotNull(rootNode);
                 rootNode.setQueryFromAppProcessEnabled(rootView, true);
@@ -162,7 +155,7 @@ public class AccessibilityTest extends RenderTestBase {
                 traverseAccessibilityTree(rootNode, counter);
             });
             assertEquals(0, AccessibilityInteractionClient.sConnectionCache.size());
-            assertEquals(17, counter[0]);
+            assertEquals(6, counter[0]);
         } finally {
             session.dispose();
         }
