@@ -18,6 +18,7 @@
 package android.provider;
 
 import com.android.ide.common.rendering.api.SessionParams;
+import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.android.BridgeContentResolver;
 import com.android.layoutlib.bridge.android.BridgeContext;
 import com.android.layoutlib.bridge.android.RenderTestBase;
@@ -25,14 +26,11 @@ import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import android.content.ContentResolver;
 import android.content.res.Configuration;
-import android.os.Looper;
-import android.os.Looper_Accessor;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.DisplayMetrics;
 
@@ -45,12 +43,7 @@ public class Settings_System_DelegateTest extends RenderTestBase {
 
     @BeforeClass
     public static void setUp() {
-        Looper.prepareMainLooper();
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        Looper_Accessor.cleanupThread();
+        Bridge.prepareThread();
     }
 
     @Test

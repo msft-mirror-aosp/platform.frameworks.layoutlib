@@ -2508,9 +2508,4 @@ public class RenderTests extends RenderTestBase {
             session.dispose();
         }
     }
-
-    @Test
-    public void testVariableAndCjkFonts() throws ClassNotFoundException, FileNotFoundException {
-        renderAndVerify("variable_cjk_font_test.xml", "variable_cjk_font_test.png", false);
-    }
 }

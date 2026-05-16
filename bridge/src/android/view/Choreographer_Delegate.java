@@ -63,8 +63,7 @@ public class Choreographer_Delegate {
                 return;
             }
         }
-        if (callbackType != Choreographer.CALLBACK_ANIMATION &&
-                callbackType != Choreographer.CALLBACK_TRAVERSAL) {
+        if (callbackType != Choreographer.CALLBACK_ANIMATION) {
             // Ignore non-animation callbacks
             return;
         }
@@ -83,8 +82,7 @@ public class Choreographer_Delegate {
         if (context == null) {
             return;
         }
-        if (callbackType != Choreographer.CALLBACK_ANIMATION &&
-                callbackType != Choreographer.CALLBACK_TRAVERSAL) {
+        if (callbackType != Choreographer.CALLBACK_ANIMATION) {
             // Ignore non-animation callbacks
             return;
         }
@@ -102,8 +100,7 @@ public class Choreographer_Delegate {
         if (context == null) {
             return;
         }
-        if (callbackType != Choreographer.CALLBACK_ANIMATION &&
-                callbackType != Choreographer.CALLBACK_TRAVERSAL) {
+        if (callbackType != Choreographer.CALLBACK_ANIMATION) {
             // Ignore non-animation callbacks
             return;
         }

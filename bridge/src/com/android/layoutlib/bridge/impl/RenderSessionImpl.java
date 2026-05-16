@@ -29,7 +29,6 @@ import com.android.ide.common.rendering.api.SessionParams.RenderingMode;
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode.SizeAction;
 import com.android.ide.common.rendering.api.ViewInfo;
 import com.android.ide.common.rendering.api.ViewType;
-import com.android.internal.policy.PhoneWindow;
 import com.android.internal.view.menu.ActionMenuItemView;
 import com.android.internal.view.menu.BridgeMenuItemImpl;
 import com.android.internal.view.menu.IconMenuItemView;
@@ -55,7 +54,6 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
 import android.preference.Preference_Delegate;
 import android.util.Pair;
@@ -74,9 +72,7 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
 import android.view.ViewRootImpl;
 import android.view.ViewRootImpl_Accessor;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.WindowManagerGlobal;
+import android.view.WindowManagerImpl;
 import android.widget.ActionMenuView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -314,19 +310,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         checkLock();
 
         try {
-            BridgeContext context = getContext();
-            Window window = new PhoneWindow(context);
-            window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-            window.requestFeature(Window.FEATURE_NO_TITLE);
-
-            mViewRoot = (ViewGroup) window.getDecorView();
-            Layout layout = new Layout(mLayoutBuilder);
+            mViewRoot = new Layout(mLayoutBuilder);
             mLayoutBuilder = null;  // Done with the builder.
-            mContentRoot = layout.getContentRoot();
-            window.setContentView(layout);
-            mViewRoot.setBackground(layout.getBackground());
+            mContentRoot = ((Layout) mViewRoot).getContentRoot();
             SessionParams params = getParams();
+            BridgeContext context = getContext();
 
             int simulatedVersion = params.getSimulatedPlatformVersion();
             sSimulatedSdk = simulatedVersion > 0 ? simulatedVersion : SDK_INT;
@@ -371,7 +359,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             context.popParser();
 
             // set the AttachInfo on the root view.
-            mRenderer = AttachInfo_Accessor.setAttachInfo(mViewRoot, layout);
+            mRenderer = AttachInfo_Accessor.setAttachInfo(mViewRoot);
 
             // post-inflate process. For now this supports TabHost/TabWidget
             postInflateProcess(view, params.getLayoutlibCallback(), isPreference ? view : null);
@@ -380,14 +368,15 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             setActiveToolbar(view, context, params);
 
             measureLayout(params);
-            ViewRootImpl_Accessor.updateFrame(mViewRoot.getViewRootImpl(), mMeasuredScreenWidth,
-                    mMeasuredScreenHeight);
-            ViewRootImpl_Accessor.performTraversals(mViewRoot.getViewRootImpl());
+            measureView(mViewRoot, null /*measuredView*/,
+                    mMeasuredScreenWidth, MeasureSpec.EXACTLY,
+                    mMeasuredScreenHeight, MeasureSpec.EXACTLY);
+            mViewRoot.layout(0, 0, mMeasuredScreenWidth, mMeasuredScreenHeight);
+            mViewRoot.getViewRootImpl().mTmpFrames.displayFrame.set(mViewRoot.getLeft(),
+                    mViewRoot.getTop(), mViewRoot.getRight(), mViewRoot.getBottom());
 
-            List<ViewGroup> viewRoots =
-                    getWindowViews().stream().filter(ViewGroup.class::isInstance).map(ViewGroup.class::cast).toList();
             mSystemViewInfoList =
-                    visitAllChildren(viewRoots, 0, 0, params, false);
+                    visitAllChildren(mViewRoot, 0, 0, params, false);
 
             return SUCCESS.createResult();
         } catch (PostInflateException e) {
@@ -409,6 +398,23 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      */
     public void setElapsedFrameTimeNanos(long nanos) {
         mElapsedFrameTimeNanos = nanos;
+    }
+
+    /**
+     * Runs a layout pass for the given view root
+     */
+    private static void doLayout(@NonNull BridgeContext context, @NonNull ViewGroup viewRoot,
+            int width, int height) {
+        // measure again with the size we need
+        // This must always be done before the call to layout
+        measureView(viewRoot, null /*measuredView*/,
+                width, MeasureSpec.EXACTLY,
+                height, MeasureSpec.EXACTLY);
+
+        // now do the layout.
+        viewRoot.layout(0, 0, width, height);
+        AttachInfo_Accessor.dispatchOnGlobalLayout(viewRoot);
+        handleScrolling(context, viewRoot);
     }
 
     /**
@@ -489,10 +495,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (onlyMeasure) {
                 // delete the canvas and image to reset them on the next full rendering
                 releaseRender();
-                ViewRootImpl_Accessor.updateFrame(mViewRoot.getViewRootImpl(), mMeasuredScreenWidth,
-                        mMeasuredScreenHeight);
-                ViewRootImpl_Accessor.performTraversals(mViewRoot.getViewRootImpl());
-                handleScrolling(getContext(), mViewRoot);
+                doLayout(getContext(), mViewRoot, mMeasuredScreenWidth, mMeasuredScreenHeight);
             } else {
                 // When disableBitmapCaching is true, we do not reuse mImage and
                 // we create a new one in every render.
@@ -537,21 +540,12 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     mNewRenderSize = false;
                 }
 
-                List<View> views = getWindowViews();
-                for (View view : views) {
-                    if (view instanceof ViewGroup) {
-                        if (view == mViewRoot) {
-                            ViewRootImpl_Accessor.updateFrame((ViewRootImpl) view.getParent(),
-                                    mMeasuredScreenWidth, mMeasuredScreenHeight);
-                        }
-                        ViewRootImpl_Accessor.performTraversals((ViewRootImpl) view.getParent());
-                        handleScrolling(getContext(), view);
-                    }
-                }
+                doLayout(getContext(), mViewRoot, mMeasuredScreenWidth, mMeasuredScreenHeight);
 
                 if (mElapsedFrameTimeNanos >= 0) {
                     if (!mFirstFrameExecuted) {
                         // We need to run an initial draw call to initialize the animations
+                        AttachInfo_Accessor.dispatchOnPreDraw(mViewRoot);
                         mViewRoot.draw(NOP_CANVAS);
 
                         // The first frame will initialize the animations
@@ -562,7 +556,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                             mElapsedFrameTimeNanos / 1000000;
                 }
 
-                mRenderer.draw(views);
+                mRenderer.draw(mViewRoot);
 
                 int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
                 IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
@@ -570,10 +564,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 buff.get(imageData, 0, len);
             }
 
-            List<ViewGroup> viewRoots =
-                    getWindowViews().stream().filter(ViewGroup.class::isInstance).map(ViewGroup.class::cast).toList();
             mSystemViewInfoList =
-                    visitAllChildren(viewRoots, 0, 0, params, false);
+                    visitAllChildren(mViewRoot, 0, 0, params, false);
 
             Consumer<BufferedImage> imageTransformation = getParams().getImageTransformation();
             if (imageTransformation != null) {
@@ -615,26 +607,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             return ERROR_UNKNOWN.createResult(t.getMessage(), t);
         }
-    }
-
-    /**
-     * Returns the list of all window root views relevant to this session,
-     * sorted by their window type.
-     * <p>
-     * This is used to determine which window should receive events or be rendered on top.
-     */
-    @NonNull
-    private List<View> getWindowViews() {
-        return WindowManagerGlobal.getInstance().getWindowViews().stream()
-                .filter(v -> BridgeContext.getBaseContext(v.getContext()) == getContext())
-                .sorted((v1, v2) -> {
-                    WindowManager.LayoutParams p1 =
-                            (WindowManager.LayoutParams) v1.getLayoutParams();
-                    WindowManager.LayoutParams p2 =
-                            (WindowManager.LayoutParams) v2.getLayoutParams();
-                    return Integer.compare(p1.type, p2.type);
-                })
-                .toList();
     }
 
     /**
@@ -860,6 +832,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * @param view the root View
      * @param hOffset horizontal offset for the view bounds.
      * @param vOffset vertical offset for the view bounds.
+     * @param setExtendedInfo whether to set the extended view info in the {@link ViewInfo} object.
      * @param isContentFrame {@code true} if the {@code ViewInfo} to be created is part of the
      *                       content frame.
      *
@@ -871,7 +844,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 isContentFrame);
 
         if (view instanceof ViewGroup group) {
-            result.setChildren(visitAllChildren(List.of(group), isContentFrame ? 0 : hOffset,
+            result.setChildren(visitAllChildren(group, isContentFrame ? 0 : hOffset,
                     isContentFrame ? 0 : vOffset,
                     params, isContentFrame));
         }
@@ -883,56 +856,45 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
      * containing the bounds of all the views. It also initializes the {@link #mViewInfoList} with
      * the children of the {@code mContentRoot}.
      *
-     * @param viewGroupList List of root Views
+     * @param viewGroup the root View
      * @param hOffset horizontal offset from the top for the content view frame.
      * @param vOffset vertical offset from the top for the content view frame.
+     * @param setExtendedInfo whether to set the extended view info in the {@link ViewInfo} object.
      * @param isContentFrame {@code true} if the {@code ViewInfo} to be created is part of the
      *                       content frame. {@code false} if the {@code ViewInfo} to be created is
      *                       part of the system decor.
      */
-    private List<ViewInfo> visitAllChildren(List<ViewGroup> viewGroupList, int hOffset, int vOffset,
+    private List<ViewInfo> visitAllChildren(ViewGroup viewGroup, int hOffset, int vOffset,
             SessionParams params, boolean isContentFrame) {
-        if (viewGroupList == null) {
+        if (viewGroup == null) {
             return null;
         }
 
-        List<ViewInfo> childrenWithoutOffset = new ArrayList<>();
-        List<ViewInfo> childrenWithOffset = new ArrayList<>();
-
-        for (ViewGroup viewGroup : viewGroupList) {
-            int currentVOffset = vOffset;
-            int currentHOffset = hOffset;
-            if (!isContentFrame) {
-                ViewRootImpl rootImpl = viewGroup.getViewRootImpl();
-                if (rootImpl != null) {
-                    Rect frame = ViewRootImpl_Accessor.getWindowFrame(rootImpl);
-                    currentVOffset += frame.top;
-                    currentHOffset += frame.left;
-                } else {
-                    currentVOffset += viewGroup.getTop();
-                    currentHOffset += viewGroup.getLeft();
-                }
-            }
-
-            int childCount = viewGroup.getChildCount();
-            if (viewGroup == mContentRoot) {
-                for (int i = 0; i < childCount; i++) {
-                    ViewInfo[] childViewInfo =
-                            visitContentRoot(viewGroup.getChildAt(i), currentHOffset,
-                                    currentVOffset, params);
-                    childrenWithoutOffset.add(childViewInfo[0]);
-                    childrenWithOffset.add(childViewInfo[1]);
-                }
-                mViewInfoList = childrenWithOffset;
-            } else {
-                for (int i = 0; i < childCount; i++) {
-                    childrenWithoutOffset.add(
-                            visit(viewGroup.getChildAt(i), currentHOffset, currentVOffset, params,
-                                    isContentFrame));
-                }
-            }
+        if (!isContentFrame) {
+            vOffset += viewGroup.getTop();
+            hOffset += viewGroup.getLeft();
         }
-        return childrenWithoutOffset;
+
+        int childCount = viewGroup.getChildCount();
+        if (viewGroup == mContentRoot) {
+            List<ViewInfo> childrenWithoutOffset = new ArrayList<>(childCount);
+            List<ViewInfo> childrenWithOffset = new ArrayList<>(childCount);
+            for (int i = 0; i < childCount; i++) {
+                ViewInfo[] childViewInfo =
+                        visitContentRoot(viewGroup.getChildAt(i), hOffset, vOffset, params);
+                childrenWithoutOffset.add(childViewInfo[0]);
+                childrenWithOffset.add(childViewInfo[1]);
+            }
+            mViewInfoList = childrenWithOffset;
+            return childrenWithoutOffset;
+        } else {
+            List<ViewInfo> children = new ArrayList<>(childCount);
+            for (int i = 0; i < childCount; i++) {
+                children.add(visit(viewGroup.getChildAt(i), hOffset, vOffset, params,
+                        isContentFrame));
+            }
+            return children;
+        }
     }
 
     /**
@@ -964,7 +926,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
         if (customParser != null) {
             children = customParser.apply(view);
         } else if (view instanceof ViewGroup) {
-            children = visitAllChildren(List.of((ViewGroup) view), 0, 0, params, true);
+            children = visitAllChildren((ViewGroup) view, 0, 0, params, true);
         }
         result[0].setChildren(children);
         result[1].setChildren(children);
@@ -1149,41 +1111,9 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
     public void dispatchTouchEvent(int motionEventType, long currentTimeNanos, float x, float y) {
         // Events should be dispatched to the top window if there are more than one present.
-        ViewGroup root = null;
-        List<View> views = getWindowViews();
-
-        for (int i = views.size() - 1; i >= 0; i--) {
-            View view = views.get(i);
-            WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
-
-            if ((params.flags & WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) != 0) {
-                continue;
-            }
-
-            int left;
-            int top;
-            ViewRootImpl rootImpl = view.getViewRootImpl();
-            if (rootImpl != null) {
-                Rect frame = ViewRootImpl_Accessor.getWindowFrame(rootImpl);
-                left = frame.left;
-                top = frame.top;
-            } else {
-                left = view.getLeft();
-                top = view.getTop();
-            }
-            int right = left + view.getWidth();
-            int bottom = top + view.getHeight();
-
-            boolean isInside = x >= left && x <= right && y >= top && y <= bottom;
-
-            if (isInside || params.isModal()) {
-                root = (ViewGroup) view;
-                x -= left;
-                y -= top;
-                break;
-            }
-        }
-
+        WindowManagerImpl wm =
+                (WindowManagerImpl)getContext().getSystemService(Context.WINDOW_SERVICE);
+        ViewGroup root = wm.getCurrentRootView();
         if (root == null) {
             root = mViewRoot;
         }
@@ -1218,34 +1148,15 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     }
 
     public void dispatchKeyEvent(java.awt.event.KeyEvent event, long currentTimeNanos) {
-        List<View> views = getWindowViews();
-        ViewGroup root = null;
-
-        for (int i = views.size() - 1; i >= 0; i--) {
-            View view = views.get(i);
-            WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
-            // In Android, the window manager keeps track of the focused window.
-            // For layoutlib, we'll assume the top-most visible window that can have focus is the one.
-            if (view.getVisibility() == View.VISIBLE &&
-                    (params.flags & WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE) == 0) {
-                root = (ViewGroup) view;
-                break;
-            }
-        }
-
+        WindowManagerImpl wm =
+                (WindowManagerImpl)getContext().getSystemService(Context.WINDOW_SERVICE);
+        ViewGroup root = wm.getCurrentRootView();
         if (root == null) {
             root = mViewRoot;
         }
-
         if (root == null) {
             return;
         }
-
-        // Ensure the target window has focus so it can process the key event (e.g. for focus navigation)
-        for (View view : views) {
-            AttachInfo_Accessor.setHasWindowFocus(view, view == root);
-        }
-
         if (event.getID() == java.awt.event.KeyEvent.KEY_PRESSED) {
             mLastActionDownTimeNanos = currentTimeNanos;
         }
@@ -1266,13 +1177,14 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
     @Override
     public void release() {
         super.release();
-        List<View> views = getWindowViews();
-        for (View view : views) {
-            ViewRootImpl viewRootImpl = view.getViewRootImpl();
-            if (viewRootImpl != null) {
-                ViewRootImpl_Accessor.detachFromWindow(viewRootImpl);
-            }
+        if (mViewRoot == null) {
+            return;
         }
+        ViewRootImpl viewRootImpl = mViewRoot.getViewRootImpl();
+        if (viewRootImpl == null) {
+            return;
+        }
+        ViewRootImpl_Accessor.detachFromWindow(viewRootImpl);
     }
 
     private void disposeImageSurface() {
@@ -1294,11 +1206,8 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (mRenderer != null) {
                 mRenderer.destroy();
             }
-            WindowManager wm = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
-            List<View> views = getWindowViews();
-            for (View view : views) {
-                wm.removeViewImmediate(view);
-            }
+            // detachFromWindow might create Handler callbacks, thus before Handler_Delegate.dispose
+            AttachInfo_Accessor.detachFromWindow(mViewRoot);
             getContext().getSessionInteractiveData().dispose();
             if (mViewInfoList != null) {
                 mViewInfoList.clear();
@@ -1306,7 +1215,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (mSystemViewInfoList != null) {
                 mSystemViewInfoList.clear();
             }
-            AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate.sFrameTime = 0;
             mValidatorHierarchy = null;
             mViewRoot = null;
             mContentRoot = null;

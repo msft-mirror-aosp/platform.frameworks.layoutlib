@@ -35,7 +35,6 @@ import com.android.layoutlib.bridge.impl.ParserFactory;
 import com.android.layoutlib.bridge.impl.ResourceHelper;
 import com.android.layoutlib.bridge.impl.Stack;
 import com.android.resources.ResourceType;
-import com.android.server.wm.DisplayFrames;
 import com.android.tools.layoutlib.annotations.NotNull;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -104,24 +103,15 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.BridgeInflater;
 import android.view.Display;
-import android.view.Display.Mode;
 import android.view.DisplayAdjustments;
-import android.view.DisplayCutout;
-import android.view.DisplayInfo;
-import android.view.DisplayShape;
-import android.view.InsetsState;
-import android.view.PrivacyIndicatorBounds;
-import android.view.RoundedCorners;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.WindowManagerImpl;
 import android.view.accessibility.AccessibilityManager;
 import android.view.autofill.AutofillManager;
 import android.view.autofill.IAutoFillManager.Default;
 import android.view.inputmethod.InputMethodManager;
-import android.view.selectiontoolbar.ISelectionToolbarManager;
-import android.view.selectiontoolbar.SelectionToolbarManager;
 import android.view.textservice.TextServicesManager;
 
 import java.io.File;
@@ -149,8 +139,6 @@ public class BridgeContext extends Context {
     private static final Map<String, ResourceValue> FRAMEWORK_REPLACE_VALUES = new HashMap<>(3);
     private static final int MAX_PARSER_STACK_SIZE =
             Integer.getInteger("layoutlib.max.parser.stack.size", 1000);
-    private static final PrivacyIndicatorBounds sPrivacyIndicatorBounds =
-            new PrivacyIndicatorBounds();
 
     static {
         FRAMEWORK_PATCHED_VALUES.put("animateFirstView",
@@ -189,7 +177,7 @@ public class BridgeContext extends Context {
     private final Configuration mConfig;
     private final ApplicationInfo mApplicationInfo;
     private final LayoutlibCallback mLayoutlibCallback;
-    private final WindowManagerImpl mWindowManager;
+    private final WindowManager mWindowManager;
     private final DisplayManager mDisplayManager;
     private AutofillManager mAutofillManager;
     private final ClipboardManager mClipboardManager;
@@ -200,7 +188,6 @@ public class BridgeContext extends Context {
     private final InputManager mInputManager;
     private final AppOpsManager mAppOpsManager;
     private final UiModeManager mUiModeManager;
-    private final SelectionToolbarManager mSelectionToolbarManager;
     private final HashMap<View, Integer> mScrollYPos = new HashMap<>();
     private final HashMap<View, Integer> mScrollXPos = new HashMap<>();
 
@@ -234,7 +221,6 @@ public class BridgeContext extends Context {
 
     private final SessionInteractiveData mSessionInteractiveData;
     private final ThreadLocal<AnimationHandler> mAnimationHandlerThreadLocal = new ThreadLocal<>();
-    private final DisplayInfo mDisplayInfo;
     private Display mDisplay;
 
     /**
@@ -258,8 +244,6 @@ public class BridgeContext extends Context {
         RTL_ATTRS.put("?android:attr/drawableLeft", "drawableStart");
         RTL_ATTRS.put("?android:attr/drawableRight", "drawableEnd");
     }
-
-    private DisplayFrames mDisplayFrames;
 
     /**
      * @param projectKey An Object identifying the project. This is used for the cache mechanism.
@@ -287,29 +271,13 @@ public class BridgeContext extends Context {
         }
         mAssets.setAssetRepository(assets);
 
-        mDisplayInfo = new DisplayInfo();
-        mDisplayInfo.logicalHeight = mMetrics.heightPixels;
-        mDisplayInfo.logicalWidth = mMetrics.widthPixels;
-        mDisplayInfo.supportedModes = new Mode[] {
-                new Mode(0, mMetrics.widthPixels, mMetrics.heightPixels, 60f)
-        };
-        mDisplayInfo.logicalDensityDpi = mMetrics.densityDpi;
-        mDisplayInfo.displayCutout = DisplayCutout.NO_CUTOUT;
-        if (mConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            mDisplayInfo.rotation = Surface.ROTATION_90;
-        } else {
-            mDisplayInfo.rotation = Surface.ROTATION_0;
-        }
-
         mApplicationInfo = new ApplicationInfo();
         mApplicationInfo.targetSdkVersion = targetSdkVersion;
-        mApplicationInfo.flags = mApplicationInfo.flags | ApplicationInfo.FLAG_HARDWARE_ACCELERATED;
         if (hasRtlSupport) {
             mApplicationInfo.flags = mApplicationInfo.flags | ApplicationInfo.FLAG_SUPPORTS_RTL;
         }
 
-        mWindowManager = new WindowManagerImpl(this, null, getBinder());
-        mWindowManager.setDefaultToken(getBinder());
+        mWindowManager = new WindowManagerImpl(this, mMetrics);
         mDisplayManager = new DisplayManager(this);
         mClipboardManager = new ClipboardManager(this, null);
         mUserManager = new UserManager(this, new IUserManager.Default());
@@ -319,8 +287,6 @@ public class BridgeContext extends Context {
         mInputManager = new InputManager(this);
         mAppOpsManager = AppOpsManager_Accessor.getAppOpsManagerInstance(this);
         mUiModeManager = UiModeManager_Accessor.getUiModeManagerInstance(this);
-        mSelectionToolbarManager =
-                new SelectionToolbarManager(new ISelectionToolbarManager.Default());
 
         if (mLayoutlibCallback.isResourceNamespacingRequired()) {
             if (mLayoutlibCallback.hasAndroidXAppCompat()) {
@@ -763,9 +729,6 @@ public class BridgeContext extends Context {
 
             case UI_MODE_SERVICE:
                 return mUiModeManager;
-
-            case SELECTION_TOOLBAR_SERVICE:
-                return mSelectionToolbarManager;
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
@@ -2098,17 +2061,11 @@ public class BridgeContext extends Context {
     }
 
     @Override
-    public Display getDisplayNoVerify() {
+    public Display getDisplay() {
         if (mDisplay == null) {
-            mDisplay = new Display(null, Display.DEFAULT_DISPLAY, mDisplayInfo,
-                    getResources());
+            mDisplay = mWindowManager.getDefaultDisplay();
         }
         return mDisplay;
-    }
-
-    @Override
-    public Display getDisplay() {
-        return getDisplayNoVerify();
     }
 
     @Override
@@ -2199,16 +2156,6 @@ public class BridgeContext extends Context {
     @Override
     public boolean isUiContext() {
         return true;
-    }
-
-    @Override
-    public IBinder getActivityToken() {
-        return mBinder;
-    }
-
-    @Override
-    public IBinder getWindowContextToken() {
-        return mBinder;
     }
 
     public <T> void putUserData(@NonNull Key<T> key, @Nullable T data) {
@@ -2379,38 +2326,5 @@ public class BridgeContext extends Context {
     @NotNull
     public ThreadLocal<AnimationHandler> getAnimationHandlerThreadLocal() {
         return mAnimationHandlerThreadLocal;
-    }
-
-    public void createOrUpdateDisplayFrames(InsetsState insetsState) {
-        if (mDisplayFrames == null) {
-            mDisplayFrames = new DisplayFrames(insetsState, mDisplayInfo,
-                    mDisplayInfo.displayCutout, RoundedCorners.NO_ROUNDED_CORNERS,
-                    sPrivacyIndicatorBounds, DisplayShape.NONE);
-        } else {
-            mDisplayFrames.update(mDisplayInfo.rotation, mDisplayInfo.logicalWidth,
-                    mDisplayInfo.logicalHeight, mDisplayInfo.displayCutout,
-                    RoundedCorners.NO_ROUNDED_CORNERS, sPrivacyIndicatorBounds, DisplayShape.NONE);
-        }
-    }
-
-    @SuppressWarnings("SuspiciousNameCombination")
-    public void setupDisplayCutout() {
-        int displayWidth;
-        int displayHeight;
-        if (mDisplayInfo.rotation == Surface.ROTATION_90) {
-            displayWidth = mMetrics.heightPixels;
-            displayHeight = mMetrics.widthPixels;
-        } else {
-            displayWidth = mMetrics.widthPixels;
-            displayHeight = mMetrics.heightPixels;
-        }
-        // Get cutout for default orientation
-        DisplayCutout displayCutout =
-                DisplayCutout.fromResourcesRectApproximation(getResources(), null,
-                        displayWidth, displayHeight, displayWidth, displayHeight);
-        if (displayCutout != null) {
-            mDisplayInfo.displayCutout = displayCutout.getRotated(displayWidth, displayHeight,
-                    Surface.ROTATION_0, mDisplayInfo.rotation);
-        }
     }
 }

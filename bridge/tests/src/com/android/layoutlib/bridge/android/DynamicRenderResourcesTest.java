@@ -16,12 +16,10 @@
 
 package com.android.layoutlib.bridge.android;
 
-import org.junit.AfterClass;
+import com.android.layoutlib.bridge.Bridge;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import android.os.Looper;
-import android.os.Looper_Accessor;
 
 import java.util.Map;
 
@@ -31,12 +29,7 @@ import static org.junit.Assert.assertNotNull;
 public class DynamicRenderResourcesTest extends RenderTestBase {
     @BeforeClass
     public static void setUp() {
-        Looper.prepareMainLooper();
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        Looper_Accessor.cleanupThread();
+        Bridge.prepareThread();
     }
 
     @Test

@@ -17,13 +17,13 @@
 package com.android.layoutlib.bridge.android;
 
 import com.android.ide.common.rendering.api.SessionParams;
+import com.android.layoutlib.bridge.Bridge;
 import com.android.layoutlib.bridge.impl.RenderAction;
 import com.android.layoutlib.bridge.impl.RenderActionTestUtil;
 import com.android.layoutlib.bridge.intensive.LayoutLibTestCallback;
 import com.android.layoutlib.bridge.intensive.setup.ConfigGenerator;
 import com.android.layoutlib.bridge.intensive.setup.LayoutPullParser;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,8 +33,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
-import android.os.Looper;
-import android.os.Looper_Accessor;
 import android.os.PowerManager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -55,12 +53,7 @@ import static org.junit.Assert.assertTrue;
 public class BridgeContextTest extends RenderTestBase {
     @BeforeClass
     public static void setUp() {
-        Looper.prepareMainLooper();
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        Looper_Accessor.cleanupThread();
+        Bridge.prepareThread();
     }
 
     @Test
@@ -299,7 +292,8 @@ public class BridgeContextTest extends RenderTestBase {
         context.initResources(params.getAssets());
 
         try {
-            IWindowManager iwm = new IWindowManagerImpl(Surface.ROTATION_0, false);
+            IWindowManager iwm = new IWindowManagerImpl(context.getConfiguration(),
+                    context.getMetrics(), Surface.ROTATION_0, false);
             WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
             WindowManager windowManager = context.getSystemService(WindowManager.class);
             assertEquals(deviceBounds, windowManager.getCurrentWindowMetrics().getBounds());

@@ -16,6 +16,9 @@
 
 package android.view;
 
+import com.android.internal.lang.System_Delegate;
+
+import android.content.Context;
 import android.graphics.BlendMode;
 import android.graphics.PixelFormat;
 import android.graphics.RecordingCanvas;
@@ -25,7 +28,6 @@ import android.media.ImageReader;
 import android.view.ThreadedRenderer.DrawCallbacks;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
 public class LayoutlibRenderer {
 
@@ -35,24 +37,22 @@ public class LayoutlibRenderer {
     private ImageReader mImageReader;
     private Image mNativeImage;
 
-    LayoutlibRenderer(ThreadedRenderer renderer) {
-        mDelegateRenderer = renderer;
+    LayoutlibRenderer(Context context, boolean translucent, String name) {
+        mDelegateRenderer = new ThreadedRenderer(context, translucent, name);
     }
 
-    public void draw(List<View> views) {
-        if (views.isEmpty()) {
-            return;
-        }
-        View firstView = views.getFirst();
-        ViewRootImpl rootView = firstView.getViewRootImpl();
+    public void draw(ViewGroup viewGroup) {
+        ViewRootImpl rootView = AttachInfo_Accessor.getRootView(viewGroup);
         if (rootView == null) {
             return;
         }
         // Animations require mDrawingTime to be set to animate
-        mDelegateRenderer.draw(firstView, rootView.mAttachInfo,
+        rootView.mAttachInfo.mDrawingTime = System_Delegate.currentTimeMillis();
+        mDelegateRenderer.draw(viewGroup, rootView.mAttachInfo,
                 new DrawCallbacks() {
                     @Override
                     public void onPreDraw(RecordingCanvas canvas) {
+                        AttachInfo_Accessor.dispatchOnPreDraw(viewGroup);
                         canvas.scale(scaleX, scaleY);
                         // This way we clear the native image buffer before drawing
                         canvas.drawColor(0, BlendMode.CLEAR);
@@ -60,28 +60,7 @@ public class LayoutlibRenderer {
 
                     @Override
                     public void onPostDraw(RecordingCanvas canvas) {
-                        for (int i = 1; i < views.size(); i++) {
-                            View view = views.get(i);
 
-                            ViewRootImpl root = view.getViewRootImpl();
-                            if (root != null) {
-                                WindowManager.LayoutParams attrs = root.mWindowAttributes;
-                                if ((attrs.flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0) {
-                                    int alpha = (int) (255 * attrs.dimAmount);
-                                    int color = android.graphics.Color.argb(alpha, 0, 0, 0);
-                                    canvas.drawColor(color);
-                                }
-                            }
-
-                            canvas.save();
-                            if (root != null) {
-                                canvas.translate(root.mWinFrame.left, root.mWinFrame.top);
-                            }
-                            canvas.enableZ();
-                            canvas.drawRenderNode(view.updateDisplayListIfDirty());
-                            canvas.disableZ();
-                            canvas.restore();
-                        }
                     }
                 });
         // Wait for render thread to finish rendering
