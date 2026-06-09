@@ -484,8 +484,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
 
             measureLayout(params);
 
-            float scaleX = 1.0f;
-            float scaleY = 1.0f;
+            float[] scale = new float[]{1.0f, 1.0f};
             if (onlyMeasure) {
                 // delete the canvas and image to reset them on the next full rendering
                 releaseRender();
@@ -502,72 +501,13 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                     RenderParamsFlags.FLAG_KEY_DISABLE_BITMAP_CACHING));
 
                 if (mNewRenderSize || mImage == null || disableBitmapCaching) {
-                    if (params.getImageFactory() != null) {
-                        mImage = params.getImageFactory().getImage(
-                                mMeasuredScreenWidth,
-                                mMeasuredScreenHeight);
-                    } else {
-                        mImage = new BufferedImage(
-                                mMeasuredScreenWidth,
-                                mMeasuredScreenHeight,
-                                BufferedImage.TYPE_INT_ARGB_PRE);
-                    }
-
-                    assert mImage.getType() == BufferedImage.TYPE_INT_ARGB_PRE;
-
-                    boolean enableImageResizing =
-                            mImage.getWidth() != mMeasuredScreenWidth &&
-                                    mImage.getHeight() != mMeasuredScreenHeight &&
-                                    Boolean.TRUE.equals(params.getFlag(
-                                            RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE));
-
-                    if (enableImageResizing || mNewRenderSize || disableBitmapCaching) {
-                        disposeImageSurface();
-                    }
-
-                    if (enableImageResizing) {
-                        scaleX = mImage.getWidth() * 1.0f / mMeasuredScreenWidth;
-                        scaleY = mImage.getHeight() * 1.0f / mMeasuredScreenHeight;
-                        mRenderer.setScale(scaleX, scaleY);
-                    } else {
-                        mRenderer.setScale(1.0f, 1.0f);
-                    }
-
-                    mRenderer.setup(mImage.getWidth(), mImage.getHeight(), mViewRoot);
-                    mNewRenderSize = false;
+                    prepareRenderBuffers(params, disableBitmapCaching, scale);
                 }
 
                 List<View> views = getWindowViews();
-                for (View view : views) {
-                    if (view instanceof ViewGroup) {
-                        if (view == mViewRoot) {
-                            ViewRootImpl_Accessor.updateFrame((ViewRootImpl) view.getParent(),
-                                    mMeasuredScreenWidth, mMeasuredScreenHeight);
-                        }
-                        ViewRootImpl_Accessor.performTraversals((ViewRootImpl) view.getParent());
-                        handleScrolling(getContext(), view);
-                    }
-                }
-
-                if (mElapsedFrameTimeNanos >= 0) {
-                    if (!mFirstFrameExecuted) {
-                        // We need to run an initial draw call to initialize the animations
-                        mViewRoot.draw(NOP_CANVAS);
-
-                        // The first frame will initialize the animations
-                        mFirstFrameExecuted = true;
-                    }
-                    // Second frame will move the animations
-                    AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate.sFrameTime =
-                            mElapsedFrameTimeNanos / 1000000;
-                }
-
-                mRenderer.draw(views);
-
-                int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
-                IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
-                int len = buff.remaining();
-                buff.get(imageData, 0, len);
+                updateAndTraverseViews(views);
+                handleAnimations();
+                drawAndCopyImage(views);
             }
 
             List<ViewGroup> viewRoots =
@@ -580,29 +520,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
                 imageTransformation.accept(mImage);
             }
 
-            try {
-                if (params.isLayoutValidationEnabled() && !getViewInfos().isEmpty()) {
-                    CustomHierarchyHelper.sLayoutlibCallback =
-                            getContext().getLayoutlibCallback();
-
-                    ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
-                            ((View) getViewInfos().get(0).getViewObject()),
-                            getImage(),
-                            scaleX,
-                            scaleY);
-                    setValidatorHierarchy(hierarchy);
-                }
-            } catch (Throwable e) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-
-                ValidatorHierarchy hierarchy = new ValidatorHierarchy();
-                hierarchy.mErrorMessage = sw.toString();
-                setValidatorHierarchy(hierarchy);
-            } finally {
-                CustomHierarchyHelper.sLayoutlibCallback = null;
-            }
+            runLayoutValidation(params, scale);
 
             // success!
             return SUCCESS.createResult();
@@ -614,6 +532,114 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
 
             return ERROR_UNKNOWN.createResult(t.getMessage(), t);
+        }
+    }
+
+    /**
+     * Prepares the image buffer and renderer for rendering.
+     */
+    private void prepareRenderBuffers(SessionParams params, boolean disableBitmapCaching, float[] scale) {
+        if (params.getImageFactory() != null) {
+            mImage = params.getImageFactory().getImage(mMeasuredScreenWidth, mMeasuredScreenHeight);
+        } else {
+            mImage = new BufferedImage(mMeasuredScreenWidth, mMeasuredScreenHeight,
+                    BufferedImage.TYPE_INT_ARGB_PRE);
+        }
+
+        assert mImage.getType() == BufferedImage.TYPE_INT_ARGB_PRE;
+
+        boolean enableImageResizing = mImage.getWidth() != mMeasuredScreenWidth &&
+                mImage.getHeight() != mMeasuredScreenHeight && Boolean.TRUE.equals(
+                params.getFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE));
+
+        if (enableImageResizing || mNewRenderSize || disableBitmapCaching) {
+            disposeImageSurface();
+        }
+
+        if (enableImageResizing) {
+            scale[0] = mImage.getWidth() * 1.0f / mMeasuredScreenWidth;
+            scale[1] = mImage.getHeight() * 1.0f / mMeasuredScreenHeight;
+            mRenderer.setScale(scale[0], scale[1]);
+        } else {
+            mRenderer.setScale(1.0f, 1.0f);
+        }
+
+        mRenderer.setup(mImage.getWidth(), mImage.getHeight(), mViewRoot);
+        mNewRenderSize = false;
+    }
+
+    /**
+     * Updates bounds of root views, triggers layout passes, and updates scrolling for all views.
+     */
+    private void updateAndTraverseViews(List<View> views) {
+        for (View view : views) {
+            if (view instanceof ViewGroup) {
+                if (view == mViewRoot) {
+                    ViewRootImpl_Accessor.updateFrame((ViewRootImpl) view.getParent(),
+                            mMeasuredScreenWidth, mMeasuredScreenHeight);
+                }
+                ViewRootImpl_Accessor.performTraversals((ViewRootImpl) view.getParent());
+                handleScrolling(getContext(), view);
+            }
+        }
+    }
+
+    /**
+     * Initializes and advances animations if an elapsed frame time is set.
+     */
+    private void handleAnimations() {
+        if (mElapsedFrameTimeNanos >= 0) {
+            if (!mFirstFrameExecuted) {
+                // We need to run an initial draw call to initialize the animations
+                mViewRoot.draw(NOP_CANVAS);
+
+                // The first frame will initialize the animations
+                mFirstFrameExecuted = true;
+            }
+            // Second frame will move the animations
+            AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate.sFrameTime =
+                    mElapsedFrameTimeNanos / 1000000;
+        }
+    }
+
+    /**
+     * Instructs the layout renderer to draw the views and copies the result to the image buffer.
+     */
+    private void drawAndCopyImage(List<View> views) {
+        mRenderer.draw(views);
+
+        int[] imageData = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
+        IntBuffer buff = mRenderer.getBuffer().asIntBuffer();
+        int len = buff.remaining();
+        buff.get(imageData, 0, len);
+    }
+
+    /**
+     * Validates the currently rendered layout using layout validator.
+     */
+    private void runLayoutValidation(SessionParams params, float[] scale) {
+        try {
+            if (params.isLayoutValidationEnabled() && !getViewInfos().isEmpty()) {
+                CustomHierarchyHelper.sLayoutlibCallback =
+                        getContext().getLayoutlibCallback();
+
+                ValidatorHierarchy hierarchy = LayoutValidator.buildHierarchy(
+                        ((View) getViewInfos().getFirst().getViewObject()),
+                        getImage(),
+                        scale[0],
+                        scale[1]);
+                setValidatorHierarchy(hierarchy);
+            }
+        } catch (Throwable e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+
+            ValidatorHierarchy hierarchy = new ValidatorHierarchy();
+            hierarchy.mErrorMessage = sw.toString();
+            setValidatorHierarchy(hierarchy);
+        } finally {
+            CustomHierarchyHelper.sLayoutlibCallback = null;
         }
     }
 
