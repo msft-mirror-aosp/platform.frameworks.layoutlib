@@ -633,14 +633,6 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             if (buffer == null) {
                 return;
             }
-            int activeWidth = mMeasuredScreenWidth;
-            int activeHeight = mMeasuredScreenHeight;
-            RenderSizeProvider sizeProvider = params.getSizeProvider();
-            if (sizeProvider != null) {
-                Dimension size = sizeProvider.getTargetSize(activeWidth, activeHeight);
-                activeWidth = size.width;
-                activeHeight = size.height;
-            }
 
             int physicalWidth = mImage.getWidth();
             int stride = mRenderer.getRowStride();
@@ -649,15 +641,15 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             buffer.order(ByteOrder.nativeOrder());
             IntBuffer intBuffer = buffer.asIntBuffer();
 
-            if (stride == activeWidth * 4 && physicalWidth == activeWidth) {
+            if (stride == mImageWidth * 4 && physicalWidth == mImageWidth) {
                 // Bulk copy for contiguous buffers matching the physical image size (the fastest path)
-                intBuffer.get(imageData, 0, activeWidth * activeHeight);
+                intBuffer.get(imageData, 0, mImageWidth * mImageHeight);
             } else {
                 // Stride-aware row-by-row sub-region copy for non-contiguous/oversized buffers
                 int intStride = stride / 4;
-                for (int y = 0; y < activeHeight; y++) {
+                for (int y = 0; y < mImageHeight; y++) {
                     intBuffer.position(y * intStride);
-                    intBuffer.get(imageData, y * physicalWidth, activeWidth);
+                    intBuffer.get(imageData, y * physicalWidth, mImageWidth);
                 }
             }
         } finally {
