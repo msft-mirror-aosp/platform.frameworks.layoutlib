@@ -16,6 +16,7 @@
 
 package com.android.layoutlib.bridge.intensive;
 
+import com.android.ide.common.rendering.api.RecyclableImage;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.Result;
 import com.android.ide.common.rendering.api.ViewInfo;
@@ -23,6 +24,7 @@ import com.android.ide.common.rendering.api.ViewInfo;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,10 +46,26 @@ public class RenderResult {
 
     @NonNull
     static RenderResult getFromSession(@NonNull RenderSession session) {
+        RecyclableImage recyclableImage = session.getRecyclableImage();
+        BufferedImage image = null;
+        if (recyclableImage != null) {
+            BufferedImage renderedImage = recyclableImage.getImage();
+            int w = renderedImage.getWidth();
+            int h = renderedImage.getHeight();
+            image = new BufferedImage(w, h, renderedImage.getType());
+            Graphics2D g = image.createGraphics();
+            try {
+                g.drawImage(renderedImage, 0, 0, w, h, 0, 0, w, h, null);
+            } finally {
+                g.dispose();
+                recyclableImage.close();
+            }
+        }
+
         return new RenderResult(session.getResult(),
                 new ArrayList<>(session.getSystemRootViews()),
                 new ArrayList<>(session.getRootViews()),
-                session.getImage());
+                image);
     }
 
     @Nullable

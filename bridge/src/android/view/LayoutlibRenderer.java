@@ -92,10 +92,14 @@ public class LayoutlibRenderer {
         mDelegateRenderer.fence();
     }
 
+    public void invalidateRoot() {
+        mDelegateRenderer.invalidateRoot();
+    }
+
     public void setScale(float scaleX, float scaleY) {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
-        mDelegateRenderer.invalidateRoot();
+        invalidateRoot();
     }
 
     /**
@@ -107,30 +111,47 @@ public class LayoutlibRenderer {
             return;
         }
 
-        if (mImageReader == null) {
+        if (mImageReader == null || mImageReader.getWidth() != width || mImageReader.getHeight() != height) {
+            if (mImageReader != null) {
+                mImageReader.close();
+            }
             mImageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1);
             mDelegateRenderer.setSurface(mImageReader.getSurface());
         }
-        mNativeImage = mImageReader.acquireLatestImage();
 
         mDelegateRenderer.setup(width, height, rootView.mAttachInfo,
                 viewRoot.mWindowAttributes.surfaceInsets);
     }
 
     public ByteBuffer getBuffer() {
+        mNativeImage = mImageReader.acquireNextImage();
+        if (mNativeImage == null) {
+            return null;
+        }
         Plane[] planes = mNativeImage.getPlanes();
         return planes[0].getBuffer();
     }
 
+    public int getRowStride() {
+        if (mNativeImage == null) {
+            return 0;
+        }
+        return mNativeImage.getPlanes()[0].getRowStride();
+    }
+
+    public void releaseBuffer() {
+        if (mNativeImage != null) {
+            mNativeImage.close();
+            mNativeImage = null;
+        }
+    }
+
     public void reset() {
+        releaseBuffer();
         if (mImageReader != null) {
             mImageReader.close();
             mImageReader = null;
         }
-    }
-
-    public ThreadedRenderer getThreadedRenderer() {
-        return mDelegateRenderer;
     }
 
     public void destroy() {
