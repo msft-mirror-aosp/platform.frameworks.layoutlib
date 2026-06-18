@@ -44,8 +44,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.AttachInfo_Accessor;
-import android.view.DisplayCutout.BoundsPosition;
 import android.view.InsetsFrameProvider;
 import android.view.Surface;
 import android.view.View;
@@ -250,9 +248,9 @@ public class Layout extends FrameLayout {
                 sysUiRoot.addView(statusBar);
                 sysUiRoot.addView(navBar);
             }
-        } else if (navBar == null) {
+        } else if (statusBar != null) {
             sysUiRoot.addView(statusBar);
-        } else {
+        } else if (navBar != null) {
             sysUiRoot.addView(navBar);
         }
 
@@ -479,7 +477,7 @@ public class Layout extends FrameLayout {
         // The framework call would usually bubble up to ViewRootImpl but, in layoutlib, Layout will
         // act as view root for most purposes. That way, we can also save going through the Handler
         // to dispatch the new applied insets.
-        ViewRootImpl root = AttachInfo_Accessor.getRootView(this);
+        ViewRootImpl root = this.getViewRootImpl();
         if (root != null) {
             ViewRootImpl_Accessor.dispatchApplyInsets(root, this);
         }

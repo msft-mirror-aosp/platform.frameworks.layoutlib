@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.os;
 
-import com.android.layoutlib.bridge.impl.RenderAction;
+package com.android.internal.policy;
 
-/**
- * Class allowing access to package-protected methods/fields.
- */
-public class Looper_Accessor {
+import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
-    public static void cleanupThread() {
-        // clean up the looper
-        Looper.sThreadLocal.remove();
-        Looper.clearMainLooperForTest();
-    }
+import android.content.pm.ApplicationInfo;
+import android.content.res.TypedArray;
 
-    public static void setupThread(RenderAction<?> session) {
-        Looper.sThreadLocal.set(session.getLooper());
-        Looper.setMainLooperForTest(session.getLooper());
+public class PhoneWindow_Delegate {
+    @LayoutlibDelegate
+    public static boolean isEdgeToEdgeEnforced(ApplicationInfo info, boolean local,
+            TypedArray windowStyle) {
+        return false;
     }
 }

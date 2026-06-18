@@ -34,12 +34,13 @@ import com.android.tools.layoutlib.annotations.VisibleForTesting;
 
 import android.animation.AnimationHandler;
 import android.animation.PropertyValuesHolder_Accessor;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable_Delegate;
 import android.os.HandlerThread_Delegate;
+import android.os.Looper;
+import android.os.LocaleList;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -47,7 +48,6 @@ import android.view.IWindowManager;
 import android.view.IWindowManagerImpl;
 import android.view.ViewConfiguration_Accessor;
 import android.view.WindowManagerGlobal_Delegate;
-import android.view.WindowManagerImpl;
 import android.view.accessibility.AccessibilityInteractionClient_Accessor;
 import android.view.inputmethod.InputMethodManager_Accessor;
 
@@ -100,6 +100,7 @@ public abstract class RenderAction<T extends RenderParams> {
     static BridgeContext sCurrentContext = null;
 
     private final T mParams;
+    private final Looper mLooper;
 
     protected boolean mConfigurationUpdated;
 
@@ -121,6 +122,19 @@ public abstract class RenderAction<T extends RenderParams> {
     protected RenderAction(T params) {
         mParams = params;
         sSimulatedSdk = SDK_INT;
+        if (Looper.myLooper() == null) {
+            synchronized (Looper.class) {
+                // Check if the main looper has been prepared already.
+                if (Looper.getMainLooper() == null) {
+                    Looper.prepareMainLooper();
+                }
+            }
+        }
+        mLooper = Looper.myLooper();
+    }
+
+    public Looper getLooper() {
+        return mLooper;
     }
 
     /**
@@ -306,12 +320,10 @@ public abstract class RenderAction<T extends RenderParams> {
         // Set-up WindowManager
         // FIXME: find those out, and possibly add them to the render params
         boolean hasNavigationBar = true;
-        IWindowManager iwm = new IWindowManagerImpl(getContext().getConfiguration(),
-                getContext().getMetrics(), ROTATION_0, hasNavigationBar);
+        IWindowManager iwm = new IWindowManagerImpl(ROTATION_0, hasNavigationBar);
         WindowManagerGlobal_Delegate.setWindowManagerService(iwm);
         if (Boolean.TRUE.equals(mParams.getFlag(FLAG_KEY_SHOW_CUTOUT))) {
-            ((WindowManagerImpl) mContext.getSystemService(Context.WINDOW_SERVICE))
-                    .setupDisplayCutout();
+            mContext.setupDisplayCutout();
         }
 
         ILayoutLog currentLog = mParams.getLog();
@@ -469,7 +481,10 @@ public abstract class RenderAction<T extends RenderParams> {
             config.screenLayout |= Configuration.SCREENLAYOUT_ROUND_UNDEFINED;
         }
         String locale = params.getLocale();
-        if (locale != null && !locale.isEmpty()) config.locale =  Locale.forLanguageTag(locale);
+        if (locale != null && !locale.isEmpty()) {
+            LocaleList localeList = new LocaleList(Locale.forLanguageTag(locale));
+            config.setLocales(localeList);
+        }
 
         config.fontScale = params.getFontScale();
         config.uiMode = params.getUiMode();
