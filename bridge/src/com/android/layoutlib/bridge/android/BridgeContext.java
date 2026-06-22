@@ -1103,6 +1103,9 @@ public class BridgeContext extends Context {
         if (mApplicationInfo.packageName == null) {
             mApplicationInfo.packageName = mLayoutlibCallback.getApplicationId();
         }
+        if (mApplicationInfo.packageName == null) {
+            mApplicationInfo.packageName = "";
+        }
         return mApplicationInfo.packageName;
     }
 
