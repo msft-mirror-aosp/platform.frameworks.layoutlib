@@ -1379,6 +1379,7 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             }
             if (mRenderer != null) {
                 mRenderer.destroy();
+                mRenderer = null;
             }
             WindowManager wm = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
             List<View> views = getWindowViews();
