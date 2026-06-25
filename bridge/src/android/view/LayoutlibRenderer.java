@@ -97,9 +97,11 @@ public class LayoutlibRenderer {
     }
 
     public void setScale(float scaleX, float scaleY) {
-        this.scaleX = scaleX;
-        this.scaleY = scaleY;
-        invalidateRoot();
+        if (this.scaleX != scaleX || this.scaleY != scaleY) {
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
+            invalidateRoot();
+        }
     }
 
     /**

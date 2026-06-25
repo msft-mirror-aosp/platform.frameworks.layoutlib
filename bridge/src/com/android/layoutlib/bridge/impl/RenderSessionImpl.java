@@ -59,6 +59,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable_VectorDrawableAnimatorUI_Delegate;
+import android.os.Handler_Delegate;
+import android.os.SystemClock;
 import android.preference.Preference_Delegate;
 import android.util.Pair;
 import android.util.TimeUtils;
@@ -383,7 +385,14 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             mRenderer = AttachInfo_Accessor.setAttachInfo(mViewRoot, layout);
 
             // Invalidate rendering when window is added or removed
-            mWindowChangeListener = views -> mRenderer.invalidateRoot();
+            if (mWindowChangeListener != null) {
+                WindowManagerGlobal.getInstance().removeWindowViewsListener(mWindowChangeListener);
+            }
+            mWindowChangeListener = views -> {
+                if (mRenderer != null) {
+                    mRenderer.invalidateRoot();
+                }
+            };
             WindowManagerGlobal.getInstance()
                     .addWindowViewsListener(Runnable::run, mWindowChangeListener);
 
@@ -1376,7 +1385,11 @@ public class RenderSessionImpl extends RenderAction<SessionParams> {
             releaseRender();
             if (mWindowChangeListener != null) {
                 WindowManagerGlobal.getInstance().removeWindowViewsListener(mWindowChangeListener);
+                mWindowChangeListener = null;
             }
+            // The removal of the window change listener happens through a callback, so this ensures
+            // that the removal actually happens and does not leak.
+            Handler_Delegate.executeCallbacks(SystemClock.uptimeNanos());
             if (mRenderer != null) {
                 mRenderer.destroy();
                 mRenderer = null;
