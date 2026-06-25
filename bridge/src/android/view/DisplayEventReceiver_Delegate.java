@@ -34,7 +34,7 @@ public class DisplayEventReceiver_Delegate {
     @LayoutlibDelegate
     /*package*/ static long nativeInit(WeakReference<DisplayEventReceiver> receiver,
             WeakReference<VsyncEventData> vsyncEventData, MessageQueue messageQueue,
-            int vsyncSource, int eventRegistration, long layerHandle) {
+            int eventRegistration, long layerHandle) {
         return sManager.addNewDelegate(new DisplayEventReceiver_Delegate());
     }
 

@@ -906,6 +906,11 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
+    public void testVariableAndCjkFonts() throws ClassNotFoundException, FileNotFoundException {
+        renderAndVerify("variable_cjk_font_test.xml", "variable_cjk_font_test.png", false);
+    }
+
+    @Test
     public void testAdaptiveIcon() throws ClassNotFoundException {
         // Create the layout pull parser.
         String layout = """
@@ -2507,10 +2512,5 @@ public class RenderTests extends RenderTestBase {
         } finally {
             session.dispose();
         }
-    }
-
-    @Test
-    public void testVariableAndCjkFonts() throws ClassNotFoundException, FileNotFoundException {
-        renderAndVerify("variable_cjk_font_test.xml", "variable_cjk_font_test.png", false);
     }
 }

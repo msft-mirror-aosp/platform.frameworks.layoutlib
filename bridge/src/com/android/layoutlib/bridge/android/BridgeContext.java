@@ -725,7 +725,7 @@ public class BridgeContext extends Context {
             case INPUT_METHOD_SERVICE:  // needed by SearchView and Compose
                 return InputMethodManager.forContext(this);
 
-            case AUTOFILL_MANAGER_SERVICE:
+            case AUTOFILL_SERVICE:
                 if (mAutofillManager == null) {
                     mAutofillManager = new AutofillManager(this, new Default());
                 }
@@ -1102,6 +1102,9 @@ public class BridgeContext extends Context {
     public String getPackageName() {
         if (mApplicationInfo.packageName == null) {
             mApplicationInfo.packageName = mLayoutlibCallback.getApplicationId();
+        }
+        if (mApplicationInfo.packageName == null) {
+            mApplicationInfo.packageName = "";
         }
         return mApplicationInfo.packageName;
     }
@@ -1654,8 +1657,7 @@ public class BridgeContext extends Context {
 
     @Override
     public String getBasePackageName() {
-        // pass
-        return null;
+        return getPackageName();
     }
 
     @Override

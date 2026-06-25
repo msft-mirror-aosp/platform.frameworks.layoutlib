@@ -16,6 +16,8 @@
 
 package android.view;
 
+import com.android.internal.lang.System_Delegate;
+
 /**
  * Accessor to allow layoutlib to call {@link ViewRootImpl} methods directly.
  */
@@ -31,8 +33,8 @@ public class ViewRootImpl_Accessor {
 
     public static void performTraversals(ViewRootImpl viewRoot) {
         viewRoot.mTraversalScheduled = true;
-        viewRoot.mTraversalBarrier = viewRoot.mQueue.postSyncBarrier();
-        viewRoot.doTraversal();
+        viewRoot.postTraversalBarrier();
+        viewRoot.doTraversal(System_Delegate.nanoTime());
     }
 
     public static void updateFrame(ViewRootImpl viewRoot, int width, int height) {

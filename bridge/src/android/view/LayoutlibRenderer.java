@@ -67,8 +67,12 @@ public class LayoutlibRenderer {
                             if (root != null) {
                                 WindowManager.LayoutParams attrs = root.mWindowAttributes;
                                 if ((attrs.flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0) {
+                                    int argb = android.graphics.Color.toArgb(attrs.dimColor);
                                     int alpha = (int) (255 * attrs.dimAmount);
-                                    int color = android.graphics.Color.argb(alpha, 0, 0, 0);
+                                    int color = android.graphics.Color.argb(alpha,
+                                            android.graphics.Color.red(argb),
+                                            android.graphics.Color.green(argb),
+                                            android.graphics.Color.blue(argb));
                                     canvas.drawColor(color);
                                 }
                             }
