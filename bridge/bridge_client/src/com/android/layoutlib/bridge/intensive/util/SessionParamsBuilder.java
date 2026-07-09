@@ -21,6 +21,7 @@ import com.android.ide.common.rendering.api.AssetRepository;
 import com.android.ide.common.rendering.api.IImageFactory;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.LayoutlibCallback;
+import com.android.ide.common.rendering.api.RenderSizeProvider;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.SessionParams;
@@ -62,6 +63,7 @@ public class SessionParamsBuilder {
     private AssetRepository mAssetRepository = null;
     private boolean mDecor = true;
     private IImageFactory mImageFactory = null;
+    private RenderSizeProvider mSizeProvider = null;
     private boolean enableLayoutValidator = false;
     private boolean transparentBackground = false;
     private Map<ResourceType, ResourceValueMap> mFrameworkOverlayResources;
@@ -172,6 +174,12 @@ public class SessionParamsBuilder {
     }
 
     @NonNull
+    public SessionParamsBuilder setSizeProvider(@NonNull RenderSizeProvider sizeProvider) {
+        mSizeProvider = sizeProvider;
+        return this;
+    }
+
+    @NonNull
     public SessionParamsBuilder enableLayoutValidation() {
         this.enableLayoutValidator = true;
         return this;
@@ -229,6 +237,9 @@ public class SessionParamsBuilder {
         params.setLayoutValidationChecker(() -> enableLayoutValidator);
         if (mImageFactory != null) {
             params.setImageFactory(mImageFactory);
+        }
+        if (mSizeProvider != null) {
+            params.setSizeProvider(mSizeProvider);
         }
 
         mFlags.forEach(params::setFlag);

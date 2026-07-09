@@ -28,7 +28,7 @@ public class BridgeRenderSessionTest {
         BridgeRenderSession renderSession = new BridgeRenderSession(null, Status.ERROR_UNKNOWN
                 .createResult("Test result"));
 
-        assertNotNull(renderSession.getImage());
+        assertNull(renderSession.getRecyclableImage());
         assertNotNull(renderSession.getRootViews());
         assertNotNull(renderSession.getSystemRootViews());
         assertNotNull(renderSession.getDefaultNamespacedProperties());

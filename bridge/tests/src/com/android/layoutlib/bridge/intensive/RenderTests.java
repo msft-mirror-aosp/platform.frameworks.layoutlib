@@ -16,6 +16,7 @@
 
 package com.android.layoutlib.bridge.intensive;
 
+import com.android.ide.common.rendering.api.RecyclableImage;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
@@ -61,6 +62,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.awt.BasicStroke;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -1537,9 +1539,8 @@ public class RenderTests extends RenderTestBase {
         SessionParams params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
-                .setImageFactory((width, height) ->
-                        new BufferedImage(width / 10, height / 10,
-                                BufferedImage.TYPE_INT_ARGB_PRE))
+                .setSizeProvider((width, height) ->
+                        new Dimension(width / 10, height / 10))
                 .setFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE, true)
                 .build();
 
@@ -1841,10 +1842,12 @@ public class RenderTests extends RenderTestBase {
                 }
             }
 
-            BufferedImage resultImage = session.getImage();
+            RecyclableImage recyclableImage = session.getRecyclableImage();
+            BufferedImage resultImage = recyclableImage.getImage();
 
             assertNotNull(resultImage);
             verify("button_resize.png", resultImage);
+            recyclableImage.close();
 
             Object viewObject = session.getRootViews().get(0)
                     .getChildren().get(0).getViewObject();
@@ -1858,10 +1861,12 @@ public class RenderTests extends RenderTestBase {
                         session.getResult().getErrorMessage());
             }
 
-            resultImage = session.getImage();
+            recyclableImage = session.getRecyclableImage();
+            resultImage = recyclableImage.getImage();
 
             assertNotNull(resultImage);
             verify("button_resize2.png", resultImage);
+            recyclableImage.close();
         } finally {
             session.dispose();
         }

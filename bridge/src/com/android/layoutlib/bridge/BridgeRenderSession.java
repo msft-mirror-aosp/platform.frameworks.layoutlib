@@ -19,6 +19,7 @@ package com.android.layoutlib.bridge;
 import com.android.ide.common.rendering.api.HardwareConfig;
 import com.android.ide.common.rendering.api.ILayoutLog;
 import com.android.ide.common.rendering.api.RenderParams;
+import com.android.ide.common.rendering.api.RecyclableImage;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.ResourceReference;
 import com.android.ide.common.rendering.api.ResourceValue;
@@ -66,6 +67,12 @@ public class BridgeRenderSession extends RenderSession {
     public BufferedImage getImage() {
         return mSession != null ? mSession.getImage() :
                 new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    @Override
+    @Nullable
+    public RecyclableImage getRecyclableImage() {
+        return mSession != null ? mSession.getRecyclableImage() : null;
     }
 
     @Override
