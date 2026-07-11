@@ -120,8 +120,6 @@ import android.view.accessibility.AccessibilityManager;
 import android.view.autofill.AutofillManager;
 import android.view.autofill.IAutoFillManager.Default;
 import android.view.inputmethod.InputMethodManager;
-import android.view.selectiontoolbar.ISelectionToolbarManager;
-import android.view.selectiontoolbar.SelectionToolbarManager;
 import android.view.textservice.TextServicesManager;
 
 import java.io.File;
@@ -200,7 +198,6 @@ public class BridgeContext extends Context {
     private final InputManager mInputManager;
     private final AppOpsManager mAppOpsManager;
     private final UiModeManager mUiModeManager;
-    private final SelectionToolbarManager mSelectionToolbarManager;
     private final HashMap<View, Integer> mScrollYPos = new HashMap<>();
     private final HashMap<View, Integer> mScrollXPos = new HashMap<>();
 
@@ -319,8 +316,6 @@ public class BridgeContext extends Context {
         mInputManager = new InputManager(this);
         mAppOpsManager = AppOpsManager_Accessor.getAppOpsManagerInstance(this);
         mUiModeManager = UiModeManager_Accessor.getUiModeManagerInstance(this);
-        mSelectionToolbarManager =
-                new SelectionToolbarManager(new ISelectionToolbarManager.Default());
 
         if (mLayoutlibCallback.isResourceNamespacingRequired()) {
             if (mLayoutlibCallback.hasAndroidXAppCompat()) {
@@ -725,7 +720,7 @@ public class BridgeContext extends Context {
             case INPUT_METHOD_SERVICE:  // needed by SearchView and Compose
                 return InputMethodManager.forContext(this);
 
-            case AUTOFILL_SERVICE:
+            case AUTOFILL_MANAGER_SERVICE:
                 if (mAutofillManager == null) {
                     mAutofillManager = new AutofillManager(this, new Default());
                 }
@@ -763,9 +758,6 @@ public class BridgeContext extends Context {
 
             case UI_MODE_SERVICE:
                 return mUiModeManager;
-
-            case SELECTION_TOOLBAR_SERVICE:
-                return mSelectionToolbarManager;
 
             case TEXT_CLASSIFICATION_SERVICE:
             case CONTENT_CAPTURE_MANAGER_SERVICE:
@@ -1102,9 +1094,6 @@ public class BridgeContext extends Context {
     public String getPackageName() {
         if (mApplicationInfo.packageName == null) {
             mApplicationInfo.packageName = mLayoutlibCallback.getApplicationId();
-        }
-        if (mApplicationInfo.packageName == null) {
-            mApplicationInfo.packageName = "";
         }
         return mApplicationInfo.packageName;
     }
@@ -1657,7 +1646,8 @@ public class BridgeContext extends Context {
 
     @Override
     public String getBasePackageName() {
-        return getPackageName();
+        // pass
+        return null;
     }
 
     @Override

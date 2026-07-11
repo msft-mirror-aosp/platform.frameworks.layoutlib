@@ -33,17 +33,16 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import com.google.common.io.ByteStreams;
 
@@ -52,7 +51,6 @@ import static com.android.ide.common.rendering.api.ResourceNamespace.RES_AUTO;
 public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
     private final Map<Integer, ResourceReference> mProjectResources = new HashMap<>();
     private final Map<ResourceReference, Integer> mResources = new HashMap<>();
-    private final Map<String, JarFile> mJarCache = new HashMap<>();
     private final ILogger mLog;
     private final ActionBarCallback mActionBarCallback = new ActionBarCallback();
     private final ClassLoader mModuleClassLoader;
@@ -119,16 +117,9 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
 
     @Override
     public ILayoutPullParser getParser(@NonNull ResourceValue layoutResource) {
-        String value = layoutResource.getValue();
         try {
-            if (value.startsWith("jar:")) {
-                byte[] data = readJarResource(value);
-                if (data != null) {
-                    return LayoutPullParser.createFromStream(new ByteArrayInputStream(data));
-                }
-            }
-            return LayoutPullParser.createFromFile(new File(value));
-        } catch (IOException e) {
+            return LayoutPullParser.createFromFile(new File(layoutResource.getValue()));
+        } catch (FileNotFoundException e) {
             return null;
         }
     }
@@ -152,22 +143,12 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
     @Override
     @Nullable
     public XmlPullParser createXmlParserForFile(@NonNull String fileName) {
-        try {
-            byte[] data;
-            if (fileName.startsWith("jar:")) {
-                data = readJarResource(fileName);
-            } else {
-                try (InputStream stream = new FileInputStream(fileName)) {
-                    data = ByteStreams.toByteArray(stream);
-                }
-            }
-
-            if (data == null) {
-                return null;
-            }
-
+        try (FileInputStream fileStream = new FileInputStream(fileName)) {
+            // Read data fully to memory to be able to close the file stream.
+            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+            ByteStreams.copy(fileStream, byteOutputStream);
             KXmlParser parser = new KXmlParser();
-            parser.setInput(new ByteArrayInputStream(data), null);
+            parser.setInput(new ByteArrayInputStream(byteOutputStream.toByteArray()), null);
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
             return parser;
         } catch (IOException | XmlPullParserException e) {
@@ -194,38 +175,5 @@ public class LayoutlibBridgeClientCallback extends LayoutlibCallback {
     @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
         return mModuleClassLoader.loadClass(name);
-    }
-
-    @Nullable
-    private byte[] readJarResource(String path) throws IOException {
-        int index = path.indexOf("!/");
-        if (index == -1) {
-            return null;
-        }
-        String jarPath = path.substring(4, index);
-        String entryPath = path.substring(index + 2);
-        JarFile jarFile = mJarCache.get(jarPath);
-        if (jarFile == null) {
-            jarFile = new JarFile(jarPath);
-            mJarCache.put(jarPath, jarFile);
-        }
-
-        JarEntry entry = jarFile.getJarEntry(entryPath);
-        if (entry != null) {
-            try (InputStream is = jarFile.getInputStream(entry)) {
-                return ByteStreams.toByteArray(is);
-            }
-        }
-        return null;
-    }
-
-    public void dispose() {
-        for (JarFile jarFile : mJarCache.values()) {
-            try {
-                jarFile.close();
-            } catch (IOException ignore) {
-            }
-        }
-        mJarCache.clear();
     }
 }

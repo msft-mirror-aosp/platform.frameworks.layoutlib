@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="environment-services-prebuilt">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../prebuilts/misc/common/layoutlib/environment-services/environment-services-prebuilt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../prebuilts/misc/common/environment-services/environment-services-prebuilt.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

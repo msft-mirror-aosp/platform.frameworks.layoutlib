@@ -20,63 +20,28 @@ import com.android.ide.common.rendering.api.AssetRepository;
 
 import android.annotation.NonNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import com.google.common.io.ByteStreams;
 
 /**
  * {@link AssetRepository} used for render tests.
  */
 public class TestAssetRepository extends AssetRepository {
     private final String mAssetPath;
-    private final Map<String, JarFile> mJarCache = new HashMap<>();
 
     public TestAssetRepository(@NonNull String assetPath) {
-        if (assetPath.endsWith(".jar")) {
-            mAssetPath = "jar:" + assetPath + "!/";
-        } else {
-            mAssetPath = assetPath;
-        }
+        mAssetPath = assetPath;
     }
 
-    private InputStream open(String path) throws FileNotFoundException {
-        try {
-            if (path.startsWith("jar:")) {
-                int index = path.indexOf("!/");
-                if (index != -1) {
-                    String jarPath = path.substring(4, index);
-                    String entryPath = path.substring(index + 2);
-                    JarFile jarFile = mJarCache.get(jarPath);
-                    if (jarFile == null) {
-                        jarFile = new JarFile(jarPath);
-                        mJarCache.put(jarPath, jarFile);
-                    }
-                    JarEntry entry = jarFile.getJarEntry(entryPath);
-                    if (entry != null) {
-                        try (InputStream is = jarFile.getInputStream(entry)) {
-                            byte[] data = ByteStreams.toByteArray(is);
-                            return new ByteArrayInputStream(data);
-                        }
-                    }
-                }
-            } else {
-                File asset = new File(path);
-                if (asset.isFile()) {
-                    return new FileInputStream(asset);
-                }
-            }
-        } catch (IOException e) {
-            return null;
+    private static InputStream open(String path) throws FileNotFoundException {
+        File asset = new File(path);
+        if (asset.isFile()) {
+            return new FileInputStream(asset);
         }
+
         return null;
     }
 
@@ -93,37 +58,5 @@ public class TestAssetRepository extends AssetRepository {
     @Override
     public InputStream openNonAsset(int cookie, String path, int mode) throws IOException {
         return open(path);
-    }
-
-    @Override
-    public boolean isFileResource(String path) {
-        if (path.startsWith("jar:")) {
-            int index = path.indexOf("!/");
-            if (index != -1) {
-                String jarPath = path.substring(4, index);
-                String entryPath = path.substring(index + 2);
-                try {
-                    JarFile jarFile = mJarCache.get(jarPath);
-                    if (jarFile == null) {
-                        jarFile = new JarFile(jarPath);
-                        mJarCache.put(jarPath, jarFile);
-                    }
-                    return jarFile.getJarEntry(entryPath) != null;
-                } catch (IOException e) {
-                    return false;
-                }
-            }
-        }
-        return super.isFileResource(path);
-    }
-
-    public void close() {
-        for (JarFile jarFile : mJarCache.values()) {
-            try {
-                jarFile.close();
-            } catch (IOException ignore) {
-            }
-        }
-        mJarCache.clear();
     }
 }

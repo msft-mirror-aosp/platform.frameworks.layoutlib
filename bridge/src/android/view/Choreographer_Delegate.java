@@ -97,7 +97,7 @@ public class Choreographer_Delegate {
      * In layoutlib, we are only interested in animation callbacks.
      */
     @LayoutlibDelegate
-    public static void doCallbacks(Choreographer thiz, int callbackType) {
+    public static void doCallbacks(Choreographer thiz, int callbackType, long frameIntervalNanos) {
         BridgeContext context = getCurrentContext();
         if (context == null) {
             return;

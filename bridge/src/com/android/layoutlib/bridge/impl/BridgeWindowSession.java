@@ -81,12 +81,4 @@ public class BridgeWindowSession extends IWindowSession.Default {
         outRelayoutResult.frames.compatScale = 1.0f;
         return WindowManagerGlobal.RELAYOUT_RES_SURFACE_CHANGED;
     }
-
-    @Override
-    public int relayout2(IWindow window, WindowManager.LayoutParams attrs, int requestedWidth,
-            int requestedHeight, int viewVisibility, int flags, int seq, int lastSyncSeqId,
-            SurfaceControl surface, WindowRelayoutResult outRelayoutResult) {
-        return relayout(window, attrs, requestedWidth, requestedHeight, viewVisibility, flags, seq,
-                lastSyncSeqId, outRelayoutResult, surface);
-    }
 }

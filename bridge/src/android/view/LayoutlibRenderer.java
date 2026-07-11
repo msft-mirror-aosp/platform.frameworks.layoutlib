@@ -67,12 +67,8 @@ public class LayoutlibRenderer {
                             if (root != null) {
                                 WindowManager.LayoutParams attrs = root.mWindowAttributes;
                                 if ((attrs.flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0) {
-                                    int argb = android.graphics.Color.toArgb(attrs.dimColor);
                                     int alpha = (int) (255 * attrs.dimAmount);
-                                    int color = android.graphics.Color.argb(alpha,
-                                            android.graphics.Color.red(argb),
-                                            android.graphics.Color.green(argb),
-                                            android.graphics.Color.blue(argb));
+                                    int color = android.graphics.Color.argb(alpha, 0, 0, 0);
                                     canvas.drawColor(color);
                                 }
                             }
@@ -92,16 +88,10 @@ public class LayoutlibRenderer {
         mDelegateRenderer.fence();
     }
 
-    public void invalidateRoot() {
-        mDelegateRenderer.invalidateRoot();
-    }
-
     public void setScale(float scaleX, float scaleY) {
-        if (this.scaleX != scaleX || this.scaleY != scaleY) {
-            this.scaleX = scaleX;
-            this.scaleY = scaleY;
-            invalidateRoot();
-        }
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+        mDelegateRenderer.invalidateRoot();
     }
 
     /**
@@ -113,47 +103,30 @@ public class LayoutlibRenderer {
             return;
         }
 
-        if (mImageReader == null || mImageReader.getWidth() != width || mImageReader.getHeight() != height) {
-            if (mImageReader != null) {
-                mImageReader.close();
-            }
+        if (mImageReader == null) {
             mImageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1);
             mDelegateRenderer.setSurface(mImageReader.getSurface());
         }
+        mNativeImage = mImageReader.acquireLatestImage();
 
         mDelegateRenderer.setup(width, height, rootView.mAttachInfo,
                 viewRoot.mWindowAttributes.surfaceInsets);
     }
 
     public ByteBuffer getBuffer() {
-        mNativeImage = mImageReader.acquireNextImage();
-        if (mNativeImage == null) {
-            return null;
-        }
         Plane[] planes = mNativeImage.getPlanes();
         return planes[0].getBuffer();
     }
 
-    public int getRowStride() {
-        if (mNativeImage == null) {
-            return 0;
-        }
-        return mNativeImage.getPlanes()[0].getRowStride();
-    }
-
-    public void releaseBuffer() {
-        if (mNativeImage != null) {
-            mNativeImage.close();
-            mNativeImage = null;
-        }
-    }
-
     public void reset() {
-        releaseBuffer();
         if (mImageReader != null) {
             mImageReader.close();
             mImageReader = null;
         }
+    }
+
+    public ThreadedRenderer getThreadedRenderer() {
+        return mDelegateRenderer;
     }
 
     public void destroy() {

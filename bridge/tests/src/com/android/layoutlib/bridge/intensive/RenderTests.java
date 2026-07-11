@@ -16,7 +16,6 @@
 
 package com.android.layoutlib.bridge.intensive;
 
-import com.android.ide.common.rendering.api.RecyclableImage;
 import com.android.ide.common.rendering.api.RenderSession;
 import com.android.ide.common.rendering.api.ResourceNamespace;
 import com.android.ide.common.rendering.api.ResourceReference;
@@ -62,7 +61,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.awt.BasicStroke;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -908,11 +906,6 @@ public class RenderTests extends RenderTestBase {
     }
 
     @Test
-    public void testVariableAndCjkFonts() throws ClassNotFoundException, FileNotFoundException {
-        renderAndVerify("variable_cjk_font_test.xml", "variable_cjk_font_test.png", false);
-    }
-
-    @Test
     public void testAdaptiveIcon() throws ClassNotFoundException {
         // Create the layout pull parser.
         String layout = """
@@ -1539,8 +1532,9 @@ public class RenderTests extends RenderTestBase {
         SessionParams params = getSessionParamsBuilder()
                 .setParser(parser)
                 .setCallback(layoutLibCallback)
-                .setSizeProvider((width, height) ->
-                        new Dimension(width / 10, height / 10))
+                .setImageFactory((width, height) ->
+                        new BufferedImage(width / 10, height / 10,
+                                BufferedImage.TYPE_INT_ARGB_PRE))
                 .setFlag(RenderParamsFlags.FLAG_KEY_RESULT_IMAGE_AUTO_SCALE, true)
                 .build();
 
@@ -1842,12 +1836,10 @@ public class RenderTests extends RenderTestBase {
                 }
             }
 
-            RecyclableImage recyclableImage = session.getRecyclableImage();
-            BufferedImage resultImage = recyclableImage.getImage();
+            BufferedImage resultImage = session.getImage();
 
             assertNotNull(resultImage);
             verify("button_resize.png", resultImage);
-            recyclableImage.close();
 
             Object viewObject = session.getRootViews().get(0)
                     .getChildren().get(0).getViewObject();
@@ -1861,12 +1853,10 @@ public class RenderTests extends RenderTestBase {
                         session.getResult().getErrorMessage());
             }
 
-            recyclableImage = session.getRecyclableImage();
-            resultImage = recyclableImage.getImage();
+            resultImage = session.getImage();
 
             assertNotNull(resultImage);
             verify("button_resize2.png", resultImage);
-            recyclableImage.close();
         } finally {
             session.dispose();
         }

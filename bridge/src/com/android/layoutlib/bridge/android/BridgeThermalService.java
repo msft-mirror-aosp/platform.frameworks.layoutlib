@@ -65,23 +65,12 @@ public class BridgeThermalService implements IThermalService {
     }
 
     @Override
-    public boolean registerThermalStatusListenerForDevice(
-            int deviceId, IThermalStatusListener listener) {
-        return false;
-    }
-
-    @Override
     public boolean unregisterThermalStatusListener(IThermalStatusListener listener) {
         return false;
     }
 
     @Override
     public int getCurrentThermalStatus() {
-        return 0;
-    }
-
-    @Override
-    public int getCurrentThermalStatusForDevice(int deviceId) {
         return 0;
     }
 

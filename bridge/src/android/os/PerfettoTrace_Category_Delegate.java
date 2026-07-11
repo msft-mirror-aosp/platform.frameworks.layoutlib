@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-package android.view;
+package android.os;
 
 import com.android.layoutlib.bridge.impl.DelegateManager;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
-
-import android.os.MessageQueue;
-import android.view.DisplayEventReceiver.VsyncEventData;
-
-import java.lang.ref.WeakReference;
-
 import libcore.util.NativeAllocationRegistry_Delegate;
 
-public class DisplayEventReceiver_Delegate {
-    private static final DelegateManager<DisplayEventReceiver_Delegate> sManager =
-            new DelegateManager<>(DisplayEventReceiver_Delegate.class);
+public class PerfettoTrace_Category_Delegate {
+    // ---- delegate manager ----
+    private static final DelegateManager<PerfettoTrace_Category_Delegate> sManager =
+            new DelegateManager<>(PerfettoTrace_Category_Delegate.class);
     private static long sFinalizer = -1;
 
     @LayoutlibDelegate
-    /*package*/ static long nativeInit(WeakReference<DisplayEventReceiver> receiver,
-            WeakReference<VsyncEventData> vsyncEventData, MessageQueue messageQueue,
-            int vsyncSource, int eventRegistration, long layerHandle) {
-        return sManager.addNewDelegate(new DisplayEventReceiver_Delegate());
+    /*package*/ static long native_init(String name, String tag, String severity) {
+        return sManager.addNewDelegate(new PerfettoTrace_Category_Delegate());
     }
 
     @LayoutlibDelegate
-    /*package*/ static long nativeGetDisplayEventReceiverFinalizer() {
-        synchronized (DisplayEventReceiver_Delegate.class) {
+    /*package*/ static long native_delete() {
+        synchronized (PerfettoTrace_Category_Delegate.class) {
             if (sFinalizer == -1) {
                 sFinalizer = NativeAllocationRegistry_Delegate.createFinalizer(sManager::removeJavaReferenceFor);
             }

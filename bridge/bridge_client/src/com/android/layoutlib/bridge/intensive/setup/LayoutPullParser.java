@@ -70,11 +70,6 @@ public class LayoutPullParser extends KXmlParser implements ILayoutPullParser{
                 contents.getBytes(StandardCharsets.UTF_8)));
     }
 
-    @NonNull
-    public static LayoutPullParser createFromStream(@NonNull InputStream inputStream) {
-        return new LayoutPullParser(inputStream);
-    }
-
     private LayoutPullParser(@NonNull InputStream inputStream) {
         try {
             setFeature(FEATURE_PROCESS_NAMESPACES, true);

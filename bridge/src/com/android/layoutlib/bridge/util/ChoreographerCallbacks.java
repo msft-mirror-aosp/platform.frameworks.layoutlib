@@ -109,7 +109,7 @@ public class ChoreographerCallbacks {
             if (action instanceof FrameCallback callback) {
                 callback.doFrame(frameTimeNanos);
             } else if (action instanceof Choreographer.VsyncCallback vsyncCallback) {
-                Choreographer.FrameData frameData = new Choreographer.FrameData(frameTimeNanos);
+                Choreographer.FrameData frameData = new Choreographer.FrameData();
                 vsyncCallback.onVsync(frameData);
             } else if (action instanceof Runnable runnable) {
                 runnable.run();

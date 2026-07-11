@@ -22,8 +22,6 @@ import com.android.ninepatch.NinePatch;
 import com.android.tools.layoutlib.annotations.LayoutlibDelegate;
 
 import android.annotation.NonNull;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap.Config;
 import android.graphics.ImageDecoder.InputStreamSource;
 import android.graphics.ImageDecoder.OnHeaderDecodedListener;
@@ -31,10 +29,9 @@ import android.graphics.ImageDecoder.ResourceSource;
 import android.graphics.ImageDecoder.Source;
 
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static android.content.res.AssetManager.ACCESS_STREAMING;
 
 public class ImageDecoder_Delegate {
 
@@ -49,14 +46,8 @@ public class ImageDecoder_Delegate {
         InputStream stream = src instanceof InputStreamSource ?
                 ((InputStreamSource) src).mInputStream : null;
         Bitmap bm = ImageDecoder.decodeBitmapImpl_Original(src, listener);
-        Resources resources = src.getResources();
-        if (resources == null) {
-            return bm;
-        }
         if (stream instanceof NinePatchInputStream && bm.getNinePatchChunk() == null) {
-            AssetManager assetManager = resources.getAssets();
-            String path = ((NinePatchInputStream) stream).getPath();
-            stream = assetManager.openNonAsset(0, path, ACCESS_STREAMING);
+            stream = new FileInputStream(((NinePatchInputStream) stream).getPath());
             NinePatch ninePatch = NinePatch.load(stream, true /*is9Patch*/, false /* convert */);
             BufferedImage image = ninePatch.getImage();
 
